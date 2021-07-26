@@ -47,9 +47,9 @@ jobs:
           echo VERSION=$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          # Add latest tag if we are on main and github.ref points to a tag
+          # Add latest tag if we are on master and github.ref points to a tag
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            MAIN=$(git show-ref --hash origin/main)
+            MAIN=$(git show-ref --hash origin/master)
             echo "main: $MAIN"
             HEAD=$(git rev-parse HEAD)
             echo "head: $HEAD"
