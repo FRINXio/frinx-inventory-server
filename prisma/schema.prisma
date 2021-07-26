@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model device_inventory {
+  id               Int                     @id @default(autoincrement())
+  name             String                  @unique @db.VarChar(255)
+  role             String?                 @db.VarChar(50)
+  management_ip    String?                 @db.Inet
+  config           Json?                   @db.Json
+  location         String?                 @db.VarChar(255)
+  model            String?                 @db.VarChar(255)
+  sw               String?                 @db.VarChar(50)
+  sw_version       String?                 @db.VarChar(50)
+  mac_address      Unsupported("macaddr")?
+  serial_number    String?                 @db.VarChar(50)
+  vendor           String?                 @db.VarChar(50)
+  uniconfig_zone   Int?
+  mount_parameters Json?
+  username         String?                 @db.VarChar(50)
+  password         String?                 @db.VarChar(50)
+  uniconfig_zones  uniconfig_zones?        @relation(fields: [uniconfig_zone], references: [id])
+}
+
+model uniconfig_zones {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar(250)
+  tenant_id        String?            @db.VarChar(64)
+  device_inventory device_inventory[]
+
+  @@index([tenant_id], name: "idx_uniconfig_zones_tenant_id")
+}
