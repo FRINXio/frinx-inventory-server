@@ -6,7 +6,7 @@ import * as zone from './zone';
 
 export default makeSchema({
   contextType: {
-    module: join(__dirname, '../context.ts'),
+    module: require.resolve('../context'),
     export: 'Context',
   },
   outputs: {

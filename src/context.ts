@@ -1,8 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
+import config from './config';
 import uniconfigAPI, { UniConfigAPI } from './uniconfig-api';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: config.dbURL,
+    },
+  },
+});
 
 export type Context = {
   prisma: PrismaClient;

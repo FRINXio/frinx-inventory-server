@@ -1,0 +1,25 @@
+# the pattern we use here is that we first ignore everything,
+# then we allow things that we want to put in.
+# (and at the end we have to ignore node_modules,
+# because we want to ignore packages/**/node_modules,
+# but keep the rest of packages/** and this is the simplest way i found)
+
+# ignore everything
+*
+
+# now we add what we want to be not-ignored
+!/provoke.txt
+!/package.json
+!/yarn.lock
+!/src
+!/tsconfig.json
+!/babel.config.js
+!/prisma
+
+node_modules
+
+# yarn things
+!/.yarnrc.yml
+!/.yarn/releases
+!/.yarn/plugins
+!/.yarn/versions

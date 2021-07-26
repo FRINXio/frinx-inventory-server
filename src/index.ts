@@ -1,6 +1,5 @@
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
-import cors from 'cors';
 import config from './config';
 import createContext from './context';
 import getLogger from './get-logger';
@@ -14,21 +13,17 @@ const apolloServer = new ApolloServer({
 });
 
 const app = express();
-const corsOptions = {
-  origin: new RegExp('/*/'),
-  credentials: true,
-};
-app.use(cors(corsOptions));
-apolloServer.applyMiddleware({ app, path: '/graphql', cors: false });
+apolloServer.applyMiddleware({ app, path: '/graphql' });
 
-app.on('listening', () => {
-  log.info(`
+app.listen(
+  {
+    host: config.host,
+    port: config.port,
+  },
+  () => {
+    log.info(`
     Server running on host ${config.host}
     Server running on port ${config.port}
   `);
-});
-
-app.listen({
-  host: config.host,
-  port: config.port,
-});
+  },
+);
