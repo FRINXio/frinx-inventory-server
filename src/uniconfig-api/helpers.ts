@@ -1,5 +1,6 @@
 import fetch, { RequestInit } from 'node-fetch';
 import join from 'url-join';
+import config from '../config';
 import APIError from '../errors/api-error';
 import { HttpStatusCode } from '../errors/base-error';
 import getLogger from '../get-logger';
@@ -7,7 +8,7 @@ import getLogger from '../get-logger';
 const log = getLogger('inventory-server:fetch');
 
 // TODO: move to .env
-const UNICONFIG_API = 'http://10.19.0.7/api/uniconfig';
+const UNICONFIG_API = config.uniconfigURL;
 
 let currentRequestId = 0;
 

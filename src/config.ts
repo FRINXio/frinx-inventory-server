@@ -12,6 +12,7 @@ const config = {
   host: envString('HOST'),
   port: envString('PORT'),
   dbURL: envString('DATABASE_URL'),
+  uniconfigURL: envString('UNICONFIG_API_URL'),
 };
 
 export default config;
