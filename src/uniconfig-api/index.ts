@@ -2,7 +2,7 @@ import { sendPostRequest } from './helpers';
 import { decodeInstalledDevicesOutput, InstalledDevicesOutput, UninstallDeviceInput } from './network-types';
 
 export async function getInstalledDevices(): Promise<InstalledDevicesOutput> {
-  const json = await sendPostRequest('/operations/connection-manager:get-installed-nodes/');
+  const json = await sendPostRequest('/operations/connection-manager:get-installed-nodes');
   const data = decodeInstalledDevicesOutput(json);
 
   return data;
