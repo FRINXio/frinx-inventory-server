@@ -1,5 +1,6 @@
 import fetch, { RequestInit } from 'node-fetch';
 import join from 'url-join';
+import https from 'https';
 import config from '../config';
 import APIError from '../errors/api-error';
 import { HttpStatusCode } from '../errors/base-error';
@@ -49,11 +50,15 @@ function logResponse(requestId: string, data: unknown) {
   log.info(`response(${requestId}): ${bigObjectToSmallString(data)}`);
 }
 
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
 async function apiFetch(path: string, options: RequestInit): Promise<unknown> {
   const requestId = makeRequestId();
   const url = join(UNICONFIG_API, path);
   logRequest(requestId, url, options);
-  const response = await fetch(url, options);
+  const response = await fetch(url, { agent, ...options });
 
   if (!response.ok) {
     logError(requestId, response.status);
