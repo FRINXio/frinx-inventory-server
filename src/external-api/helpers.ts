@@ -1,15 +1,12 @@
 import fetch, { RequestInit } from 'node-fetch';
 import join from 'url-join';
 import https from 'https';
-import config from '../config';
 import APIError from '../errors/api-error';
 import { HttpStatusCode } from '../errors/base-error';
 import getLogger from '../get-logger';
+import isDev from '../is-dev';
 
 const log = getLogger('inventory-server:fetch');
-
-// TODO: move to .env
-const UNICONFIG_API = config.uniconfigURL;
 
 let currentRequestId = 0;
 
@@ -50,19 +47,22 @@ function logResponse(requestId: string, data: unknown) {
   log.info(`response(${requestId}): ${bigObjectToSmallString(data)}`);
 }
 
-const agent = new https.Agent({
-  rejectUnauthorized: false,
-});
+const agent = isDev
+  ? undefined
+  : new https.Agent({
+      rejectUnauthorized: false,
+    });
 
-async function apiFetch(path: string, options: RequestInit): Promise<unknown> {
+export type APIPath = string[];
+
+async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
   const requestId = makeRequestId();
-  const url = join(UNICONFIG_API, path);
+  const url = join(path);
   logRequest(requestId, url, options);
   const response = await fetch(url, { agent, ...options });
 
   if (!response.ok) {
     logError(requestId, response.status);
-    // throw new Error(`apiFetch failed with http-code ${response.status}`);
     throw new APIError(response.status.toString(), HttpStatusCode.INTERNAL_SERVER, true, JSON.stringify(response));
   }
 
@@ -75,7 +75,19 @@ async function apiFetch(path: string, options: RequestInit): Promise<unknown> {
 
   return json;
 }
-export async function sendPostRequest(path: string, body?: unknown): Promise<unknown> {
+
+export async function sendGetRequest(path: APIPath): Promise<unknown> {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Basic YWRtaW46YWRtaW4=',
+    },
+  };
+  return apiFetch(path, options);
+}
+
+export async function sendPostRequest(path: APIPath, body?: unknown): Promise<unknown> {
   const options = {
     method: 'POST',
     body: JSON.stringify(body),

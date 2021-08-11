@@ -1,15 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
-import config from './config';
-import uniconfigAPI, { UniConfigAPI } from './uniconfig-api';
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: config.dbURL,
-    },
-  },
-});
+import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
+import prismaClient from './prisma-client';
 
 export type Context = {
   prisma: PrismaClient;
@@ -27,5 +19,5 @@ export default function createContext(context: ExpressContext): Context {
 
   const tenantId = headers['x-tenant-id'] as string;
 
-  return { prisma, tenantId, uniconfigAPI };
+  return { prisma: prismaClient, tenantId, uniconfigAPI };
 }

@@ -1,7 +1,7 @@
 import { extendType, idArg, interfaceType, nonNull, objectType } from 'nexus';
 import { getDeviceInstallConverter, convertDBDevice, convertDBZone } from '../helpers/converters';
 import { fromGraphId, getType } from '../helpers/id-helper';
-import { getInstalledDevices } from '../uniconfig-api';
+import { getInstalledDevices } from '../external-api/uniconfig';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -39,7 +39,7 @@ export const NodeQuery = extendType({
             return null;
           }
           const device = convertDBDevice(dbDevice);
-          const installedDevices = await getInstalledDevices();
+          const installedDevices = await getInstalledDevices('http://localhost:4000/api/uniconfig');
           const convertFn = getDeviceInstallConverter(installedDevices.output.nodes ?? []);
           return convertFn(device);
         }

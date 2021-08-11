@@ -35,3 +35,12 @@ export type UninstallDeviceInput = {
     'connection-type': 'netconf' | 'cli';
   };
 };
+
+const UniconfigZonesOutputValidator = t.type({
+  instances: t.array(t.string),
+});
+export type UniconfigZonesOutput = t.TypeOf<typeof UniconfigZonesOutputValidator>;
+
+export function decodeUniconfigZonesOutput(value: unknown): UniconfigZonesOutput {
+  return extractResult(UniconfigZonesOutputValidator.decode(value));
+}
