@@ -97,3 +97,13 @@ export function getConnectionType(mountParameters: MountParams): 'cli' | 'netcon
   }
   return type;
 }
+
+export function dropNulls<T>(values: (T | null)[]): T[] {
+  const result: T[] = [];
+  values.forEach((v) => {
+    if (v !== null) {
+      result.push(v);
+    }
+  });
+  return result;
+}

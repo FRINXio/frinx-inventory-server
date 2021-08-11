@@ -16,7 +16,9 @@
     "dev:migrate": "prisma migrate save --experimental -c && prisma migrate up --experimental -c",
     "prisma:generate": "prisma generate",
     "lint": "eslint --ext .ts 'src/**/*.ts' --max-warnings 0",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "formatter": "prettier --write '*.md' '**/*.ts' '**/*.js' '**/*.json' ",
+    "formatter:check": "prettier -l '*.md' '**/*.ts' '**/*.js' '**/*.json' "
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",

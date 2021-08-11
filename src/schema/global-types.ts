@@ -2,6 +2,7 @@ import { extendType, idArg, interfaceType, nonNull, objectType } from 'nexus';
 import { getDeviceInstallConverter, convertDBDevice, convertDBZone } from '../helpers/converters';
 import { fromGraphId, getType } from '../helpers/id-helper';
 import { getInstalledDevices } from '../external-api/uniconfig';
+import { makeUniconfigURL } from '../helpers/zone.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -39,7 +40,15 @@ export const NodeQuery = extendType({
             return null;
           }
           const device = convertDBDevice(dbDevice);
-          const installedDevices = await getInstalledDevices('http://localhost:4000/api/uniconfig');
+          const zone = await prisma.uniconfig_zones.findFirst({ where: { id: dbDevice?.uniconfig_zone ?? undefined } });
+          if (zone == null) {
+            throw new Error('should never happen');
+          }
+          if (dbDevice == null) {
+            throw new Error('device not found');
+          }
+          const uniconfigURL = makeUniconfigURL(zone.name);
+          const installedDevices = await getInstalledDevices(uniconfigURL);
           const convertFn = getDeviceInstallConverter(installedDevices.output.nodes ?? []);
           return convertFn(device);
         }

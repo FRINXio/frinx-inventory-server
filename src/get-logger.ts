@@ -1,5 +1,5 @@
-import pino from "pino";
-import isDev from "./is-dev";
+import pino from 'pino';
+import isDev from './is-dev';
 
 type Logger = {
   info: (text: string) => void;
