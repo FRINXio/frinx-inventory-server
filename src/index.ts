@@ -12,6 +12,8 @@ const log = getLogger('frinx-inventory-server');
 const apolloServer = new ApolloServer({
   context: createContext,
   schema,
+  introspection: true,
+  playground: true,
 });
 
 const app = express();
@@ -48,7 +50,7 @@ server.listen({
 // and when all existing requests finish it will exit the process
 function close() {
   log.info('got signal to shut down, stopping accepting new connections');
-  clearInterval(jobId);
+  clearTimeout(jobId);
   if (server) {
     server.close(() => {
       log.info('all connections closed. exiting.');
