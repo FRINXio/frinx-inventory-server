@@ -1,9 +1,7 @@
 \c "frinx";
 
 COPY public.uniconfig_zones (name, tenant_id) FROM stdin;
-zone1	frinx
-zone2	frinx
-zone3	tenant1
+localhost	frinx
 \.
 
 COPY public.device_inventory (name, uniconfig_zone, role, management_ip, model, sw, sw_version, vendor, mount_parameters, username, password) FROM stdin;

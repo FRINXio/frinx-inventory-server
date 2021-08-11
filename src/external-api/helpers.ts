@@ -81,7 +81,6 @@ export async function sendGetRequest(path: APIPath): Promise<unknown> {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      authorization: 'Basic YWRtaW46YWRtaW4=',
     },
   };
   return apiFetch(path, options);

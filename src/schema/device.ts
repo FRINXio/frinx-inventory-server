@@ -7,6 +7,7 @@ import {
   decodeMountParams,
   getConnectionType,
   prepareInstallParameters,
+  dropNulls,
 } from '../helpers/converters';
 import { fromGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
@@ -98,9 +99,13 @@ export const DevicesQuery = extendType({
           // eslint-disable-next-line @typescript-eslint/naming-convention
           where: { uniconfig_zones: { tenant_id: tenantId } },
         });
+        const zoneIds = [...new Set(dropNulls(dbDevices.map((d) => d.uniconfig_zone)))];
+        const zones = await prisma.uniconfig_zones.findMany({ where: { id: { in: zoneIds } } });
+        const uniconfigURLs = zones.map((z) => makeUniconfigURL(z.name));
+        const apiResults = await Promise.all(uniconfigURLs.map((url) => uniconfigAPI.getInstalledDevices(url)));
+        const installedDevices = apiResults.map((r) => r.output.nodes ?? []).flat();
         const devices = dbDevices.map(convertDBDevice);
-        const installedDevices = await uniconfigAPI.getInstalledDevices('http://localhost:4000/api/uniconfig');
-        const addInstallStatus = getDeviceInstallConverter(installedDevices.output.nodes ?? []);
+        const addInstallStatus = getDeviceInstallConverter(installedDevices);
         return connectionFromArray(devices.map(addInstallStatus), args);
       },
     });
