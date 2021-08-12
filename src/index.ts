@@ -1,5 +1,6 @@
 import { createServer } from 'http';
 import { ApolloServer } from 'apollo-server-express';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import express from 'express';
 import config from './config';
 import createContext from './context';
@@ -13,11 +14,17 @@ const apolloServer = new ApolloServer({
   context: createContext,
   schema,
   introspection: true,
-  playground: true,
+  plugins: [
+    ApolloServerPluginLandingPageGraphQLPlayground({
+      env: true,
+    }),
+  ],
 });
 
 const app = express();
-apolloServer.applyMiddleware({ app, path: '/graphql' });
+apolloServer.start().then(() => {
+  apolloServer.applyMiddleware({ app, path: '/graphql' });
+});
 const server = createServer(app);
 
 let jobId: NodeJS.Timer;
