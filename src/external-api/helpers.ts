@@ -21,18 +21,20 @@ function makeRequestId(): string {
   return currentRequestId.toString();
 }
 
-const TEXT_LIMIT = 40;
+const TEXT_LIMIT = 200;
 
 function shortenString(text: string): string {
   if (text.length < TEXT_LIMIT + 5) {
     return text;
   }
 
-  return `${text.slice(0, 30)}...SHORTENED...`;
+  return `${text.slice(0, 180)}...SHORTENED...`;
 }
 
 function bigObjectToSmallString(obj: unknown) {
-  return JSON.stringify(obj, (key, value) => (typeof value === 'string' ? shortenString(value) : value), 4);
+  return shortenString(
+    JSON.stringify(obj, (key, value) => (typeof value === 'string' ? shortenString(value) : value), 4),
+  );
 }
 
 function logRequest(requestId: string, url: string, options: RequestInit) {
@@ -47,19 +49,27 @@ function logResponse(requestId: string, data: unknown) {
   log.info(`response(${requestId}): ${bigObjectToSmallString(data)}`);
 }
 
-const agent = isDev
-  ? undefined
-  : new https.Agent({
+export type APIPath = string[];
+
+function makeOptions(url: string, options: RequestInit): RequestInit {
+  const isURLSecure = url.startsWith('https://');
+  if (isURLSecure) {
+    const agent = new https.Agent({
       rejectUnauthorized: false,
     });
-
-export type APIPath = string[];
+    return {
+      agent,
+      ...options,
+    };
+  }
+  return options;
+}
 
 async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
   const requestId = makeRequestId();
   const url = join(path);
   logRequest(requestId, url, options);
-  const response = await fetch(url, { agent, ...options });
+  const response = await fetch(url, makeOptions(url, options));
 
   if (!response.ok) {
     logError(requestId, response.status);
@@ -81,6 +91,7 @@ export async function sendGetRequest(path: APIPath): Promise<unknown> {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      authorization: 'Basic YWRtaW46YWRtaW4=',
     },
   };
   return apiFetch(path, options);

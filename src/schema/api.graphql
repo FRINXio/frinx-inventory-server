@@ -22,6 +22,11 @@ type AddZonePayload {
   zone: Zone!
 }
 
+type DataStore {
+  config: String
+  operational: String
+}
+
 type DeleteDevicePayload {
   device: Device
 }
@@ -76,6 +81,7 @@ type PageInfo {
 }
 
 type Query {
+  dataStore(deviceId: String!): DataStore
   devices(after: String, before: String, first: Int, last: Int): DevicesConnection!
   node(id: ID!): Node
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!

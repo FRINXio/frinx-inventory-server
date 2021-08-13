@@ -40,14 +40,13 @@ export const NodeQuery = extendType({
             return null;
           }
           const device = convertDBDevice(dbDevice);
-          const zone = await prisma.uniconfig_zones.findFirst({ where: { id: dbDevice?.uniconfig_zone ?? undefined } });
-          if (zone == null) {
-            throw new Error('should never happen');
-          }
           if (dbDevice == null) {
             throw new Error('device not found');
           }
-          const uniconfigURL = makeUniconfigURL(zone.name);
+          const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+          if (uniconfigURL == null) {
+            throw new Error('should never happen');
+          }
           const installedDevices = await getInstalledDevices(uniconfigURL);
           const convertFn = getDeviceInstallConverter(installedDevices.output.nodes ?? []);
           return convertFn(device);
