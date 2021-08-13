@@ -87,9 +87,6 @@ typings/
 # system files
 .DS_Store
 
-packages/frinx-dashboard/build
-packages/frinx-workflow-ui/dist
-
 dist
 build
 
@@ -100,3 +97,5 @@ build
 !/.yarn/sdks
 !/.yarn/versions
 /.pnp.*
+src/schema/nexus-typegen.ts
+src/schema/api.graphql

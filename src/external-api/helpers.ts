@@ -4,7 +4,6 @@ import https from 'https';
 import APIError from '../errors/api-error';
 import { HttpStatusCode } from '../errors/base-error';
 import getLogger from '../get-logger';
-import isDev from '../is-dev';
 
 const log = getLogger('inventory-server:fetch');
 
