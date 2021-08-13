@@ -53,6 +53,11 @@ export interface NexusGenObjects {
     // root type
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
+  DataStore: {
+    // root type
+    config?: string | null; // String
+    operational?: string | null; // String
+  };
   DeleteDevicePayload: {
     // root type
     device?: NexusGenRootTypes['Device'] | null; // Device
@@ -132,6 +137,11 @@ export interface NexusGenFieldTypes {
     // field return type
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
+  DataStore: {
+    // field return type
+    config: string | null; // String
+    operational: string | null; // String
+  };
   DeleteDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device'] | null; // Device
@@ -178,6 +188,7 @@ export interface NexusGenFieldTypes {
   };
   Query: {
     // field return type
+    dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DevicesConnection']; // DevicesConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
@@ -219,6 +230,11 @@ export interface NexusGenFieldTypeNames {
   AddZonePayload: {
     // field return type name
     zone: 'Zone';
+  };
+  DataStore: {
+    // field return type name
+    config: 'String';
+    operational: 'String';
   };
   DeleteDevicePayload: {
     // field return type name
@@ -266,6 +282,7 @@ export interface NexusGenFieldTypeNames {
   };
   Query: {
     // field return type name
+    dataStore: 'DataStore';
     devices: 'DevicesConnection';
     node: 'Node';
     zones: 'ZonesConnection';
@@ -328,6 +345,10 @@ export interface NexusGenArgTypes {
     };
   };
   Query: {
+    dataStore: {
+      // args
+      deviceId: string; // String!
+    };
     devices: {
       // args
       after?: string | null; // String

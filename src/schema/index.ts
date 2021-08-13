@@ -3,6 +3,7 @@ import { makeSchema } from 'nexus';
 import * as globalTypes from './global-types';
 import * as device from './device';
 import * as zone from './zone';
+import * as dataStore from './data-store';
 
 export default makeSchema({
   contextType: {
@@ -14,7 +15,7 @@ export default makeSchema({
     schema: join(__dirname, './api.graphql'),
   },
   shouldExitAfterGenerateArtifacts: Boolean(process.env.NEXUS_SHOULD_EXIT_AFTER_REFLECTION),
-  types: [globalTypes, device, zone],
+  types: [globalTypes, device, zone, dataStore],
   sourceTypes: {
     modules: [
       {

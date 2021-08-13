@@ -32,14 +32,10 @@ export const Device = objectType({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const { $zoneId } = root;
-        if ($zoneId == null) {
-          return 'NOT_INSTALLED';
+        const uniconfigURL = await makeUniconfigURL(prisma, $zoneId);
+        if (uniconfigURL == null) {
+          return null;
         }
-        const zone = await prisma.uniconfig_zones.findFirst({ where: { id: $zoneId } });
-        if (zone == null) {
-          return 'NOT_INSTALLED';
-        }
-        const uniconfigURL = makeUniconfigURL(zone.name);
         const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
         const installedDevices = result.output.nodes ?? [];
         return installedDevices.some((name) => root.name === name) ? 'INSTALLED' : 'NOT_INSTALLED';
@@ -100,9 +96,10 @@ export const DevicesQuery = extendType({
           where: { uniconfig_zones: { tenant_id: tenantId } },
         });
         const zoneIds = [...new Set(dropNulls(dbDevices.map((d) => d.uniconfig_zone)))];
-        const zones = await prisma.uniconfig_zones.findMany({ where: { id: { in: zoneIds } } });
-        const uniconfigURLs = zones.map((z) => makeUniconfigURL(z.name));
-        const apiResults = await Promise.all(uniconfigURLs.map((url) => uniconfigAPI.getInstalledDevices(url)));
+        const uniconfigURLs = await Promise.all(zoneIds.map((zId) => makeUniconfigURL(prisma, zId)));
+        const apiResults = await Promise.all(
+          dropNulls(uniconfigURLs).map((url) => uniconfigAPI.getInstalledDevices(url)),
+        );
         const installedDevices = apiResults.map((r) => r.output.nodes ?? []).flat();
         const devices = dbDevices.map(convertDBDevice);
         const addInstallStatus = getDeviceInstallConverter(installedDevices);
@@ -192,14 +189,13 @@ export const UpdateDeviceMutation = extendType({
           // eslint-disable-next-line @typescript-eslint/naming-convention
           where: { id: nativeId, AND: { uniconfig_zones: { tenant_id: tenantId } } },
         });
-        const zone = await prisma.uniconfig_zones.findFirst({ where: { id: dbDevice?.uniconfig_zone ?? undefined } });
-        if (zone == null) {
-          throw new Error('should never happen');
-        }
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = makeUniconfigURL(zone.name);
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
         const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
         const installedDevices = result.output.nodes ?? [];
         if (installedDevices.some((name) => dbDevice.name === name)) {
@@ -248,14 +244,13 @@ export const DeleteDeviceMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const zone = await prisma.uniconfig_zones.findFirst({ where: { id: dbDevice?.uniconfig_zone ?? undefined } });
-        if (zone == null) {
-          throw new Error('should never happen');
-        }
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = makeUniconfigURL(zone.name);
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
         const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
         const installedDevices = result.output.nodes ?? [];
         if (installedDevices.some((name) => dbDevice.name === name)) {
@@ -294,14 +289,13 @@ export const InstallDeviceMutation = extendType({
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const { mount_parameters } = dbDevice;
         const installDeviceParams = prepareInstallParameters(dbDevice.name, mount_parameters);
-        const zone = await prisma.uniconfig_zones.findFirst({ where: { id: dbDevice?.uniconfig_zone ?? undefined } });
-        if (zone == null) {
-          throw new Error('should never happen');
-        }
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = makeUniconfigURL(zone.name);
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
         await uniconfigAPI.installDevice(uniconfigURL, installDeviceParams);
         const device = convertDBDevice(dbDevice);
 
@@ -340,14 +334,13 @@ export const UninstallDeviceMutation = extendType({
             'connection-type': getConnectionType(decodeMountParams(dbDevice.mount_parameters)),
           },
         };
-        const zone = await prisma.uniconfig_zones.findFirst({ where: { id: dbDevice?.uniconfig_zone ?? undefined } });
-        if (zone == null) {
-          throw new Error('should never happen');
-        }
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = makeUniconfigURL(zone.name);
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
         await uniconfigAPI.uninstallDevice(uniconfigURL, uninstallParams);
 
         const device = convertDBDevice(dbDevice);

@@ -87,9 +87,6 @@ typings/
 # system files
 .DS_Store
 
-packages/frinx-dashboard/build
-packages/frinx-workflow-ui/dist
-
 dist
 build
 

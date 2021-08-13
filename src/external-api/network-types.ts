@@ -44,3 +44,12 @@ export type UniconfigZonesOutput = t.TypeOf<typeof UniconfigZonesOutputValidator
 export function decodeUniconfigZonesOutput(value: unknown): UniconfigZonesOutput {
   return extractResult(UniconfigZonesOutputValidator.decode(value));
 }
+
+const UniconfigConfigOutputValidator = t.type({
+  'frinx-uniconfig-topology:configuration': t.unknown,
+});
+export type UniconfigConfigOutput = t.TypeOf<typeof UniconfigConfigOutputValidator>;
+
+export function decodeUniconfigConfigOutput(value: unknown): UniconfigConfigOutput {
+  return extractResult(UniconfigConfigOutputValidator.decode(value));
+}
