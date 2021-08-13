@@ -97,5 +97,3 @@ build
 !/.yarn/sdks
 !/.yarn/versions
 /.pnp.*
-src/schema/nexus-typegen.ts
-src/schema/api.graphql
