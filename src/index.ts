@@ -14,6 +14,7 @@ const apolloServer = new ApolloServer({
   context: createContext,
   schema,
   introspection: true,
+  dataSources: () => ({}),
   plugins: [
     ApolloServerPluginLandingPageGraphQLPlayground({
       env: true,

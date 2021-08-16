@@ -22,6 +22,10 @@ type AddZonePayload {
   zone: Zone!
 }
 
+type CommitConfigPayload {
+  isOk: Boolean
+}
+
 type DataStore {
   config: String
   operational: String
@@ -63,9 +67,11 @@ type InstallDevicePayload {
 type Mutation {
   addDevice(input: AddDeviceInput!): AddDevicePayload!
   addZone(input: AddZoneInput!): AddZonePayload!
+  commitConfig(deviceId: String!): CommitConfigPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   installDevice(id: String!): InstallDevicePayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
+  updateDataStore(deviceId: String!, input: UpdateDataStoreInput!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
 }
 
@@ -89,6 +95,14 @@ type Query {
 
 type UninstallDevicePayload {
   device: Device!
+}
+
+input UpdateDataStoreInput {
+  config: String!
+}
+
+type UpdateDataStorePayload {
+  dataStore: DataStore!
 }
 
 input UpdateDeviceInput {
