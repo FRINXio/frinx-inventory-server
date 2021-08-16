@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 import {
   decodeInstalledDevicesOutput,
@@ -8,13 +7,6 @@ import {
   UniconfigCommitInput,
   UniconfigCommitOutput,
   UniconfigConfigInput,
-=======
-import { sendGetRequest, sendPostRequest } from './helpers';
-import {
-  decodeInstalledDevicesOutput,
-  decodeUniconfigConfigOutput,
-  InstalledDevicesOutput,
->>>>>>> origin/master
   UniconfigConfigOutput,
   UninstallDeviceInput,
 } from './network-types';
