@@ -53,3 +53,36 @@ export type UniconfigConfigOutput = t.TypeOf<typeof UniconfigConfigOutputValidat
 export function decodeUniconfigConfigOutput(value: unknown): UniconfigConfigOutput {
   return extractResult(UniconfigConfigOutputValidator.decode(value));
 }
+
+const UniconfigConfigInputValidator = t.type({
+  'frinx-uniconfig-topology:configuration': t.unknown,
+});
+export type UniconfigConfigInput = t.TypeOf<typeof UniconfigConfigInputValidator>;
+
+export function decodeUniconfigConfigInput(value: unknown): UniconfigConfigInput {
+  return extractResult(UniconfigConfigInputValidator.decode(value));
+}
+
+const UniconfigCommitInputValidator = t.type({
+  input: t.type({
+    'target-nodes': t.type({
+      node: t.array(t.string),
+    }),
+  }),
+});
+export type UniconfigCommitInput = t.TypeOf<typeof UniconfigCommitInputValidator>;
+
+export function decodeUniconfigCommitInput(value: unknown): UniconfigCommitInput {
+  return extractResult(UniconfigCommitInputValidator.decode(value));
+}
+
+const UniconfigCommitOutputValidator = t.type({
+  output: t.type({
+    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+  }),
+});
+export type UniconfigCommitOutput = t.TypeOf<typeof UniconfigCommitOutputValidator>;
+
+export function decodeUniconfigCommitOutput(value: unknown): UniconfigCommitOutput {
+  return extractResult(UniconfigCommitOutputValidator.decode(value));
+}

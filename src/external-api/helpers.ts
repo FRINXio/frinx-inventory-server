@@ -107,3 +107,15 @@ export async function sendPostRequest(path: APIPath, body?: unknown): Promise<un
   };
   return apiFetch(path, options);
 }
+
+export async function sendPutRequest(path: APIPath, body?: unknown): Promise<unknown> {
+  const options = {
+    method: 'PUT',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: 'Basic YWRtaW46YWRtaW4=',
+    },
+  };
+  return apiFetch(path, options);
+}
