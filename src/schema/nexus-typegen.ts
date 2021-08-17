@@ -19,6 +19,11 @@ export interface NexusGenInputs {
     vendor?: string | null; // String
     zoneId: string; // String!
   };
+  AddSnapshotInput: {
+    // input type
+    deviceId: string; // String!
+    name: string; // String!
+  };
   AddZoneInput: {
     // input type
     name: string; // String!
@@ -53,18 +58,22 @@ export interface NexusGenObjects {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
   };
+  AddSnapshotPayload: {
+    // root type
+    snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
   AddZonePayload: {
     // root type
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
   CommitConfigPayload: {
     // root type
-    isOk?: boolean | null; // Boolean
+    isOk: boolean; // Boolean!
   };
   DataStore: {
     // root type
-    config?: string | null; // String
-    operational?: string | null; // String
+    config: string; // String!
+    operational: string; // String!
   };
   DeleteDevicePayload: {
     // root type
@@ -101,6 +110,14 @@ export interface NexusGenObjects {
     startCursor?: string | null; // String
   };
   Query: {};
+  ResetConfigPayload: {
+    // root type
+    dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  Snapshot: {
+    // root type
+    name?: string | null; // String
+  };
   UninstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
@@ -145,18 +162,23 @@ export interface NexusGenFieldTypes {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
   };
+  AddSnapshotPayload: {
+    // field return type
+    snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
   AddZonePayload: {
     // field return type
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
   CommitConfigPayload: {
     // field return type
-    isOk: boolean | null; // Boolean
+    isOk: boolean; // Boolean!
   };
   DataStore: {
     // field return type
-    config: string | null; // String
-    operational: string | null; // String
+    config: string; // String!
+    operational: string; // String!
+    snapshots: NexusGenRootTypes['Snapshot'][]; // [Snapshot!]!
   };
   DeleteDevicePayload: {
     // field return type
@@ -189,10 +211,12 @@ export interface NexusGenFieldTypes {
   Mutation: {
     // field return type
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
+    addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
+    resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
@@ -210,6 +234,14 @@ export interface NexusGenFieldTypes {
     devices: NexusGenRootTypes['DevicesConnection']; // DevicesConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
+  };
+  ResetConfigPayload: {
+    // field return type
+    dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  Snapshot: {
+    // field return type
+    name: string | null; // String
   };
   UninstallDevicePayload: {
     // field return type
@@ -249,6 +281,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     device: 'Device';
   };
+  AddSnapshotPayload: {
+    // field return type name
+    snapshot: 'Snapshot';
+  };
   AddZonePayload: {
     // field return type name
     zone: 'Zone';
@@ -261,6 +297,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     config: 'String';
     operational: 'String';
+    snapshots: 'Snapshot';
   };
   DeleteDevicePayload: {
     // field return type name
@@ -293,10 +330,12 @@ export interface NexusGenFieldTypeNames {
   Mutation: {
     // field return type name
     addDevice: 'AddDevicePayload';
+    addSnapshot: 'AddSnapshotPayload';
     addZone: 'AddZonePayload';
     commitConfig: 'CommitConfigPayload';
     deleteDevice: 'DeleteDevicePayload';
     installDevice: 'InstallDevicePayload';
+    resetConfig: 'ResetConfigPayload';
     uninstallDevice: 'UninstallDevicePayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
@@ -314,6 +353,14 @@ export interface NexusGenFieldTypeNames {
     devices: 'DevicesConnection';
     node: 'Node';
     zones: 'ZonesConnection';
+  };
+  ResetConfigPayload: {
+    // field return type name
+    dataStore: 'DataStore';
+  };
+  Snapshot: {
+    // field return type name
+    name: 'String';
   };
   UninstallDevicePayload: {
     // field return type name
@@ -354,6 +401,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['AddDeviceInput']; // AddDeviceInput!
     };
+    addSnapshot: {
+      // args
+      input: NexusGenInputs['AddSnapshotInput']; // AddSnapshotInput!
+    };
     addZone: {
       // args
       input: NexusGenInputs['AddZoneInput']; // AddZoneInput!
@@ -369,6 +420,10 @@ export interface NexusGenArgTypes {
     installDevice: {
       // args
       id: string; // String!
+    };
+    resetConfig: {
+      // args
+      deviceId: string; // String!
     };
     uninstallDevice: {
       // args

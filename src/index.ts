@@ -24,7 +24,7 @@ const apolloServer = new ApolloServer({
 
 const app = express();
 apolloServer.start().then(() => {
-  apolloServer.applyMiddleware({ app, path: '/graphql' });
+  apolloServer.applyMiddleware({ app, path: '/graphql', bodyParserConfig: { limit: '50mb' } });
 });
 const server = createServer(app);
 

@@ -86,3 +86,66 @@ export type UniconfigCommitOutput = t.TypeOf<typeof UniconfigCommitOutputValidat
 export function decodeUniconfigCommitOutput(value: unknown): UniconfigCommitOutput {
   return extractResult(UniconfigCommitOutputValidator.decode(value));
 }
+
+const UniconfigReplaceInputValidator = t.type({
+  input: t.type({
+    'target-nodes': t.type({
+      node: t.array(t.string),
+    }),
+  }),
+});
+export type UniconfigReplaceInput = t.TypeOf<typeof UniconfigReplaceInputValidator>;
+
+export function decodeUniconfigReplaceInput(value: unknown): UniconfigReplaceInput {
+  return extractResult(UniconfigReplaceInputValidator.decode(value));
+}
+
+const UniconfigReplaceOutputValidator = t.type({
+  output: t.type({
+    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+  }),
+});
+export type UniconfigReplaceOutput = t.TypeOf<typeof UniconfigReplaceOutputValidator>;
+
+export function decodeUniconfigReplaceOutput(value: unknown): UniconfigReplaceOutput {
+  return extractResult(UniconfigReplaceOutputValidator.decode(value));
+}
+
+const UniconfigSnapshotsOutputValidator = t.type({
+  'snapshots-metadata': t.type({
+    snapshot: t.array(
+      t.type({
+        name: t.string,
+      }),
+    ),
+  }),
+});
+export type UniconfigSnapshotsOutput = t.TypeOf<typeof UniconfigSnapshotsOutputValidator>;
+
+export function decodeUniconfigSnapshotsOutput(value: unknown): UniconfigSnapshotsOutput {
+  return extractResult(UniconfigSnapshotsOutputValidator.decode(value));
+}
+
+const UniconfigSnapshotInputValidator = t.type({
+  input: t.type({
+    name: t.string,
+    'target-nodes': t.type({
+      node: t.array(t.string),
+    }),
+  }),
+});
+export type UniconfigSnapshotInput = t.TypeOf<typeof UniconfigSnapshotInputValidator>;
+
+export function decodeUniconfigSnapshotInput(value: unknown): UniconfigSnapshotInput {
+  return extractResult(UniconfigSnapshotInputValidator.decode(value));
+}
+const UniconfigSnapshotOutputValidator = t.type({
+  output: t.type({
+    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+  }),
+});
+export type UniconfigSnapshotOutput = t.TypeOf<typeof UniconfigSnapshotOutputValidator>;
+
+export function decodeUniconfigSnapshotOutput(value: unknown): UniconfigSnapshotOutput {
+  return extractResult(UniconfigSnapshotOutputValidator.decode(value));
+}

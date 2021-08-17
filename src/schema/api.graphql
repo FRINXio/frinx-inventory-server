@@ -14,6 +14,15 @@ type AddDevicePayload {
   device: Device!
 }
 
+input AddSnapshotInput {
+  deviceId: String!
+  name: String!
+}
+
+type AddSnapshotPayload {
+  snapshot: Snapshot
+}
+
 input AddZoneInput {
   name: String!
 }
@@ -23,12 +32,13 @@ type AddZonePayload {
 }
 
 type CommitConfigPayload {
-  isOk: Boolean
+  isOk: Boolean!
 }
 
 type DataStore {
-  config: String
-  operational: String
+  config: String!
+  operational: String!
+  snapshots: [Snapshot!]!
 }
 
 type DeleteDevicePayload {
@@ -66,10 +76,12 @@ type InstallDevicePayload {
 
 type Mutation {
   addDevice(input: AddDeviceInput!): AddDevicePayload!
+  addSnapshot(input: AddSnapshotInput!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
   commitConfig(deviceId: String!): CommitConfigPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   installDevice(id: String!): InstallDevicePayload!
+  resetConfig(deviceId: String!): ResetConfigPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
@@ -91,6 +103,14 @@ type Query {
   devices(after: String, before: String, first: Int, last: Int): DevicesConnection!
   node(id: ID!): Node
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
+}
+
+type ResetConfigPayload {
+  dataStore: DataStore!
+}
+
+type Snapshot {
+  name: String
 }
 
 type UninstallDevicePayload {

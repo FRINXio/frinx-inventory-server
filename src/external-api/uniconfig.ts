@@ -3,11 +3,19 @@ import {
   decodeInstalledDevicesOutput,
   decodeUniconfigCommitOutput,
   decodeUniconfigConfigOutput,
+  decodeUniconfigReplaceOutput,
+  decodeUniconfigSnapshotOutput,
+  decodeUniconfigSnapshotsOutput,
   InstalledDevicesOutput,
   UniconfigCommitInput,
   UniconfigCommitOutput,
   UniconfigConfigInput,
   UniconfigConfigOutput,
+  UniconfigReplaceInput,
+  UniconfigReplaceOutput,
+  UniconfigSnapshotInput,
+  UniconfigSnapshotOutput,
+  UniconfigSnapshotsOutput,
   UninstallDeviceInput,
 } from './network-types';
 
@@ -74,6 +82,33 @@ export async function postCommitToNetwork(
   return data;
 }
 
+export async function replaceConfig(baseURL: string, params: UniconfigReplaceInput): Promise<UniconfigReplaceOutput> {
+  const json = await sendPostRequest(
+    [baseURL, '/operations/uniconfig-manager:replace-config-with-operational'],
+    params,
+  );
+  const data = decodeUniconfigReplaceOutput(json);
+
+  return data;
+}
+
+export async function getSnapshots(baseURL: string): Promise<UniconfigSnapshotsOutput> {
+  const json = await sendGetRequest([baseURL, '/data/snapshot-manager:snapshots-metadata?content=config']);
+  const data = decodeUniconfigSnapshotsOutput(json);
+
+  return data;
+}
+
+export async function createSnapshot(
+  baseURL: string,
+  params: UniconfigSnapshotInput,
+): Promise<UniconfigSnapshotOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/snapshot-manager:create-snapshot'], params);
+  const data = decodeUniconfigSnapshotOutput(json);
+
+  return data;
+}
+
 export type UniConfigAPI = {
   getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
   installDevice: (baseURL: string, params: unknown) => Promise<void>;
@@ -81,6 +116,9 @@ export type UniConfigAPI = {
   getUniconfigDatastore: (baseURL: string, options: DataStoreOptions) => Promise<UniconfigConfigOutput>;
   updateUniconfigDataStore: (baseURL: string, nodeId: string, params: UniconfigConfigInput) => Promise<void>;
   postCommitToNetwork: (baseURL: string, params: UniconfigCommitInput) => Promise<UniconfigCommitOutput>;
+  replaceConfig: (baseURL: string, params: UniconfigReplaceInput) => Promise<UniconfigReplaceOutput>;
+  getSnapshots: (baseURL: string) => Promise<UniconfigSnapshotsOutput>;
+  createSnapshot: (baseURL: string, params: UniconfigSnapshotInput) => Promise<UniconfigSnapshotOutput>;
 };
 
 const uniconfigAPI: UniConfigAPI = {
@@ -90,6 +128,9 @@ const uniconfigAPI: UniConfigAPI = {
   getUniconfigDatastore,
   updateUniconfigDataStore,
   postCommitToNetwork,
+  replaceConfig,
+  getSnapshots,
+  createSnapshot,
 };
 
 export default uniconfigAPI;
