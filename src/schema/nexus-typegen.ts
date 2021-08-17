@@ -28,6 +28,16 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  ApplySnapshotInput: {
+    // input type
+    deviceId: string; // String!
+    name: string; // String!
+  };
+  CommitConfigInput: {
+    // input type
+    deviceId: string; // String!
+    shouldDryRun?: boolean | null; // Boolean
+  };
   UpdateDataStoreInput: {
     // input type
     config: string; // String!
@@ -66,9 +76,15 @@ export interface NexusGenObjects {
     // root type
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
+  ApplySnapshotPayload: {
+    // root type
+    isOk: boolean; // Boolean!
+    output: string; // String!
+  };
   CommitConfigPayload: {
     // root type
     isOk: boolean; // Boolean!
+    output: string; // String!
   };
   DataStore: {
     // root type
@@ -170,9 +186,15 @@ export interface NexusGenFieldTypes {
     // field return type
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
+  ApplySnapshotPayload: {
+    // field return type
+    isOk: boolean; // Boolean!
+    output: string; // String!
+  };
   CommitConfigPayload: {
     // field return type
     isOk: boolean; // Boolean!
+    output: string; // String!
   };
   DataStore: {
     // field return type
@@ -213,6 +235,7 @@ export interface NexusGenFieldTypes {
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
+    applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
@@ -289,9 +312,15 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     zone: 'Zone';
   };
+  ApplySnapshotPayload: {
+    // field return type name
+    isOk: 'Boolean';
+    output: 'String';
+  };
   CommitConfigPayload: {
     // field return type name
     isOk: 'Boolean';
+    output: 'String';
   };
   DataStore: {
     // field return type name
@@ -332,6 +361,7 @@ export interface NexusGenFieldTypeNames {
     addDevice: 'AddDevicePayload';
     addSnapshot: 'AddSnapshotPayload';
     addZone: 'AddZonePayload';
+    applySnapshot: 'ApplySnapshotPayload';
     commitConfig: 'CommitConfigPayload';
     deleteDevice: 'DeleteDevicePayload';
     installDevice: 'InstallDevicePayload';
@@ -409,9 +439,13 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['AddZoneInput']; // AddZoneInput!
     };
+    applySnapshot: {
+      // args
+      input: NexusGenInputs['ApplySnapshotInput']; // ApplySnapshotInput!
+    };
     commitConfig: {
       // args
-      deviceId: string; // String!
+      input: NexusGenInputs['CommitConfigInput']; // CommitConfigInput!
     };
     deleteDevice: {
       // args

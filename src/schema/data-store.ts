@@ -129,23 +129,31 @@ export const UpdateDataStoreMutation = extendType({
   },
 });
 
+export const CommitConfigInput = inputObjectType({
+  name: 'CommitConfigInput',
+  definition: (t) => {
+    t.nonNull.string('deviceId');
+    t.boolean('shouldDryRun');
+  },
+});
 export const CommitConfigPayload = objectType({
   name: 'CommitConfigPayload',
   definition: (t) => {
     t.nonNull.boolean('isOk');
+    t.nonNull.string('output');
   },
 });
-
 export const CommitConfigMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
     t.nonNull.field('commitConfig', {
       type: CommitConfigPayload,
       args: {
-        deviceId: nonNull(stringArg()),
+        input: nonNull(arg({ type: CommitConfigInput })),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
-        const nativeDeviceId = fromGraphId('Device', args.deviceId);
+        const { input } = args;
+        const nativeDeviceId = fromGraphId('Device', input.deviceId);
         const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
@@ -161,8 +169,11 @@ export const CommitConfigMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.postCommitToNetwork(uniconfigURL, params);
-        return { isOk: result.output['overall-status'] === 'complete' };
+        const { shouldDryRun } = input;
+        const result = shouldDryRun
+          ? await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params)
+          : await uniconfigAPI.postCommitToNetwork(uniconfigURL, params);
+        return { isOk: result.output['overall-status'] === 'complete', output: JSON.stringify(result.output) };
       },
     });
   },
@@ -270,6 +281,57 @@ export const AddSnapshotMutation = extendType({
           snapshot: {
             name: args.input.name,
           },
+        };
+      },
+    });
+  },
+});
+
+export const ApplySnapshotInput = inputObjectType({
+  name: 'ApplySnapshotInput',
+  definition: (t) => {
+    t.nonNull.string('deviceId');
+    t.nonNull.string('name');
+  },
+});
+export const ApplySnapshotPayload = objectType({
+  name: 'ApplySnapshotPayload',
+  definition: (t) => {
+    t.nonNull.boolean('isOk');
+    t.nonNull.string('output');
+  },
+});
+export const ApplySnapshotMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('applySnapshot', {
+      type: ApplySnapshotPayload,
+      args: {
+        input: nonNull(arg({ type: ApplySnapshotInput })),
+      },
+      resolve: async (_, args, { prisma, uniconfigAPI }) => {
+        const nativeDeviceId = fromGraphId('Device', args.input.deviceId);
+        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        if (dbDevice == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
+        const params = {
+          input: {
+            name: args.input.name,
+            'target-nodes': {
+              node: [dbDevice.name],
+            },
+          },
+        };
+        const result = await uniconfigAPI.applySnapshot(uniconfigURL, params);
+
+        return {
+          isOk: result.output['overall-status'] === 'complete',
+          output: JSON.stringify(result.output),
         };
       },
     });

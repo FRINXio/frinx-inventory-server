@@ -150,6 +150,8 @@ export const AddDeviceMutation = extendType({
             vendor: input.vendor,
             // eslint-disable-next-line @typescript-eslint/naming-convention
             management_ip: input.address,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            mount_parameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
           },
         });
 
