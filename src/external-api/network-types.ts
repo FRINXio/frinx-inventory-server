@@ -149,3 +149,28 @@ export type UniconfigSnapshotOutput = t.TypeOf<typeof UniconfigSnapshotOutputVal
 export function decodeUniconfigSnapshotOutput(value: unknown): UniconfigSnapshotOutput {
   return extractResult(UniconfigSnapshotOutputValidator.decode(value));
 }
+
+const UniconfigApplySnapshotInputValidator = t.type({
+  input: t.type({
+    name: t.string,
+    'target-nodes': t.type({
+      node: t.array(t.string),
+    }),
+  }),
+});
+export type UniconfigApplySnapshotInput = t.TypeOf<typeof UniconfigApplySnapshotInputValidator>;
+
+export function decodeUniconfigApplySnapshotInput(value: unknown): UniconfigApplySnapshotInput {
+  return extractResult(UniconfigApplySnapshotInputValidator.decode(value));
+}
+
+const UniconfigApplySnapshotOutputValidator = t.type({
+  output: t.type({
+    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+  }),
+});
+export type UniconfigApplySnapshotOutput = t.TypeOf<typeof UniconfigApplySnapshotOutputValidator>;
+
+export function decodeUniconfigApplySnapshotOutput(value: unknown): UniconfigApplySnapshotOutput {
+  return extractResult(UniconfigApplySnapshotOutputValidator.decode(value));
+}

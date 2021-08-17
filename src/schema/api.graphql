@@ -31,8 +31,24 @@ type AddZonePayload {
   zone: Zone!
 }
 
+input ApplySnapshotInput {
+  deviceId: String!
+  name: String!
+}
+
+type ApplySnapshotPayload {
+  isOk: Boolean!
+  output: String!
+}
+
+input CommitConfigInput {
+  deviceId: String!
+  shouldDryRun: Boolean
+}
+
 type CommitConfigPayload {
   isOk: Boolean!
+  output: String!
 }
 
 type DataStore {
@@ -78,7 +94,8 @@ type Mutation {
   addDevice(input: AddDeviceInput!): AddDevicePayload!
   addSnapshot(input: AddSnapshotInput!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
-  commitConfig(deviceId: String!): CommitConfigPayload!
+  applySnapshot(input: ApplySnapshotInput!): ApplySnapshotPayload!
+  commitConfig(input: CommitConfigInput!): CommitConfigPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!): ResetConfigPayload!
