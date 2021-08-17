@@ -10,5 +10,5 @@ export async function makeUniconfigURL(prismaClient: PrismaClient, zoneId: numbe
   if (zone == null) {
     return null;
   }
-  return join([`${config.uniconfigApiProtocol}://`, `${zone.name}:${config.uniconfigApiPort}`]);
+  return join([`${config.uniconfigApiProtocol}://`, `${zone.name}:${config.uniconfigApiPort}/rests`]);
 }
