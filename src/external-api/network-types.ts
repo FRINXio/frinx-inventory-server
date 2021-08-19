@@ -76,9 +76,10 @@ export function decodeUniconfigCommitInput(value: unknown): UniconfigCommitInput
   return extractResult(UniconfigCommitInputValidator.decode(value));
 }
 
+const UniconfigStatusValidator = t.union([t.literal('complete'), t.literal('fail')]);
 const UniconfigCommitOutputValidator = t.type({
   output: t.type({
-    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+    'overall-status': UniconfigStatusValidator,
   }),
 });
 export type UniconfigCommitOutput = t.TypeOf<typeof UniconfigCommitOutputValidator>;
@@ -102,7 +103,7 @@ export function decodeUniconfigReplaceInput(value: unknown): UniconfigReplaceInp
 
 const UniconfigReplaceOutputValidator = t.type({
   output: t.type({
-    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+    'overall-status': UniconfigStatusValidator,
   }),
 });
 export type UniconfigReplaceOutput = t.TypeOf<typeof UniconfigReplaceOutputValidator>;
@@ -112,13 +113,17 @@ export function decodeUniconfigReplaceOutput(value: unknown): UniconfigReplaceOu
 }
 
 const UniconfigSnapshotsOutputValidator = t.type({
-  'snapshots-metadata': t.type({
-    snapshot: t.array(
-      t.type({
-        name: t.string,
-      }),
-    ),
-  }),
+  'snapshots-metadata': t.union([
+    t.type({}),
+    t.type({
+      snapshot: t.array(
+        t.type({
+          name: t.string,
+          'creation-time': t.string,
+        }),
+      ),
+    }),
+  ]),
 });
 export type UniconfigSnapshotsOutput = t.TypeOf<typeof UniconfigSnapshotsOutputValidator>;
 
@@ -141,7 +146,7 @@ export function decodeUniconfigSnapshotInput(value: unknown): UniconfigSnapshotI
 }
 const UniconfigSnapshotOutputValidator = t.type({
   output: t.type({
-    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+    'overall-status': UniconfigStatusValidator,
   }),
 });
 export type UniconfigSnapshotOutput = t.TypeOf<typeof UniconfigSnapshotOutputValidator>;
@@ -166,11 +171,51 @@ export function decodeUniconfigApplySnapshotInput(value: unknown): UniconfigAppl
 
 const UniconfigApplySnapshotOutputValidator = t.type({
   output: t.type({
-    'overall-status': t.union([t.literal('complete'), t.literal('fail')]),
+    'overall-status': UniconfigStatusValidator,
   }),
 });
 export type UniconfigApplySnapshotOutput = t.TypeOf<typeof UniconfigApplySnapshotOutputValidator>;
 
 export function decodeUniconfigApplySnapshotOutput(value: unknown): UniconfigApplySnapshotOutput {
   return extractResult(UniconfigApplySnapshotOutputValidator.decode(value));
+}
+
+const UniconfigDiffInputValidator = t.type({
+  input: t.type({
+    'target-nodes': t.type({
+      node: t.array(t.string),
+    }),
+  }),
+});
+export type UniconfigDiffInput = t.TypeOf<typeof UniconfigDiffInputValidator>;
+
+export function decodeUniconfigDiffInput(value: unknown): UniconfigDiffInput {
+  return extractResult(UniconfigDiffInputValidator.decode(value));
+}
+
+const DiffDataValidator = t.type({
+  path: t.string,
+  data: t.string,
+});
+const UniconfigDiffOutputValidator = t.type({
+  output: t.type({
+    'node-results': t.type({
+      'node-result': t.array(
+        t.type({
+          'node-id': t.string,
+          'deleted-data': optional(t.array(DiffDataValidator)),
+          'edited-data': optional(t.array(DiffDataValidator)),
+          'created-data': optional(t.array(DiffDataValidator)),
+          status: UniconfigStatusValidator,
+        }),
+      ),
+    }),
+    'error-message': optional(t.string),
+    'overall-status': UniconfigStatusValidator,
+  }),
+});
+export type UniconfigDiffOutput = t.TypeOf<typeof UniconfigDiffOutputValidator>;
+
+export function decodeUniconfigDiffOuptut(value: unknown): UniconfigDiffOutput {
+  return extractResult(UniconfigDiffOutputValidator.decode(value));
 }

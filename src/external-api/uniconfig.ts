@@ -4,6 +4,7 @@ import {
   decodeUniconfigApplySnapshotOutput,
   decodeUniconfigCommitOutput,
   decodeUniconfigConfigOutput,
+  decodeUniconfigDiffOuptut,
   decodeUniconfigReplaceOutput,
   decodeUniconfigSnapshotOutput,
   decodeUniconfigSnapshotsOutput,
@@ -14,6 +15,8 @@ import {
   UniconfigCommitOutput,
   UniconfigConfigInput,
   UniconfigConfigOutput,
+  UniconfigDiffInput,
+  UniconfigDiffOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
   UniconfigSnapshotInput,
@@ -132,6 +135,13 @@ export async function applySnapshot(
   return data;
 }
 
+export async function getCalculatedDiff(baseURL: string, params: UniconfigDiffInput): Promise<UniconfigDiffOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:calculate-diff'], params);
+  const data = decodeUniconfigDiffOuptut(json);
+
+  return data;
+}
+
 export type UniConfigAPI = {
   getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
   installDevice: (baseURL: string, params: unknown) => Promise<void>;
@@ -144,6 +154,7 @@ export type UniConfigAPI = {
   getSnapshots: (baseURL: string) => Promise<UniconfigSnapshotsOutput>;
   createSnapshot: (baseURL: string, params: UniconfigSnapshotInput) => Promise<UniconfigSnapshotOutput>;
   applySnapshot: (baseURL: string, params: UniconfigApplySnapshotInput) => Promise<UniconfigApplySnapshotOutput>;
+  getCalculatedDiff: (baseURL: string, params: UniconfigDiffInput) => Promise<UniconfigDiffOutput>;
 };
 
 const uniconfigAPI: UniConfigAPI = {
@@ -158,6 +169,7 @@ const uniconfigAPI: UniConfigAPI = {
   getSnapshots,
   createSnapshot,
   applySnapshot,
+  getCalculatedDiff,
 };
 
 export default uniconfigAPI;
