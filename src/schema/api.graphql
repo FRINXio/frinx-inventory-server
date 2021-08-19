@@ -41,6 +41,10 @@ type ApplySnapshotPayload {
   output: String!
 }
 
+type CalculatedDiffPayload {
+  output: String
+}
+
 input CommitConfigInput {
   deviceId: String!
   shouldDryRun: Boolean
@@ -116,6 +120,7 @@ type PageInfo {
 }
 
 type Query {
+  calculatedDiff(deviceId: String!): CalculatedDiffPayload!
   dataStore(deviceId: String!): DataStore
   devices(after: String, before: String, first: Int, last: Int): DevicesConnection!
   node(id: ID!): Node
@@ -127,7 +132,7 @@ type ResetConfigPayload {
 }
 
 type Snapshot {
-  name: String
+  name: String!
 }
 
 type UninstallDevicePayload {

@@ -6,7 +6,7 @@ import { makeUniconfigURL } from '../helpers/zone.helpers';
 export const Snapshot = objectType({
   name: 'Snapshot',
   definition: (t) => {
-    t.string('name');
+    t.nonNull.string('name');
   },
 });
 
@@ -29,7 +29,9 @@ export const DataStore = objectType({
           throw new Error('should never happen');
         }
         const response = await uniconfigAPI.getSnapshots(uniconfigURL);
-        const snapshots = response['snapshots-metadata'].snapshot.map((s) => ({ name: s.name }));
+        const snapshotMetadata =
+          'snapshot' in response['snapshots-metadata'] ? response['snapshots-metadata'] : undefined;
+        const snapshots = snapshotMetadata?.snapshot.map((s) => ({ name: s.name })) ?? [];
         return snapshots;
       },
     });
@@ -333,6 +335,47 @@ export const ApplySnapshotMutation = extendType({
           isOk: result.output['overall-status'] === 'complete',
           output: JSON.stringify(result.output),
         };
+      },
+    });
+  },
+});
+
+export const CalculatedDiffPayload = objectType({
+  name: 'CalculatedDiffPayload',
+  definition: (t) => {
+    t.string('output');
+  },
+});
+export const CalculatedDiffQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('calculatedDiff', {
+      type: CalculatedDiffPayload,
+      args: {
+        deviceId: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, uniconfigAPI }) => {
+        const nativeDeviceId = fromGraphId('Device', args.deviceId);
+        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        if (dbDevice == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
+        const params = {
+          input: {
+            'target-nodes': {
+              node: [dbDevice.name],
+            },
+          },
+        };
+        const result = await uniconfigAPI.getCalculatedDiff(uniconfigURL, params);
+        if (result.output['overall-status'] === 'fail') {
+          throw new Error('error getting calculated diff');
+        }
+        return { output: JSON.stringify(result.output['node-results']['node-result'][0]) };
       },
     });
   },

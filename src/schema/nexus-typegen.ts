@@ -81,6 +81,10 @@ export interface NexusGenObjects {
     isOk: boolean; // Boolean!
     output: string; // String!
   };
+  CalculatedDiffPayload: {
+    // root type
+    output?: string | null; // String
+  };
   CommitConfigPayload: {
     // root type
     isOk: boolean; // Boolean!
@@ -132,7 +136,7 @@ export interface NexusGenObjects {
   };
   Snapshot: {
     // root type
-    name?: string | null; // String
+    name: string; // String!
   };
   UninstallDevicePayload: {
     // root type
@@ -190,6 +194,10 @@ export interface NexusGenFieldTypes {
     // field return type
     isOk: boolean; // Boolean!
     output: string; // String!
+  };
+  CalculatedDiffPayload: {
+    // field return type
+    output: string | null; // String
   };
   CommitConfigPayload: {
     // field return type
@@ -253,6 +261,7 @@ export interface NexusGenFieldTypes {
   };
   Query: {
     // field return type
+    calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DevicesConnection']; // DevicesConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
@@ -264,7 +273,7 @@ export interface NexusGenFieldTypes {
   };
   Snapshot: {
     // field return type
-    name: string | null; // String
+    name: string; // String!
   };
   UninstallDevicePayload: {
     // field return type
@@ -315,6 +324,10 @@ export interface NexusGenFieldTypeNames {
   ApplySnapshotPayload: {
     // field return type name
     isOk: 'Boolean';
+    output: 'String';
+  };
+  CalculatedDiffPayload: {
+    // field return type name
     output: 'String';
   };
   CommitConfigPayload: {
@@ -379,6 +392,7 @@ export interface NexusGenFieldTypeNames {
   };
   Query: {
     // field return type name
+    calculatedDiff: 'CalculatedDiffPayload';
     dataStore: 'DataStore';
     devices: 'DevicesConnection';
     node: 'Node';
@@ -475,6 +489,10 @@ export interface NexusGenArgTypes {
     };
   };
   Query: {
+    calculatedDiff: {
+      // args
+      deviceId: string; // String!
+    };
     dataStore: {
       // args
       deviceId: string; // String!
