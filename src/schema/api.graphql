@@ -56,8 +56,8 @@ type CommitConfigPayload {
 }
 
 type DataStore {
-  config: String!
-  operational: String!
+  config: String
+  operational: String
   snapshots: [Snapshot!]!
 }
 
@@ -103,6 +103,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!): ResetConfigPayload!
+  syncFromNetwork(deviceId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
@@ -132,7 +133,12 @@ type ResetConfigPayload {
 }
 
 type Snapshot {
+  createdAt: String!
   name: String!
+}
+
+type SyncFromNetworkPayload {
+  dataStore: DataStore
 }
 
 type UninstallDevicePayload {

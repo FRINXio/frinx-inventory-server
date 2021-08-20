@@ -219,3 +219,38 @@ export type UniconfigDiffOutput = t.TypeOf<typeof UniconfigDiffOutputValidator>;
 export function decodeUniconfigDiffOuptut(value: unknown): UniconfigDiffOutput {
   return extractResult(UniconfigDiffOutputValidator.decode(value));
 }
+
+const UniconfigSyncInputValidator = t.type({
+  input: t.type({
+    'target-nodes': t.type({
+      node: t.array(t.string),
+    }),
+  }),
+});
+export type UniconfigSyncInput = t.TypeOf<typeof UniconfigSyncInputValidator>;
+
+export function decodeUniconfigSyncInput(value: unknown): UniconfigSyncInput {
+  return extractResult(UniconfigSyncInputValidator.decode(value));
+}
+
+const UniconfigSyncOutputValidator = t.type({
+  output: t.type({
+    'error-message': optional(t.string),
+    'overall-status': UniconfigStatusValidator,
+    'node-results': t.type({
+      'node-result': t.array(
+        t.type({
+          'node-id': t.string,
+          status: UniconfigStatusValidator,
+          'error-type': optional(t.union([t.literal('no-connection'), t.literal('processing-error')])),
+          'error-message': optional(t.string),
+        }),
+      ),
+    }),
+  }),
+});
+export type UniconfigSyncOutput = t.TypeOf<typeof UniconfigSyncOutputValidator>;
+
+export function decodeUniconfigSyncOutput(value: unknown): UniconfigSyncOutput {
+  return extractResult(UniconfigSyncOutputValidator.decode(value));
+}

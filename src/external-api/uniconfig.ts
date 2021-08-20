@@ -8,6 +8,7 @@ import {
   decodeUniconfigReplaceOutput,
   decodeUniconfigSnapshotOutput,
   decodeUniconfigSnapshotsOutput,
+  decodeUniconfigSyncOutput,
   InstalledDevicesOutput,
   UniconfigApplySnapshotInput,
   UniconfigApplySnapshotOutput,
@@ -22,6 +23,8 @@ import {
   UniconfigSnapshotInput,
   UniconfigSnapshotOutput,
   UniconfigSnapshotsOutput,
+  UniconfigSyncInput,
+  UniconfigSyncOutput,
   UninstallDeviceInput,
 } from './network-types';
 
@@ -142,6 +145,13 @@ export async function getCalculatedDiff(baseURL: string, params: UniconfigDiffIn
   return data;
 }
 
+export async function syncFromNetwork(baseURL: string, params: UniconfigSyncInput): Promise<UniconfigSyncOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:sync-from-network'], params);
+  const data = decodeUniconfigSyncOutput(json);
+
+  return data;
+}
+
 export type UniConfigAPI = {
   getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
   installDevice: (baseURL: string, params: unknown) => Promise<void>;
@@ -155,6 +165,7 @@ export type UniConfigAPI = {
   createSnapshot: (baseURL: string, params: UniconfigSnapshotInput) => Promise<UniconfigSnapshotOutput>;
   applySnapshot: (baseURL: string, params: UniconfigApplySnapshotInput) => Promise<UniconfigApplySnapshotOutput>;
   getCalculatedDiff: (baseURL: string, params: UniconfigDiffInput) => Promise<UniconfigDiffOutput>;
+  syncFromNetwork: (baseURL: string, params: UniconfigSyncInput) => Promise<UniconfigSyncOutput>;
 };
 
 const uniconfigAPI: UniConfigAPI = {
@@ -170,6 +181,7 @@ const uniconfigAPI: UniConfigAPI = {
   createSnapshot,
   applySnapshot,
   getCalculatedDiff,
+  syncFromNetwork,
 };
 
 export default uniconfigAPI;

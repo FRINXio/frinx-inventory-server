@@ -90,11 +90,7 @@ export interface NexusGenObjects {
     isOk: boolean; // Boolean!
     output: string; // String!
   };
-  DataStore: {
-    // root type
-    config: string; // String!
-    operational: string; // String!
-  };
+  DataStore: {};
   DeleteDevicePayload: {
     // root type
     device?: NexusGenRootTypes['Device'] | null; // Device
@@ -136,7 +132,12 @@ export interface NexusGenObjects {
   };
   Snapshot: {
     // root type
+    createdAt: string; // String!
     name: string; // String!
+  };
+  SyncFromNetworkPayload: {
+    // root type
+    dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
   UninstallDevicePayload: {
     // root type
@@ -206,8 +207,8 @@ export interface NexusGenFieldTypes {
   };
   DataStore: {
     // field return type
-    config: string; // String!
-    operational: string; // String!
+    config: string | null; // String
+    operational: string | null; // String
     snapshots: NexusGenRootTypes['Snapshot'][]; // [Snapshot!]!
   };
   DeleteDevicePayload: {
@@ -248,6 +249,7 @@ export interface NexusGenFieldTypes {
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
+    syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
@@ -273,7 +275,12 @@ export interface NexusGenFieldTypes {
   };
   Snapshot: {
     // field return type
+    createdAt: string; // String!
     name: string; // String!
+  };
+  SyncFromNetworkPayload: {
+    // field return type
+    dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
   UninstallDevicePayload: {
     // field return type
@@ -379,6 +386,7 @@ export interface NexusGenFieldTypeNames {
     deleteDevice: 'DeleteDevicePayload';
     installDevice: 'InstallDevicePayload';
     resetConfig: 'ResetConfigPayload';
+    syncFromNetwork: 'SyncFromNetworkPayload';
     uninstallDevice: 'UninstallDevicePayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
@@ -404,7 +412,12 @@ export interface NexusGenFieldTypeNames {
   };
   Snapshot: {
     // field return type name
+    createdAt: 'String';
     name: 'String';
+  };
+  SyncFromNetworkPayload: {
+    // field return type name
+    dataStore: 'DataStore';
   };
   UninstallDevicePayload: {
     // field return type name
@@ -470,6 +483,10 @@ export interface NexusGenArgTypes {
       id: string; // String!
     };
     resetConfig: {
+      // args
+      deviceId: string; // String!
+    };
+    syncFromNetwork: {
       // args
       deviceId: string; // String!
     };
