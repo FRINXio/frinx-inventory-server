@@ -7,32 +7,62 @@ export const Snapshot = objectType({
   name: 'Snapshot',
   definition: (t) => {
     t.nonNull.string('name');
+    t.nonNull.string('createdAt');
   },
 });
 
 export const DataStore = objectType({
   name: 'DataStore',
   definition: (t) => {
-    t.nonNull.string('config');
-    t.nonNull.string('operational');
+    t.string('config', {
+      resolve: async (root, _, { uniconfigAPI }) => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const config = await uniconfigAPI.getUniconfigDatastore(root.$uniconfigURL, {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            nodeId: root.$deviceName,
+            datastoreType: 'config',
+          });
+          return JSON.stringify(config);
+        } catch {
+          return null;
+        }
+      },
+    });
+    t.string('operational', {
+      resolve: async (root, _, { uniconfigAPI }) => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const operational = await uniconfigAPI.getUniconfigDatastore(root.$uniconfigURL, {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            nodeId: root.$deviceName,
+            datastoreType: 'operational',
+          });
+          return JSON.stringify(operational);
+        } catch {
+          return null;
+        }
+      },
+    });
     t.nonNull.field('snapshots', {
       type: list(nonNull(Snapshot)),
-      resolve: async (root, _, { prisma, uniconfigAPI }) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: root.$deviceId } });
-        if (dbDevice == null) {
-          throw new Error('Device not found');
+      resolve: async (root, _, { uniconfigAPI }) => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const response = await uniconfigAPI.getSnapshots(root.$uniconfigURL);
+          const snapshotMetadata =
+            'snapshot' in response['snapshots-metadata'] ? response['snapshots-metadata'] : undefined;
+          const snapshots =
+            snapshotMetadata?.snapshot.map((s) => ({ name: s.name, createdAt: s['creation-time'] })) ?? [];
+          return snapshots;
+        } catch {
+          return [];
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
-        const response = await uniconfigAPI.getSnapshots(uniconfigURL);
-        const snapshotMetadata =
-          'snapshot' in response['snapshots-metadata'] ? response['snapshots-metadata'] : undefined;
-        const snapshots = snapshotMetadata?.snapshot.map((s) => ({ name: s.name })) ?? [];
-        return snapshots;
       },
     });
   },
@@ -46,7 +76,7 @@ export const DataStoreQuery = extendType({
       args: {
         deviceId: nonNull(stringArg()),
       },
-      resolve: async (_, { deviceId }, { uniconfigAPI, prisma }) => {
+      resolve: async (_, { deviceId }, { prisma }) => {
         const nativeDeviceId = fromGraphId('Device', deviceId);
         const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
@@ -54,25 +84,12 @@ export const DataStoreQuery = extendType({
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
         if (uniconfigURL == null) {
-          return null;
+          throw new Error('should never happen');
         }
-        try {
-          const config = await uniconfigAPI.getUniconfigDatastore(uniconfigURL, {
-            nodeId: dbDevice.name,
-            datastoreType: 'config',
-          });
-          const operational = await uniconfigAPI.getUniconfigDatastore(uniconfigURL, {
-            nodeId: dbDevice.name,
-            datastoreType: 'operational',
-          });
-          return {
-            config: JSON.stringify(config),
-            operational: JSON.stringify(operational),
-            $deviceId: nativeDeviceId,
-          };
-        } catch (e) {
-          return null;
-        }
+        return {
+          $deviceName: dbDevice.name,
+          $uniconfigURL: uniconfigURL,
+        };
       },
     });
   },
@@ -111,19 +128,10 @@ export const UpdateDataStoreMutation = extendType({
         }
         const params = JSON.parse(input.config);
         await uniconfigAPI.updateUniconfigDataStore(uniconfigURL, dbDevice.name, decodeUniconfigConfigInput(params));
-        const config = await uniconfigAPI.getUniconfigDatastore(uniconfigURL, {
-          nodeId: dbDevice.name,
-          datastoreType: 'config',
-        });
-        const operational = await uniconfigAPI.getUniconfigDatastore(uniconfigURL, {
-          nodeId: dbDevice.name,
-          datastoreType: 'operational',
-        });
         return {
           dataStore: {
-            config: JSON.stringify(config),
-            operational: JSON.stringify(operational),
-            $deviceId: nativeDeviceId,
+            $deviceName: dbDevice.name,
+            $uniconfigURL: uniconfigURL,
           },
         };
       },
@@ -216,18 +224,10 @@ export const ResetConfigMutation = extendType({
         if (result.output['overall-status'] === 'fail') {
           throw new Error('error replacing config');
         }
-        const config = await uniconfigAPI.getUniconfigDatastore(uniconfigURL, {
-          nodeId: dbDevice.name,
-          datastoreType: 'config',
-        });
-        const operational = await uniconfigAPI.getUniconfigDatastore(uniconfigURL, {
-          nodeId: dbDevice.name,
-          datastoreType: 'operational',
-        });
         return {
           dataStore: {
-            config: JSON.stringify(config),
-            operational: JSON.stringify(operational),
+            $deviceName: dbDevice.name,
+            $uniconfigURL: uniconfigURL,
           },
         };
       },
@@ -282,6 +282,7 @@ export const AddSnapshotMutation = extendType({
         return {
           snapshot: {
             name: args.input.name,
+            createdAt: new Date().toISOString(),
           },
         };
       },
@@ -376,6 +377,50 @@ export const CalculatedDiffQuery = extendType({
           throw new Error('error getting calculated diff');
         }
         return { output: JSON.stringify(result.output['node-results']['node-result'][0]) };
+      },
+    });
+  },
+});
+
+export const SyncFromNetworkPayload = objectType({
+  name: 'SyncFromNetworkPayload',
+  definition: (t) => {
+    t.field('dataStore', { type: DataStore });
+  },
+});
+export const SyncFromNetworkMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('syncFromNetwork', {
+      type: SyncFromNetworkPayload,
+      args: { deviceId: nonNull(stringArg()) },
+      resolve: async (_, args, { prisma, uniconfigAPI }) => {
+        const nativeDeviceId = fromGraphId('Device', args.deviceId);
+        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        if (dbDevice == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+        if (uniconfigURL == null) {
+          throw new Error('should never happen');
+        }
+        const params = {
+          input: {
+            'target-nodes': {
+              node: [dbDevice.name],
+            },
+          },
+        };
+        const response = await uniconfigAPI.syncFromNetwork(uniconfigURL, params);
+        if (response.output['overall-status'] === 'fail') {
+          return { dataStore: null };
+        }
+        return {
+          dataStore: {
+            $deviceName: dbDevice.name,
+            $uniconfigURL: uniconfigURL,
+          },
+        };
       },
     });
   },
