@@ -7,12 +7,22 @@ input AddDeviceInput {
   model: String
   mountParameters: String
   name: String!
+  serviceState: DeviceServiceState
   vendor: String
   zoneId: String!
 }
 
 type AddDevicePayload {
   device: Device!
+}
+
+input AddLocationInput {
+  countryId: String!
+  name: String!
+}
+
+type AddLocationPayload {
+  location: Location!
 }
 
 input AddSnapshotInput {
@@ -56,6 +66,22 @@ type CommitConfigPayload {
   output: String!
 }
 
+type Country implements Node {
+  code: String!
+  id: ID!
+  name: String!
+}
+
+type CountryConnection {
+  edges: [CountryEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CountryEdge {
+  cursor: String!
+  node: Country!
+}
+
 input CreateLabelInput {
   name: String!
 }
@@ -74,15 +100,21 @@ type DeleteDevicePayload {
   device: Device
 }
 
+type DeleteLabelPayload {
+  label: Label
+}
+
 type Device implements Node {
   address: String
   createdAt: String!
   id: ID!
+  isInstalled: Boolean!
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
+  location: Location
   model: String
   name: String!
-  source: DeviceSource
-  status: DeviceStatus
+  serviceState: DeviceServiceState!
+  source: DeviceSource!
   updatedAt: String!
   vendor: String
   zone: Zone!
@@ -98,15 +130,16 @@ type DeviceEdge {
   node: Device!
 }
 
+enum DeviceServiceState {
+  IN_SERVICE
+  OUT_OF_SERVICE
+  PLANNING
+}
+
 enum DeviceSource {
   DISCOVERED
   IMPORTED
   MANUAL
-}
-
-enum DeviceStatus {
-  INSTALLED
-  NOT_INSTALLED
 }
 
 input FilterDevicesInput {
@@ -126,20 +159,42 @@ type Label implements Node {
 
 type LabelConnection {
   edges: [LabelEdge!]!
+  pageInfo: PageInfo!
 }
 
 type LabelEdge {
+  cursor: String!
   node: Label!
+}
+
+type Location implements Node {
+  country: String!
+  createdAt: String!
+  id: ID!
+  name: String!
+  updatedAt: String!
+}
+
+type LocationConnection {
+  edges: [LocationEdge!]!
+  pageInfo: PageInfo!
+}
+
+type LocationEdge {
+  cursor: String!
+  node: Location!
 }
 
 type Mutation {
   addDevice(input: AddDeviceInput!): AddDevicePayload!
+  addLocation(input: AddLocationInput!): AddLocationPayload!
   addSnapshot(input: AddSnapshotInput!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!): ApplySnapshotPayload!
   commitConfig(input: CommitConfigInput!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
+  deleteLabel(id: String!): DeleteLabelPayload!
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!): ResetConfigPayload!
   syncFromNetwork(deviceId: String!): SyncFromNetworkPayload!
@@ -161,9 +216,11 @@ type PageInfo {
 
 type Query {
   calculatedDiff(deviceId: String!): CalculatedDiffPayload!
+  countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!): DataStore
   devices(after: String, before: String, filter: FilterDevicesInput, first: Int, last: Int): DeviceConnection!
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
+  locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
@@ -196,8 +253,10 @@ type UpdateDataStorePayload {
 input UpdateDeviceInput {
   address: String
   labelIds: [String!]
+  locationId: String
   model: String
   mountParameters: String
+  serviceState: DeviceServiceState
   vendor: String
 }
 

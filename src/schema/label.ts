@@ -1,7 +1,8 @@
 import { connectionFromArray } from 'graphql-relay';
-import { arg, extendType, inputObjectType, intArg, list, nonNull, objectType, stringArg } from 'nexus';
+import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
 import { convertDBLabel } from '../helpers/converters';
-import { Node } from './global-types';
+import { fromGraphId } from '../helpers/id-helper';
+import { Node, PageInfo } from './global-types';
 
 export const Label = objectType({
   name: 'Label',
@@ -17,12 +18,16 @@ export const LabelEdge = objectType({
   name: 'LabelEdge',
   definition: (t) => {
     t.nonNull.field('node', { type: Label });
+    t.nonNull.string('cursor');
   },
 });
 export const LabelConnection = objectType({
   name: 'LabelConnection',
   definition: (t) => {
-    t.nonNull.field('edges', { type: nonNull(list(nonNull(LabelEdge))) });
+    t.nonNull.list.nonNull.field('edges', { type: LabelEdge });
+    t.nonNull.field('pageInfo', {
+      type: PageInfo,
+    });
   },
 });
 
@@ -76,6 +81,35 @@ export const CreateLabelMutation = extendType({
         });
         return {
           label: convertDBLabel(dbLabel),
+        };
+      },
+    });
+  },
+});
+
+export const DeleteLabelPayload = objectType({
+  name: 'DeleteLabelPayload',
+  definition: (t) => {
+    t.field('label', { type: Label });
+  },
+});
+export const DeleteLabelMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteLabel', {
+      type: DeleteLabelPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeLabelId = fromGraphId('Label', args.id);
+        const dbLabel = await prisma.label.findFirst({ where: { id: nativeLabelId, tenantId } });
+        if (dbLabel == null) {
+          throw new Error('label not found');
+        }
+        const deletedLabel = await prisma.label.delete({ where: { id: nativeLabelId } });
+        return {
+          label: convertDBLabel(deletedLabel),
         };
       },
     });

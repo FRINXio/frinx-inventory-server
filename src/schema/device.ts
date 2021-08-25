@@ -9,20 +9,22 @@ import {
   prepareInstallParameters,
   dropNulls,
   convertDBLabel,
+  convertDBLocation,
 } from '../helpers/converters';
 import { fromGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo } from './global-types';
 import { LabelConnection } from './label';
+import { Location } from './location';
 import { Zone } from './zone';
 
+export const DeviceServiceState = enumType({
+  name: 'DeviceServiceState',
+  members: ['PLANNING', 'IN_SERVICE', 'OUT_OF_SERVICE'],
+});
 export const DeviceSource = enumType({
   name: 'DeviceSource',
   members: ['MANUAL', 'DISCOVERED', 'IMPORTED'],
-});
-export const DeviceStatus = enumType({
-  name: 'DeviceStatus',
-  members: ['INSTALLED', 'NOT_INSTALLED'],
 });
 export const Device = objectType({
   name: 'Device',
@@ -34,20 +36,17 @@ export const Device = objectType({
     t.string('model');
     t.string('vendor');
     t.string('address');
-    t.field('source', { type: DeviceSource });
-    t.field('status', {
-      type: DeviceStatus,
+    t.nonNull.field('source', { type: DeviceSource });
+    t.nonNull.field('serviceState', { type: DeviceServiceState });
+    t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { uniconfigAPI, prisma }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const { $zoneId } = root;
         const uniconfigURL = await makeUniconfigURL(prisma, $zoneId);
-        if (uniconfigURL == null) {
-          return null;
-        }
         const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
         const installedDevices = result.output.nodes ?? [];
-        return installedDevices.some((name) => root.name === name) ? 'INSTALLED' : 'NOT_INSTALLED';
+        return installedDevices.some((name) => root.name === name);
       },
     });
     t.nonNull.field('zone', {
@@ -81,6 +80,17 @@ export const Device = objectType({
         });
         const labels = dbLabels.map(convertDBLabel);
         return connectionFromArray(labels, args);
+      },
+    });
+    t.field('location', {
+      type: Location,
+      resolve: async (root, _, { prisma }) => {
+        const nativeDeviceId = fromGraphId('Device', root.id);
+        const dbLocation = await prisma.device.findFirst({ where: { id: nativeDeviceId } }).location();
+        if (dbLocation == null) {
+          return null;
+        }
+        return convertDBLocation(dbLocation);
       },
     });
   },
@@ -149,6 +159,7 @@ export const AddDeviceInput = inputObjectType({
     t.nonNull.string('name');
     t.nonNull.string('zoneId');
     t.list.nonNull.string('labelIds');
+    t.field('serviceState', { type: DeviceServiceState });
     t.string('mountParameters');
     t.string('model');
     t.string('vendor');
@@ -187,6 +198,7 @@ export const AddDeviceMutation = extendType({
             managementIp: input.address,
             mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
             source: 'MANUAL',
+            serviceState: input.serviceState ?? undefined,
             label: labelIds
               ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
               : undefined,
@@ -207,6 +219,8 @@ export const UpdateDeviceInput = inputObjectType({
     t.string('vendor');
     t.string('address');
     t.list.nonNull.string('labelIds');
+    t.field('serviceState', { type: DeviceServiceState });
+    t.string('locationId');
   },
 });
 export const UpdateDevicePayload = objectType({
@@ -245,8 +259,10 @@ export const UpdateDeviceMutation = extendType({
         const labelIds = input.labelIds ?? [];
 
         await prisma.$transaction([
-          prisma.deviceLabel.deleteMany({ where: { deviceId: nativeId, labelId: { in: labelIds } } }),
-          prisma.deviceLabel.createMany({ data: labelIds.map((lId) => ({ labelId: lId, deviceId: nativeId })) }),
+          prisma.deviceLabel.deleteMany({ where: { deviceId: nativeId } }),
+          prisma.deviceLabel.createMany({
+            data: labelIds.map((lId) => ({ labelId: fromGraphId('Label', lId), deviceId: nativeId })),
+          }),
         ]);
         const updatedDevice = await prisma.device.update({
           where: { id: nativeId },
@@ -255,6 +271,8 @@ export const UpdateDeviceMutation = extendType({
             vendor: input.vendor,
             managementIp: input.address,
             mountParameters: deviceMountParameters,
+            serviceState: input.serviceState ?? undefined,
+            location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
           },
         });
         return { device: convertDBDevice(updatedDevice) };
@@ -321,9 +339,6 @@ export const InstallDeviceMutation = extendType({
         }
         const { mountParameters } = dbDevice;
         const installDeviceParams = prepareInstallParameters(dbDevice.name, mountParameters);
-        if (dbDevice == null) {
-          throw new Error('device not found');
-        }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         await uniconfigAPI.installDevice(uniconfigURL, installDeviceParams);
         const device = convertDBDevice(dbDevice);
@@ -350,7 +365,6 @@ export const UninstallDeviceMutation = extendType({
       resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
-          // eslint-disable-next-line @typescript-eslint/naming-convention
           where: { id: nativeId, AND: { tenantId } },
         });
         if (dbDevice == null) {
