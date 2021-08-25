@@ -89,10 +89,10 @@ CREATE TABLE "location" (
 CREATE UNIQUE INDEX "udx_device_name_tenant_id" ON "device_inventory"("name", "tenant_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "uniconfig_zone.name_unique" ON "uniconfig_zone"("name");
+CREATE INDEX "idx_uniconfig_zone_tenant_id" ON "uniconfig_zone"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_uniconfig_zone_tenant_id" ON "uniconfig_zone"("tenant_id");
+CREATE UNIQUE INDEX "udx_uniconfig_zone_name_tenant_id" ON "uniconfig_zone"("name", "tenant_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "udx_label_name_tenant_id" ON "label"("name", "tenant_id");
