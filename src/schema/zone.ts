@@ -8,6 +8,8 @@ export const Zone = objectType({
   definition: (t) => {
     t.implements(Node);
     t.nonNull.string('name');
+    t.nonNull.string('createdAt');
+    t.nonNull.string('updatedAt');
   },
 });
 export const ZoneEdge = objectType({
@@ -42,8 +44,7 @@ export const ZonesQuery = extendType({
         before: stringArg(),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        const dbZones = await prisma.uniconfig_zones.findMany({ where: { tenant_id: tenantId } });
+        const dbZones = await prisma.uniconfigZone.findMany({ where: { tenantId } });
         const zones = dbZones.map(convertDBZone);
         return connectionFromArray(zones, args);
       },
@@ -71,11 +72,10 @@ export const AddZoneMutation = extendType({
         input: nonNull(arg({ type: AddZoneInput })),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const zone = await prisma.uniconfig_zones.create({
+        const zone = await prisma.uniconfigZone.create({
           data: {
             name: args.input.name,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            tenant_id: tenantId,
+            tenantId,
           },
         });
         return { zone: convertDBZone(zone) };

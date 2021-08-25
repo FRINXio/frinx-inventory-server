@@ -7,31 +7,107 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model device_inventory {
-  id               Int                     @id @default(autoincrement())
-  name             String                  @unique @db.VarChar(255)
-  role             String?                 @db.VarChar(50)
-  management_ip    String?                 @db.Inet
-  config           Json?                   @db.Json
-  location         String?                 @db.VarChar(255)
-  model            String?                 @db.VarChar(255)
-  sw               String?                 @db.VarChar(50)
-  sw_version       String?                 @db.VarChar(50)
-  mac_address      Unsupported("macaddr")?
-  serial_number    String?                 @db.VarChar(50)
-  vendor           String?                 @db.VarChar(50)
-  uniconfig_zone   Int?
-  mount_parameters Json?
-  username         String?                 @db.VarChar(50)
-  password         String?                 @db.VarChar(50)
-  uniconfig_zones  uniconfig_zones?        @relation(fields: [uniconfig_zone], references: [id])
+enum Source {
+  MANUAL
+  DISCOVERED
+  IMPORTED
 }
 
-model uniconfig_zones {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(250)
-  tenant_id        String?            @db.VarChar(64)
-  device_inventory device_inventory[]
+enum ServiceState {
+  PLANNING
+  IN_SERVICE
+  OUT_OF_SERVICE
+}
 
-  @@index([tenant_id], name: "idx_uniconfig_zones_tenant_id")
+model device {
+  id              String        @id @default(uuid())
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  name            String
+  role            String?
+  managementIp    String?       @map("management_ip")
+  config          Json?
+  model           String?
+  software        String?
+  softwareVersion String?       @map("sw_version")
+  macAddress      String?       @map("mac_address")
+  serialNumber    String?       @map("serial_number")
+  vendor          String?
+  mountParameters Json?         @map("mount_parameters")
+  username        String?
+  password        String?
+  tenantId        String        @map("tenant_id")
+  uniconfigZoneId String        @map("uniconfig_zone")
+  uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id])
+  source          Source
+  serviceState    ServiceState  @default(PLANNING)
+  locationId      String?       @map("location_id")
+  location        location?     @relation(fields: [locationId], references: [id])
+
+  label deviceLabel[]
+
+  @@unique([name, tenantId], name: "udx_device_name_tenant_id")
+  @@map("device_inventory")
+}
+
+model uniconfigZone {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  tenantId  String   @map("tenant_id")
+  device    device[]
+
+
+
+  @@unique([name, tenantId], name: "udx_uniconfig_zone_name_tenant_id")
+  @@index([tenantId], name: "idx_uniconfig_zone_tenant_id")
+  @@map("uniconfig_zone")
+}
+
+model label {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  tenantId  String   @map("tenant_id")
+
+  device deviceLabel[]
+  @@unique([name, tenantId], name: "udx_label_name_tenant_id")
+}
+
+model deviceLabel {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deviceId  String   @map("device_id")
+  labelId   String   @map("label_id")
+
+  device device @relation(fields: [deviceId], references: [id])
+  label  label  @relation(fields: [labelId], references: [id])
+
+
+  @@unique([deviceId, labelId], name: "udx_device_label_device_id_label_id")
+  @@map("device_label")
+}
+
+model location {
+  id                 String   @id @default(uuid())
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  name               String
+  tenantId           String   @map("tenant_id")
+  latitude           String?
+  longitude          String?
+  addressLine1       String?  @map("address_line_1")
+  addressLine2       String?  @map("address_line_2")
+  zipCode            String?  @map("zip_code")
+  sortingCode        String?  @map("sorting_code")
+  dependentLocality  String?  @map("dependent_locality")
+  locality           String?
+  administrativeArea String?  @map("administrative_area") // city
+  country            String   @map("country")
+  device             device[]
+
+  @@unique([name, tenantId], name: "udx_location_name_tenant_id")
 }

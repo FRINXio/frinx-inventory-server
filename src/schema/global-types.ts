@@ -1,5 +1,5 @@
 import { extendType, idArg, interfaceType, nonNull, objectType } from 'nexus';
-import { getDeviceInstallConverter, convertDBDevice, convertDBZone } from '../helpers/converters';
+import { getDeviceInstallConverter, convertDBDevice, convertDBZone, convertDBLabel } from '../helpers/converters';
 import { fromGraphId, getType } from '../helpers/id-helper';
 import { getInstalledDevices } from '../external-api/uniconfig';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
@@ -32,9 +32,8 @@ export const NodeQuery = extendType({
         const type = getType(args.id);
         if (type === 'Device') {
           const id = fromGraphId('Device', args.id);
-          const dbDevice = await prisma.device_inventory.findFirst({
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            where: { id, AND: { uniconfig_zones: { tenant_id: tenantId } } },
+          const dbDevice = await prisma.device.findFirst({
+            where: { id, AND: { tenantId } },
           });
           if (dbDevice == null) {
             return null;
@@ -43,7 +42,7 @@ export const NodeQuery = extendType({
           if (dbDevice == null) {
             throw new Error('device not found');
           }
-          const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
+          const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
           if (uniconfigURL == null) {
             throw new Error('should never happen');
           }
@@ -53,14 +52,21 @@ export const NodeQuery = extendType({
         }
         if (type === 'Zone') {
           const id = fromGraphId('Zone', args.id);
-          const dbZone = await prisma.uniconfig_zones.findFirst({
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            where: { id, AND: { tenant_id: tenantId } },
+          const dbZone = await prisma.uniconfigZone.findFirst({
+            where: { id, AND: { tenantId } },
           });
           if (dbZone == null) {
             return null;
           }
           return convertDBZone(dbZone);
+        }
+        if (type === 'Label') {
+          const id = fromGraphId('Label', args.id);
+          const dbLabel = await prisma.label.findFirst({ where: { id, AND: { tenantId } } });
+          if (dbLabel == null) {
+            return null;
+          }
+          return convertDBLabel(dbLabel);
         }
         return null;
       },
