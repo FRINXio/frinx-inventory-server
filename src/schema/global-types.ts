@@ -82,7 +82,7 @@ export const NodeQuery = extendType({
         }
         if (type === 'Country') {
           const id = fromGraphId('Country', args.id);
-          if (countries.isValid(id)) {
+          if (!countries.isValid(id)) {
             return null;
           }
           const countryName = countries.getName(id, 'en', { select: 'official' });
