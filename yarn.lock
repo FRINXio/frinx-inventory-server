@@ -958,6 +958,11 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
+"@devoxa/prisma-relay-cursor-connection@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@devoxa/prisma-relay-cursor-connection/-/prisma-relay-cursor-connection-2.0.2.tgz#01d2d713293a4546b38935eb56c36360ccb3c4ba"
+  integrity sha512-1Q/y7R7OxWtx5lpy5nn4ywSK5DGDGablOhX3ys2mXGidHshTaBMGv9semV3wPmaCBxvEtazAMgNuvkH0Kx+Yjg==
+
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"

@@ -1,16 +1,22 @@
-import { connectionFromArray } from 'graphql-relay';
 import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
-import { convertDBLabel } from '../helpers/converters';
-import { fromGraphId } from '../helpers/id-helper';
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo } from './global-types';
 
 export const Label = objectType({
   name: 'Label',
   definition: (t) => {
     t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Label', root.id),
+    });
     t.nonNull.string('name');
-    t.nonNull.string('createdAt');
-    t.nonNull.string('updatedAt');
+    t.nonNull.string('createdAt', {
+      resolve: (root) => root.createdAt.toISOString(),
+    });
+    t.nonNull.string('updatedAt', {
+      resolve: (root) => root.updatedAt.toISOString(),
+    });
   },
 });
 
@@ -28,6 +34,7 @@ export const LabelConnection = objectType({
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
+    t.nonNull.int('totalCount');
   },
 });
 
@@ -43,9 +50,13 @@ export const LabelsQuery = extendType({
         before: stringArg(),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const dbLabels = await prisma.label.findMany({ where: { tenantId } });
-        const labels = dbLabels.map(convertDBLabel);
-        return connectionFromArray(labels, args);
+        const baseArgs = { where: { tenantId } };
+        const result = await findManyCursorConnection(
+          (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
+          () => prisma.label.count(baseArgs),
+          args,
+        );
+        return result;
       },
     });
   },
@@ -80,7 +91,7 @@ export const CreateLabelMutation = extendType({
           },
         });
         return {
-          label: convertDBLabel(dbLabel),
+          label: dbLabel,
         };
       },
     });
@@ -109,7 +120,7 @@ export const DeleteLabelMutation = extendType({
         }
         const deletedLabel = await prisma.label.delete({ where: { id: nativeLabelId } });
         return {
-          label: convertDBLabel(deletedLabel),
+          label: deletedLabel,
         };
       },
     });

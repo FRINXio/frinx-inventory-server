@@ -1,7 +1,7 @@
 import { connectionFromArray } from 'graphql-relay';
 import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import countries from 'i18n-iso-countries';
-import { convertDBLocation } from '../helpers/converters';
 import { Node, PageInfo } from './global-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 
@@ -9,9 +9,16 @@ export const Location = objectType({
   name: 'Location',
   definition: (t) => {
     t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Location', root.id),
+    });
     t.nonNull.string('name');
-    t.nonNull.string('createdAt');
-    t.nonNull.string('updatedAt');
+    t.nonNull.string('createdAt', {
+      resolve: (root) => root.createdAt.toISOString(),
+    });
+    t.nonNull.string('updatedAt', {
+      resolve: (root) => root.updatedAt.toISOString(),
+    });
     t.nonNull.string('country');
   },
 });
@@ -20,6 +27,9 @@ export const Country = objectType({
   name: 'Country',
   definition: (t) => {
     t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Country', root.id),
+    });
     t.nonNull.string('name');
     t.nonNull.string('code');
   },
@@ -55,7 +65,7 @@ export const CountryQuery = extendType({
       resolve: (_, args) => {
         const nameObject = countries.getNames('en', { select: 'official' });
         const countriesList = Object.keys(nameObject).map((key) => ({
-          id: toGraphId('Country', key),
+          id: key,
           name: nameObject[key],
           code: key,
         }));
@@ -93,9 +103,13 @@ export const LocationQuery = extendType({
         before: stringArg(),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const dbLocations = await prisma.location.findMany({ where: { tenantId } });
-        const locations = dbLocations.map(convertDBLocation);
-        return connectionFromArray(locations, args);
+        const baseArgs = { where: { tenantId } };
+        const result = await findManyCursorConnection(
+          (paginationArgs) => prisma.location.findMany({ ...baseArgs, ...paginationArgs }),
+          () => prisma.location.count(baseArgs),
+          args,
+        );
+        return result;
       },
     });
   },
@@ -129,7 +143,7 @@ export const AddLocationMutation = extendType({
           throw new Error('invalid countryId');
         }
         const countryName = countries.getName(countryCode, 'en', { select: 'official' });
-        const dbLocation = await prisma.location.create({
+        const location = await prisma.location.create({
           data: {
             tenantId,
             name: input.name,
@@ -137,7 +151,7 @@ export const AddLocationMutation = extendType({
           },
         });
         return {
-          location: convertDBLocation(dbLocation),
+          location,
         };
       },
     });

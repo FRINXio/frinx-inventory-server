@@ -17,11 +17,7 @@ export const DataStore = objectType({
     t.string('config', {
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           const config = await uniconfigAPI.getUniconfigDatastore(root.$uniconfigURL, {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             nodeId: root.$deviceName,
             datastoreType: 'config',
           });
@@ -34,11 +30,7 @@ export const DataStore = objectType({
     t.string('operational', {
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           const operational = await uniconfigAPI.getUniconfigDatastore(root.$uniconfigURL, {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             nodeId: root.$deviceName,
             datastoreType: 'operational',
           });
@@ -52,8 +44,6 @@ export const DataStore = objectType({
       type: list(nonNull(Snapshot)),
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           const response = await uniconfigAPI.getSnapshots(root.$uniconfigURL);
           const snapshotMetadata =
             'snapshot' in response['snapshots-metadata'] ? response['snapshots-metadata'] : undefined;

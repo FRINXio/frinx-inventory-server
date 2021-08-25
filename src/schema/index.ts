@@ -21,8 +21,8 @@ export default makeSchema({
   sourceTypes: {
     modules: [
       {
-        module: '@prisma/client',
-        alias: 'prisma',
+        module: join(__dirname, 'source-types.ts'),
+        alias: 'SourceTypes',
       },
     ],
   },
