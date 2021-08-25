@@ -109,7 +109,7 @@ type Device implements Node {
   createdAt: String!
   id: ID!
   isInstalled: Boolean!
-  labels(after: String, before: String, first: Int, last: Int): LabelConnection!
+  labels(after: String, before: String, first: Int = 20, last: Int): LabelConnection!
   location: Location
   model: String
   name: String!
@@ -160,6 +160,7 @@ type Label implements Node {
 type LabelConnection {
   edges: [LabelEdge!]!
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type LabelEdge {

@@ -1,17 +1,7 @@
-import { connectionFromArray } from 'graphql-relay';
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { arg, enumType, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
-import {
-  getDeviceInstallConverter,
-  convertDBDevice,
-  convertDBZone,
-  decodeMountParams,
-  getConnectionType,
-  prepareInstallParameters,
-  dropNulls,
-  convertDBLabel,
-  convertDBLocation,
-} from '../helpers/converters';
-import { fromGraphId } from '../helpers/id-helper';
+import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo } from './global-types';
 import { LabelConnection } from './label';
@@ -30,9 +20,16 @@ export const Device = objectType({
   name: 'Device',
   definition: (t) => {
     t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Device', root.id),
+    });
     t.nonNull.string('name');
-    t.nonNull.string('createdAt');
-    t.nonNull.string('updatedAt');
+    t.nonNull.string('createdAt', {
+      resolve: (root) => root.createdAt.toISOString(),
+    });
+    t.nonNull.string('updatedAt', {
+      resolve: (root) => root.updatedAt.toISOString(),
+    });
     t.string('model');
     t.string('vendor');
     t.string('address');
@@ -40,10 +37,8 @@ export const Device = objectType({
     t.nonNull.field('serviceState', { type: DeviceServiceState });
     t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { uniconfigAPI, prisma }) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const { $zoneId } = root;
-        const uniconfigURL = await makeUniconfigURL(prisma, $zoneId);
+        const { uniconfigZoneId } = root;
+        const uniconfigURL = await makeUniconfigURL(prisma, uniconfigZoneId);
         const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
         const installedDevices = result.output.nodes ?? [];
         return installedDevices.some((name) => root.name === name);
@@ -52,34 +47,31 @@ export const Device = objectType({
     t.nonNull.field('zone', {
       type: Zone,
       resolve: async (root, _, { prisma }) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const { $zoneId } = root;
-        if ($zoneId == null) {
-          throw new Error('should never happen');
-        }
-        const zone = await prisma.uniconfigZone.findFirst({ where: { id: $zoneId } });
+        const { uniconfigZoneId } = root;
+        const zone = await prisma.uniconfigZone.findFirst({ where: { id: uniconfigZoneId } });
         if (zone == null) {
           throw new Error('should never happen');
         }
-        return convertDBZone(zone);
+        return zone;
       },
     });
     t.nonNull.field('labels', {
       type: LabelConnection,
       args: {
-        first: intArg(),
+        first: intArg({ default: 20 }),
         after: stringArg(),
         last: intArg(),
         before: stringArg(),
       },
       resolve: async (root, args, { prisma, tenantId }) => {
         const nativeDeviceId = fromGraphId('Device', root.id);
-        const dbLabels = await prisma.label.findMany({
-          where: { tenantId, AND: { device: { every: { deviceId: nativeDeviceId } } } },
-        });
-        const labels = dbLabels.map(convertDBLabel);
-        return connectionFromArray(labels, args);
+        const baseArgs = { where: { tenantId, AND: { device: { every: { deviceId: nativeDeviceId } } } } };
+        const result = await findManyCursorConnection(
+          (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
+          () => prisma.label.count(baseArgs),
+          args,
+        );
+        return result;
       },
     });
     t.field('location', {
@@ -90,7 +82,7 @@ export const Device = objectType({
         if (dbLocation == null) {
           return null;
         }
-        return convertDBLocation(dbLocation);
+        return dbLocation;
       },
     });
   },
@@ -113,6 +105,7 @@ export const DeviceConnection = objectType({
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
+    t.nonNull.int('totalCount');
   },
 });
 export const FilterDevicesInput = inputObjectType({
@@ -133,22 +126,17 @@ export const DevicesQuery = extendType({
         before: stringArg(),
         filter: FilterDevicesInput,
       },
-      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+      resolve: async (_, args, { prisma, tenantId }) => {
         const { filter } = args;
         const labelIds = (filter?.labelIds ?? []).map((lId) => fromGraphId('Label', lId));
         const filterQuery = labelIds.length ? { label: { every: { labelId: { in: labelIds } } } } : {};
-        const dbDevices = await prisma.device.findMany({
-          where: { tenantId, ...filterQuery },
-        });
-        const zoneIds = [...new Set(dropNulls(dbDevices.map((d) => d.uniconfigZoneId)))];
-        const uniconfigURLs = await Promise.all(zoneIds.map((zId) => makeUniconfigURL(prisma, zId)));
-        const apiResults = await Promise.all(
-          dropNulls(uniconfigURLs).map((url) => uniconfigAPI.getInstalledDevices(url)),
+        const baseArgs = { where: { tenantId, ...filterQuery } };
+        const result = await findManyCursorConnection(
+          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...paginationArgs }),
+          () => prisma.device.count(baseArgs),
+          args,
         );
-        const installedDevices = apiResults.map((r) => r.output.nodes ?? []).flat();
-        const devices = dbDevices.map(convertDBDevice);
-        const addInstallStatus = getDeviceInstallConverter(installedDevices);
-        return connectionFromArray(devices.map(addInstallStatus), args);
+        return result;
       },
     });
   },
@@ -205,7 +193,7 @@ export const AddDeviceMutation = extendType({
           },
         });
 
-        return { device: convertDBDevice(device) };
+        return { device };
       },
     });
   },
@@ -275,7 +263,7 @@ export const UpdateDeviceMutation = extendType({
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
           },
         });
-        return { device: convertDBDevice(updatedDevice) };
+        return { device: updatedDevice };
       },
     });
   },
@@ -309,7 +297,7 @@ export const DeleteDeviceMutation = extendType({
           throw new Error('device is installed in UniConfig');
         }
         const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
-        return { device: convertDBDevice(deletedDevice) };
+        return { device: deletedDevice };
       },
     });
   },
@@ -331,18 +319,16 @@ export const InstallDeviceMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
         const nativeId = fromGraphId('Device', args.id);
-        const dbDevice = await prisma.device.findFirst({
+        const device = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
         });
-        if (dbDevice == null) {
+        if (device == null) {
           throw new Error('device not found');
         }
-        const { mountParameters } = dbDevice;
-        const installDeviceParams = prepareInstallParameters(dbDevice.name, mountParameters);
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const { mountParameters } = device;
+        const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
+        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
         await uniconfigAPI.installDevice(uniconfigURL, installDeviceParams);
-        const device = convertDBDevice(dbDevice);
-
         return { device };
       },
     });
@@ -364,26 +350,24 @@ export const UninstallDeviceMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
         const nativeId = fromGraphId('Device', args.id);
-        const dbDevice = await prisma.device.findFirst({
+        const device = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
         });
-        if (dbDevice == null) {
+        if (device == null) {
           throw new Error('device not found');
         }
 
         const uninstallParams = {
           input: {
-            'node-id': dbDevice.name,
-            'connection-type': getConnectionType(decodeMountParams(dbDevice.mountParameters)),
+            'node-id': device.name,
+            'connection-type': getConnectionType(decodeMountParams(device.mountParameters)),
           },
         };
-        if (dbDevice == null) {
+        if (device == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
         await uniconfigAPI.uninstallDevice(uniconfigURL, uninstallParams);
-
-        const device = convertDBDevice(dbDevice);
 
         return { device };
       },

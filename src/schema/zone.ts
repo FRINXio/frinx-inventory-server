@@ -1,15 +1,22 @@
-import { connectionFromArray } from 'graphql-relay';
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
-import { convertDBZone } from '../helpers/converters';
+import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo } from './global-types';
 
 export const Zone = objectType({
   name: 'Zone',
   definition: (t) => {
     t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Zone', root.id),
+    });
     t.nonNull.string('name');
-    t.nonNull.string('createdAt');
-    t.nonNull.string('updatedAt');
+    t.nonNull.string('createdAt', {
+      resolve: (root) => root.createdAt.toISOString(),
+    });
+    t.nonNull.string('updatedAt', {
+      resolve: (root) => root.updatedAt.toISOString(),
+    });
   },
 });
 export const ZoneEdge = objectType({
@@ -30,6 +37,7 @@ export const ZonesConnection = objectType({
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
+    t.nonNull.int('totalCount');
   },
 });
 export const ZonesQuery = extendType({
@@ -44,9 +52,13 @@ export const ZonesQuery = extendType({
         before: stringArg(),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const dbZones = await prisma.uniconfigZone.findMany({ where: { tenantId } });
-        const zones = dbZones.map(convertDBZone);
-        return connectionFromArray(zones, args);
+        const baseArgs = { where: { tenantId } };
+        const result = await findManyCursorConnection(
+          (paginationArgs) => prisma.uniconfigZone.findMany({ ...baseArgs, ...paginationArgs }),
+          () => prisma.uniconfigZone.count(baseArgs),
+          args,
+        );
+        return result;
       },
     });
   },
@@ -78,7 +90,7 @@ export const AddZoneMutation = extendType({
             tenantId,
           },
         });
-        return { zone: convertDBZone(zone) };
+        return { zone };
       },
     });
   },

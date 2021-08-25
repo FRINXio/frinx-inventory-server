@@ -1,15 +1,6 @@
 import { extendType, idArg, interfaceType, nonNull, objectType } from 'nexus';
 import countries from 'i18n-iso-countries';
-import {
-  getDeviceInstallConverter,
-  convertDBDevice,
-  convertDBZone,
-  convertDBLabel,
-  convertDBLocation,
-} from '../helpers/converters';
 import { fromGraphId, getType } from '../helpers/id-helper';
-import { getInstalledDevices } from '../external-api/uniconfig';
-import { makeUniconfigURL } from '../helpers/zone.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -39,46 +30,42 @@ export const NodeQuery = extendType({
         const type = getType(args.id);
         if (type === 'Device') {
           const id = fromGraphId('Device', args.id);
-          const dbDevice = await prisma.device.findFirst({
+          const device = await prisma.device.findFirst({
             where: { id, tenantId },
           });
-          if (dbDevice == null) {
+          if (device == null) {
             return null;
           }
-          const device = convertDBDevice(dbDevice);
-          if (dbDevice == null) {
+          if (device == null) {
             throw new Error('device not found');
           }
-          const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-          const installedDevices = await getInstalledDevices(uniconfigURL);
-          const convertFn = getDeviceInstallConverter(installedDevices.output.nodes ?? []);
-          return convertFn(device);
+          return device;
         }
         if (type === 'Zone') {
           const id = fromGraphId('Zone', args.id);
-          const dbZone = await prisma.uniconfigZone.findFirst({
+          const zone = await prisma.uniconfigZone.findFirst({
             where: { id, tenantId },
           });
-          if (dbZone == null) {
+          if (zone == null) {
             return null;
           }
-          return convertDBZone(dbZone);
+          return zone;
         }
         if (type === 'Label') {
           const id = fromGraphId('Label', args.id);
-          const dbLabel = await prisma.label.findFirst({ where: { id, tenantId } });
-          if (dbLabel == null) {
+          const label = await prisma.label.findFirst({ where: { id, tenantId } });
+          if (label == null) {
             return null;
           }
-          return convertDBLabel(dbLabel);
+          return label;
         }
         if (type === 'Location') {
           const id = fromGraphId('Location', args.id);
-          const dbLocation = await prisma.location.findFirst({ where: { id, tenantId } });
-          if (dbLocation == null) {
+          const location = await prisma.location.findFirst({ where: { id, tenantId } });
+          if (location == null) {
             return null;
           }
-          return convertDBLocation(dbLocation);
+          return location;
         }
         if (type === 'Country') {
           const id = fromGraphId('Country', args.id);
