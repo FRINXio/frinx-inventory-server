@@ -1,7 +1,13 @@
 import * as t from 'io-ts';
 import { Either, fold } from 'fp-ts/lib/Either';
 import { PathReporter } from 'io-ts/lib/PathReporter';
-import { device as DbDevice, Prisma, uniconfigZone as DbUniconfigZone, label as DbLabel } from '@prisma/client';
+import {
+  device as DbDevice,
+  Prisma,
+  uniconfigZone as DbUniconfigZone,
+  label as DbLabel,
+  location as DbLocation,
+} from '@prisma/client';
 import { toGraphId } from './id-helper';
 
 export function extractResult<A>(result: Either<t.Errors, A>): A {
@@ -23,8 +29,9 @@ export type DeviceType = {
   model: string | null;
   vendor: string | null;
   address: string | null;
-  installationStatus: 'INSTALLED' | 'NOT_INSTALLED' | null;
+  isInstalled: boolean;
   source: 'MANUAL' | 'DISCOVERED' | 'IMPORTED';
+  serviceState: 'PLANNING' | 'IN_SERVICE' | 'OUT_OF_SERVICE';
   $zoneId: string;
 };
 
@@ -38,9 +45,10 @@ export function convertDBDevice(dbDevice: DbDevice): DeviceType {
     mountParameters: deviceMountParameters,
     model: dbDevice.model,
     vendor: dbDevice.vendor,
-    installationStatus: null,
+    isInstalled: false,
     address: dbDevice.managementIp,
     source: dbDevice.source,
+    serviceState: dbDevice.serviceState,
     $zoneId: dbDevice.uniconfigZoneId,
   };
 }
@@ -74,6 +82,24 @@ export function convertDBLabel(dbLabel: DbLabel): LabelType {
     name: dbLabel.name,
     createdAt: dbLabel.createdAt.toISOString(),
     updatedAt: dbLabel.updatedAt.toISOString(),
+  };
+}
+
+export type LocationType = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  country: string;
+};
+
+export function convertDBLocation(dbLocation: DbLocation): LocationType {
+  return {
+    id: toGraphId('Location', dbLocation.id),
+    name: dbLocation.name,
+    createdAt: dbLocation.createdAt.toISOString(),
+    updatedAt: dbLocation.updatedAt.toISOString(),
+    country: dbLocation.country,
   };
 }
 

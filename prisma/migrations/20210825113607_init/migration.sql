@@ -113,4 +113,4 @@ ALTER TABLE "device_inventory" ADD FOREIGN KEY ("location_id") REFERENCES "locat
 ALTER TABLE "device_label" ADD FOREIGN KEY ("device_id") REFERENCES "device_inventory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "device_label" ADD FOREIGN KEY ("label_id") REFERENCES "label"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "device_label" ADD FOREIGN KEY ("label_id") REFERENCES "label"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

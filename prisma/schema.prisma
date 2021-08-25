@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
+
 }
 
 datasource db {
@@ -38,11 +40,11 @@ model device {
   password        String?
   tenantId        String        @map("tenant_id")
   uniconfigZoneId String        @map("uniconfig_zone")
-  uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id])
+  uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id], onDelete: Cascade)
   source          Source
   serviceState    ServiceState  @default(PLANNING)
   locationId      String?       @map("location_id")
-  location        location?     @relation(fields: [locationId], references: [id])
+  location        location?     @relation(fields: [locationId], references: [id], onDelete: SetNull)
 
   label deviceLabel[]
 
@@ -83,8 +85,8 @@ model deviceLabel {
   deviceId  String   @map("device_id")
   labelId   String   @map("label_id")
 
-  device device @relation(fields: [deviceId], references: [id])
-  label  label  @relation(fields: [labelId], references: [id])
+  device device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  label  label  @relation(fields: [labelId], references: [id], onDelete: Restrict)
 
 
   @@unique([deviceId, labelId], name: "udx_device_label_device_id_label_id")
