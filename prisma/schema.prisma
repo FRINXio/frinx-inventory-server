@@ -23,20 +23,20 @@ model device {
   id              String        @id @default(uuid())
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
-  name            String        @db.VarChar(255)
-  role            String?       @db.VarChar(50)
-  managementIp    String?       @map("management_ip") @db.Inet
-  config          Json?         @db.Json
-  model           String?       @db.VarChar(255)
-  software        String?       @db.VarChar(50)
-  softwareVersion String?       @map("sw_version") @db.VarChar(50)
+  name            String
+  role            String?
+  managementIp    String?       @map("management_ip")
+  config          Json?
+  model           String?
+  software        String?
+  softwareVersion String?       @map("sw_version")
   macAddress      String?       @map("mac_address")
-  serialNumber    String?       @map("serial_number") @db.VarChar(50)
-  vendor          String?       @db.VarChar(50)
+  serialNumber    String?       @map("serial_number")
+  vendor          String?
   mountParameters Json?         @map("mount_parameters")
-  username        String?       @db.VarChar(50)
-  password        String?       @db.VarChar(50)
-  tenantId        String        @map("tenant_id") @db.VarChar(64)
+  username        String?
+  password        String?
+  tenantId        String        @map("tenant_id")
   uniconfigZoneId String        @map("uniconfig_zone")
   uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id])
   source          Source
@@ -54,8 +54,8 @@ model uniconfigZone {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  name      String   @db.VarChar(250)
-  tenantId  String   @map("tenant_id") @db.VarChar(64)
+  name      String
+  tenantId  String   @map("tenant_id")
   device    device[]
 
 
