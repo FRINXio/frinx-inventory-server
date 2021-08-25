@@ -3,6 +3,7 @@
 
 input AddDeviceInput {
   address: String
+  labelIds: [String!]
   model: String
   mountParameters: String
   name: String!
@@ -55,6 +56,14 @@ type CommitConfigPayload {
   output: String!
 }
 
+input CreateLabelInput {
+  name: String!
+}
+
+type CreateLabelPayload {
+  label: Label
+}
+
 type DataStore {
   config: String
   operational: String
@@ -67,12 +76,21 @@ type DeleteDevicePayload {
 
 type Device implements Node {
   address: String
+  createdAt: String!
   id: ID!
+  labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   model: String
   name: String!
+  source: DeviceSource
   status: DeviceStatus
+  updatedAt: String!
   vendor: String
-  zone: Zone
+  zone: Zone!
+}
+
+type DeviceConnection {
+  edges: [DeviceEdge!]!
+  pageInfo: PageInfo!
 }
 
 type DeviceEdge {
@@ -80,18 +98,38 @@ type DeviceEdge {
   node: Device!
 }
 
+enum DeviceSource {
+  DISCOVERED
+  IMPORTED
+  MANUAL
+}
+
 enum DeviceStatus {
   INSTALLED
   NOT_INSTALLED
 }
 
-type DevicesConnection {
-  edges: [DeviceEdge!]!
-  pageInfo: PageInfo!
+input FilterDevicesInput {
+  labelIds: [String!]
 }
 
 type InstallDevicePayload {
   device: Device!
+}
+
+type Label implements Node {
+  createdAt: String!
+  id: ID!
+  name: String!
+  updatedAt: String!
+}
+
+type LabelConnection {
+  edges: [LabelEdge!]!
+}
+
+type LabelEdge {
+  node: Label!
 }
 
 type Mutation {
@@ -100,6 +138,7 @@ type Mutation {
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!): ApplySnapshotPayload!
   commitConfig(input: CommitConfigInput!): CommitConfigPayload!
+  createLabel(input: CreateLabelInput!): CreateLabelPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!): ResetConfigPayload!
@@ -123,7 +162,8 @@ type PageInfo {
 type Query {
   calculatedDiff(deviceId: String!): CalculatedDiffPayload!
   dataStore(deviceId: String!): DataStore
-  devices(after: String, before: String, first: Int, last: Int): DevicesConnection!
+  devices(after: String, before: String, filter: FilterDevicesInput, first: Int, last: Int): DeviceConnection!
+  labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   node(id: ID!): Node
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
@@ -155,6 +195,7 @@ type UpdateDataStorePayload {
 
 input UpdateDeviceInput {
   address: String
+  labelIds: [String!]
   model: String
   mountParameters: String
   vendor: String
@@ -165,8 +206,10 @@ type UpdateDevicePayload {
 }
 
 type Zone implements Node {
+  createdAt: String!
   id: ID!
   name: String!
+  updatedAt: String!
 }
 
 type ZoneEdge {

@@ -13,6 +13,7 @@ export interface NexusGenInputs {
   AddDeviceInput: {
     // input type
     address?: string | null; // String
+    labelIds?: string[] | null; // [String!]
     model?: string | null; // String
     mountParameters?: string | null; // String
     name: string; // String!
@@ -38,6 +39,14 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     shouldDryRun?: boolean | null; // Boolean
   };
+  CreateLabelInput: {
+    // input type
+    name: string; // String!
+  };
+  FilterDevicesInput: {
+    // input type
+    labelIds?: string[] | null; // [String!]
+  };
   UpdateDataStoreInput: {
     // input type
     config: string; // String!
@@ -45,6 +54,7 @@ export interface NexusGenInputs {
   UpdateDeviceInput: {
     // input type
     address?: string | null; // String
+    labelIds?: string[] | null; // [String!]
     model?: string | null; // String
     mountParameters?: string | null; // String
     vendor?: string | null; // String
@@ -52,6 +62,7 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
+  DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
   DeviceStatus: 'INSTALLED' | 'NOT_INSTALLED';
 }
 
@@ -90,6 +101,10 @@ export interface NexusGenObjects {
     isOk: boolean; // Boolean!
     output: string; // String!
   };
+  CreateLabelPayload: {
+    // root type
+    label?: NexusGenRootTypes['Label'] | null; // Label
+  };
   DataStore: {};
   DeleteDevicePayload: {
     // root type
@@ -98,24 +113,42 @@ export interface NexusGenObjects {
   Device: {
     // root type
     address?: string | null; // String
+    createdAt: string; // String!
     id: string; // ID!
     model?: string | null; // String
     name: string; // String!
+    source?: NexusGenEnums['DeviceSource'] | null; // DeviceSource
+    updatedAt: string; // String!
     vendor?: string | null; // String
+  };
+  DeviceConnection: {
+    // root type
+    edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
   };
   DeviceEdge: {
     // root type
     cursor: string; // String!
     node: NexusGenRootTypes['Device']; // Device!
   };
-  DevicesConnection: {
-    // root type
-    edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
-    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
-  };
   InstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
+  };
+  Label: {
+    // root type
+    createdAt: string; // String!
+    id: string; // ID!
+    name: string; // String!
+    updatedAt: string; // String!
+  };
+  LabelConnection: {
+    // root type
+    edges: NexusGenRootTypes['LabelEdge'][]; // [LabelEdge!]!
+  };
+  LabelEdge: {
+    // root type
+    node: NexusGenRootTypes['Label']; // Label!
   };
   Mutation: {};
   PageInfo: {
@@ -153,8 +186,10 @@ export interface NexusGenObjects {
   };
   Zone: {
     // root type
+    createdAt: string; // String!
     id: string; // ID!
     name: string; // String!
+    updatedAt: string; // String!
   };
   ZoneEdge: {
     // root type
@@ -169,7 +204,7 @@ export interface NexusGenObjects {
 }
 
 export interface NexusGenInterfaces {
-  Node: NexusGenRootTypes['Device'] | NexusGenRootTypes['Zone'];
+  Node: NexusGenRootTypes['Device'] | NexusGenRootTypes['Label'] | NexusGenRootTypes['Zone'];
 }
 
 export interface NexusGenUnions {}
@@ -205,6 +240,10 @@ export interface NexusGenFieldTypes {
     isOk: boolean; // Boolean!
     output: string; // String!
   };
+  CreateLabelPayload: {
+    // field return type
+    label: NexusGenRootTypes['Label'] | null; // Label
+  };
   DataStore: {
     // field return type
     config: string | null; // String
@@ -218,26 +257,45 @@ export interface NexusGenFieldTypes {
   Device: {
     // field return type
     address: string | null; // String
+    createdAt: string; // String!
     id: string; // ID!
+    labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     model: string | null; // String
     name: string; // String!
+    source: NexusGenEnums['DeviceSource'] | null; // DeviceSource
     status: NexusGenEnums['DeviceStatus'] | null; // DeviceStatus
+    updatedAt: string; // String!
     vendor: string | null; // String
-    zone: NexusGenRootTypes['Zone'] | null; // Zone
+    zone: NexusGenRootTypes['Zone']; // Zone!
+  };
+  DeviceConnection: {
+    // field return type
+    edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
   };
   DeviceEdge: {
     // field return type
     cursor: string; // String!
     node: NexusGenRootTypes['Device']; // Device!
   };
-  DevicesConnection: {
-    // field return type
-    edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
-    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
-  };
   InstallDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
+  };
+  Label: {
+    // field return type
+    createdAt: string; // String!
+    id: string; // ID!
+    name: string; // String!
+    updatedAt: string; // String!
+  };
+  LabelConnection: {
+    // field return type
+    edges: NexusGenRootTypes['LabelEdge'][]; // [LabelEdge!]!
+  };
+  LabelEdge: {
+    // field return type
+    node: NexusGenRootTypes['Label']; // Label!
   };
   Mutation: {
     // field return type
@@ -246,6 +304,7 @@ export interface NexusGenFieldTypes {
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
+    createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
@@ -265,7 +324,8 @@ export interface NexusGenFieldTypes {
     // field return type
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
-    devices: NexusGenRootTypes['DevicesConnection']; // DevicesConnection!
+    devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
+    labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
@@ -296,8 +356,10 @@ export interface NexusGenFieldTypes {
   };
   Zone: {
     // field return type
+    createdAt: string; // String!
     id: string; // ID!
     name: string; // String!
+    updatedAt: string; // String!
   };
   ZoneEdge: {
     // field return type
@@ -342,6 +404,10 @@ export interface NexusGenFieldTypeNames {
     isOk: 'Boolean';
     output: 'String';
   };
+  CreateLabelPayload: {
+    // field return type name
+    label: 'Label';
+  };
   DataStore: {
     // field return type name
     config: 'String';
@@ -355,26 +421,45 @@ export interface NexusGenFieldTypeNames {
   Device: {
     // field return type name
     address: 'String';
+    createdAt: 'String';
     id: 'ID';
+    labels: 'LabelConnection';
     model: 'String';
     name: 'String';
+    source: 'DeviceSource';
     status: 'DeviceStatus';
+    updatedAt: 'String';
     vendor: 'String';
     zone: 'Zone';
+  };
+  DeviceConnection: {
+    // field return type name
+    edges: 'DeviceEdge';
+    pageInfo: 'PageInfo';
   };
   DeviceEdge: {
     // field return type name
     cursor: 'String';
     node: 'Device';
   };
-  DevicesConnection: {
-    // field return type name
-    edges: 'DeviceEdge';
-    pageInfo: 'PageInfo';
-  };
   InstallDevicePayload: {
     // field return type name
     device: 'Device';
+  };
+  Label: {
+    // field return type name
+    createdAt: 'String';
+    id: 'ID';
+    name: 'String';
+    updatedAt: 'String';
+  };
+  LabelConnection: {
+    // field return type name
+    edges: 'LabelEdge';
+  };
+  LabelEdge: {
+    // field return type name
+    node: 'Label';
   };
   Mutation: {
     // field return type name
@@ -383,6 +468,7 @@ export interface NexusGenFieldTypeNames {
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     commitConfig: 'CommitConfigPayload';
+    createLabel: 'CreateLabelPayload';
     deleteDevice: 'DeleteDevicePayload';
     installDevice: 'InstallDevicePayload';
     resetConfig: 'ResetConfigPayload';
@@ -402,7 +488,8 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     calculatedDiff: 'CalculatedDiffPayload';
     dataStore: 'DataStore';
-    devices: 'DevicesConnection';
+    devices: 'DeviceConnection';
+    labels: 'LabelConnection';
     node: 'Node';
     zones: 'ZonesConnection';
   };
@@ -433,8 +520,10 @@ export interface NexusGenFieldTypeNames {
   };
   Zone: {
     // field return type name
+    createdAt: 'String';
     id: 'ID';
     name: 'String';
+    updatedAt: 'String';
   };
   ZoneEdge: {
     // field return type name
@@ -453,6 +542,15 @@ export interface NexusGenFieldTypeNames {
 }
 
 export interface NexusGenArgTypes {
+  Device: {
+    labels: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
+  };
   Mutation: {
     addDevice: {
       // args
@@ -473,6 +571,10 @@ export interface NexusGenArgTypes {
     commitConfig: {
       // args
       input: NexusGenInputs['CommitConfigInput']; // CommitConfigInput!
+    };
+    createLabel: {
+      // args
+      input: NexusGenInputs['CreateLabelInput']; // CreateLabelInput!
     };
     deleteDevice: {
       // args
@@ -518,6 +620,14 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
+      filter?: NexusGenInputs['FilterDevicesInput'] | null; // FilterDevicesInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
+    labels: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
       first?: number | null; // Int
       last?: number | null; // Int
     };
@@ -536,11 +646,12 @@ export interface NexusGenArgTypes {
 }
 
 export interface NexusGenAbstractTypeMembers {
-  Node: 'Device' | 'Zone';
+  Node: 'Device' | 'Label' | 'Zone';
 }
 
 export interface NexusGenTypeInterfaces {
   Device: 'Node';
+  Label: 'Node';
   Zone: 'Node';
 }
 

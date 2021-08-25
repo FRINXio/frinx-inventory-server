@@ -78,14 +78,11 @@ export const DataStoreQuery = extendType({
       },
       resolve: async (_, { deviceId }, { prisma }) => {
         const nativeDeviceId = fromGraphId('Device', deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           return null;
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         return {
           $deviceName: dbDevice.name,
           $uniconfigURL: uniconfigURL,
@@ -118,14 +115,11 @@ export const UpdateDataStoreMutation = extendType({
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const { deviceId, input } = args;
         const nativeDeviceId = fromGraphId('Device', deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = JSON.parse(input.config);
         await uniconfigAPI.updateUniconfigDataStore(uniconfigURL, dbDevice.name, decodeUniconfigConfigInput(params));
         return {
@@ -164,14 +158,11 @@ export const CommitConfigMutation = extendType({
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const { input } = args;
         const nativeDeviceId = fromGraphId('Device', input.deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -205,14 +196,11 @@ export const ResetConfigMutation = extendType({
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -258,14 +246,11 @@ export const AddSnapshotMutation = extendType({
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.input.deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             name: args.input.name,
@@ -314,14 +299,11 @@ export const ApplySnapshotMutation = extendType({
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.input.deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             name: args.input.name,
@@ -357,14 +339,11 @@ export const CalculatedDiffQuery = extendType({
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -396,14 +375,11 @@ export const SyncFromNetworkMutation = extendType({
       args: { deviceId: nonNull(stringArg()) },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
-        const dbDevice = await prisma.device_inventory.findFirst({ where: { id: nativeDeviceId } });
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfig_zone);
-        if (uniconfigURL == null) {
-          throw new Error('should never happen');
-        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
