@@ -37,6 +37,7 @@ export const ZonesConnection = objectType({
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
+    t.nonNull.int('totalCount');
   },
 });
 export const ZonesQuery = extendType({

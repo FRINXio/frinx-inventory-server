@@ -49,6 +49,7 @@ export const CountryConnection = objectType({
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
+    t.nonNull.int('totalCount');
   },
 });
 export const CountryQuery = extendType({
@@ -69,7 +70,10 @@ export const CountryQuery = extendType({
           name: nameObject[key],
           code: key,
         }));
-        return connectionFromArray(countriesList, args);
+        return {
+          ...connectionFromArray(countriesList, args),
+          totalCount: countriesList.length,
+        };
       },
     });
   },
@@ -89,6 +93,7 @@ export const LocationConnection = objectType({
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
+    t.nonNull.int('totalCount');
   },
 });
 export const LocationQuery = extendType({
