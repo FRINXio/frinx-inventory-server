@@ -1,9 +1,20 @@
 import base64url from 'base64url';
 
-export type DataType = 'Zone' | 'Device' | 'Label' | 'Location' | 'Country';
+export type DataType = 'Zone' | 'Device' | 'Label' | 'Location' | 'Country' | 'Blueprint';
+
+function isDataType(value: string): value is DataType {
+  return (
+    value === 'Zone' ||
+    value === 'Device' ||
+    value === 'Label' ||
+    value === 'Location' ||
+    value === 'Country' ||
+    value === 'Blueprint'
+  );
+}
 
 function unwrapType(type: string): DataType {
-  if (type === 'Zone' || type === 'Device' || type === 'Label' || type === 'Location' || type === 'Country') {
+  if (isDataType(type)) {
     return type;
   }
   throw new Error(`graphId: invalid type-name: ${type}`);

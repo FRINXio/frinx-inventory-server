@@ -41,7 +41,7 @@ export const DataStore = objectType({
       },
     });
     t.nonNull.field('snapshots', {
-      type: list(nonNull(Snapshot)),
+      type: nonNull(list(nonNull(Snapshot))),
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
           const response = await uniconfigAPI.getSnapshots(root.$uniconfigURL);
@@ -236,16 +236,16 @@ export const AddSnapshotMutation = extendType({
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.input.deviceId);
-        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
-        if (dbDevice == null) {
+        const device = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
+        if (device == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
         const params = {
           input: {
             name: args.input.name,
             'target-nodes': {
-              node: [dbDevice.name],
+              node: [device.name],
             },
           },
         };

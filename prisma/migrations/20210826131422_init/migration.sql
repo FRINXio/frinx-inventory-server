@@ -85,6 +85,18 @@ CREATE TABLE "location" (
     PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "device_blueprint" (
+    "id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "name" TEXT NOT NULL,
+    "tenant_id" TEXT NOT NULL,
+    "template" TEXT NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "udx_device_name_tenant_id" ON "device_inventory"("name", "tenant_id");
 
@@ -102,6 +114,9 @@ CREATE UNIQUE INDEX "udx_device_label_device_id_label_id" ON "device_label"("dev
 
 -- CreateIndex
 CREATE UNIQUE INDEX "udx_location_name_tenant_id" ON "location"("name", "tenant_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "udx_device_blueprint_name_tenant_id" ON "device_blueprint"("tenant_id", "name");
 
 -- AddForeignKey
 ALTER TABLE "device_inventory" ADD FOREIGN KEY ("uniconfig_zone") REFERENCES "uniconfig_zone"("id") ON DELETE CASCADE ON UPDATE CASCADE;

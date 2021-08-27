@@ -1,7 +1,7 @@
-import * as t from 'io-ts';
-import { Either, fold } from 'fp-ts/lib/Either';
-import { PathReporter } from 'io-ts/lib/PathReporter';
 import { Prisma } from '@prisma/client';
+import { Either, fold } from 'fp-ts/lib/Either';
+import * as t from 'io-ts';
+import { PathReporter } from 'io-ts/lib/PathReporter';
 
 export function extractResult<A>(result: Either<t.Errors, A>): A {
   return fold(

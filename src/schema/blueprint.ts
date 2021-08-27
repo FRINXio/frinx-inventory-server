@@ -3,12 +3,12 @@ import { arg, extendType, inputObjectType, nonNull, objectType } from 'nexus';
 import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 
-export const Zone = objectType({
-  name: 'Zone',
+export const Blueprint = objectType({
+  name: 'Blueprint',
   definition: (t) => {
     t.implements(Node);
     t.nonNull.id('id', {
-      resolve: (root) => toGraphId('Zone', root.id),
+      resolve: (root) => toGraphId('Blueprint', root.id),
     });
     t.nonNull.string('name');
     t.nonNull.string('createdAt', {
@@ -17,40 +17,38 @@ export const Zone = objectType({
     t.nonNull.string('updatedAt', {
       resolve: (root) => root.updatedAt.toISOString(),
     });
+    t.nonNull.string('template');
   },
 });
-export const ZoneEdge = objectType({
-  name: 'ZoneEdge',
+
+export const BlueprintEdge = objectType({
+  name: 'BlueprintEdge',
   definition: (t) => {
-    t.nonNull.field('node', {
-      type: Zone,
-    });
+    t.nonNull.field('node', { type: Blueprint });
     t.nonNull.string('cursor');
   },
 });
-export const ZonesConnection = objectType({
-  name: 'ZonesConnection',
+export const BlueprintConnection = objectType({
+  name: 'BlueprintConnection',
   definition: (t) => {
-    t.nonNull.list.nonNull.field('edges', {
-      type: ZoneEdge,
-    });
+    t.nonNull.list.nonNull.field('edges', { type: BlueprintEdge });
     t.nonNull.field('pageInfo', {
       type: PageInfo,
     });
     t.nonNull.int('totalCount');
   },
 });
-export const ZonesQuery = extendType({
+export const BlueprintsQuery = extendType({
   type: 'Query',
   definition: (t) => {
-    t.nonNull.field('zones', {
-      type: ZonesConnection,
+    t.nonNull.field('blueprints', {
+      type: BlueprintConnection,
       args: PaginationConnectionArgs,
       resolve: async (_, args, { prisma, tenantId }) => {
         const baseArgs = { where: { tenantId } };
         const result = await findManyCursorConnection(
-          (paginationArgs) => prisma.uniconfigZone.findMany({ ...baseArgs, ...paginationArgs }),
-          () => prisma.uniconfigZone.count(baseArgs),
+          (paginationArgs) => prisma.blueprint.findMany({ ...baseArgs, ...paginationArgs }),
+          () => prisma.blueprint.count(baseArgs),
           args,
         );
         return result;
@@ -58,34 +56,38 @@ export const ZonesQuery = extendType({
     });
   },
 });
-export const AddZoneInput = inputObjectType({
-  name: 'AddZoneInput',
+
+export const AddBlueprintPayload = objectType({
+  name: 'AddBlueprintPayload',
+  definition: (t) => {
+    t.nonNull.field('blueprint', { type: Blueprint });
+  },
+});
+export const AddBlueprintInput = inputObjectType({
+  name: 'AddBlueprintInput',
   definition: (t) => {
     t.nonNull.string('name');
+    t.nonNull.string('template');
   },
 });
-export const AddZonePayload = objectType({
-  name: 'AddZonePayload',
-  definition: (t) => {
-    t.nonNull.field('zone', { type: Zone });
-  },
-});
-export const AddZoneMutation = extendType({
+export const AddBlueprintMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
-    t.nonNull.field('addZone', {
-      type: AddZonePayload,
+    t.nonNull.field('addBlueprint', {
+      type: AddBlueprintPayload,
       args: {
-        input: nonNull(arg({ type: AddZoneInput })),
+        input: nonNull(arg({ type: AddBlueprintInput })),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const zone = await prisma.uniconfigZone.create({
+        const { input } = args;
+        const blueprint = await prisma.blueprint.create({
           data: {
-            name: args.input.name,
             tenantId,
+            name: input.name,
+            template: input.template,
           },
         });
-        return { zone };
+        return { blueprint };
       },
     });
   },
