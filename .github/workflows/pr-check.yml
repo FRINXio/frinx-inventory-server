@@ -11,9 +11,9 @@ jobs:
       postgres:
         image: postgres:12-alpine
         env:
-          - POSTGRES_USER=postgres
-          - POSTGRES_PASSWORD=postgres
-          - POSTGRES_DB=postgres
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -31,7 +31,7 @@ jobs:
       - name: Test the code
         run: yarn run test
         env:
-          - DATABASE_URL: postgresql://postgres:postgres@postgres:5432/frinx
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/frinx
       - name: Check code formatting
         run: yarn run formatter:check
       - name: Run eslint check
