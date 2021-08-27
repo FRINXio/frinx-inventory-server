@@ -1,27 +1,45 @@
 name: PR check
-
 on:
   pull_request:
     branches:
       - master
-
 jobs:
-  formatter-check:
+  pr-check:
     runs-on: ubuntu-latest
+    container: node:14-alpine
+    services:
+      postgres:
+        image: postgres:12-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-      - uses: actions/checkout@v2
-      - uses: addnab/docker-run-action@v3
-        with:
-          image: node:fermium-alpine
-          options: -v ${{ github.workspace }}:/work
-          run: |
-            cd /work && \
-            apk update && \
-            apk add --virtual build-essential build-base gcc wget git && \
-            cp yarn.lock yarn.lock.orig && \
-            yarn install && \
-            cmp yarn.lock yarn.lock.orig && \
-            yarn run prisma:generate && \
-            yarn run formatter:check && \
-            yarn run lint && \
-            yarn run type-check
+      - name: Checkout repository code
+        uses: actions/checkout@v2
+      - name: Copy yarn.lock file
+        run: cp yarn.lock yarn.lock.orig
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Generate prisma client
+        run: yarn run prisma:generate
+      - name: Test the code
+        run: yarn run test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/frinx
+          HOST: localhost
+          PORT: 8001
+          UNICONFIG_API_PROTOCOL: http
+          UNICONFIG_API_PORT: 4000
+          UNICONFIG_LIST_URL: http://localhost:4000/static/list/uniconfig
+      - name: Check code formatting
+        run: yarn run formatter:check
+      - name: Run eslint check
+        run: yarn run lint
+      - name: Run TS typecheck
+        run: yarn run type-check

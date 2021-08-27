@@ -1,9 +1,9 @@
-import { connectionFromArray } from 'graphql-relay';
-import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
+import { connectionFromArray } from 'graphql-relay';
 import countries from 'i18n-iso-countries';
-import { Node, PageInfo } from './global-types';
+import { arg, extendType, inputObjectType, nonNull, objectType } from 'nexus';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 
 export const Location = objectType({
   name: 'Location',
@@ -57,12 +57,7 @@ export const CountryQuery = extendType({
   definition: (t) => {
     t.nonNull.field('countries', {
       type: CountryConnection,
-      args: {
-        first: intArg(),
-        after: stringArg(),
-        last: intArg(),
-        before: stringArg(),
-      },
+      args: PaginationConnectionArgs,
       resolve: (_, args) => {
         const nameObject = countries.getNames('en', { select: 'official' });
         const countriesList = Object.keys(nameObject).map((key) => ({
@@ -101,12 +96,7 @@ export const LocationQuery = extendType({
   definition: (t) => {
     t.nonNull.field('locations', {
       type: LocationConnection,
-      args: {
-        first: intArg(),
-        after: stringArg(),
-        last: intArg(),
-        before: stringArg(),
-      },
+      args: PaginationConnectionArgs,
       resolve: async (_, args, { prisma, tenantId }) => {
         const baseArgs = { where: { tenantId } };
         const result = await findManyCursorConnection(

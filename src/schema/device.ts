@@ -1,9 +1,9 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { arg, enumType, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
+import { arg, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
-import { Node, PageInfo } from './global-types';
+import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
@@ -21,14 +21,14 @@ export const Device = objectType({
   definition: (t) => {
     t.implements(Node);
     t.nonNull.id('id', {
-      resolve: (root) => toGraphId('Device', root.id),
+      resolve: (device) => toGraphId('Device', device.id),
     });
     t.nonNull.string('name');
     t.nonNull.string('createdAt', {
-      resolve: (root) => root.createdAt.toISOString(),
+      resolve: (device) => device.createdAt.toISOString(),
     });
     t.nonNull.string('updatedAt', {
-      resolve: (root) => root.updatedAt.toISOString(),
+      resolve: (device) => device.updatedAt.toISOString(),
     });
     t.string('model');
     t.string('vendor');
@@ -57,15 +57,9 @@ export const Device = objectType({
     });
     t.nonNull.field('labels', {
       type: LabelConnection,
-      args: {
-        first: intArg({ default: 20 }),
-        after: stringArg(),
-        last: intArg(),
-        before: stringArg(),
-      },
+      args: PaginationConnectionArgs,
       resolve: async (root, args, { prisma, tenantId }) => {
-        const nativeDeviceId = fromGraphId('Device', root.id);
-        const baseArgs = { where: { tenantId, AND: { device: { every: { deviceId: nativeDeviceId } } } } };
+        const baseArgs = { where: { tenantId, device: { every: { deviceId: root.id } } } };
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
           () => prisma.label.count(baseArgs),
@@ -76,13 +70,12 @@ export const Device = objectType({
     });
     t.field('location', {
       type: Location,
-      resolve: async (root, _, { prisma }) => {
-        const nativeDeviceId = fromGraphId('Device', root.id);
-        const dbLocation = await prisma.device.findFirst({ where: { id: nativeDeviceId } }).location();
-        if (dbLocation == null) {
+      resolve: async (device, _, { prisma }) => {
+        const location = await prisma.device.findFirst({ where: { id: device.id } }).location();
+        if (location == null) {
           return null;
         }
-        return dbLocation;
+        return location;
       },
     });
   },
@@ -120,16 +113,13 @@ export const DevicesQuery = extendType({
     t.nonNull.field('devices', {
       type: DeviceConnection,
       args: {
-        first: intArg(),
-        after: stringArg(),
-        last: intArg(),
-        before: stringArg(),
+        ...PaginationConnectionArgs,
         filter: FilterDevicesInput,
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { filter } = args;
         const labelIds = (filter?.labelIds ?? []).map((lId) => fromGraphId('Label', lId));
-        const filterQuery = labelIds.length ? { label: { every: { labelId: { in: labelIds } } } } : {};
+        const filterQuery = labelIds.length ? { label: { some: { labelId: { in: labelIds } } } } : {};
         const baseArgs = { where: { tenantId, ...filterQuery } };
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...paginationArgs }),
@@ -229,8 +219,7 @@ export const UpdateDeviceMutation = extendType({
       resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          where: { id: nativeId, AND: { tenantId } },
+          where: { id: nativeId, tenantId },
         });
         if (dbDevice == null) {
           throw new Error('device not found');

@@ -1,4 +1,4 @@
-import { device, label, location, uniconfigZone } from '@prisma/client';
+import { blueprint, device, label, location, uniconfigZone } from '@prisma/client';
 
 export type Label = label;
 export type Device = device;
@@ -13,3 +13,4 @@ export type Country = {
   name: string;
   code: string;
 };
+export type Blueprint = blueprint;

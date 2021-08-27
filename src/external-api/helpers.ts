@@ -1,8 +1,6 @@
+import https from 'https';
 import fetch, { RequestInit } from 'node-fetch';
 import join from 'url-join';
-import https from 'https';
-import APIError from '../errors/api-error';
-import { HttpStatusCode } from '../errors/base-error';
 import getLogger from '../get-logger';
 
 const log = getLogger('inventory-server:fetch');
@@ -72,7 +70,7 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
 
   if (!response.ok) {
     logError(requestId, response.status);
-    throw new APIError(response.status.toString(), HttpStatusCode.INTERNAL_SERVER, true, JSON.stringify(response));
+    throw new Error(response.status.toString());
   }
 
   if (response.status === 201 || response.status === 204) {

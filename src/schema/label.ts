@@ -1,7 +1,7 @@
-import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
+import { arg, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
-import { Node, PageInfo } from './global-types';
+import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 
 export const Label = objectType({
   name: 'Label',
@@ -43,12 +43,7 @@ export const LabelsQuery = extendType({
   definition: (t) => {
     t.nonNull.field('labels', {
       type: LabelConnection,
-      args: {
-        first: intArg(),
-        after: stringArg(),
-        last: intArg(),
-        before: stringArg(),
-      },
+      args: PaginationConnectionArgs,
       resolve: async (_, args, { prisma, tenantId }) => {
         const baseArgs = { where: { tenantId } };
         const result = await findManyCursorConnection(

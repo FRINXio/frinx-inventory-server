@@ -1,5 +1,5 @@
-import { extendType, idArg, interfaceType, nonNull, objectType } from 'nexus';
 import countries from 'i18n-iso-countries';
+import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
 import { fromGraphId, getType } from '../helpers/id-helper';
 
 export const Node = interfaceType({
@@ -18,6 +18,12 @@ export const PageInfo = objectType({
     t.nonNull.boolean('hasPreviousPage');
   },
 });
+export const PaginationConnectionArgs = {
+  first: intArg({ default: 20, description: 'default: 20' }),
+  after: stringArg(),
+  last: intArg(),
+  before: stringArg(),
+};
 export const NodeQuery = extendType({
   type: 'Query',
   definition: (t) => {
@@ -28,58 +34,69 @@ export const NodeQuery = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const type = getType(args.id);
-        if (type === 'Device') {
-          const id = fromGraphId('Device', args.id);
-          const device = await prisma.device.findFirst({
-            where: { id, tenantId },
-          });
-          if (device == null) {
+        switch (type) {
+          case 'Device': {
+            const id = fromGraphId('Device', args.id);
+            const device = await prisma.device.findFirst({
+              where: { id, tenantId },
+            });
+            if (device == null) {
+              return null;
+            }
+            if (device == null) {
+              throw new Error('device not found');
+            }
+            return device;
+          }
+          case 'Zone': {
+            const id = fromGraphId('Zone', args.id);
+            const zone = await prisma.uniconfigZone.findFirst({
+              where: { id, tenantId },
+            });
+            if (zone == null) {
+              return null;
+            }
+            return zone;
+          }
+          case 'Label': {
+            const id = fromGraphId('Label', args.id);
+            const label = await prisma.label.findFirst({ where: { id, tenantId } });
+            if (label == null) {
+              return null;
+            }
+            return label;
+          }
+          case 'Location': {
+            const id = fromGraphId('Location', args.id);
+            const location = await prisma.location.findFirst({ where: { id, tenantId } });
+            if (location == null) {
+              return null;
+            }
+            return location;
+          }
+          case 'Country': {
+            const id = fromGraphId('Country', args.id);
+            if (!countries.isValid(id)) {
+              return null;
+            }
+            const countryName = countries.getName(id, 'en', { select: 'official' });
+            return {
+              id: args.id,
+              code: id,
+              name: countryName,
+            };
+          }
+          case 'Blueprint': {
+            const id = fromGraphId('Blueprint', args.id);
+            const blueprint = await prisma.blueprint.findFirst({ where: { id, tenantId } });
+            if (blueprint == null) {
+              return null;
+            }
+            return blueprint;
+          }
+          default:
             return null;
-          }
-          if (device == null) {
-            throw new Error('device not found');
-          }
-          return device;
         }
-        if (type === 'Zone') {
-          const id = fromGraphId('Zone', args.id);
-          const zone = await prisma.uniconfigZone.findFirst({
-            where: { id, tenantId },
-          });
-          if (zone == null) {
-            return null;
-          }
-          return zone;
-        }
-        if (type === 'Label') {
-          const id = fromGraphId('Label', args.id);
-          const label = await prisma.label.findFirst({ where: { id, tenantId } });
-          if (label == null) {
-            return null;
-          }
-          return label;
-        }
-        if (type === 'Location') {
-          const id = fromGraphId('Location', args.id);
-          const location = await prisma.location.findFirst({ where: { id, tenantId } });
-          if (location == null) {
-            return null;
-          }
-          return location;
-        }
-        if (type === 'Country') {
-          const id = fromGraphId('Country', args.id);
-          if (!countries.isValid(id)) {
-            return null;
-          }
-          const countryName = countries.getName(id, 'en', { select: 'official' });
-          return {
-            id: args.id,
-            code: id,
-            name: countryName,
-          };
-        }
-        return null;
       },
     });
   },

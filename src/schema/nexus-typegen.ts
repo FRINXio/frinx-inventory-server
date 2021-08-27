@@ -11,6 +11,11 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  AddBlueprintInput: {
+    // input type
+    name: string; // String!
+    template: string; // String!
+  };
   AddDeviceInput: {
     // input type
     address?: string | null; // String
@@ -84,6 +89,10 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  AddBlueprintPayload: {
+    // root type
+    blueprint: NexusGenRootTypes['Blueprint']; // Blueprint!
+  };
   AddDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
@@ -105,6 +114,18 @@ export interface NexusGenObjects {
     isOk: boolean; // Boolean!
     output: string; // String!
   };
+  Blueprint: SourceTypes.Blueprint;
+  BlueprintConnection: {
+    // root type
+    edges: NexusGenRootTypes['BlueprintEdge'][]; // [BlueprintEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  BlueprintEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Blueprint']; // Blueprint!
+  };
   CalculatedDiffPayload: {
     // root type
     output?: string | null; // String
@@ -119,6 +140,7 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['CountryEdge'][]; // [CountryEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   CountryEdge: {
     // root type
@@ -143,6 +165,7 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   DeviceEdge: {
     // root type
@@ -170,6 +193,7 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['LocationEdge'][]; // [LocationEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   LocationEdge: {
     // root type
@@ -220,11 +244,13 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['ZoneEdge'][]; // [ZoneEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
 }
 
 export interface NexusGenInterfaces {
   Node:
+    | NexusGenRootTypes['Blueprint']
     | NexusGenRootTypes['Country']
     | NexusGenRootTypes['Device']
     | NexusGenRootTypes['Label']
@@ -239,6 +265,10 @@ export type NexusGenRootTypes = NexusGenInterfaces & NexusGenObjects;
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums;
 
 export interface NexusGenFieldTypes {
+  AddBlueprintPayload: {
+    // field return type
+    blueprint: NexusGenRootTypes['Blueprint']; // Blueprint!
+  };
   AddDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
@@ -260,6 +290,25 @@ export interface NexusGenFieldTypes {
     isOk: boolean; // Boolean!
     output: string; // String!
   };
+  Blueprint: {
+    // field return type
+    createdAt: string; // String!
+    id: string; // ID!
+    name: string; // String!
+    template: string; // String!
+    updatedAt: string; // String!
+  };
+  BlueprintConnection: {
+    // field return type
+    edges: NexusGenRootTypes['BlueprintEdge'][]; // [BlueprintEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  BlueprintEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Blueprint']; // Blueprint!
+  };
   CalculatedDiffPayload: {
     // field return type
     output: string | null; // String
@@ -279,6 +328,7 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['CountryEdge'][]; // [CountryEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   CountryEdge: {
     // field return type
@@ -323,6 +373,7 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   DeviceEdge: {
     // field return type
@@ -363,6 +414,7 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['LocationEdge'][]; // [LocationEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   LocationEdge: {
     // field return type
@@ -371,6 +423,7 @@ export interface NexusGenFieldTypes {
   };
   Mutation: {
     // field return type
+    addBlueprint: NexusGenRootTypes['AddBlueprintPayload']; // AddBlueprintPayload!
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
     addLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
@@ -396,6 +449,7 @@ export interface NexusGenFieldTypes {
   };
   Query: {
     // field return type
+    blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
@@ -446,6 +500,7 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['ZoneEdge'][]; // [ZoneEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
   };
   Node: {
     // field return type
@@ -454,6 +509,10 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  AddBlueprintPayload: {
+    // field return type name
+    blueprint: 'Blueprint';
+  };
   AddDevicePayload: {
     // field return type name
     device: 'Device';
@@ -475,6 +534,25 @@ export interface NexusGenFieldTypeNames {
     isOk: 'Boolean';
     output: 'String';
   };
+  Blueprint: {
+    // field return type name
+    createdAt: 'String';
+    id: 'ID';
+    name: 'String';
+    template: 'String';
+    updatedAt: 'String';
+  };
+  BlueprintConnection: {
+    // field return type name
+    edges: 'BlueprintEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  BlueprintEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'Blueprint';
+  };
   CalculatedDiffPayload: {
     // field return type name
     output: 'String';
@@ -494,6 +572,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'CountryEdge';
     pageInfo: 'PageInfo';
+    totalCount: 'Int';
   };
   CountryEdge: {
     // field return type name
@@ -538,6 +617,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'DeviceEdge';
     pageInfo: 'PageInfo';
+    totalCount: 'Int';
   };
   DeviceEdge: {
     // field return type name
@@ -578,6 +658,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'LocationEdge';
     pageInfo: 'PageInfo';
+    totalCount: 'Int';
   };
   LocationEdge: {
     // field return type name
@@ -586,6 +667,7 @@ export interface NexusGenFieldTypeNames {
   };
   Mutation: {
     // field return type name
+    addBlueprint: 'AddBlueprintPayload';
     addDevice: 'AddDevicePayload';
     addLocation: 'AddLocationPayload';
     addSnapshot: 'AddSnapshotPayload';
@@ -611,6 +693,7 @@ export interface NexusGenFieldTypeNames {
   };
   Query: {
     // field return type name
+    blueprints: 'BlueprintConnection';
     calculatedDiff: 'CalculatedDiffPayload';
     countries: 'CountryConnection';
     dataStore: 'DataStore';
@@ -661,6 +744,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'ZoneEdge';
     pageInfo: 'PageInfo';
+    totalCount: 'Int';
   };
   Node: {
     // field return type name
@@ -679,6 +763,10 @@ export interface NexusGenArgTypes {
     };
   };
   Mutation: {
+    addBlueprint: {
+      // args
+      input: NexusGenInputs['AddBlueprintInput']; // AddBlueprintInput!
+    };
     addDevice: {
       // args
       input: NexusGenInputs['AddDeviceInput']; // AddDeviceInput!
@@ -743,6 +831,13 @@ export interface NexusGenArgTypes {
     };
   };
   Query: {
+    blueprints: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      first: number | null; // Int
+      last?: number | null; // Int
+    };
     calculatedDiff: {
       // args
       deviceId: string; // String!
@@ -751,7 +846,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first?: number | null; // Int
+      first: number | null; // Int
       last?: number | null; // Int
     };
     dataStore: {
@@ -763,21 +858,21 @@ export interface NexusGenArgTypes {
       after?: string | null; // String
       before?: string | null; // String
       filter?: NexusGenInputs['FilterDevicesInput'] | null; // FilterDevicesInput
-      first?: number | null; // Int
+      first: number | null; // Int
       last?: number | null; // Int
     };
     labels: {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first?: number | null; // Int
+      first: number | null; // Int
       last?: number | null; // Int
     };
     locations: {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first?: number | null; // Int
+      first: number | null; // Int
       last?: number | null; // Int
     };
     node: {
@@ -788,17 +883,18 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first?: number | null; // Int
+      first: number | null; // Int
       last?: number | null; // Int
     };
   };
 }
 
 export interface NexusGenAbstractTypeMembers {
-  Node: 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
+  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
 }
 
 export interface NexusGenTypeInterfaces {
+  Blueprint: 'Node';
   Country: 'Node';
   Device: 'Node';
   Label: 'Node';
