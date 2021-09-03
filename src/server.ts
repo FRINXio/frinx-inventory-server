@@ -38,7 +38,7 @@ export function runSyncZones(serverInstance: Server): void {
     jobId = setTimeout(runSyncZones, 1000 * 60 * 2);
   });
 
-  serverInstance.on('close', () => {
+  serverInstance?.on('close', () => {
     clearTimeout(jobId);
   });
 }

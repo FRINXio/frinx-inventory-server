@@ -7,7 +7,7 @@
   "author": "Frinx.io",
   "license": "MIT",
   "scripts": {
-    "build:ts": "cross-env NODE_ENV=production tsc -p tsconfig.production.json",
+    "build:ts": "cross-env NODE_ENV=production tsc -p ./tsconfig.production.json",
     "build:pack": "cross-env NODE_ENV=production ncc build build/ts/index.js -o build/pack",
     "build:clear": "rimraf build",
     "build": "run-s build:clear build:ts build:pack",
@@ -18,9 +18,9 @@
     "type-check": "tsc --noEmit",
     "formatter": "prettier --write '*.md' '**/*.ts' '**/*.js' '**/*.json' ",
     "formatter:check": "prettier -l '*.md' '**/*.ts' '**/*.js' '**/*.json' ",
-    "generate": "cross-env NODE_ENV=testing ts-node --transpile-only -r dotenv/config src/schema/index.ts",
-    "jest": "cross-env NODE_ENV=testing jest --detectOpenHandles",
-    "test": "run-s generate jest"
+    "test:generate": "cross-env NODE_ENV=testing ts-node --transpile-only -r dotenv/config src/schema/index.ts",
+    "jest": "cross-env NODE_ENV=testing jest --verbose",
+    "test": "run-s test:generate jest"
   },
   "devDependencies": {
     "@frinx/eslint-config-typescript-base": "^14.2.1-build.4",
