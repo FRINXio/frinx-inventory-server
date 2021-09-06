@@ -19,7 +19,7 @@ export const PageInfo = objectType({
   },
 });
 export const PaginationConnectionArgs = {
-  first: intArg({ default: 20, description: 'default: 20' }),
+  first: intArg(),
   after: stringArg(),
   last: intArg(),
   before: stringArg(),
