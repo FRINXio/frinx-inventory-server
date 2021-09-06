@@ -7,7 +7,6 @@ export const Node = interfaceType({
   definition: (t) => {
     t.nonNull.id('id');
   },
-  resolveType: (item) => getType(item.id),
 });
 export const PageInfo = objectType({
   name: 'PageInfo',
@@ -33,6 +32,7 @@ export const NodeQuery = extendType({
         id: nonNull(idArg()),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
+        /* eslint-disable @typescript-eslint/naming-convention */
         const type = getType(args.id);
         switch (type) {
           case 'Device': {
@@ -46,7 +46,7 @@ export const NodeQuery = extendType({
             if (device == null) {
               throw new Error('device not found');
             }
-            return device;
+            return { ...device, __typename: 'Device' };
           }
           case 'Zone': {
             const id = fromGraphId('Zone', args.id);
@@ -56,7 +56,7 @@ export const NodeQuery = extendType({
             if (zone == null) {
               return null;
             }
-            return zone;
+            return { ...zone, __typename: 'Zone' };
           }
           case 'Label': {
             const id = fromGraphId('Label', args.id);
@@ -64,7 +64,7 @@ export const NodeQuery = extendType({
             if (label == null) {
               return null;
             }
-            return label;
+            return { ...label, __typename: 'Label' };
           }
           case 'Location': {
             const id = fromGraphId('Location', args.id);
@@ -72,7 +72,7 @@ export const NodeQuery = extendType({
             if (location == null) {
               return null;
             }
-            return location;
+            return { ...location, __typename: 'Location' };
           }
           case 'Country': {
             const id = fromGraphId('Country', args.id);
@@ -84,6 +84,7 @@ export const NodeQuery = extendType({
               id: args.id,
               code: id,
               name: countryName,
+              __typename: 'Country',
             };
           }
           case 'Blueprint': {
@@ -92,8 +93,9 @@ export const NodeQuery = extendType({
             if (blueprint == null) {
               return null;
             }
-            return blueprint;
+            return { ...blueprint, __typename: 'Blueprint' };
           }
+          /* eslint-enable */
           default:
             return null;
         }

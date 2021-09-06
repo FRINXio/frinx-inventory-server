@@ -5,6 +5,7 @@
 
 import type * as SourceTypes from './source-types';
 import type { Context } from './../context';
+import type { core } from 'nexus';
 
 declare global {
   interface NexusGen extends NexusGenTypes {}
@@ -250,12 +251,12 @@ export interface NexusGenObjects {
 
 export interface NexusGenInterfaces {
   Node:
-    | NexusGenRootTypes['Blueprint']
-    | NexusGenRootTypes['Country']
-    | NexusGenRootTypes['Device']
-    | NexusGenRootTypes['Label']
-    | NexusGenRootTypes['Location']
-    | NexusGenRootTypes['Zone'];
+    | core.Discriminate<'Blueprint', 'required'>
+    | core.Discriminate<'Country', 'required'>
+    | core.Discriminate<'Device', 'required'>
+    | core.Discriminate<'Label', 'required'>
+    | core.Discriminate<'Location', 'required'>
+    | core.Discriminate<'Zone', 'required'>;
 }
 
 export interface NexusGenUnions {}
@@ -916,13 +917,13 @@ export type NexusGenUnionNames = never;
 
 export type NexusGenObjectsUsingAbstractStrategyIsTypeOf = never;
 
-export type NexusGenAbstractsUsingStrategyResolveType = 'Node';
+export type NexusGenAbstractsUsingStrategyResolveType = never;
 
 export type NexusGenFeaturesConfig = {
   abstractTypeStrategies: {
+    __typename: true;
     isTypeOf: false;
-    resolveType: true;
-    __typename: false;
+    resolveType: false;
   };
 };
 

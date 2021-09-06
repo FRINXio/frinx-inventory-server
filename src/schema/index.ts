@@ -9,6 +9,12 @@ import * as location from './location';
 import * as zone from './zone';
 
 export default makeSchema({
+  features: {
+    abstractTypeStrategies: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      __typename: true,
+    },
+  },
   contextType: {
     module: require.resolve('../context'),
     export: 'Context',
