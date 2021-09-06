@@ -758,7 +758,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
   };
@@ -835,7 +835,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
     calculatedDiff: {
@@ -846,7 +846,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
     dataStore: {
@@ -858,21 +858,21 @@ export interface NexusGenArgTypes {
       after?: string | null; // String
       before?: string | null; // String
       filter?: NexusGenInputs['FilterDevicesInput'] | null; // FilterDevicesInput
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
     labels: {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
     locations: {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
     node: {
@@ -883,7 +883,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
-      first: number | null; // Int
+      first?: number | null; // Int
       last?: number | null; // Int
     };
   };

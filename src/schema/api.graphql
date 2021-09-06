@@ -138,16 +138,7 @@ type Device implements Node {
   createdAt: String!
   id: ID!
   isInstalled: Boolean!
-  labels(
-    after: String
-    before: String
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): LabelConnection!
+  labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   location: Location
   model: String
   name: String!
@@ -257,70 +248,15 @@ type PageInfo {
 }
 
 type Query {
-  blueprints(
-    after: String
-    before: String
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): BlueprintConnection!
+  blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!): CalculatedDiffPayload!
-  countries(
-    after: String
-    before: String
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): CountryConnection!
+  countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!): DataStore
-  devices(
-    after: String
-    before: String
-    filter: FilterDevicesInput
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): DeviceConnection!
-  labels(
-    after: String
-    before: String
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): LabelConnection!
-  locations(
-    after: String
-    before: String
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): LocationConnection!
+  devices(after: String, before: String, filter: FilterDevicesInput, first: Int, last: Int): DeviceConnection!
+  labels(after: String, before: String, first: Int, last: Int): LabelConnection!
+  locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
-  zones(
-    after: String
-    before: String
-
-    """
-    default: 20
-    """
-    first: Int = 20
-    last: Int
-  ): ZonesConnection!
+  zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
 type ResetConfigPayload {
