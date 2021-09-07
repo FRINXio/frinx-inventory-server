@@ -317,7 +317,10 @@ export const InstallDeviceMutation = extendType({
         const { mountParameters } = device;
         const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
         const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
-        await uniconfigAPI.installDevice(uniconfigURL, installDeviceParams);
+        const response = await uniconfigAPI.installDevice(uniconfigURL, installDeviceParams);
+        if (response.output.status === 'fail') {
+          throw new Error(response.output['error-message'] ?? 'could not install device');
+        }
         return { device };
       },
     });

@@ -5,6 +5,7 @@ import {
   decodeUniconfigCommitOutput,
   decodeUniconfigConfigOutput,
   decodeUniconfigDiffOuptut,
+  decodeUniconfigInstallOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigSnapshotOutput,
   decodeUniconfigSnapshotsOutput,
@@ -18,6 +19,7 @@ import {
   UniconfigConfigOutput,
   UniconfigDiffInput,
   UniconfigDiffOutput,
+  UniconfigInstallOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
   UniconfigSnapshotInput,
@@ -35,8 +37,11 @@ export async function getInstalledDevices(baseURL: string): Promise<InstalledDev
   return data;
 }
 
-export async function installDevice(baseURL: string, params: unknown): Promise<void> {
-  await sendPostRequest([baseURL, '/operations/connection-manager:install-node'], params);
+export async function installDevice(baseURL: string, params: unknown): Promise<UniconfigInstallOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-node'], params);
+  const data = decodeUniconfigInstallOutput(json);
+
+  return data;
 }
 
 export async function uninstallDevice(baseURL: string, params: UninstallDeviceInput): Promise<void> {
@@ -154,7 +159,7 @@ export async function syncFromNetwork(baseURL: string, params: UniconfigSyncInpu
 
 export type UniConfigAPI = {
   getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
-  installDevice: (baseURL: string, params: unknown) => Promise<void>;
+  installDevice: (baseURL: string, params: unknown) => Promise<UniconfigInstallOutput>;
   uninstallDevice: (baseURL: string, params: UninstallDeviceInput) => Promise<void>;
   getUniconfigDatastore: (baseURL: string, options: DataStoreOptions) => Promise<UniconfigConfigOutput>;
   updateUniconfigDataStore: (baseURL: string, nodeId: string, params: UniconfigConfigInput) => Promise<void>;

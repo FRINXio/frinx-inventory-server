@@ -252,3 +252,15 @@ export type UniconfigSyncOutput = t.TypeOf<typeof UniconfigSyncOutputValidator>;
 export function decodeUniconfigSyncOutput(value: unknown): UniconfigSyncOutput {
   return extractResult(UniconfigSyncOutputValidator.decode(value));
 }
+
+const UniconfigInstallOutputTypeValidator = t.type({
+  output: t.type({
+    'error-message': optional(t.string),
+    status: UniconfigStatusValidator,
+  }),
+});
+export type UniconfigInstallOutput = t.TypeOf<typeof UniconfigInstallOutputTypeValidator>;
+
+export function decodeUniconfigInstallOutput(value: unknown): UniconfigInstallOutput {
+  return extractResult(UniconfigInstallOutputTypeValidator.decode(value));
+}
