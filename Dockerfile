@@ -28,6 +28,7 @@ ENV PORT 8000
 EXPOSE 8000
 
 COPY --from=build /app/build/pack /app
+COPY --from=build /app/prisma /app/prisma
 
 WORKDIR /app
 
