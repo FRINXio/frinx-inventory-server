@@ -60,6 +60,11 @@ export interface NexusGenInputs {
     // input type
     labelIds?: string[] | null; // [String!]
   };
+  UpdateBlueprintInput: {
+    // input type
+    name?: string | null; // String
+    template?: string | null; // String
+  };
   UpdateDataStoreInput: {
     // input type
     config: string; // String!
@@ -226,6 +231,10 @@ export interface NexusGenObjects {
   UninstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
+  };
+  UpdateBlueprintPayload: {
+    // root type
+    blueprint: NexusGenRootTypes['Blueprint']; // Blueprint!
   };
   UpdateDataStorePayload: {
     // root type
@@ -438,6 +447,7 @@ export interface NexusGenFieldTypes {
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
+    updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
   };
@@ -476,6 +486,10 @@ export interface NexusGenFieldTypes {
   UninstallDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
+  };
+  UpdateBlueprintPayload: {
+    // field return type
+    blueprint: NexusGenRootTypes['Blueprint']; // Blueprint!
   };
   UpdateDataStorePayload: {
     // field return type
@@ -682,6 +696,7 @@ export interface NexusGenFieldTypeNames {
     resetConfig: 'ResetConfigPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
     uninstallDevice: 'UninstallDevicePayload';
+    updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
   };
@@ -720,6 +735,10 @@ export interface NexusGenFieldTypeNames {
   UninstallDevicePayload: {
     // field return type name
     device: 'Device';
+  };
+  UpdateBlueprintPayload: {
+    // field return type name
+    blueprint: 'Blueprint';
   };
   UpdateDataStorePayload: {
     // field return type name
@@ -819,6 +838,11 @@ export interface NexusGenArgTypes {
     uninstallDevice: {
       // args
       id: string; // String!
+    };
+    updateBlueprint: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateBlueprintInput']; // UpdateBlueprintInput!
     };
     updateDataStore: {
       // args

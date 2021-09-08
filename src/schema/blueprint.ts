@@ -1,6 +1,6 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { arg, extendType, inputObjectType, nonNull, objectType } from 'nexus';
-import { toGraphId } from '../helpers/id-helper';
+import { arg, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 
 export const Blueprint = objectType({
@@ -85,6 +85,46 @@ export const AddBlueprintMutation = extendType({
             tenantId,
             name: input.name,
             template: input.template,
+          },
+        });
+        return { blueprint };
+      },
+    });
+  },
+});
+
+export const UpdateBlueprintInput = inputObjectType({
+  name: 'UpdateBlueprintInput',
+  definition: (t) => {
+    t.string('name');
+    t.string('template');
+  },
+});
+export const UpdateBlueprintPayload = objectType({
+  name: 'UpdateBlueprintPayload',
+  definition: (t) => t.nonNull.field('blueprint', { type: Blueprint }),
+});
+export const UpdateBlueprintMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateBlueprint', {
+      type: UpdateBlueprintPayload,
+      args: {
+        id: nonNull(stringArg()),
+        input: nonNull(arg({ type: UpdateBlueprintInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const { id, input } = args;
+        const blueprintId = fromGraphId('Blueprint', id);
+        const checkedBlueprint = await prisma.blueprint.findFirst({ where: { id: blueprintId, tenantId } });
+        if (checkedBlueprint == null) {
+          throw new Error('blueprint not found');
+        }
+        const blueprint = await prisma.blueprint.update({
+          where: { id: blueprintId },
+          data: {
+            name: input.name !== null ? input.name : undefined,
+            template: input.template !== null ? input.template : undefined,
           },
         });
         return { blueprint };
