@@ -232,6 +232,7 @@ type Mutation {
   resetConfig(deviceId: String!): ResetConfigPayload!
   syncFromNetwork(deviceId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
+  updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
 }
@@ -274,6 +275,15 @@ type SyncFromNetworkPayload {
 
 type UninstallDevicePayload {
   device: Device!
+}
+
+input UpdateBlueprintInput {
+  name: String
+  template: String
+}
+
+type UpdateBlueprintPayload {
+  blueprint: Blueprint!
 }
 
 input UpdateDataStoreInput {
