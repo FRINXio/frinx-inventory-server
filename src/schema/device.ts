@@ -160,11 +160,11 @@ export const AddDeviceMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { input } = args;
-        const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId } });
+        const nativeZoneId = fromGraphId('Zone', input.zoneId);
+        const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
         if (zone == null) {
           throw new Error('zone not found');
         }
-        const nativeZoneId = fromGraphId('Zone', input.zoneId);
         const labelIds = input.labelIds ? [...new Set(input.labelIds)] : null;
         const device = await prisma.device.create({
           data: {
