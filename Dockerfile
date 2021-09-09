@@ -15,6 +15,7 @@ RUN yarn run build
 FROM node:14-alpine
 
 RUN mkdir /app
+RUN chmod +w /app
 # running as root is bad
 USER node
 # We need to set production for Node.js
@@ -27,9 +28,14 @@ ENV PORT 8000
 # we inform docker that we run on port8000
 EXPOSE 8000
 
-COPY --from=build /app/build/pack /app
+
+COPY --from=build /app/build /app
 COPY --from=build /app/prisma /app/prisma
+COPY --from=build /app/package.json /app
 
 WORKDIR /app
+USER root
+RUN yarn install --production
+USER node
 
 CMD ["node", "index.js"]

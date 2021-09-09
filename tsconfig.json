@@ -5,10 +5,11 @@
     "isolatedModules": true,
     "strict": true,
     "moduleResolution": "node",
+    "module": "commonjs",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["node", "jest"],
-    "outDir": "build/ts",
+    "outDir": "build",
     "rootDir": "src"
   },
   "include": ["src"],
