@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@devoxa/prisma-relay-cursor-connection": "^2.0.2",
-    "@prisma/client": "^2.27.0",
+    "@prisma/client": "^3.0.0",
     "@types/express": "^4.17.12",
     "@types/lodash": "^4.14.172",
     "@types/node": "14",
@@ -70,7 +70,7 @@
     "node-fetch": "^2.6.1",
     "pino": "^6.11.3",
     "pino-pretty": "^5.0.2",
-    "prisma": "^2.29.1",
+    "prisma": "^3.0.0",
     "url-join": "^4.0.1"
   }
 }

@@ -141,6 +141,7 @@ type Device implements Node {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   location: Location
   model: String
+  mountParameters: String
   name: String!
   serviceState: DeviceServiceState!
   source: DeviceSource!
