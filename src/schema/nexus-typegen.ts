@@ -372,6 +372,7 @@ export interface NexusGenFieldTypes {
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     location: NexusGenRootTypes['Location'] | null; // Location
     model: string | null; // String
+    mountParameters: string | null; // String
     name: string; // String!
     serviceState: NexusGenEnums['DeviceServiceState']; // DeviceServiceState!
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
@@ -621,6 +622,7 @@ export interface NexusGenFieldTypeNames {
     labels: 'LabelConnection';
     location: 'Location';
     model: 'String';
+    mountParameters: 'String';
     name: 'String';
     serviceState: 'DeviceServiceState';
     source: 'DeviceSource';

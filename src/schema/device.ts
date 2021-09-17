@@ -33,6 +33,14 @@ export const Device = objectType({
     t.string('model');
     t.string('vendor');
     t.string('address');
+    t.string('mountParameters', {
+      resolve: async (root) => {
+        if (root.mountParameters != null) {
+          return JSON.stringify(root.mountParameters);
+        }
+        return null;
+      },
+    });
     t.nonNull.field('source', { type: DeviceSource });
     t.nonNull.field('serviceState', { type: DeviceServiceState });
     t.nonNull.boolean('isInstalled', {
@@ -59,7 +67,7 @@ export const Device = objectType({
       type: LabelConnection,
       args: PaginationConnectionArgs,
       resolve: async (root, args, { prisma, tenantId }) => {
-        const baseArgs = { where: { tenantId, device: { every: { deviceId: root.id } } } };
+        const baseArgs = { where: { tenantId, device: { some: { deviceId: root.id } } } };
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
           () => prisma.label.count(baseArgs),
@@ -238,7 +246,10 @@ export const UpdateDeviceMutation = extendType({
         await prisma.$transaction([
           prisma.deviceLabel.deleteMany({ where: { deviceId: nativeId } }),
           prisma.deviceLabel.createMany({
-            data: labelIds.map((lId) => ({ labelId: fromGraphId('Label', lId), deviceId: nativeId })),
+            data: labelIds.map((lId) => {
+              const nativeLabelId = fromGraphId('Label', lId);
+              return { labelId: nativeLabelId, deviceId: nativeId };
+            }),
           }),
         ]);
         const updatedDevice = await prisma.device.update({

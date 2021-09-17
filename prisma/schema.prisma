@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialActions"]
+  provider = "prisma-client-js"
 
 }
 
@@ -49,6 +48,7 @@ model device {
   label deviceLabel[]
 
   @@unique([name, tenantId], name: "udx_device_name_tenant_id")
+  @@index([tenantId], name: "idx_device_tenant_id")
   @@map("device_inventory")
 }
 
@@ -76,6 +76,7 @@ model label {
 
   device deviceLabel[]
   @@unique([name, tenantId], name: "udx_label_name_tenant_id")
+  @@index([tenantId], name: "idx_label_tenant_id")
 }
 
 model deviceLabel {
@@ -112,6 +113,7 @@ model location {
   device             device[]
 
   @@unique([name, tenantId], name: "udx_location_name_tenant_id")
+  @@index([tenantId], name: "idx_location_tenant_id")
 }
 
 model blueprint {
@@ -122,6 +124,7 @@ model blueprint {
   tenantId  String   @map("tenant_id")
   template  String
 
-  @@unique([tenantId, name], name: "udx_device_blueprint_name_tenant_id")
+  @@unique([name, tenantId], name: "udx_device_blueprint_name_tenant_id")
+  @@index([tenantId], name: "idx_device_blueprint_tenant_id")
   @@map("device_blueprint")
 }
