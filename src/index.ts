@@ -1,6 +1,6 @@
 import config from './config';
 import prismaClient from './prisma-client';
-import { log, runSyncZones, server } from './server';
+import { log, runCacheClear, runSyncZones, server } from './server';
 
 // show startup message when server starts
 server.on('listening', () => {
@@ -9,6 +9,7 @@ server.on('listening', () => {
     Server running on port ${config.port}
   `);
   runSyncZones(server);
+  runCacheClear(server);
 });
 
 server.listen({

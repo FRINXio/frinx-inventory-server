@@ -1,5 +1,10 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { arg, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import {
+  getCachedDeviceInstallStatus,
+  installDeviceCache,
+  uninstallDeviceCache,
+} from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
@@ -44,12 +49,11 @@ export const Device = objectType({
     t.nonNull.field('source', { type: DeviceSource });
     t.nonNull.field('serviceState', { type: DeviceServiceState });
     t.nonNull.boolean('isInstalled', {
-      resolve: async (root, _, { uniconfigAPI, prisma }) => {
+      resolve: async (root, _, { prisma }) => {
         const { uniconfigZoneId } = root;
         const uniconfigURL = await makeUniconfigURL(prisma, uniconfigZoneId);
-        const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
-        const installedDevices = result.output.nodes ?? [];
-        return installedDevices.some((name) => root.name === name);
+        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
+        return isInstalled;
       },
     });
     t.nonNull.field('zone', {
@@ -224,7 +228,7 @@ export const UpdateDeviceMutation = extendType({
         id: nonNull(stringArg()),
         input: nonNull(arg({ type: UpdateDeviceInput })),
       },
-      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+      resolve: async (_, args, { prisma, tenantId }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
           where: { id: nativeId, tenantId },
@@ -233,9 +237,8 @@ export const UpdateDeviceMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
-        const installedDevices = result.output.nodes ?? [];
-        if (installedDevices.some((name) => dbDevice.name === name)) {
+        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, dbDevice.name);
+        if (isInstalled) {
           throw new Error('device is installed in UniConfig');
         }
         const { input } = args;
@@ -282,7 +285,7 @@ export const DeleteDeviceMutation = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+      resolve: async (_, args, { prisma, tenantId }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
@@ -291,9 +294,8 @@ export const DeleteDeviceMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        const result = await uniconfigAPI.getInstalledDevices(uniconfigURL);
-        const installedDevices = result.output.nodes ?? [];
-        if (installedDevices.some((name) => dbDevice.name === name)) {
+        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, dbDevice.name);
+        if (isInstalled) {
           throw new Error('device is installed in UniConfig');
         }
         const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
@@ -317,7 +319,7 @@ export const InstallDeviceMutation = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+      resolve: async (_, args, { prisma, tenantId }) => {
         const nativeId = fromGraphId('Device', args.id);
         const device = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
@@ -328,10 +330,7 @@ export const InstallDeviceMutation = extendType({
         const { mountParameters } = device;
         const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
         const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
-        const response = await uniconfigAPI.installDevice(uniconfigURL, installDeviceParams);
-        if (response.output.status === 'fail') {
-          throw new Error(response.output['error-message'] ?? 'could not install device');
-        }
+        await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
         return { device };
       },
     });
@@ -351,7 +350,7 @@ export const UninstallDeviceMutation = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+      resolve: async (_, args, { prisma, tenantId }) => {
         const nativeId = fromGraphId('Device', args.id);
         const device = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
@@ -370,8 +369,7 @@ export const UninstallDeviceMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
-        await uniconfigAPI.uninstallDevice(uniconfigURL, uninstallParams);
-
+        await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
         return { device };
       },
     });
