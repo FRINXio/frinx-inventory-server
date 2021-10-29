@@ -264,3 +264,22 @@ export type UniconfigInstallOutput = t.TypeOf<typeof UniconfigInstallOutputTypeV
 export function decodeUniconfigInstallOutput(value: unknown): UniconfigInstallOutput {
   return extractResult(UniconfigInstallOutputTypeValidator.decode(value));
 }
+
+export type CheckInstalledNodesInput = {
+  input: {
+    'target-nodes': {
+      node: string[];
+    };
+  };
+};
+
+const CheckInstalledNodesOutputValidator = t.type({
+  output: t.type({
+    nodes: optional(t.array(t.string)),
+  }),
+});
+export type CheckInstalledNodesOutput = t.TypeOf<typeof CheckInstalledNodesOutputValidator>;
+
+export function decodeInstalledNodeOutput(value: unknown): CheckInstalledNodesOutput {
+  return extractResult(CheckInstalledNodesOutputValidator.decode(value));
+}

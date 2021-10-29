@@ -1,6 +1,9 @@
 import { sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 import {
+  CheckInstalledNodesInput,
+  CheckInstalledNodesOutput,
   decodeInstalledDevicesOutput,
+  decodeInstalledNodeOutput,
   decodeUniconfigApplySnapshotOutput,
   decodeUniconfigCommitOutput,
   decodeUniconfigConfigOutput,
@@ -153,6 +156,16 @@ export async function getCalculatedDiff(baseURL: string, params: UniconfigDiffIn
 export async function syncFromNetwork(baseURL: string, params: UniconfigSyncInput): Promise<UniconfigSyncOutput> {
   const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:sync-from-network'], params);
   const data = decodeUniconfigSyncOutput(json);
+
+  return data;
+}
+
+export async function getCheckInstalledDevices(
+  baseURL: string,
+  input: CheckInstalledNodesInput,
+): Promise<CheckInstalledNodesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:check-installed-nodes'], input);
+  const data = decodeInstalledNodeOutput(json);
 
   return data;
 }
