@@ -47,9 +47,8 @@ async function getDeviceInstallStatus(baseURL: string, deviceName: string): Prom
   return output.nodes?.includes(deviceName) ?? false;
 }
 
-const uniconfigCache = UniconfigCache.getInstance();
-
 export async function getCachedDeviceInstallStatus(baseURL: string, deviceName: string): Promise<boolean> {
+  const uniconfigCache = UniconfigCache.getInstance();
   let deviceInstallStatus = uniconfigCache.get(baseURL, deviceName);
 
   if (deviceInstallStatus == null) {
@@ -70,6 +69,7 @@ export async function installDeviceCache({
   deviceName,
   params,
 }: CacheInstallDeviceParams): Promise<void> {
+  const uniconfigCache = UniconfigCache.getInstance();
   const response = await installDevice(uniconfigURL, params);
   if (response.output.status === 'fail') {
     throw new Error(response.output['error-message'] ?? 'could not install device');
@@ -88,6 +88,7 @@ export async function uninstallDeviceCache({
   params,
   deviceName,
 }: CacheUninstallDeviceParams): Promise<void> {
+  const uniconfigCache = UniconfigCache.getInstance();
   await uninstallDevice(uniconfigURL, params);
   uniconfigCache.delete(uniconfigURL, deviceName);
 }
