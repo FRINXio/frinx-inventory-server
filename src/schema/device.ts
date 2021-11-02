@@ -117,6 +117,22 @@ export const FilterDevicesInput = inputObjectType({
   name: 'FilterDevicesInput',
   definition: (t) => {
     t.list.nonNull.string('labelIds');
+    t.string('deviceName');
+  },
+});
+export const SortDeviceBy = enumType({
+  name: 'SortDeviceBy',
+  members: ['NAME', 'CREATED_AT'],
+});
+export const SortDirection = enumType({
+  name: 'SortDirection',
+  members: ['ASC', 'DESC'],
+});
+export const SortingInput = inputObjectType({
+  name: 'SortingInput',
+  definition: (t) => {
+    t.nonNull.field('sortBy', { type: SortDeviceBy });
+    t.nonNull.field('direction', { type: SortDirection });
   },
 });
 export const DevicesQuery = extendType({
@@ -127,14 +143,26 @@ export const DevicesQuery = extendType({
       args: {
         ...PaginationConnectionArgs,
         filter: FilterDevicesInput,
+        sort: SortingInput,
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const { filter } = args;
+        const { filter, sort } = args;
         const labelIds = (filter?.labelIds ?? []).map((lId) => fromGraphId('Label', lId));
-        const filterQuery = labelIds.length ? { label: { some: { labelId: { in: labelIds } } } } : {};
+        const labelsQuery = labelIds.length ? { some: { labelId: { in: labelIds } } } : undefined;
+        const deviceQuery = filter?.deviceName ? { startsWith: filter.deviceName } : undefined;
+        const filterQuery = {
+          label: labelsQuery,
+          name: deviceQuery,
+        };
+
         const baseArgs = { where: { tenantId, ...filterQuery } };
+        const orderByArgs = sort
+          ? {
+              orderBy: [{ [sort.sortBy === 'NAME' ? 'name' : 'createdAt']: sort.direction.toLowerCase() }],
+            }
+          : undefined;
         const result = await findManyCursorConnection(
-          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...paginationArgs }),
+          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderByArgs, ...paginationArgs }),
           () => prisma.device.count(baseArgs),
           args,
         );
