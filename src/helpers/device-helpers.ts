@@ -1,4 +1,3 @@
-import { string } from 'fp-ts';
 import { fromGraphId } from './id-helper';
 
 type FilterInput = {
