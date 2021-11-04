@@ -1,3 +1,4 @@
+import { string } from 'fp-ts';
 import { fromGraphId } from './id-helper';
 
 type FilterInput = {
@@ -8,6 +9,10 @@ type FilterInput = {
 type FilterQuery = {
   label?: Record<string, unknown>;
   name?: Record<string, unknown>;
+};
+type OrderingInput = {
+  sortKey: 'NAME' | 'CREATED_AT';
+  direction: 'ASC' | 'DESC';
 };
 
 function getLabelsQuery(labelIds: string[]): Record<string, unknown> | undefined {
@@ -26,4 +31,11 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
     label: getLabelsQuery(nativeLabelIds),
     name: getDeviceNameQuery(deviceName),
   };
+}
+export function getOrderingQuery(ordering?: OrderingInput | null): Record<string, unknown> | undefined {
+  return ordering
+    ? {
+        orderBy: [{ [ordering.sortKey === 'NAME' ? 'name' : 'createdAt']: ordering.direction.toLowerCase() }],
+      }
+    : undefined;
 }

@@ -6,7 +6,7 @@ import {
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
-import { getFilterQuery } from '../helpers/device-helpers';
+import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
@@ -149,15 +149,11 @@ export const DevicesQuery = extendType({
       resolve: async (_, args, { prisma, tenantId }) => {
         const { filter, orderBy } = args;
         const filterQuery = getFilterQuery(filter);
-
+        const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
-        const orderByArgs = orderBy
-          ? {
-              orderBy: [{ [orderBy.sortKey === 'NAME' ? 'name' : 'createdAt']: orderBy.direction.toLowerCase() }],
-            }
-          : undefined;
+
         const result = await findManyCursorConnection(
-          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderByArgs, ...paginationArgs }),
+          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),
           () => prisma.device.count(baseArgs),
           args,
         );
