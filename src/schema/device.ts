@@ -6,6 +6,7 @@ import {
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
+import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
@@ -117,6 +118,22 @@ export const FilterDevicesInput = inputObjectType({
   name: 'FilterDevicesInput',
   definition: (t) => {
     t.list.nonNull.string('labelIds');
+    t.string('deviceName');
+  },
+});
+export const SortDeviceBy = enumType({
+  name: 'SortDeviceBy',
+  members: ['NAME', 'CREATED_AT'],
+});
+export const SortDirection = enumType({
+  name: 'SortDirection',
+  members: ['ASC', 'DESC'],
+});
+export const DeviceOrderByInput = inputObjectType({
+  name: 'DeviceOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortDeviceBy });
+    t.nonNull.field('direction', { type: SortDirection });
   },
 });
 export const DevicesQuery = extendType({
@@ -127,14 +144,16 @@ export const DevicesQuery = extendType({
       args: {
         ...PaginationConnectionArgs,
         filter: FilterDevicesInput,
+        orderBy: DeviceOrderByInput,
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const { filter } = args;
-        const labelIds = (filter?.labelIds ?? []).map((lId) => fromGraphId('Label', lId));
-        const filterQuery = labelIds.length ? { label: { some: { labelId: { in: labelIds } } } } : {};
+        const { filter, orderBy } = args;
+        const filterQuery = getFilterQuery(filter);
+        const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
+
         const result = await findManyCursorConnection(
-          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...paginationArgs }),
+          (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),
           () => prisma.device.count(baseArgs),
           args,
         );
