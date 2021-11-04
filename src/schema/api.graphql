@@ -161,6 +161,11 @@ type DeviceEdge {
   node: Device!
 }
 
+input DeviceOrderByInput {
+  direction: SortDirection!
+  sortKey: SortDeviceBy!
+}
+
 enum DeviceServiceState {
   IN_SERVICE
   OUT_OF_SERVICE
@@ -174,6 +179,7 @@ enum DeviceSource {
 }
 
 input FilterDevicesInput {
+  deviceName: String
   labelIds: [String!]
 }
 
@@ -254,7 +260,14 @@ type Query {
   calculatedDiff(deviceId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!): DataStore
-  devices(after: String, before: String, filter: FilterDevicesInput, first: Int, last: Int): DeviceConnection!
+  devices(
+    after: String
+    before: String
+    filter: FilterDevicesInput
+    first: Int
+    last: Int
+    orderBy: DeviceOrderByInput
+  ): DeviceConnection!
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
@@ -268,6 +281,16 @@ type ResetConfigPayload {
 type Snapshot {
   createdAt: String!
   name: String!
+}
+
+enum SortDeviceBy {
+  CREATED_AT
+  NAME
+}
+
+enum SortDirection {
+  ASC
+  DESC
 }
 
 type SyncFromNetworkPayload {

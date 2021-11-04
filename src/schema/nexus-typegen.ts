@@ -56,8 +56,14 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  DeviceOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
+  };
   FilterDevicesInput: {
     // input type
+    deviceName?: string | null; // String
     labelIds?: string[] | null; // [String!]
   };
   UpdateBlueprintInput: {
@@ -84,6 +90,8 @@ export interface NexusGenInputs {
 export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
+  SortDeviceBy: 'CREATED_AT' | 'NAME';
+  SortDirection: 'ASC' | 'DESC';
 }
 
 export interface NexusGenScalars {
@@ -887,6 +895,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterDevicesInput'] | null; // FilterDevicesInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['DeviceOrderByInput'] | null; // DeviceOrderByInput
     };
     labels: {
       // args
