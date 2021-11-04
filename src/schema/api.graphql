@@ -161,6 +161,11 @@ type DeviceEdge {
   node: Device!
 }
 
+input DeviceOrderByInput {
+  direction: SortDirection!
+  sortKey: SortDeviceBy!
+}
+
 enum DeviceServiceState {
   IN_SERVICE
   OUT_OF_SERVICE
@@ -261,7 +266,7 @@ type Query {
     filter: FilterDevicesInput
     first: Int
     last: Int
-    sort: SortingInput
+    orderBy: DeviceOrderByInput
   ): DeviceConnection!
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
@@ -286,11 +291,6 @@ enum SortDeviceBy {
 enum SortDirection {
   ASC
   DESC
-}
-
-input SortingInput {
-  direction: SortDirection!
-  sortBy: SortDeviceBy!
 }
 
 type SyncFromNetworkPayload {

@@ -6,6 +6,7 @@ import {
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
+import { getFilterQuery } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
@@ -128,10 +129,10 @@ export const SortDirection = enumType({
   name: 'SortDirection',
   members: ['ASC', 'DESC'],
 });
-export const SortingInput = inputObjectType({
-  name: 'SortingInput',
+export const DeviceOrderByInput = inputObjectType({
+  name: 'DeviceOrderByInput',
   definition: (t) => {
-    t.nonNull.field('sortBy', { type: SortDeviceBy });
+    t.nonNull.field('sortKey', { type: SortDeviceBy });
     t.nonNull.field('direction', { type: SortDirection });
   },
 });
@@ -143,22 +144,16 @@ export const DevicesQuery = extendType({
       args: {
         ...PaginationConnectionArgs,
         filter: FilterDevicesInput,
-        sort: SortingInput,
+        orderBy: DeviceOrderByInput,
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const { filter, sort } = args;
-        const labelIds = (filter?.labelIds ?? []).map((lId) => fromGraphId('Label', lId));
-        const labelsQuery = labelIds.length ? { some: { labelId: { in: labelIds } } } : undefined;
-        const deviceQuery = filter?.deviceName ? { startsWith: filter.deviceName } : undefined;
-        const filterQuery = {
-          label: labelsQuery,
-          name: deviceQuery,
-        };
+        const { filter, orderBy } = args;
+        const filterQuery = getFilterQuery(filter);
 
         const baseArgs = { where: { tenantId, ...filterQuery } };
-        const orderByArgs = sort
+        const orderByArgs = orderBy
           ? {
-              orderBy: [{ [sort.sortBy === 'NAME' ? 'name' : 'createdAt']: sort.direction.toLowerCase() }],
+              orderBy: [{ [orderBy.sortKey === 'NAME' ? 'name' : 'createdAt']: orderBy.direction.toLowerCase() }],
             }
           : undefined;
         const result = await findManyCursorConnection(

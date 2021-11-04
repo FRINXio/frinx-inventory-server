@@ -56,15 +56,15 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  DeviceOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
+  };
   FilterDevicesInput: {
     // input type
     deviceName?: string | null; // String
     labelIds?: string[] | null; // [String!]
-  };
-  SortingInput: {
-    // input type
-    direction: NexusGenEnums['SortDirection']; // SortDirection!
-    sortBy: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
   };
   UpdateBlueprintInput: {
     // input type
@@ -895,7 +895,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterDevicesInput'] | null; // FilterDevicesInput
       first?: number | null; // Int
       last?: number | null; // Int
-      sort?: NexusGenInputs['SortingInput'] | null; // SortingInput
+      orderBy?: NexusGenInputs['DeviceOrderByInput'] | null; // DeviceOrderByInput
     };
     labels: {
       // args
