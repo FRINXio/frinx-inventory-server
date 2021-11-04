@@ -1,7 +1,19 @@
 import { arg, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
-import { decodeUniconfigConfigInput } from '../external-api/network-types';
+import { decodeUniconfigConfigInput, UniconfigSnapshotsOutput } from '../external-api/network-types';
 import { fromGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
+
+function getSnapshotsFromResponse(snapshotResponse: UniconfigSnapshotsOutput, deviceName: string) {
+  if ('snapshot' in snapshotResponse['snapshots-metadata']) {
+    return snapshotResponse['snapshots-metadata'].snapshot
+      .filter((s) => s.nodes.includes(deviceName))
+      .map((s) => ({
+        name: s.name,
+        createdAt: s['creation-time'],
+      }));
+  }
+  return [];
+}
 
 export const Snapshot = objectType({
   name: 'Snapshot',
@@ -45,10 +57,7 @@ export const DataStore = objectType({
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
           const response = await uniconfigAPI.getSnapshots(root.$uniconfigURL);
-          const snapshotMetadata =
-            'snapshot' in response['snapshots-metadata'] ? response['snapshots-metadata'] : undefined;
-          const snapshots =
-            snapshotMetadata?.snapshot.map((s) => ({ name: s.name, createdAt: s['creation-time'] })) ?? [];
+          const snapshots = getSnapshotsFromResponse(response, root.$deviceName);
           return snapshots;
         } catch {
           return [];

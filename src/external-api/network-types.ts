@@ -118,6 +118,7 @@ const UniconfigSnapshotsOutputValidator = t.type({
         t.type({
           name: t.string,
           'creation-time': t.string,
+          nodes: t.array(t.string),
         }),
       ),
     }),
