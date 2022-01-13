@@ -8,6 +8,7 @@ import { Server } from 'http';
 import { join } from 'path';
 import prismaClient from '../prisma-client';
 import { server } from '../server';
+import config from './config';
 
 type TestContext = {
   client: GraphQLClient;
@@ -33,7 +34,7 @@ function graphqlTestContext() {
       await once(serverInstance, 'listening');
       return new GraphQLClient(`http://localhost:${port}/graphql`, {
         headers: {
-          'x-tenant-id': 'frinx',
+          'x-tenant-id': config.defaultTenantId,
         },
       });
     },

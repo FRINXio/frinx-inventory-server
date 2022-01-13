@@ -2,6 +2,7 @@ import { difference } from 'lodash';
 import { getUniconfigZones } from './external-api/krakend';
 import getLogger from './get-logger';
 import prismaClient from './prisma-client';
+import config from './config';
 
 const log = getLogger('frinx-inventory-server');
 
@@ -9,7 +10,7 @@ async function addZones(apiZones: string[], dbZones: string[]): Promise<void> {
   const zonesToAdd = difference(apiZones, dbZones);
 
   await prismaClient.uniconfigZone.createMany({
-    data: zonesToAdd.map((z) => ({ name: z, tenantId: 'frinx' })),
+    data: zonesToAdd.map((z) => ({ name: z, tenantId: config.defaultTenantId })),
   });
 }
 

@@ -15,6 +15,7 @@ const config = {
   uniconfigApiProtocol: envString('UNICONFIG_API_PROTOCOL'),
   uniconfigApiPort: envString('UNICONFIG_API_PORT'),
   uniconfigListURL: envString('UNICONFIG_LIST_URL'),
+  defaultTenantId: envString('X_TENANT_ID'),
 };
 
 export default config;
