@@ -144,6 +144,10 @@ export interface NexusGenObjects {
     // root type
     output?: string | null; // String
   };
+  CloseTransactionPayload: {
+    // root type
+    isOk: boolean; // Boolean!
+  };
   CommitConfigPayload: {
     // root type
     isOk: boolean; // Boolean!
@@ -164,6 +168,10 @@ export interface NexusGenObjects {
   CreateLabelPayload: {
     // root type
     label?: NexusGenRootTypes['Label'] | null; // Label
+  };
+  CreateTransactionPayload: {
+    // root type
+    transactionId?: string | null; // String
   };
   DataStore: SourceTypes.DataStore;
   DeleteDevicePayload: {
@@ -331,6 +339,10 @@ export interface NexusGenFieldTypes {
     // field return type
     output: string | null; // String
   };
+  CloseTransactionPayload: {
+    // field return type
+    isOk: boolean; // Boolean!
+  };
   CommitConfigPayload: {
     // field return type
     isOk: boolean; // Boolean!
@@ -356,6 +368,10 @@ export interface NexusGenFieldTypes {
   CreateLabelPayload: {
     // field return type
     label: NexusGenRootTypes['Label'] | null; // Label
+  };
+  CreateTransactionPayload: {
+    // field return type
+    transactionId: string | null; // String
   };
   DataStore: {
     // field return type
@@ -448,8 +464,10 @@ export interface NexusGenFieldTypes {
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
+    closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
+    createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
@@ -581,6 +599,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     output: 'String';
   };
+  CloseTransactionPayload: {
+    // field return type name
+    isOk: 'Boolean';
+  };
   CommitConfigPayload: {
     // field return type name
     isOk: 'Boolean';
@@ -606,6 +628,10 @@ export interface NexusGenFieldTypeNames {
   CreateLabelPayload: {
     // field return type name
     label: 'Label';
+  };
+  CreateTransactionPayload: {
+    // field return type name
+    transactionId: 'String';
   };
   DataStore: {
     // field return type name
@@ -698,8 +724,10 @@ export interface NexusGenFieldTypeNames {
     addSnapshot: 'AddSnapshotPayload';
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
+    closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
+    createTransaction: 'CreateTransactionPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     installDevice: 'InstallDevicePayload';
@@ -808,6 +836,7 @@ export interface NexusGenArgTypes {
     addSnapshot: {
       // args
       input: NexusGenInputs['AddSnapshotInput']; // AddSnapshotInput!
+      transactionId: string; // String!
     };
     addZone: {
       // args
@@ -816,14 +845,25 @@ export interface NexusGenArgTypes {
     applySnapshot: {
       // args
       input: NexusGenInputs['ApplySnapshotInput']; // ApplySnapshotInput!
+      transactionId: string; // String!
+    };
+    closeTransaction: {
+      // args
+      deviceId: string; // String!
+      transactionId: string; // String!
     };
     commitConfig: {
       // args
       input: NexusGenInputs['CommitConfigInput']; // CommitConfigInput!
+      transactionId: string; // String!
     };
     createLabel: {
       // args
       input: NexusGenInputs['CreateLabelInput']; // CreateLabelInput!
+    };
+    createTransaction: {
+      // args
+      deviceId: string; // String!
     };
     deleteDevice: {
       // args
@@ -840,10 +880,12 @@ export interface NexusGenArgTypes {
     resetConfig: {
       // args
       deviceId: string; // String!
+      transactionId: string; // String!
     };
     syncFromNetwork: {
       // args
       deviceId: string; // String!
+      transactionId: string; // String!
     };
     uninstallDevice: {
       // args
@@ -858,6 +900,7 @@ export interface NexusGenArgTypes {
       // args
       deviceId: string; // String!
       input: NexusGenInputs['UpdateDataStoreInput']; // UpdateDataStoreInput!
+      transactionId: string; // String!
     };
     updateDevice: {
       // args
@@ -876,6 +919,7 @@ export interface NexusGenArgTypes {
     calculatedDiff: {
       // args
       deviceId: string; // String!
+      transactionId: string; // String!
     };
     countries: {
       // args
@@ -887,6 +931,7 @@ export interface NexusGenArgTypes {
     dataStore: {
       // args
       deviceId: string; // String!
+      transactionId: string; // String!
     };
     devices: {
       // args

@@ -7,6 +7,7 @@ export type Context = {
   prisma: PrismaClient;
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
+  authorization: string | void;
 };
 
 export default function createContext(context: ExpressContext): Context {
@@ -16,8 +17,8 @@ export default function createContext(context: ExpressContext): Context {
   if (headers['x-tenant-id'] == null) {
     throw new Error('tenant id is missing');
   }
-
+  const { authorization } = headers;
   const tenantId = headers['x-tenant-id'] as string;
 
-  return { prisma: prismaClient, tenantId, uniconfigAPI };
+  return { prisma: prismaClient, tenantId, uniconfigAPI, authorization };
 }
