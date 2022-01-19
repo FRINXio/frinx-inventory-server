@@ -29,10 +29,14 @@ export const DataStore = objectType({
     t.string('config', {
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
-          const config = await uniconfigAPI.getUniconfigDatastore(root.$uniconfigURL, {
-            nodeId: root.$deviceName,
-            datastoreType: 'config',
-          });
+          const config = await uniconfigAPI.getUniconfigDatastore(
+            root.$uniconfigURL,
+            {
+              nodeId: root.$deviceName,
+              datastoreType: 'config',
+            },
+            root.$transactionId,
+          );
           return JSON.stringify(config);
         } catch {
           return null;
@@ -42,10 +46,14 @@ export const DataStore = objectType({
     t.string('operational', {
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
-          const operational = await uniconfigAPI.getUniconfigDatastore(root.$uniconfigURL, {
-            nodeId: root.$deviceName,
-            datastoreType: 'operational',
-          });
+          const operational = await uniconfigAPI.getUniconfigDatastore(
+            root.$uniconfigURL,
+            {
+              nodeId: root.$deviceName,
+              datastoreType: 'operational',
+            },
+            root.$transactionId,
+          );
           return JSON.stringify(operational);
         } catch {
           return null;
@@ -56,7 +64,7 @@ export const DataStore = objectType({
       type: nonNull(list(nonNull(Snapshot))),
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
-          const response = await uniconfigAPI.getSnapshots(root.$uniconfigURL);
+          const response = await uniconfigAPI.getSnapshots(root.$uniconfigURL, root.$transactionId);
           const snapshots = getSnapshotsFromResponse(response, root.$deviceName);
           return snapshots;
         } catch {
@@ -74,8 +82,9 @@ export const DataStoreQuery = extendType({
       type: DataStore,
       args: {
         deviceId: nonNull(stringArg()),
+        transactionId: nonNull(stringArg()),
       },
-      resolve: async (_, { deviceId }, { prisma }) => {
+      resolve: async (_, { deviceId, transactionId }, { prisma }) => {
         const nativeDeviceId = fromGraphId('Device', deviceId);
         const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
@@ -85,6 +94,7 @@ export const DataStoreQuery = extendType({
         return {
           $deviceName: dbDevice.name,
           $uniconfigURL: uniconfigURL,
+          $transactionId: transactionId,
         };
       },
     });
@@ -109,6 +119,7 @@ export const UpdateDataStoreMutation = extendType({
       type: UpdateDataStorePayload,
       args: {
         deviceId: nonNull(stringArg()),
+        transactionId: nonNull(stringArg()),
         input: nonNull(arg({ type: UpdateDataStoreInput })),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
@@ -120,11 +131,17 @@ export const UpdateDataStoreMutation = extendType({
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = JSON.parse(input.config);
-        await uniconfigAPI.updateUniconfigDataStore(uniconfigURL, dbDevice.name, decodeUniconfigConfigInput(params));
+        await uniconfigAPI.updateUniconfigDataStore(
+          uniconfigURL,
+          dbDevice.name,
+          decodeUniconfigConfigInput(params),
+          args.transactionId,
+        );
         return {
           dataStore: {
             $deviceName: dbDevice.name,
             $uniconfigURL: uniconfigURL,
+            $transactionId: args.transactionId,
           },
         };
       },
@@ -152,10 +169,11 @@ export const CommitConfigMutation = extendType({
     t.nonNull.field('commitConfig', {
       type: CommitConfigPayload,
       args: {
+        transactionId: nonNull(stringArg()),
         input: nonNull(arg({ type: CommitConfigInput })),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
-        const { input } = args;
+        const { input, transactionId } = args;
         const nativeDeviceId = fromGraphId('Device', input.deviceId);
         const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
         if (dbDevice == null) {
@@ -171,8 +189,8 @@ export const CommitConfigMutation = extendType({
         };
         const { shouldDryRun } = input;
         const result = shouldDryRun
-          ? await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params)
-          : await uniconfigAPI.postCommitToNetwork(uniconfigURL, params);
+          ? await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params, transactionId)
+          : await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
         return { isOk: result.output['overall-status'] === 'complete', output: JSON.stringify(result.output) };
       },
     });
@@ -192,6 +210,7 @@ export const ResetConfigMutation = extendType({
       type: ResetConfigPayload,
       args: {
         deviceId: nonNull(stringArg()),
+        transactionId: nonNull(stringArg()),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
@@ -207,7 +226,7 @@ export const ResetConfigMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.replaceConfig(uniconfigURL, params);
+        const result = await uniconfigAPI.replaceConfig(uniconfigURL, params, args.transactionId);
         if (result.output['overall-status'] === 'fail') {
           throw new Error('error replacing config');
         }
@@ -215,6 +234,7 @@ export const ResetConfigMutation = extendType({
           dataStore: {
             $deviceName: dbDevice.name,
             $uniconfigURL: uniconfigURL,
+            $transactionId: args.transactionId,
           },
         };
       },
@@ -242,6 +262,7 @@ export const AddSnapshotMutation = extendType({
       type: AddSnapshotPayload,
       args: {
         input: nonNull(arg({ type: AddSnasphotInput })),
+        transactionId: nonNull(stringArg()),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.input.deviceId);
@@ -258,7 +279,7 @@ export const AddSnapshotMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.createSnapshot(uniconfigURL, params);
+        const result = await uniconfigAPI.createSnapshot(uniconfigURL, params, args.transactionId);
         if (result.output['overall-status'] === 'fail') {
           throw new Error('error saving snapshot');
         }
@@ -295,6 +316,7 @@ export const ApplySnapshotMutation = extendType({
       type: ApplySnapshotPayload,
       args: {
         input: nonNull(arg({ type: ApplySnapshotInput })),
+        transactionId: nonNull(stringArg()),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.input.deviceId);
@@ -311,7 +333,7 @@ export const ApplySnapshotMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.applySnapshot(uniconfigURL, params);
+        const result = await uniconfigAPI.applySnapshot(uniconfigURL, params, args.transactionId);
 
         return {
           isOk: result.output['overall-status'] === 'complete',
@@ -335,6 +357,7 @@ export const CalculatedDiffQuery = extendType({
       type: CalculatedDiffPayload,
       args: {
         deviceId: nonNull(stringArg()),
+        transactionId: nonNull(stringArg()),
       },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
@@ -350,7 +373,7 @@ export const CalculatedDiffQuery = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.getCalculatedDiff(uniconfigURL, params);
+        const result = await uniconfigAPI.getCalculatedDiff(uniconfigURL, params, args.transactionId);
         if (result.output['overall-status'] === 'fail') {
           throw new Error('error getting calculated diff');
         }
@@ -371,7 +394,7 @@ export const SyncFromNetworkMutation = extendType({
   definition: (t) => {
     t.nonNull.field('syncFromNetwork', {
       type: SyncFromNetworkPayload,
-      args: { deviceId: nonNull(stringArg()) },
+      args: { deviceId: nonNull(stringArg()), transactionId: nonNull(stringArg()) },
       resolve: async (_, args, { prisma, uniconfigAPI }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
         const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId } });
@@ -386,7 +409,7 @@ export const SyncFromNetworkMutation = extendType({
             },
           },
         };
-        const response = await uniconfigAPI.syncFromNetwork(uniconfigURL, params);
+        const response = await uniconfigAPI.syncFromNetwork(uniconfigURL, params, args.transactionId);
         if (response.output['overall-status'] === 'fail') {
           return { dataStore: null };
         }
@@ -394,8 +417,72 @@ export const SyncFromNetworkMutation = extendType({
           dataStore: {
             $deviceName: dbDevice.name,
             $uniconfigURL: uniconfigURL,
+            $transactionId: args.transactionId,
           },
         };
+      },
+    });
+  },
+});
+
+export const CreateTransactionPayload = objectType({
+  name: 'CreateTransactionPayload',
+  definition: (t) => {
+    t.string('transactionId');
+  },
+});
+
+export const CreateTransactionMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('createTransaction', {
+      type: CreateTransactionPayload,
+      args: { deviceId: nonNull(stringArg()) },
+      resolve: async (_, args, { authorization, uniconfigAPI, prisma, tenantId }) => {
+        if (authorization == null) {
+          throw new Error('unauthorized');
+        }
+        const nativeDeviceId = fromGraphId('Device', args.deviceId);
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
+        if (dbDevice == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const transactionId = await uniconfigAPI.createTransaction(uniconfigURL, authorization);
+        return { transactionId };
+      },
+    });
+  },
+});
+
+export const CloseTransactionPayload = objectType({
+  name: 'CloseTransactionPayload',
+  definition: (t) => {
+    t.nonNull.boolean('isOk');
+  },
+});
+
+export const CloseTransactionMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('closeTransaction', {
+      type: CloseTransactionPayload,
+      args: { deviceId: nonNull(stringArg()), transactionId: nonNull(stringArg()) },
+      resolve: async (_, args, { authorization, uniconfigAPI, prisma, tenantId }) => {
+        if (authorization == null) {
+          throw new Error('unauthorized');
+        }
+        const nativeDeviceId = fromGraphId('Device', args.deviceId);
+        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
+        if (dbDevice == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        await uniconfigAPI.closeTransaction(uniconfigURL, {
+          authToken: authorization,
+          transactionId: args.transactionId,
+        });
+        return { isOk: true };
       },
     });
   },

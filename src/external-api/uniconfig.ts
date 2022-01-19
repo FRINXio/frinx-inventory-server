@@ -1,3 +1,5 @@
+import { isString } from 'fp-ts/lib/string';
+import { Response } from 'node-fetch';
 import { sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 import {
   CheckInstalledNodesInput,
@@ -51,115 +53,6 @@ export async function uninstallDevice(baseURL: string, params: UninstallDeviceIn
   await sendPostRequest([baseURL, '/operations/connection-manager:uninstall-node'], params);
 }
 
-export type DataStoreOptions = {
-  nodeId: string;
-  datastoreType: 'operational' | 'config';
-};
-
-const DATA_STORE_MAP = {
-  operational: 'nonconfig',
-  config: 'config',
-};
-
-export async function getUniconfigDatastore(
-  baseURL: string,
-  options: DataStoreOptions,
-): Promise<UniconfigConfigOutput> {
-  const { nodeId, datastoreType } = options;
-  const json = await sendGetRequest([
-    baseURL,
-    `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${nodeId}/frinx-uniconfig-topology:configuration?content=${DATA_STORE_MAP[datastoreType]}`,
-  ]);
-  const data = decodeUniconfigConfigOutput(json);
-
-  return data;
-}
-
-export async function updateUniconfigDataStore(
-  baseURL: string,
-  nodeId: string,
-  params: UniconfigConfigInput,
-): Promise<void> {
-  await sendPutRequest(
-    [
-      baseURL,
-      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${nodeId}/frinx-uniconfig-topology:configuration`,
-    ],
-    params,
-  );
-}
-
-export async function postCommitToNetwork(
-  baseURL: string,
-  params: UniconfigCommitInput,
-): Promise<UniconfigCommitOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:commit'], params);
-  const data = decodeUniconfigCommitOutput(json);
-
-  return data;
-}
-
-export async function postDryRunCommitToNetwork(
-  baseURL: string,
-  params: UniconfigCommitInput,
-): Promise<UniconfigCommitOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/dryrun-manager:dryrun-commit'], params);
-  const data = decodeUniconfigCommitOutput(json);
-
-  return data;
-}
-
-export async function replaceConfig(baseURL: string, params: UniconfigReplaceInput): Promise<UniconfigReplaceOutput> {
-  const json = await sendPostRequest(
-    [baseURL, '/operations/uniconfig-manager:replace-config-with-operational'],
-    params,
-  );
-  const data = decodeUniconfigReplaceOutput(json);
-
-  return data;
-}
-
-export async function getSnapshots(baseURL: string): Promise<UniconfigSnapshotsOutput> {
-  const json = await sendGetRequest([baseURL, '/data/snapshot-manager:snapshots-metadata?content=config']);
-  const data = decodeUniconfigSnapshotsOutput(json);
-
-  return data;
-}
-
-export async function createSnapshot(
-  baseURL: string,
-  params: UniconfigSnapshotInput,
-): Promise<UniconfigSnapshotOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/snapshot-manager:create-snapshot'], params);
-  const data = decodeUniconfigSnapshotOutput(json);
-
-  return data;
-}
-
-export async function applySnapshot(
-  baseURL: string,
-  params: UniconfigApplySnapshotInput,
-): Promise<UniconfigApplySnapshotOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/snapshot-manager:replace-config-with-snapshot'], params);
-  const data = decodeUniconfigApplySnapshotOutput(json);
-
-  return data;
-}
-
-export async function getCalculatedDiff(baseURL: string, params: UniconfigDiffInput): Promise<UniconfigDiffOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:calculate-diff'], params);
-  const data = decodeUniconfigDiffOuptut(json);
-
-  return data;
-}
-
-export async function syncFromNetwork(baseURL: string, params: UniconfigSyncInput): Promise<UniconfigSyncOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:sync-from-network'], params);
-  const data = decodeUniconfigSyncOutput(json);
-
-  return data;
-}
-
 export async function getCheckInstalledDevices(
   baseURL: string,
   input: CheckInstalledNodesInput,
@@ -170,20 +63,243 @@ export async function getCheckInstalledDevices(
   return data;
 }
 
+/*
+TRANSACTION AWARE API CALLS:
+*/
+
+export type DataStoreOptions = {
+  nodeId: string;
+  datastoreType: 'operational' | 'config';
+};
+
+const DATA_STORE_MAP = {
+  operational: 'nonconfig',
+  config: 'config',
+};
+
+function makeCookieFromTransactionId(transactionId: string): string {
+  const date = new Date();
+  // 1 day expiration
+  date.setTime(date.getTime() + 1 * 24 * 60 * 60 * 1000);
+
+  return `UNICONFIGTXID=${transactionId};expires=${date.toUTCString()}`;
+}
+
+export async function getUniconfigDatastore(
+  baseURL: string,
+  options: DataStoreOptions,
+  transactionId: string,
+): Promise<UniconfigConfigOutput> {
+  const { nodeId, datastoreType } = options;
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendGetRequest(
+    [
+      baseURL,
+      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${nodeId}/frinx-uniconfig-topology:configuration?content=${DATA_STORE_MAP[datastoreType]}`,
+    ],
+    cookie,
+  );
+  const data = decodeUniconfigConfigOutput(json);
+
+  return data;
+}
+
+export async function updateUniconfigDataStore(
+  baseURL: string,
+  nodeId: string,
+  params: UniconfigConfigInput,
+  transactionId: string,
+): Promise<void> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  await sendPutRequest(
+    [
+      baseURL,
+      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${nodeId}/frinx-uniconfig-topology:configuration`,
+    ],
+    params,
+    cookie,
+  );
+}
+
+export async function postCommitToNetwork(
+  baseURL: string,
+  params: UniconfigCommitInput,
+  transactionId: string,
+): Promise<UniconfigCommitOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:commit'], params, cookie);
+  const data = decodeUniconfigCommitOutput(json);
+
+  return data;
+}
+
+export async function postDryRunCommitToNetwork(
+  baseURL: string,
+  params: UniconfigCommitInput,
+  transactionId: string,
+): Promise<UniconfigCommitOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest([baseURL, '/operations/dryrun-manager:dryrun-commit'], params, cookie);
+  const data = decodeUniconfigCommitOutput(json);
+
+  return data;
+}
+
+export async function replaceConfig(
+  baseURL: string,
+  params: UniconfigReplaceInput,
+  transactionId: string,
+): Promise<UniconfigReplaceOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest(
+    [baseURL, '/operations/uniconfig-manager:replace-config-with-operational'],
+    params,
+    cookie,
+  );
+  const data = decodeUniconfigReplaceOutput(json);
+
+  return data;
+}
+
+export async function getSnapshots(baseURL: string, transactionId: string): Promise<UniconfigSnapshotsOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendGetRequest([baseURL, '/data/snapshot-manager:snapshots-metadata?content=config'], cookie);
+  const data = decodeUniconfigSnapshotsOutput(json);
+
+  return data;
+}
+
+export async function createSnapshot(
+  baseURL: string,
+  params: UniconfigSnapshotInput,
+  transactionId: string,
+): Promise<UniconfigSnapshotOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest([baseURL, '/operations/snapshot-manager:create-snapshot'], params, cookie);
+  const data = decodeUniconfigSnapshotOutput(json);
+
+  return data;
+}
+
+export async function applySnapshot(
+  baseURL: string,
+  params: UniconfigApplySnapshotInput,
+  transactionId: string,
+): Promise<UniconfigApplySnapshotOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest(
+    [baseURL, '/operations/snapshot-manager:replace-config-with-snapshot'],
+    params,
+    cookie,
+  );
+  const data = decodeUniconfigApplySnapshotOutput(json);
+
+  return data;
+}
+
+export async function getCalculatedDiff(
+  baseURL: string,
+  params: UniconfigDiffInput,
+  transactionId: string,
+): Promise<UniconfigDiffOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:calculate-diff'], params, cookie);
+  const data = decodeUniconfigDiffOuptut(json);
+
+  return data;
+}
+
+export async function syncFromNetwork(
+  baseURL: string,
+  params: UniconfigSyncInput,
+  transactionId: string,
+): Promise<UniconfigSyncOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:sync-from-network'], params, cookie);
+  const data = decodeUniconfigSyncOutput(json);
+
+  return data;
+}
+
+async function createTransaction(baseURL: string, authToken: string): Promise<string> {
+  const response = await sendPostRequest([baseURL, '/operations/uniconfig-manager:create-transaction'], {
+    auth: authToken,
+    verify: false,
+  });
+  const data = await (response as Response).text();
+  if (!isString(data)) {
+    throw new Error('not a string');
+  }
+  return data;
+}
+
+export type CloseTransactionParams = {
+  authToken: string;
+  transactionId: string;
+};
+
+async function closeTransaction(baseURL: string, params: CloseTransactionParams): Promise<void> {
+  const { authToken, transactionId } = params;
+  const cookie = makeCookieFromTransactionId(transactionId);
+  await sendPostRequest(
+    [baseURL, '/operations/uniconfig-manager:close-transaction'],
+    {
+      auth: authToken,
+      verify: false,
+    },
+    cookie,
+  );
+}
+
 export type UniConfigAPI = {
   getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
   installDevice: (baseURL: string, params: unknown) => Promise<UniconfigInstallOutput>;
   uninstallDevice: (baseURL: string, params: UninstallDeviceInput) => Promise<void>;
-  getUniconfigDatastore: (baseURL: string, options: DataStoreOptions) => Promise<UniconfigConfigOutput>;
-  updateUniconfigDataStore: (baseURL: string, nodeId: string, params: UniconfigConfigInput) => Promise<void>;
-  postCommitToNetwork: (baseURL: string, params: UniconfigCommitInput) => Promise<UniconfigCommitOutput>;
-  postDryRunCommitToNetwork: (baseURL: string, params: UniconfigCommitInput) => Promise<UniconfigCommitOutput>;
-  replaceConfig: (baseURL: string, params: UniconfigReplaceInput) => Promise<UniconfigReplaceOutput>;
-  getSnapshots: (baseURL: string) => Promise<UniconfigSnapshotsOutput>;
-  createSnapshot: (baseURL: string, params: UniconfigSnapshotInput) => Promise<UniconfigSnapshotOutput>;
-  applySnapshot: (baseURL: string, params: UniconfigApplySnapshotInput) => Promise<UniconfigApplySnapshotOutput>;
-  getCalculatedDiff: (baseURL: string, params: UniconfigDiffInput) => Promise<UniconfigDiffOutput>;
-  syncFromNetwork: (baseURL: string, params: UniconfigSyncInput) => Promise<UniconfigSyncOutput>;
+  getUniconfigDatastore: (
+    baseURL: string,
+    options: DataStoreOptions,
+    transactionId: string,
+  ) => Promise<UniconfigConfigOutput>;
+  updateUniconfigDataStore: (
+    baseURL: string,
+    nodeId: string,
+    params: UniconfigConfigInput,
+    transactionId: string,
+  ) => Promise<void>;
+  postCommitToNetwork: (
+    baseURL: string,
+    params: UniconfigCommitInput,
+    transactionId: string,
+  ) => Promise<UniconfigCommitOutput>;
+  postDryRunCommitToNetwork: (
+    baseURL: string,
+    params: UniconfigCommitInput,
+    transactionId: string,
+  ) => Promise<UniconfigCommitOutput>;
+  replaceConfig: (
+    baseURL: string,
+    params: UniconfigReplaceInput,
+    transactionId: string,
+  ) => Promise<UniconfigReplaceOutput>;
+  getSnapshots: (baseURL: string, transactionId: string) => Promise<UniconfigSnapshotsOutput>;
+  createSnapshot: (
+    baseURL: string,
+    params: UniconfigSnapshotInput,
+    transactionId: string,
+  ) => Promise<UniconfigSnapshotOutput>;
+  applySnapshot: (
+    baseURL: string,
+    params: UniconfigApplySnapshotInput,
+    transactionId: string,
+  ) => Promise<UniconfigApplySnapshotOutput>;
+  getCalculatedDiff: (
+    baseURL: string,
+    params: UniconfigDiffInput,
+    transactionId: string,
+  ) => Promise<UniconfigDiffOutput>;
+  syncFromNetwork: (baseURL: string, params: UniconfigSyncInput, transactionId: string) => Promise<UniconfigSyncOutput>;
+  createTransaction: (baseURL: string, authToken: string) => Promise<string>;
+  closeTransaction: (baseURL: string, params: CloseTransactionParams) => Promise<void>;
 };
 
 const uniconfigAPI: UniConfigAPI = {
@@ -200,6 +316,8 @@ const uniconfigAPI: UniConfigAPI = {
   applySnapshot,
   getCalculatedDiff,
   syncFromNetwork,
+  createTransaction,
+  closeTransaction,
 };
 
 export default uniconfigAPI;

@@ -7,6 +7,7 @@ export type Location = location;
 export type DataStore = {
   $deviceName: string;
   $uniconfigURL: string;
+  $transactionId: string;
 };
 export type Country = {
   id: string;

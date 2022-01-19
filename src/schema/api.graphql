@@ -84,6 +84,10 @@ type CalculatedDiffPayload {
   output: String
 }
 
+type CloseTransactionPayload {
+  isOk: Boolean!
+}
+
 input CommitConfigInput {
   deviceId: String!
   shouldDryRun: Boolean
@@ -117,6 +121,10 @@ input CreateLabelInput {
 
 type CreateLabelPayload {
   label: Label
+}
+
+type CreateTransactionPayload {
+  transactionId: String
 }
 
 type DataStore {
@@ -228,19 +236,21 @@ type Mutation {
   addBlueprint(input: AddBlueprintInput!): AddBlueprintPayload!
   addDevice(input: AddDeviceInput!): AddDevicePayload!
   addLocation(input: AddLocationInput!): AddLocationPayload!
-  addSnapshot(input: AddSnapshotInput!): AddSnapshotPayload
+  addSnapshot(input: AddSnapshotInput!, transactionId: String!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
-  applySnapshot(input: ApplySnapshotInput!): ApplySnapshotPayload!
-  commitConfig(input: CommitConfigInput!): CommitConfigPayload!
+  applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
+  closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
+  commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
+  createTransaction(deviceId: String!): CreateTransactionPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   installDevice(id: String!): InstallDevicePayload!
-  resetConfig(deviceId: String!): ResetConfigPayload!
-  syncFromNetwork(deviceId: String!): SyncFromNetworkPayload!
+  resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
+  syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
-  updateDataStore(deviceId: String!, input: UpdateDataStoreInput!): UpdateDataStorePayload!
+  updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
 }
 
@@ -257,9 +267,9 @@ type PageInfo {
 
 type Query {
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
-  calculatedDiff(deviceId: String!): CalculatedDiffPayload!
+  calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
-  dataStore(deviceId: String!): DataStore
+  dataStore(deviceId: String!, transactionId: String!): DataStore
   devices(
     after: String
     before: String

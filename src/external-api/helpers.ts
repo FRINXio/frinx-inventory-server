@@ -83,36 +83,36 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
   return json;
 }
 
-export async function sendGetRequest(path: APIPath): Promise<unknown> {
+export async function sendGetRequest(path: APIPath, cookie?: string): Promise<unknown> {
   const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      authorization: 'Basic YWRtaW46YWRtaW4=',
+      ...(cookie != null ? { cookie } : {}),
     },
   };
   return apiFetch(path, options);
 }
 
-export async function sendPostRequest(path: APIPath, body?: unknown): Promise<unknown> {
+export async function sendPostRequest(path: APIPath, body?: unknown, cookie?: string): Promise<unknown> {
   const options = {
     method: 'POST',
     body: JSON.stringify(body),
     headers: {
       'Content-Type': 'application/json',
-      authorization: 'Basic YWRtaW46YWRtaW4=',
+      ...(cookie != null ? { cookie } : {}),
     },
   };
   return apiFetch(path, options);
 }
 
-export async function sendPutRequest(path: APIPath, body?: unknown): Promise<unknown> {
+export async function sendPutRequest(path: APIPath, body?: unknown, cookie?: string): Promise<unknown> {
   const options = {
     method: 'PUT',
     body: JSON.stringify(body),
     headers: {
       'Content-Type': 'application/json',
-      authorization: 'Basic YWRtaW46YWRtaW4=',
+      ...(cookie != null ? { cookie } : {}),
     },
   };
   return apiFetch(path, options);
