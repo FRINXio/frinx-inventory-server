@@ -33,7 +33,7 @@ function graphqlTestContext() {
       await once(serverInstance, 'listening');
       return new GraphQLClient(`http://localhost:${port}/graphql`, {
         headers: {
-          'x-tenant-id': 'frinx',
+          'x-tenant-id': process.env.X_TENANT_ID ?? '',
         },
       });
     },
