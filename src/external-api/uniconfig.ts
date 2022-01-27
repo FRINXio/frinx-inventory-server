@@ -221,11 +221,8 @@ export async function syncFromNetwork(
   return data;
 }
 
-async function createTransaction(baseURL: string, authToken: string): Promise<string> {
-  const response = await sendPostRequest([baseURL, '/operations/uniconfig-manager:create-transaction'], {
-    auth: authToken,
-    verify: false,
-  });
+async function createTransaction(baseURL: string): Promise<string> {
+  const response = await sendPostRequest([baseURL, '/operations/uniconfig-manager:create-transaction']);
   const data = await (response as Response).text();
   if (!isString(data)) {
     throw new Error('not a string');
@@ -238,17 +235,9 @@ export type CloseTransactionParams = {
   transactionId: string;
 };
 
-async function closeTransaction(baseURL: string, params: CloseTransactionParams): Promise<void> {
-  const { authToken, transactionId } = params;
+async function closeTransaction(baseURL: string, transactionId: string): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  await sendPostRequest(
-    [baseURL, '/operations/uniconfig-manager:close-transaction'],
-    {
-      auth: authToken,
-      verify: false,
-    },
-    cookie,
-  );
+  await sendPostRequest([baseURL, '/operations/uniconfig-manager:close-transaction'], undefined, cookie);
 }
 
 export type UniConfigAPI = {
@@ -298,8 +287,8 @@ export type UniConfigAPI = {
     transactionId: string,
   ) => Promise<UniconfigDiffOutput>;
   syncFromNetwork: (baseURL: string, params: UniconfigSyncInput, transactionId: string) => Promise<UniconfigSyncOutput>;
-  createTransaction: (baseURL: string, authToken: string) => Promise<string>;
-  closeTransaction: (baseURL: string, params: CloseTransactionParams) => Promise<void>;
+  createTransaction: (baseURL: string) => Promise<string>;
+  closeTransaction: (baseURL: string, transactionId: string) => Promise<void>;
 };
 
 const uniconfigAPI: UniConfigAPI = {

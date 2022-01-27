@@ -438,17 +438,14 @@ export const CreateTransactionMutation = extendType({
     t.nonNull.field('createTransaction', {
       type: CreateTransactionPayload,
       args: { deviceId: nonNull(stringArg()) },
-      resolve: async (_, args, { authorization, uniconfigAPI, prisma, tenantId }) => {
-        if (authorization == null) {
-          throw new Error('unauthorized');
-        }
+      resolve: async (_, args, { uniconfigAPI, prisma, tenantId }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
         const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        const transactionId = await uniconfigAPI.createTransaction(uniconfigURL, authorization);
+        const transactionId = await uniconfigAPI.createTransaction(uniconfigURL);
         return { transactionId };
       },
     });
@@ -468,20 +465,14 @@ export const CloseTransactionMutation = extendType({
     t.nonNull.field('closeTransaction', {
       type: CloseTransactionPayload,
       args: { deviceId: nonNull(stringArg()), transactionId: nonNull(stringArg()) },
-      resolve: async (_, args, { authorization, uniconfigAPI, prisma, tenantId }) => {
-        if (authorization == null) {
-          throw new Error('unauthorized');
-        }
+      resolve: async (_, args, { uniconfigAPI, prisma, tenantId }) => {
         const nativeDeviceId = fromGraphId('Device', args.deviceId);
         const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
         if (dbDevice == null) {
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        await uniconfigAPI.closeTransaction(uniconfigURL, {
-          authToken: authorization,
-          transactionId: args.transactionId,
-        });
+        await uniconfigAPI.closeTransaction(uniconfigURL, args.transactionId);
         return { isOk: true };
       },
     });
