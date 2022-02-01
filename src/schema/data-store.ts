@@ -295,6 +295,49 @@ export const AddSnapshotMutation = extendType({
   },
 });
 
+export const DeleteSnapshotPayload = objectType({
+  name: 'DeleteSnapshotPayload',
+  definition: (t) => {
+    t.field('snapshot', { type: Snapshot });
+  },
+});
+export const DeleteSnapshotInput = inputObjectType({
+  name: 'DeleteSnapshotInput',
+  definition: (t) => {
+    t.nonNull.string('deviceId');
+    t.nonNull.string('name');
+    t.nonNull.string('transactionId');
+  },
+});
+export const DeleteSnapshotMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.field('deleteSnapshot', {
+      type: DeleteSnapshotPayload,
+      args: {
+        input: nonNull(arg({ type: DeleteSnapshotInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+        const { deviceId, name, transactionId } = args.input;
+        const nativeDeviceId = fromGraphId('Device', deviceId);
+        const device = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
+        if (device == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
+        const response = await uniconfigAPI.getSnapshots(uniconfigURL, transactionId);
+        const snapshots = getSnapshotsFromResponse(response, device.name);
+        const snapshot = snapshots.find((s) => s.name === name);
+        if (snapshot == null) {
+          throw new Error('snapshot not found');
+        }
+        await uniconfigAPI.deleteSnapshot(uniconfigURL, { input: { name } }, transactionId);
+        return { snapshot };
+      },
+    });
+  },
+});
+
 export const ApplySnapshotInput = inputObjectType({
   name: 'ApplySnapshotInput',
   definition: (t) => {
@@ -344,10 +387,25 @@ export const ApplySnapshotMutation = extendType({
   },
 });
 
+export const CalculatedDiffData = objectType({
+  name: 'DiffData',
+  definition: (t) => {
+    t.nonNull.string('path');
+    t.nonNull.string('data');
+  },
+});
+export const CalculatedDiffResult = objectType({
+  name: 'CalculatedDiffResult',
+  definition: (t) => {
+    t.field('createdData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+    t.field('deletedData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+    t.field('updatedData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+  },
+});
 export const CalculatedDiffPayload = objectType({
   name: 'CalculatedDiffPayload',
   definition: (t) => {
-    t.string('output');
+    t.nonNull.field('result', { type: CalculatedDiffResult });
   },
 });
 export const CalculatedDiffQuery = extendType({
@@ -377,7 +435,14 @@ export const CalculatedDiffQuery = extendType({
         if (result.output['overall-status'] === 'fail') {
           throw new Error('error getting calculated diff');
         }
-        return { output: JSON.stringify(result.output['node-results']['node-result'][0]) };
+        const [output] = result.output['node-results']['node-result'];
+        return {
+          result: {
+            createdData: output['created-data'] ?? [],
+            deletedData: output['deleted-data'] ?? [],
+            updatedData: output['edited-data'] ?? [],
+          },
+        };
       },
     });
   },

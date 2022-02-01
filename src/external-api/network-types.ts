@@ -284,3 +284,21 @@ export type CheckInstalledNodesOutput = t.TypeOf<typeof CheckInstalledNodesOutpu
 export function decodeInstalledNodeOutput(value: unknown): CheckInstalledNodesOutput {
   return extractResult(CheckInstalledNodesOutputValidator.decode(value));
 }
+
+export type UniconfigDeleteSnapshotParams = {
+  input: {
+    name: string;
+  };
+};
+
+const UniconfigDeleteSnapshotOutputValidator = t.type({
+  output: t.type({
+    'error-message': optional(t.string),
+    'overall-status': UniconfigStatusValidator,
+  }),
+});
+export type UniconfigDeleteSnapshotOutput = t.TypeOf<typeof UniconfigDeleteSnapshotOutputValidator>;
+
+export function decodeUniconfigDeleteSnapshotOutput(value: unknown): UniconfigDeleteSnapshotOutput {
+  return extractResult(UniconfigDeleteSnapshotOutputValidator.decode(value));
+}
