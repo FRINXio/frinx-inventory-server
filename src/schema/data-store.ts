@@ -537,7 +537,11 @@ export const CloseTransactionMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        await uniconfigAPI.closeTransaction(uniconfigURL, args.transactionId);
+        try {
+          await uniconfigAPI.closeTransaction(uniconfigURL, args.transactionId);
+          // we have to do this, as close-transaction API call returns code 200 without response body wich throws an error
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
         return { isOk: true };
       },
     });
