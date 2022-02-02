@@ -99,9 +99,14 @@ input CommitConfigInput {
   shouldDryRun: Boolean
 }
 
+type CommitConfigOutput {
+  configuration: String
+  deviceId: String!
+  message: String
+}
+
 type CommitConfigPayload {
-  isOk: Boolean!
-  output: String!
+  output: CommitConfigOutput!
 }
 
 type Country implements Node {

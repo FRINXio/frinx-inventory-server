@@ -11,6 +11,7 @@ import {
   decodeUniconfigConfigOutput,
   decodeUniconfigDeleteSnapshotOutput,
   decodeUniconfigDiffOuptut,
+  decodeUniconfigDryRunCommitOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigSnapshotOutput,
@@ -27,6 +28,7 @@ import {
   UniconfigDeleteSnapshotParams,
   UniconfigDiffInput,
   UniconfigDiffOutput,
+  UniconfigDryRunCommitOutput,
   UniconfigInstallOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
@@ -140,10 +142,10 @@ export async function postDryRunCommitToNetwork(
   baseURL: string,
   params: UniconfigCommitInput,
   transactionId: string,
-): Promise<UniconfigCommitOutput> {
+): Promise<UniconfigDryRunCommitOutput> {
   const cookie = makeCookieFromTransactionId(transactionId);
   const json = await sendPostRequest([baseURL, '/operations/dryrun-manager:dryrun-commit'], params, cookie);
-  const data = decodeUniconfigCommitOutput(json);
+  const data = decodeUniconfigDryRunCommitOutput(json);
 
   return data;
 }
@@ -279,7 +281,7 @@ export type UniConfigAPI = {
     baseURL: string,
     params: UniconfigCommitInput,
     transactionId: string,
-  ) => Promise<UniconfigCommitOutput>;
+  ) => Promise<UniconfigDryRunCommitOutput>;
   replaceConfig: (
     baseURL: string,
     params: UniconfigReplaceInput,

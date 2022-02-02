@@ -160,10 +160,15 @@ export interface NexusGenObjects {
     // root type
     isOk: boolean; // Boolean!
   };
+  CommitConfigOutput: {
+    // root type
+    configuration?: string | null; // String
+    deviceId: string; // String!
+    message?: string | null; // String
+  };
   CommitConfigPayload: {
     // root type
-    isOk: boolean; // Boolean!
-    output: string; // String!
+    output: NexusGenRootTypes['CommitConfigOutput']; // CommitConfigOutput!
   };
   Country: SourceTypes.Country;
   CountryConnection: {
@@ -370,10 +375,15 @@ export interface NexusGenFieldTypes {
     // field return type
     isOk: boolean; // Boolean!
   };
+  CommitConfigOutput: {
+    // field return type
+    configuration: string | null; // String
+    deviceId: string; // String!
+    message: string | null; // String
+  };
   CommitConfigPayload: {
     // field return type
-    isOk: boolean; // Boolean!
-    output: string; // String!
+    output: NexusGenRootTypes['CommitConfigOutput']; // CommitConfigOutput!
   };
   Country: {
     // field return type
@@ -646,10 +656,15 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     isOk: 'Boolean';
   };
+  CommitConfigOutput: {
+    // field return type name
+    configuration: 'String';
+    deviceId: 'String';
+    message: 'String';
+  };
   CommitConfigPayload: {
     // field return type name
-    isOk: 'Boolean';
-    output: 'String';
+    output: 'CommitConfigOutput';
   };
   Country: {
     // field return type name

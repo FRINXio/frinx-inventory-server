@@ -1,5 +1,10 @@
 import { arg, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
-import { decodeUniconfigConfigInput, UniconfigSnapshotsOutput } from '../external-api/network-types';
+import {
+  decodeUniconfigConfigInput,
+  UniconfigCommitOutput,
+  UniconfigDryRunCommitOutput,
+  UniconfigSnapshotsOutput,
+} from '../external-api/network-types';
 import { fromGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 
@@ -13,6 +18,20 @@ function getSnapshotsFromResponse(snapshotResponse: UniconfigSnapshotsOutput, de
       }));
   }
   return [];
+}
+
+function getDryRunCommitOutputFromResponse(commitResponse: UniconfigDryRunCommitOutput) {
+  if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
+    return commitResponse.output;
+  }
+  return null;
+}
+
+function getCommitOutputFromResponse(commitResponse: UniconfigCommitOutput) {
+  if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
+    return commitResponse.output;
+  }
+  return null;
 }
 
 export const Snapshot = objectType({
@@ -149,6 +168,14 @@ export const UpdateDataStoreMutation = extendType({
   },
 });
 
+export const CommitConfigOutput = objectType({
+  name: 'CommitConfigOutput',
+  definition: (t) => {
+    t.nonNull.string('deviceId');
+    t.string('message');
+    t.string('configuration');
+  },
+});
 export const CommitConfigInput = inputObjectType({
   name: 'CommitConfigInput',
   definition: (t) => {
@@ -159,8 +186,7 @@ export const CommitConfigInput = inputObjectType({
 export const CommitConfigPayload = objectType({
   name: 'CommitConfigPayload',
   definition: (t) => {
-    t.nonNull.boolean('isOk');
-    t.nonNull.string('output');
+    t.nonNull.field('output', { type: CommitConfigOutput });
   },
 });
 export const CommitConfigMutation = extendType({
@@ -188,10 +214,29 @@ export const CommitConfigMutation = extendType({
           },
         };
         const { shouldDryRun } = input;
-        const result = shouldDryRun
-          ? await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params, transactionId)
-          : await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
-        return { isOk: result.output['overall-status'] === 'complete', output: JSON.stringify(result.output) };
+        // return { isOk: , output: JSON.stringify(result.output) };
+        if (shouldDryRun) {
+          const dryRunResult = await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params, transactionId);
+          const output = getDryRunCommitOutputFromResponse(dryRunResult);
+          const status = output?.['overall-status'];
+          return {
+            output: {
+              deviceId: args.input.deviceId,
+              configuration: status === 'complete' ? output?.['node-results']['node-result'][0].configuration : null,
+              message: status === 'fail' ? output?.['node-results']['node-result'][0]['error-message'] ?? null : null,
+            },
+          };
+        }
+        const result = await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
+        const output = getCommitOutputFromResponse(result);
+        const status = output?.['overall-status'];
+        return {
+          output: {
+            deviceId: args.input.deviceId,
+            configuration: null,
+            message: status === 'fail' ? output?.['node-results']['node-result'][0]['error-message'] ?? null : null,
+          },
+        };
       },
     });
   },
