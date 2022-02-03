@@ -1,5 +1,10 @@
 import { arg, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
-import { decodeUniconfigConfigInput, UniconfigSnapshotsOutput } from '../external-api/network-types';
+import {
+  decodeUniconfigConfigInput,
+  UniconfigCommitOutput,
+  UniconfigDryRunCommitOutput,
+  UniconfigSnapshotsOutput,
+} from '../external-api/network-types';
 import { fromGraphId } from '../helpers/id-helper';
 import { makeUniconfigURL } from '../helpers/zone.helpers';
 
@@ -13,6 +18,20 @@ function getSnapshotsFromResponse(snapshotResponse: UniconfigSnapshotsOutput, de
       }));
   }
   return [];
+}
+
+function getDryRunCommitOutputFromResponse(commitResponse: UniconfigDryRunCommitOutput) {
+  if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
+    return commitResponse.output;
+  }
+  return null;
+}
+
+function getCommitOutputFromResponse(commitResponse: UniconfigCommitOutput) {
+  if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
+    return commitResponse.output;
+  }
+  return null;
 }
 
 export const Snapshot = objectType({
@@ -149,6 +168,14 @@ export const UpdateDataStoreMutation = extendType({
   },
 });
 
+export const CommitConfigOutput = objectType({
+  name: 'CommitConfigOutput',
+  definition: (t) => {
+    t.nonNull.string('deviceId');
+    t.string('message');
+    t.string('configuration');
+  },
+});
 export const CommitConfigInput = inputObjectType({
   name: 'CommitConfigInput',
   definition: (t) => {
@@ -159,8 +186,7 @@ export const CommitConfigInput = inputObjectType({
 export const CommitConfigPayload = objectType({
   name: 'CommitConfigPayload',
   definition: (t) => {
-    t.nonNull.boolean('isOk');
-    t.nonNull.string('output');
+    t.nonNull.field('output', { type: CommitConfigOutput });
   },
 });
 export const CommitConfigMutation = extendType({
@@ -188,10 +214,29 @@ export const CommitConfigMutation = extendType({
           },
         };
         const { shouldDryRun } = input;
-        const result = shouldDryRun
-          ? await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params, transactionId)
-          : await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
-        return { isOk: result.output['overall-status'] === 'complete', output: JSON.stringify(result.output) };
+        // return { isOk: , output: JSON.stringify(result.output) };
+        if (shouldDryRun) {
+          const dryRunResult = await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params, transactionId);
+          const output = getDryRunCommitOutputFromResponse(dryRunResult);
+          const status = output?.['overall-status'];
+          return {
+            output: {
+              deviceId: args.input.deviceId,
+              configuration: status === 'complete' ? output?.['node-results']['node-result'][0].configuration : null,
+              message: status === 'fail' ? output?.['node-results']['node-result'][0]['error-message'] ?? null : null,
+            },
+          };
+        }
+        const result = await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
+        const output = getCommitOutputFromResponse(result);
+        const status = output?.['overall-status'];
+        return {
+          output: {
+            deviceId: args.input.deviceId,
+            configuration: null,
+            message: status === 'fail' ? output?.['node-results']['node-result'][0]['error-message'] ?? null : null,
+          },
+        };
       },
     });
   },
@@ -295,6 +340,49 @@ export const AddSnapshotMutation = extendType({
   },
 });
 
+export const DeleteSnapshotPayload = objectType({
+  name: 'DeleteSnapshotPayload',
+  definition: (t) => {
+    t.field('snapshot', { type: Snapshot });
+  },
+});
+export const DeleteSnapshotInput = inputObjectType({
+  name: 'DeleteSnapshotInput',
+  definition: (t) => {
+    t.nonNull.string('deviceId');
+    t.nonNull.string('name');
+    t.nonNull.string('transactionId');
+  },
+});
+export const DeleteSnapshotMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.field('deleteSnapshot', {
+      type: DeleteSnapshotPayload,
+      args: {
+        input: nonNull(arg({ type: DeleteSnapshotInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId, uniconfigAPI }) => {
+        const { deviceId, name, transactionId } = args.input;
+        const nativeDeviceId = fromGraphId('Device', deviceId);
+        const device = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
+        if (device == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
+        const response = await uniconfigAPI.getSnapshots(uniconfigURL, transactionId);
+        const snapshots = getSnapshotsFromResponse(response, device.name);
+        const snapshot = snapshots.find((s) => s.name === name);
+        if (snapshot == null) {
+          throw new Error('snapshot not found');
+        }
+        await uniconfigAPI.deleteSnapshot(uniconfigURL, { input: { name } }, transactionId);
+        return { snapshot };
+      },
+    });
+  },
+});
+
 export const ApplySnapshotInput = inputObjectType({
   name: 'ApplySnapshotInput',
   definition: (t) => {
@@ -344,10 +432,25 @@ export const ApplySnapshotMutation = extendType({
   },
 });
 
+export const CalculatedDiffData = objectType({
+  name: 'DiffData',
+  definition: (t) => {
+    t.nonNull.string('path');
+    t.nonNull.string('data');
+  },
+});
+export const CalculatedDiffResult = objectType({
+  name: 'CalculatedDiffResult',
+  definition: (t) => {
+    t.field('createdData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+    t.field('deletedData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+    t.field('updatedData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+  },
+});
 export const CalculatedDiffPayload = objectType({
   name: 'CalculatedDiffPayload',
   definition: (t) => {
-    t.string('output');
+    t.nonNull.field('result', { type: CalculatedDiffResult });
   },
 });
 export const CalculatedDiffQuery = extendType({
@@ -377,7 +480,14 @@ export const CalculatedDiffQuery = extendType({
         if (result.output['overall-status'] === 'fail') {
           throw new Error('error getting calculated diff');
         }
-        return { output: JSON.stringify(result.output['node-results']['node-result'][0]) };
+        const [output] = result.output['node-results']['node-result'];
+        return {
+          result: {
+            createdData: output['created-data'] ?? [],
+            deletedData: output['deleted-data'] ?? [],
+            updatedData: output['edited-data'] ?? [],
+          },
+        };
       },
     });
   },
@@ -472,7 +582,11 @@ export const CloseTransactionMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        await uniconfigAPI.closeTransaction(uniconfigURL, args.transactionId);
+        try {
+          await uniconfigAPI.closeTransaction(uniconfigURL, args.transactionId);
+          // we have to do this, as close-transaction API call returns code 200 without response body wich throws an error
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
         return { isOk: true };
       },
     });

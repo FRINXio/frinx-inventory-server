@@ -81,7 +81,13 @@ type BlueprintEdge {
 }
 
 type CalculatedDiffPayload {
-  output: String
+  result: CalculatedDiffResult!
+}
+
+type CalculatedDiffResult {
+  createdData: [DiffData!]!
+  deletedData: [DiffData!]!
+  updatedData: [DiffData!]!
 }
 
 type CloseTransactionPayload {
@@ -93,9 +99,14 @@ input CommitConfigInput {
   shouldDryRun: Boolean
 }
 
+type CommitConfigOutput {
+  configuration: String
+  deviceId: String!
+  message: String
+}
+
 type CommitConfigPayload {
-  isOk: Boolean!
-  output: String!
+  output: CommitConfigOutput!
 }
 
 type Country implements Node {
@@ -141,6 +152,16 @@ type DeleteLabelPayload {
   label: Label
 }
 
+input DeleteSnapshotInput {
+  deviceId: String!
+  name: String!
+  transactionId: String!
+}
+
+type DeleteSnapshotPayload {
+  snapshot: Snapshot
+}
+
 type Device implements Node {
   address: String
   createdAt: String!
@@ -184,6 +205,11 @@ enum DeviceSource {
   DISCOVERED
   IMPORTED
   MANUAL
+}
+
+type DiffData {
+  data: String!
+  path: String!
 }
 
 input FilterDevicesInput {
@@ -245,6 +271,7 @@ type Mutation {
   createTransaction(deviceId: String!): CreateTransactionPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
+  deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!

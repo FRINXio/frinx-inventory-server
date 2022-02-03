@@ -9,7 +9,9 @@ import {
   decodeUniconfigApplySnapshotOutput,
   decodeUniconfigCommitOutput,
   decodeUniconfigConfigOutput,
+  decodeUniconfigDeleteSnapshotOutput,
   decodeUniconfigDiffOuptut,
+  decodeUniconfigDryRunCommitOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigSnapshotOutput,
@@ -22,8 +24,11 @@ import {
   UniconfigCommitOutput,
   UniconfigConfigInput,
   UniconfigConfigOutput,
+  UniconfigDeleteSnapshotOutput,
+  UniconfigDeleteSnapshotParams,
   UniconfigDiffInput,
   UniconfigDiffOutput,
+  UniconfigDryRunCommitOutput,
   UniconfigInstallOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
@@ -137,10 +142,10 @@ export async function postDryRunCommitToNetwork(
   baseURL: string,
   params: UniconfigCommitInput,
   transactionId: string,
-): Promise<UniconfigCommitOutput> {
+): Promise<UniconfigDryRunCommitOutput> {
   const cookie = makeCookieFromTransactionId(transactionId);
   const json = await sendPostRequest([baseURL, '/operations/dryrun-manager:dryrun-commit'], params, cookie);
-  const data = decodeUniconfigCommitOutput(json);
+  const data = decodeUniconfigDryRunCommitOutput(json);
 
   return data;
 }
@@ -221,6 +226,18 @@ export async function syncFromNetwork(
   return data;
 }
 
+export async function deleteSnapshot(
+  baseURL: string,
+  params: UniconfigDeleteSnapshotParams,
+  transactionId: string,
+): Promise<UniconfigDeleteSnapshotOutput> {
+  const cookie = makeCookieFromTransactionId(transactionId);
+  const json = await sendPostRequest([baseURL, 'operations/snapshot-manager:delete-snapshot'], params, cookie);
+  const data = decodeUniconfigDeleteSnapshotOutput(json);
+
+  return data;
+}
+
 async function createTransaction(baseURL: string): Promise<string> {
   const response = await sendPostRequest([baseURL, '/operations/uniconfig-manager:create-transaction']);
   const data = await (response as Response).text();
@@ -264,7 +281,7 @@ export type UniConfigAPI = {
     baseURL: string,
     params: UniconfigCommitInput,
     transactionId: string,
-  ) => Promise<UniconfigCommitOutput>;
+  ) => Promise<UniconfigDryRunCommitOutput>;
   replaceConfig: (
     baseURL: string,
     params: UniconfigReplaceInput,
@@ -287,6 +304,11 @@ export type UniConfigAPI = {
     transactionId: string,
   ) => Promise<UniconfigDiffOutput>;
   syncFromNetwork: (baseURL: string, params: UniconfigSyncInput, transactionId: string) => Promise<UniconfigSyncOutput>;
+  deleteSnapshot: (
+    baseURL: string,
+    params: UniconfigDeleteSnapshotParams,
+    transactionId: string,
+  ) => Promise<UniconfigDeleteSnapshotOutput>;
   createTransaction: (baseURL: string) => Promise<string>;
   closeTransaction: (baseURL: string, transactionId: string) => Promise<void>;
 };
@@ -305,6 +327,7 @@ const uniconfigAPI: UniConfigAPI = {
   applySnapshot,
   getCalculatedDiff,
   syncFromNetwork,
+  deleteSnapshot,
   createTransaction,
   closeTransaction,
 };

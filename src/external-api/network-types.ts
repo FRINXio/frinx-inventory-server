@@ -76,14 +76,75 @@ export function decodeUniconfigCommitInput(value: unknown): UniconfigCommitInput
 
 const UniconfigStatusValidator = t.union([t.literal('complete'), t.literal('fail')]);
 const UniconfigCommitOutputValidator = t.type({
-  output: t.type({
-    'overall-status': UniconfigStatusValidator,
-  }),
+  output: t.union([
+    t.type({}),
+    t.type({
+      'overall-status': t.literal('complete'),
+      'node-results': t.type({
+        'node-result': t.array(
+          t.type({
+            'node-id': t.string,
+            'configuration-status': t.literal('complete'),
+          }),
+        ),
+      }),
+    }),
+    t.type({
+      'overall-status': t.literal('fail'),
+      'node-results': t.type({
+        'node-result': t.array(
+          t.type({
+            'node-id': t.string,
+            'error-type': optional(t.string),
+            'error-message': optional(t.string),
+            'configuration-status': t.literal('fail'),
+            'rollback-status': optional(UniconfigStatusValidator),
+          }),
+        ),
+      }),
+    }),
+  ]),
 });
 export type UniconfigCommitOutput = t.TypeOf<typeof UniconfigCommitOutputValidator>;
 
 export function decodeUniconfigCommitOutput(value: unknown): UniconfigCommitOutput {
   return extractResult(UniconfigCommitOutputValidator.decode(value));
+}
+
+const UniconfigDryRunCommitOutputValidator = t.type({
+  output: t.union([
+    t.type({}),
+    t.type({
+      'overall-status': t.literal('complete'),
+      'node-results': t.type({
+        'node-result': t.array(
+          t.type({
+            'node-id': t.string,
+            configuration: t.string,
+            'configuration-status': t.literal('complete'),
+          }),
+        ),
+      }),
+    }),
+    t.type({
+      'overall-status': t.literal('fail'),
+      'node-results': t.type({
+        'node-result': t.array(
+          t.type({
+            'node-id': t.string,
+            'error-type': optional(t.string),
+            'error-message': optional(t.string),
+            'configuration-status': t.literal('fail'),
+          }),
+        ),
+      }),
+    }),
+  ]),
+});
+export type UniconfigDryRunCommitOutput = t.TypeOf<typeof UniconfigDryRunCommitOutputValidator>;
+
+export function decodeUniconfigDryRunCommitOutput(value: unknown): UniconfigDryRunCommitOutput {
+  return extractResult(UniconfigDryRunCommitOutputValidator.decode(value));
 }
 
 const UniconfigReplaceInputValidator = t.type({
@@ -283,4 +344,22 @@ export type CheckInstalledNodesOutput = t.TypeOf<typeof CheckInstalledNodesOutpu
 
 export function decodeInstalledNodeOutput(value: unknown): CheckInstalledNodesOutput {
   return extractResult(CheckInstalledNodesOutputValidator.decode(value));
+}
+
+export type UniconfigDeleteSnapshotParams = {
+  input: {
+    name: string;
+  };
+};
+
+const UniconfigDeleteSnapshotOutputValidator = t.type({
+  output: t.type({
+    'error-message': optional(t.string),
+    'overall-status': UniconfigStatusValidator,
+  }),
+});
+export type UniconfigDeleteSnapshotOutput = t.TypeOf<typeof UniconfigDeleteSnapshotOutputValidator>;
+
+export function decodeUniconfigDeleteSnapshotOutput(value: unknown): UniconfigDeleteSnapshotOutput {
+  return extractResult(UniconfigDeleteSnapshotOutputValidator.decode(value));
 }
