@@ -485,7 +485,7 @@ export const CalculatedDiffQuery = extendType({
           result: {
             createdData: output['created-data'] ?? [],
             deletedData: output['deleted-data'] ?? [],
-            updatedData: output['edited-data'] ?? [],
+            updatedData: output['updated-data'] ?? [],
           },
         };
       },

@@ -264,7 +264,7 @@ const UniconfigDiffOutputValidator = t.type({
         t.type({
           'node-id': t.string,
           'deleted-data': optional(t.array(DiffDataValidator)),
-          'edited-data': optional(t.array(DiffDataValidator)),
+          'updated-data': optional(t.array(DiffDataValidator)),
           'created-data': optional(t.array(DiffDataValidator)),
           status: UniconfigStatusValidator,
         }),
