@@ -191,6 +191,10 @@ export interface NexusGenObjects {
     transactionId?: string | null; // String
   };
   DataStore: SourceTypes.DataStore;
+  DeleteBlueprintPayload: {
+    // root type
+    blueprint?: NexusGenRootTypes['Blueprint'] | null; // Blueprint
+  };
   DeleteDevicePayload: {
     // root type
     device?: NexusGenRootTypes['Device'] | null; // Device
@@ -416,6 +420,10 @@ export interface NexusGenFieldTypes {
     operational: string | null; // String
     snapshots: NexusGenRootTypes['Snapshot'][]; // [Snapshot!]!
   };
+  DeleteBlueprintPayload: {
+    // field return type
+    blueprint: NexusGenRootTypes['Blueprint'] | null; // Blueprint
+  };
   DeleteDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device'] | null; // Device
@@ -514,6 +522,7 @@ export interface NexusGenFieldTypes {
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
+    deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
@@ -697,6 +706,10 @@ export interface NexusGenFieldTypeNames {
     operational: 'String';
     snapshots: 'Snapshot';
   };
+  DeleteBlueprintPayload: {
+    // field return type name
+    blueprint: 'Blueprint';
+  };
   DeleteDevicePayload: {
     // field return type name
     device: 'Device';
@@ -795,6 +808,7 @@ export interface NexusGenFieldTypeNames {
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
     createTransaction: 'CreateTransactionPayload';
+    deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
@@ -932,6 +946,10 @@ export interface NexusGenArgTypes {
     createTransaction: {
       // args
       deviceId: string; // String!
+    };
+    deleteBlueprint: {
+      // args
+      id: string; // String!
     };
     deleteDevice: {
       // args
