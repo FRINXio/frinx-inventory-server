@@ -132,3 +132,28 @@ export const UpdateBlueprintMutation = extendType({
     });
   },
 });
+
+export const DeleteBlueprintPayload = objectType({
+  name: 'DeleteBlueprintPayload',
+  definition: (t) => {
+    t.field('blueprint', { type: Blueprint });
+  },
+});
+export const DeleteBlueprintMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteBlueprint', {
+      type: DeleteBlueprintPayload,
+      args: { id: nonNull(stringArg()) },
+      resolve: async (_, { id }, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Blueprint', id);
+        const blueprint = await prisma.blueprint.findFirst({ where: { id: nativeId, tenantId } });
+        if (blueprint == null) {
+          throw new Error('blueprint not found');
+        }
+        await prisma.blueprint.delete({ where: { id: nativeId } });
+        return { blueprint };
+      },
+    });
+  },
+});
