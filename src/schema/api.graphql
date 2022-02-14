@@ -87,7 +87,13 @@ type CalculatedDiffPayload {
 type CalculatedDiffResult {
   createdData: [DiffData!]!
   deletedData: [DiffData!]!
-  updatedData: [DiffData!]!
+  updatedData: [CalculatedUpdateDiffData!]!
+}
+
+type CalculatedUpdateDiffData {
+  actualData: String!
+  intendedData: String!
+  path: String!
 }
 
 type CloseTransactionPayload {
