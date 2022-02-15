@@ -154,7 +154,13 @@ export interface NexusGenObjects {
     // root type
     createdData: NexusGenRootTypes['DiffData'][]; // [DiffData!]!
     deletedData: NexusGenRootTypes['DiffData'][]; // [DiffData!]!
-    updatedData: NexusGenRootTypes['DiffData'][]; // [DiffData!]!
+    updatedData: NexusGenRootTypes['CalculatedUpdateDiffData'][]; // [CalculatedUpdateDiffData!]!
+  };
+  CalculatedUpdateDiffData: {
+    // root type
+    actualData: string; // String!
+    intendedData: string; // String!
+    path: string; // String!
   };
   CloseTransactionPayload: {
     // root type
@@ -373,7 +379,13 @@ export interface NexusGenFieldTypes {
     // field return type
     createdData: NexusGenRootTypes['DiffData'][]; // [DiffData!]!
     deletedData: NexusGenRootTypes['DiffData'][]; // [DiffData!]!
-    updatedData: NexusGenRootTypes['DiffData'][]; // [DiffData!]!
+    updatedData: NexusGenRootTypes['CalculatedUpdateDiffData'][]; // [CalculatedUpdateDiffData!]!
+  };
+  CalculatedUpdateDiffData: {
+    // field return type
+    actualData: string; // String!
+    intendedData: string; // String!
+    path: string; // String!
   };
   CloseTransactionPayload: {
     // field return type
@@ -659,7 +671,13 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     createdData: 'DiffData';
     deletedData: 'DiffData';
-    updatedData: 'DiffData';
+    updatedData: 'CalculatedUpdateDiffData';
+  };
+  CalculatedUpdateDiffData: {
+    // field return type name
+    actualData: 'String';
+    intendedData: 'String';
+    path: 'String';
   };
   CloseTransactionPayload: {
     // field return type name

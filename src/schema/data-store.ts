@@ -439,12 +439,20 @@ export const CalculatedDiffData = objectType({
     t.nonNull.string('data');
   },
 });
+export const CalculatedUpdateDiffData = objectType({
+  name: 'CalculatedUpdateDiffData',
+  definition: (t) => {
+    t.nonNull.string('path');
+    t.nonNull.string('intendedData');
+    t.nonNull.string('actualData');
+  },
+});
 export const CalculatedDiffResult = objectType({
   name: 'CalculatedDiffResult',
   definition: (t) => {
     t.field('createdData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
     t.field('deletedData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
-    t.field('updatedData', { type: nonNull(list(nonNull(CalculatedDiffData))) });
+    t.field('updatedData', { type: nonNull(list(nonNull(CalculatedUpdateDiffData))) });
   },
 });
 export const CalculatedDiffPayload = objectType({
@@ -485,7 +493,13 @@ export const CalculatedDiffQuery = extendType({
           result: {
             createdData: output['created-data'] ?? [],
             deletedData: output['deleted-data'] ?? [],
-            updatedData: output['updated-data'] ?? [],
+            updatedData: output['updated-data']
+              ? output['updated-data'].map((d) => ({
+                  path: d.path,
+                  intendedData: d['data-intended'],
+                  actualData: d['data-actual'],
+                }))
+              : [],
           },
         };
       },
