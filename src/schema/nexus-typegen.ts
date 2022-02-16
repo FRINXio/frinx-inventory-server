@@ -428,8 +428,8 @@ export interface NexusGenFieldTypes {
   };
   DataStore: {
     // field return type
-    config: string | null; // String
-    operational: string | null; // String
+    config: string; // String!
+    operational: string; // String!
     snapshots: NexusGenRootTypes['Snapshot'][]; // [Snapshot!]!
   };
   DeleteBlueprintPayload: {

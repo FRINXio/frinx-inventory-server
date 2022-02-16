@@ -1,4 +1,5 @@
 import { arg, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
+import { ExternalApiError } from '../external-api/errors';
 import {
   decodeUniconfigConfigInput,
   UniconfigCommitOutput,
@@ -45,7 +46,7 @@ export const Snapshot = objectType({
 export const DataStore = objectType({
   name: 'DataStore',
   definition: (t) => {
-    t.string('config', {
+    t.nonNull.string('config', {
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
           const config = await uniconfigAPI.getUniconfigDatastore(
@@ -57,12 +58,15 @@ export const DataStore = objectType({
             root.$transactionId,
           );
           return JSON.stringify(config);
-        } catch {
-          return null;
+        } catch (e) {
+          if (e instanceof ExternalApiError && e.code === 403) {
+            throw new Error('TRANSACTION_EXPIRED');
+          }
+          throw e;
         }
       },
     });
-    t.string('operational', {
+    t.nonNull.string('operational', {
       resolve: async (root, _, { uniconfigAPI }) => {
         try {
           const operational = await uniconfigAPI.getUniconfigDatastore(
@@ -74,8 +78,11 @@ export const DataStore = objectType({
             root.$transactionId,
           );
           return JSON.stringify(operational);
-        } catch {
-          return null;
+        } catch (e) {
+          if (e instanceof ExternalApiError && e.code === 403) {
+            throw new Error('TRANSACTION_EXPIRED');
+          }
+          throw e;
         }
       },
     });
