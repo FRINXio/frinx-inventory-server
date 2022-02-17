@@ -145,8 +145,8 @@ type CreateTransactionPayload {
 }
 
 type DataStore {
-  config: String
-  operational: String
+  config: String!
+  operational: String!
   snapshots: [Snapshot!]!
 }
 
