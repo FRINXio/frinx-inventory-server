@@ -58,7 +58,7 @@
     "apollo-server-core": "3.5.0",
     "apollo-server-express": "3.5.0",
     "base64url": "3.0.1",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "fp-ts": "2.11.5",
     "graphql": "15.7.2",
     "graphql-relay": "0.8.0",
