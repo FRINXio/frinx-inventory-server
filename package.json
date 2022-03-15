@@ -59,7 +59,7 @@
     "apollo-server-express": "3.5.0",
     "base64url": "3.0.1",
     "express": "4.17.3",
-    "fp-ts": "2.11.5",
+    "fp-ts": "2.11.9",
     "graphql": "15.7.2",
     "graphql-relay": "0.8.0",
     "helmet": "4.6.0",
