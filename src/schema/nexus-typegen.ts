@@ -280,6 +280,11 @@ export interface NexusGenObjects {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
+  Transaction: {
+    // root type
+    lastCommitTime: string; // String!
+    transactionId: string; // String!
+  };
   UninstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
@@ -563,6 +568,7 @@ export interface NexusGenFieldTypes {
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
+    transactions: Array<NexusGenRootTypes['Transaction'] | null> | null; // [Transaction]
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
   ResetConfigPayload: {
@@ -577,6 +583,11 @@ export interface NexusGenFieldTypes {
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  Transaction: {
+    // field return type
+    lastCommitTime: string; // String!
+    transactionId: string; // String!
   };
   UninstallDevicePayload: {
     // field return type
@@ -855,6 +866,7 @@ export interface NexusGenFieldTypeNames {
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     node: 'Node';
+    transactions: 'Transaction';
     zones: 'ZonesConnection';
   };
   ResetConfigPayload: {
@@ -869,6 +881,11 @@ export interface NexusGenFieldTypeNames {
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  Transaction: {
+    // field return type name
+    lastCommitTime: 'String';
+    transactionId: 'String';
   };
   UninstallDevicePayload: {
     // field return type name

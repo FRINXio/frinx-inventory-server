@@ -7,7 +7,7 @@ import {
   UniconfigSnapshotsOutput,
 } from '../external-api/network-types';
 import { fromGraphId } from '../helpers/id-helper';
-import { makeUniconfigURL } from '../helpers/zone.helpers';
+import { getUniconfigURL } from '../helpers/zone.helpers';
 
 function getSnapshotsFromResponse(snapshotResponse: UniconfigSnapshotsOutput, deviceName: string) {
   if ('snapshot' in snapshotResponse['snapshots-metadata']) {
@@ -116,7 +116,7 @@ export const DataStoreQuery = extendType({
         if (dbDevice == null) {
           return null;
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         return {
           $deviceName: dbDevice.name,
           $uniconfigURL: uniconfigURL,
@@ -155,7 +155,7 @@ export const UpdateDataStoreMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = JSON.parse(input.config);
         await uniconfigAPI.updateUniconfigDataStore(
           uniconfigURL,
@@ -212,7 +212,7 @@ export const CommitConfigMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -270,7 +270,7 @@ export const ResetConfigMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -322,7 +322,7 @@ export const AddSnapshotMutation = extendType({
         if (device == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         const params = {
           input: {
             name: args.input.name,
@@ -376,7 +376,7 @@ export const DeleteSnapshotMutation = extendType({
         if (device == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         const response = await uniconfigAPI.getSnapshots(uniconfigURL, transactionId);
         const snapshots = getSnapshotsFromResponse(response, device.name);
         const snapshot = snapshots.find((s) => s.name === name);
@@ -419,7 +419,7 @@ export const ApplySnapshotMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             name: args.input.name,
@@ -483,7 +483,7 @@ export const CalculatedDiffQuery = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -532,7 +532,7 @@ export const SyncFromNetworkMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
             'target-nodes': {
@@ -551,64 +551,6 @@ export const SyncFromNetworkMutation = extendType({
             $transactionId: args.transactionId,
           },
         };
-      },
-    });
-  },
-});
-
-export const CreateTransactionPayload = objectType({
-  name: 'CreateTransactionPayload',
-  definition: (t) => {
-    t.string('transactionId');
-  },
-});
-
-export const CreateTransactionMutation = extendType({
-  type: 'Mutation',
-  definition: (t) => {
-    t.nonNull.field('createTransaction', {
-      type: CreateTransactionPayload,
-      args: { deviceId: nonNull(stringArg()) },
-      resolve: async (_, args, { uniconfigAPI, prisma, tenantId }) => {
-        const nativeDeviceId = fromGraphId('Device', args.deviceId);
-        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
-        if (dbDevice == null) {
-          throw new Error('device not found');
-        }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        const transactionId = await uniconfigAPI.createTransaction(uniconfigURL);
-        return { transactionId };
-      },
-    });
-  },
-});
-
-export const CloseTransactionPayload = objectType({
-  name: 'CloseTransactionPayload',
-  definition: (t) => {
-    t.nonNull.boolean('isOk');
-  },
-});
-
-export const CloseTransactionMutation = extendType({
-  type: 'Mutation',
-  definition: (t) => {
-    t.nonNull.field('closeTransaction', {
-      type: CloseTransactionPayload,
-      args: { deviceId: nonNull(stringArg()), transactionId: nonNull(stringArg()) },
-      resolve: async (_, args, { uniconfigAPI, prisma, tenantId }) => {
-        const nativeDeviceId = fromGraphId('Device', args.deviceId);
-        const dbDevice = await prisma.device.findFirst({ where: { id: nativeDeviceId, tenantId } });
-        if (dbDevice == null) {
-          throw new Error('device not found');
-        }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        try {
-          await uniconfigAPI.closeTransaction(uniconfigURL, args.transactionId);
-          // we have to do this, as close-transaction API call returns code 200 without response body wich throws an error
-          // eslint-disable-next-line no-empty
-        } catch (e) {}
-        return { isOk: true };
       },
     });
   },

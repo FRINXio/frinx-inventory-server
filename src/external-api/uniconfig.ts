@@ -17,6 +17,7 @@ import {
   decodeUniconfigSnapshotOutput,
   decodeUniconfigSnapshotsOutput,
   decodeUniconfigSyncOutput,
+  decodeUniconfigTransactionLogOutput,
   InstalledDevicesOutput,
   UniconfigApplySnapshotInput,
   UniconfigApplySnapshotOutput,
@@ -37,6 +38,7 @@ import {
   UniconfigSnapshotsOutput,
   UniconfigSyncInput,
   UniconfigSyncOutput,
+  UniconfigTransactionLogOutput,
   UninstallDeviceInput,
 } from './network-types';
 
@@ -257,6 +259,13 @@ async function closeTransaction(baseURL: string, transactionId: string): Promise
   await sendPostRequest([baseURL, '/operations/uniconfig-manager:close-transaction'], undefined, cookie);
 }
 
+async function getTransactionLog(baseURL: string): Promise<UniconfigTransactionLogOutput> {
+  const json = await sendGetRequest([baseURL, '/data/transaction-log:transactions-metadata']);
+  const data = decodeUniconfigTransactionLogOutput(json);
+
+  return data;
+}
+
 export type UniConfigAPI = {
   getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
   installDevice: (baseURL: string, params: unknown) => Promise<UniconfigInstallOutput>;
@@ -311,6 +320,7 @@ export type UniConfigAPI = {
   ) => Promise<UniconfigDeleteSnapshotOutput>;
   createTransaction: (baseURL: string) => Promise<string>;
   closeTransaction: (baseURL: string, transactionId: string) => Promise<void>;
+  getTransactionLog: (baseURL: string) => Promise<UniconfigTransactionLogOutput>;
 };
 
 const uniconfigAPI: UniConfigAPI = {
@@ -330,6 +340,7 @@ const uniconfigAPI: UniConfigAPI = {
   deleteSnapshot,
   createTransaction,
   closeTransaction,
+  getTransactionLog,
 };
 
 export default uniconfigAPI;

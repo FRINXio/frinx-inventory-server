@@ -319,6 +319,7 @@ type Query {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
+  transactions: [Transaction]
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
@@ -343,6 +344,11 @@ enum SortDirection {
 
 type SyncFromNetworkPayload {
   dataStore: DataStore
+}
+
+type Transaction {
+  lastCommitTime: String!
+  transactionId: String!
 }
 
 type UninstallDevicePayload {
