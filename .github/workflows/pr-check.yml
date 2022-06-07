@@ -6,7 +6,7 @@ on:
 jobs:
   pr-check:
     runs-on: ubuntu-latest
-    container: node:14-alpine
+    container: node:17-alpine
     services:
       postgres:
         image: postgres:12-alpine

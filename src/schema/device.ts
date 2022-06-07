@@ -8,7 +8,7 @@ import {
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
 import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
-import { makeUniconfigURL } from '../helpers/zone.helpers';
+import { getUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
 import { Location } from './location';
@@ -52,7 +52,7 @@ export const Device = objectType({
     t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { prisma }) => {
         const { uniconfigZoneId } = root;
-        const uniconfigURL = await makeUniconfigURL(prisma, uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
         const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
         return isInstalled;
       },
@@ -255,7 +255,7 @@ export const UpdateDeviceMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, dbDevice.name);
         if (isInstalled) {
           throw new Error('device is installed in UniConfig');
@@ -312,7 +312,7 @@ export const DeleteDeviceMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, dbDevice.name);
         if (isInstalled) {
           throw new Error('device is installed in UniConfig');
@@ -348,7 +348,7 @@ export const InstallDeviceMutation = extendType({
         }
         const { mountParameters } = device;
         const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
-        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
         return { device };
       },
@@ -387,7 +387,7 @@ export const UninstallDeviceMutation = extendType({
         if (device == null) {
           throw new Error('device not found');
         }
-        const uniconfigURL = await makeUniconfigURL(prisma, device.uniconfigZoneId);
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
         return { device };
       },

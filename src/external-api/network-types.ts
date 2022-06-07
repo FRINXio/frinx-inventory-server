@@ -371,3 +371,26 @@ export type UniconfigDeleteSnapshotOutput = t.TypeOf<typeof UniconfigDeleteSnaps
 export function decodeUniconfigDeleteSnapshotOutput(value: unknown): UniconfigDeleteSnapshotOutput {
   return extractResult(UniconfigDeleteSnapshotOutputValidator.decode(value));
 }
+
+const UniconfigTransactionLogOutputValidator = t.type({
+  'transactions-metadata': t.type({
+    'transaction-metadata': t.array(
+      t.type({
+        'transaction-id': t.string,
+        status: t.string,
+        'last-commit-time': t.string,
+        metadata: t.array(
+          t.type({
+            'node-id': t.string,
+          }),
+        ),
+      }),
+    ),
+  }),
+});
+
+export type UniconfigTransactionLogOutput = t.TypeOf<typeof UniconfigTransactionLogOutputValidator>;
+
+export function decodeUniconfigTransactionLogOutput(value: unknown): UniconfigTransactionLogOutput {
+  return extractResult(UniconfigTransactionLogOutputValidator.decode(value));
+}
