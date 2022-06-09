@@ -2,7 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
 import { once } from 'events';
-import getPort, { makeRange } from 'get-port';
+import getPort, { portNumbers } from 'get-port';
 import { GraphQLClient } from 'graphql-request';
 import { Server } from 'http';
 import { join } from 'path';
@@ -27,7 +27,7 @@ function graphqlTestContext() {
   let serverInstance: Server | null = null;
   return {
     async before() {
-      const port = await getPort({ port: makeRange(4005, 6000) });
+      const port = await getPort({ port: portNumbers(4005, 6000) });
 
       serverInstance = server.listen({ port });
       await once(serverInstance, 'listening');
