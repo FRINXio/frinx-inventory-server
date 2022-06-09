@@ -67,7 +67,6 @@ export function createTestContext(): TestContext {
   const prismaCtx = prismaTestContext();
 
   beforeEach(async () => {
-    jest.setTimeout(10000);
     const client = await graphqlCtx.before();
     const db = await prismaCtx.before();
     Object.assign(ctx, {
