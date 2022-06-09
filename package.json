@@ -22,7 +22,7 @@
     "test": "run-s test:generate jest"
   },
   "devDependencies": {
-    "@frinx/eslint-config-typescript-base": "14.2.1-build.4",
+    "@frinx/eslint-config-typescript-base": "15.0.0-build.1",
     "@types/jest": "28.1.1",
     "@typescript-eslint/eslint-plugin": "5.27.1",
     "@typescript-eslint/parser": "5.27.1",
