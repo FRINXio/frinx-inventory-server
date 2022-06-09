@@ -16,7 +16,7 @@ const SYNC_ZONES_INTERVAL = 1000 * 60 * 2;
 const CACHE_CLEAR_INTERVAL = 1000 * 60 * 10;
 
 process.on('unhandledRejection', (error) => {
-  log.error(`Error: unhandled promise rejection: ${error?.toString()}`);
+  log.error(`Error: unhandled promise rejection: ${error}`);
 });
 
 const apolloServer = new ApolloServer({
@@ -37,7 +37,7 @@ apolloServer.start().then(() => {
 });
 export const server = createServer(app);
 
-export function runSyncZones(serverInstance: Server): void {
+export function runSyncZones(serverInstance?: Server): void {
   let syncJobId: NodeJS.Timeout;
 
   syncZones().finally(() => {
@@ -49,7 +49,7 @@ export function runSyncZones(serverInstance: Server): void {
   });
 }
 
-export function runCacheClear(serverInstance: Server): void {
+export function runCacheClear(serverInstance?: Server): void {
   const uniconfigCache = UniconfigCache.getInstance();
   log.info('clearing UniconfigCache');
   uniconfigCache.clear();
