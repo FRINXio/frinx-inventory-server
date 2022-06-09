@@ -1,4 +1,4 @@
-FROM node:17-alpine as build
+FROM node:18-alpine as build
 
 RUN mkdir /app
 
@@ -12,7 +12,7 @@ ENV NODE_ENV production
 RUN yarn run prisma:generate
 RUN yarn run build
 
-FROM node:17-alpine
+FROM node:18-alpine
 
 RUN mkdir /app
 RUN chmod +w /app
