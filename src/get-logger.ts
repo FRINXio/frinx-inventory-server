@@ -6,13 +6,18 @@ type Logger = {
   error: (text: string) => void;
 };
 
-const shouldPrettyPrint = isDev;
-
 function getLogger(name: string): Logger {
   const logger = pino({
     name,
     base: {},
-    prettyPrint: shouldPrettyPrint, // pretty-print in dev-mode
+    transport: isDev
+      ? {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+          },
+        }
+      : undefined,
     formatters: {
       level: (label) => ({ level: label }), // show log-level as text, like `"error"`, not as number, like `50`.
     },
