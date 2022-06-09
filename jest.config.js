@@ -6,6 +6,7 @@ const listOfTestedFiles = listOfTestFiles.map((file) => file.replace('.spec.', '
 // jest.config.js
 module.exports = {
   preset: 'ts-jest',
+  testTimeout: 20000,
   collectCoverage: true,
   collectCoverageFrom: listOfTestedFiles,
   globals: {
