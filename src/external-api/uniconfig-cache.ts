@@ -39,6 +39,7 @@ export class UniconfigCache {
 async function getDeviceInstallStatus(baseURL: string, deviceName: string): Promise<boolean> {
   const input = {
     input: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'target-nodes': { node: [deviceName] },
     },
   };
