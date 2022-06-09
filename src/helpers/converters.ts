@@ -21,6 +21,7 @@ export type JSONArray = JSONValue[];
 export function prepareInstallParameters(deviceName: string, mountParameters: Prisma.JsonValue): Prisma.JsonValue {
   return {
     input: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'node-id': deviceName,
       ...(mountParameters as Record<string, unknown>),
     },

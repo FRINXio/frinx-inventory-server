@@ -88,6 +88,7 @@ export async function sendGetRequest(path: APIPath, cookie?: string): Promise<un
   const options = {
     method: 'GET',
     headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/json',
       ...(cookie != null ? { cookie } : {}),
     },
@@ -100,6 +101,7 @@ export async function sendPostRequest(path: APIPath, body?: unknown, cookie?: st
     method: 'POST',
     body: JSON.stringify(body),
     headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/json',
       ...(cookie != null ? { cookie } : {}),
     },
@@ -112,6 +114,7 @@ export async function sendPutRequest(path: APIPath, body?: unknown, cookie?: str
     method: 'PUT',
     body: JSON.stringify(body),
     headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/json',
       ...(cookie != null ? { cookie } : {}),
     },

@@ -380,7 +380,9 @@ export const UninstallDeviceMutation = extendType({
 
         const uninstallParams = {
           input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'node-id': device.name,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'connection-type': getConnectionType(decodeMountParams(device.mountParameters)),
           },
         };

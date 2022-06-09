@@ -215,6 +215,7 @@ export const CommitConfigMutation = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'target-nodes': {
               node: [dbDevice.name],
             },
@@ -273,6 +274,7 @@ export const ResetConfigMutation = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'target-nodes': {
               node: [dbDevice.name],
             },
@@ -326,6 +328,7 @@ export const AddSnapshotMutation = extendType({
         const params = {
           input: {
             name: args.input.name,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'target-nodes': {
               node: [device.name],
             },
@@ -423,6 +426,7 @@ export const ApplySnapshotMutation = extendType({
         const params = {
           input: {
             name: args.input.name,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'target-nodes': {
               node: [dbDevice.name],
             },
@@ -486,6 +490,7 @@ export const CalculatedDiffQuery = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'target-nodes': {
               node: [dbDevice.name],
             },
@@ -535,6 +540,7 @@ export const SyncFromNetworkMutation = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
           input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             'target-nodes': {
               node: [dbDevice.name],
             },

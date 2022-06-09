@@ -33,6 +33,7 @@ function graphqlTestContext() {
       await once(serverInstance, 'listening');
       return new GraphQLClient(`http://localhost:${port}/graphql`, {
         headers: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'x-tenant-id': process.env.X_TENANT_ID ?? '',
         },
       });
