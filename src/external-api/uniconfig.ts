@@ -14,11 +14,13 @@ import {
   decodeUniconfigDryRunCommitOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigReplaceOutput,
+  decodeUniconfigRevertChangesOutput,
   decodeUniconfigSnapshotOutput,
   decodeUniconfigSnapshotsOutput,
   decodeUniconfigSyncOutput,
   decodeUniconfigTransactionLogOutput,
   InstalledDevicesOutput,
+  RevertChangesInput,
   UniconfigApplySnapshotInput,
   UniconfigApplySnapshotOutput,
   UniconfigCommitInput,
@@ -33,6 +35,7 @@ import {
   UniconfigInstallOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
+  UniconfigRevertChangesOutput,
   UniconfigSnapshotInput,
   UniconfigSnapshotOutput,
   UniconfigSnapshotsOutput,
@@ -266,64 +269,14 @@ async function getTransactionLog(baseURL: string): Promise<UniconfigTransactionL
   return data;
 }
 
-export type UniConfigAPI = {
-  getInstalledDevices: (baseURL: string) => Promise<InstalledDevicesOutput>;
-  installDevice: (baseURL: string, params: unknown) => Promise<UniconfigInstallOutput>;
-  uninstallDevice: (baseURL: string, params: UninstallDeviceInput) => Promise<void>;
-  getUniconfigDatastore: (
-    baseURL: string,
-    options: DataStoreOptions,
-    transactionId: string,
-  ) => Promise<UniconfigConfigOutput>;
-  updateUniconfigDataStore: (
-    baseURL: string,
-    nodeId: string,
-    params: UniconfigConfigInput,
-    transactionId: string,
-  ) => Promise<void>;
-  postCommitToNetwork: (
-    baseURL: string,
-    params: UniconfigCommitInput,
-    transactionId: string,
-  ) => Promise<UniconfigCommitOutput>;
-  postDryRunCommitToNetwork: (
-    baseURL: string,
-    params: UniconfigCommitInput,
-    transactionId: string,
-  ) => Promise<UniconfigDryRunCommitOutput>;
-  replaceConfig: (
-    baseURL: string,
-    params: UniconfigReplaceInput,
-    transactionId: string,
-  ) => Promise<UniconfigReplaceOutput>;
-  getSnapshots: (baseURL: string, transactionId: string) => Promise<UniconfigSnapshotsOutput>;
-  createSnapshot: (
-    baseURL: string,
-    params: UniconfigSnapshotInput,
-    transactionId: string,
-  ) => Promise<UniconfigSnapshotOutput>;
-  applySnapshot: (
-    baseURL: string,
-    params: UniconfigApplySnapshotInput,
-    transactionId: string,
-  ) => Promise<UniconfigApplySnapshotOutput>;
-  getCalculatedDiff: (
-    baseURL: string,
-    params: UniconfigDiffInput,
-    transactionId: string,
-  ) => Promise<UniconfigDiffOutput>;
-  syncFromNetwork: (baseURL: string, params: UniconfigSyncInput, transactionId: string) => Promise<UniconfigSyncOutput>;
-  deleteSnapshot: (
-    baseURL: string,
-    params: UniconfigDeleteSnapshotParams,
-    transactionId: string,
-  ) => Promise<UniconfigDeleteSnapshotOutput>;
-  createTransaction: (baseURL: string) => Promise<string>;
-  closeTransaction: (baseURL: string, transactionId: string) => Promise<void>;
-  getTransactionLog: (baseURL: string) => Promise<UniconfigTransactionLogOutput>;
-};
+async function revertChanges(baseURL: string, params: RevertChangesInput): Promise<UniconfigRevertChangesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/transaction-log:revert-changes'], params);
+  const data = decodeUniconfigRevertChangesOutput(json);
 
-const uniconfigAPI: UniConfigAPI = {
+  return data;
+}
+
+const uniconfigAPI = {
   getInstalledDevices,
   installDevice,
   uninstallDevice,
@@ -341,6 +294,9 @@ const uniconfigAPI: UniConfigAPI = {
   createTransaction,
   closeTransaction,
   getTransactionLog,
+  revertChanges,
 };
+
+export type UniConfigAPI = typeof uniconfigAPI;
 
 export default uniconfigAPI;

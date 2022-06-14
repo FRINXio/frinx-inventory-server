@@ -285,6 +285,7 @@ type Mutation {
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
+  revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
@@ -319,12 +320,16 @@ type Query {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
-  transactions: [Transaction]
+  transactions: [Transaction!]!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
 type ResetConfigPayload {
   dataStore: DataStore!
+}
+
+type RevertChangesPayload {
+  isOk: Boolean!
 }
 
 type Snapshot {
@@ -347,6 +352,7 @@ type SyncFromNetworkPayload {
 }
 
 type Transaction {
+  devices: [Device!]!
   lastCommitTime: String!
   transactionId: String!
 }
