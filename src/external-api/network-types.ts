@@ -395,3 +395,32 @@ export type UniconfigTransactionLogOutput = t.TypeOf<typeof UniconfigTransaction
 export function decodeUniconfigTransactionLogOutput(value: unknown): UniconfigTransactionLogOutput {
   return extractResult(UniconfigTransactionLogOutputValidator.decode(value));
 }
+
+export type RevertChangesInput = {
+  input: {
+    'target-transactions': {
+      transaction: string[];
+    };
+    'ignore-non-existing-nodes': boolean;
+  };
+};
+
+const UniconfigRevertChangesOutputValidator = t.type({
+  output: t.type({
+    'revert-output': t.type({
+      result: t.array(
+        t.type({
+          'transaction-id': t.string,
+          status: UniconfigStatusValidator,
+        }),
+      ),
+    }),
+    'overall-status': UniconfigStatusValidator,
+  }),
+});
+
+export type UniconfigRevertChangesOutput = t.TypeOf<typeof UniconfigRevertChangesOutputValidator>;
+
+export function decodeUniconfigRevertChangesOutput(value: unknown): UniconfigRevertChangesOutput {
+  return extractResult(UniconfigRevertChangesOutputValidator.decode(value));
+}

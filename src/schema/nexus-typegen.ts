@@ -271,6 +271,10 @@ export interface NexusGenObjects {
     // root type
     dataStore: NexusGenRootTypes['DataStore']; // DataStore!
   };
+  RevertChangesPayload: {
+    // root type
+    isOk: boolean; // Boolean!
+  };
   Snapshot: {
     // root type
     createdAt: string; // String!
@@ -282,6 +286,7 @@ export interface NexusGenObjects {
   };
   Transaction: {
     // root type
+    devices: NexusGenRootTypes['Device'][]; // [Device!]!
     lastCommitTime: string; // String!
     transactionId: string; // String!
   };
@@ -545,6 +550,7 @@ export interface NexusGenFieldTypes {
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
+    revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
@@ -568,12 +574,16 @@ export interface NexusGenFieldTypes {
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
-    transactions: Array<NexusGenRootTypes['Transaction'] | null> | null; // [Transaction]
+    transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
   ResetConfigPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  RevertChangesPayload: {
+    // field return type
+    isOk: boolean; // Boolean!
   };
   Snapshot: {
     // field return type
@@ -586,6 +596,7 @@ export interface NexusGenFieldTypes {
   };
   Transaction: {
     // field return type
+    devices: NexusGenRootTypes['Device'][]; // [Device!]!
     lastCommitTime: string; // String!
     transactionId: string; // String!
   };
@@ -843,6 +854,7 @@ export interface NexusGenFieldTypeNames {
     deleteSnapshot: 'DeleteSnapshotPayload';
     installDevice: 'InstallDevicePayload';
     resetConfig: 'ResetConfigPayload';
+    revertChanges: 'RevertChangesPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
     uninstallDevice: 'UninstallDevicePayload';
     updateBlueprint: 'UpdateBlueprintPayload';
@@ -873,6 +885,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     dataStore: 'DataStore';
   };
+  RevertChangesPayload: {
+    // field return type name
+    isOk: 'Boolean';
+  };
   Snapshot: {
     // field return type name
     createdAt: 'String';
@@ -884,6 +900,7 @@ export interface NexusGenFieldTypeNames {
   };
   Transaction: {
     // field return type name
+    devices: 'Device';
     lastCommitTime: 'String';
     transactionId: 'String';
   };
@@ -1005,6 +1022,10 @@ export interface NexusGenArgTypes {
     resetConfig: {
       // args
       deviceId: string; // String!
+      transactionId: string; // String!
+    };
+    revertChanges: {
+      // args
       transactionId: string; // String!
     };
     syncFromNetwork: {
