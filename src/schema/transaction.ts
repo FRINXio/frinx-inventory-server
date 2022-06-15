@@ -32,7 +32,7 @@ export const TransactionQuery = extendType({
           );
           return filteredTransactions.map((transaction) => ({
             transactionId: transaction['transaction-id'],
-            lastCommitTime: transaction['last-commit-time'],
+            lastCommitTime: new Date(transaction['last-commit-time']).toISOString(),
             devices: transaction.metadata.map((mtd) => unwrap(dbDevices.find((dbd) => dbd.name === mtd['node-id']))),
           }));
         } catch (e) {
