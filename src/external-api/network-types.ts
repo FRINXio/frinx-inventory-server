@@ -383,6 +383,16 @@ const UniconfigTransactionLogOutputValidator = t.type({
         metadata: t.array(
           t.type({
             'node-id': t.string,
+            diff: optional(
+              t.array(
+                t.type({
+                  path: t.string,
+                  'data-before': optional(t.unknown),
+                  'data-after': t.unknown,
+                }),
+              ),
+            ),
+            // topology: t.string,
           }),
         ),
       }),

@@ -4,12 +4,29 @@ import unwrap from '../helpers/unwrap';
 import { getUniconfigURL, makeUniconfigURL } from '../helpers/zone.helpers';
 import { Device } from './device';
 
+export const TransactionDiff = objectType({
+  name: 'TransactionDiff',
+  definition: (t) => {
+    t.nonNull.string('path');
+    t.string('dataBefore');
+    t.string('dataAfter');
+  },
+});
+
+export const TransactionChange = objectType({
+  name: 'TransactionChange',
+  definition: (t) => {
+    t.nonNull.field('device', { type: Device });
+    t.nonNull.field('diff', { type: nonNull(list(nonNull(TransactionDiff))) });
+  },
+});
+
 export const Transaction = objectType({
   name: 'Transaction',
   definition: (t) => {
     t.nonNull.string('transactionId');
     t.nonNull.string('lastCommitTime');
-    t.nonNull.field('devices', { type: nonNull(list(nonNull(Device))) });
+    t.nonNull.field('changes', { type: nonNull(list(nonNull(TransactionChange))) });
   },
 });
 
@@ -34,7 +51,18 @@ export const TransactionQuery = extendType({
             .map((transaction) => ({
               transactionId: transaction['transaction-id'],
               lastCommitTime: new Date(transaction['last-commit-time']).toISOString(),
-              devices: transaction.metadata.map((mtd) => unwrap(dbDevices.find((dbd) => dbd.name === mtd['node-id']))),
+              changes: transaction.metadata.map((mtd) => {
+                const device = unwrap(dbDevices.find((dbd) => dbd.name === mtd['node-id']));
+                return {
+                  device,
+                  diff:
+                    mtd.diff?.map((d) => ({
+                      path: d.path,
+                      dataAfter: d['data-after'] != null ? String(d['data-after']) : null,
+                      dataBefore: d['data-before'] != null ? String(d['data-before']) : null,
+                    })) ?? [],
+                };
+              }),
             }))
             .sort((a, b) => new Date(b.lastCommitTime).getTime() - new Date(a.lastCommitTime).getTime());
         } catch (e) {

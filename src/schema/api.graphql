@@ -352,9 +352,20 @@ type SyncFromNetworkPayload {
 }
 
 type Transaction {
-  devices: [Device!]!
+  changes: [TransactionChange!]!
   lastCommitTime: String!
   transactionId: String!
+}
+
+type TransactionChange {
+  device: Device!
+  diff: [TransactionDiff!]!
+}
+
+type TransactionDiff {
+  dataAfter: String
+  dataBefore: String
+  path: String!
 }
 
 type UninstallDevicePayload {
