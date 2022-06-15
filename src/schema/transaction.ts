@@ -30,11 +30,13 @@ export const TransactionQuery = extendType({
           const filteredTransactions = transactions.filter((tr) =>
             tr.metadata.every((m) => deviceNames.includes(m['node-id'])),
           );
-          return filteredTransactions.map((transaction) => ({
-            transactionId: transaction['transaction-id'],
-            lastCommitTime: new Date(transaction['last-commit-time']).toISOString(),
-            devices: transaction.metadata.map((mtd) => unwrap(dbDevices.find((dbd) => dbd.name === mtd['node-id']))),
-          }));
+          return filteredTransactions
+            .map((transaction) => ({
+              transactionId: transaction['transaction-id'],
+              lastCommitTime: new Date(transaction['last-commit-time']).toISOString(),
+              devices: transaction.metadata.map((mtd) => unwrap(dbDevices.find((dbd) => dbd.name === mtd['node-id']))),
+            }))
+            .sort((a, b) => new Date(b.lastCommitTime).getTime() - new Date(a.lastCommitTime).getTime());
         } catch (e) {
           return [];
         }
