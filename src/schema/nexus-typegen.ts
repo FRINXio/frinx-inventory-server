@@ -286,9 +286,20 @@ export interface NexusGenObjects {
   };
   Transaction: {
     // root type
-    devices: NexusGenRootTypes['Device'][]; // [Device!]!
+    changes: NexusGenRootTypes['TransactionChange'][]; // [TransactionChange!]!
     lastCommitTime: string; // String!
     transactionId: string; // String!
+  };
+  TransactionChange: {
+    // root type
+    device: NexusGenRootTypes['Device']; // Device!
+    diff: NexusGenRootTypes['TransactionDiff'][]; // [TransactionDiff!]!
+  };
+  TransactionDiff: {
+    // root type
+    dataAfter?: string | null; // String
+    dataBefore?: string | null; // String
+    path: string; // String!
   };
   UninstallDevicePayload: {
     // root type
@@ -596,9 +607,20 @@ export interface NexusGenFieldTypes {
   };
   Transaction: {
     // field return type
-    devices: NexusGenRootTypes['Device'][]; // [Device!]!
+    changes: NexusGenRootTypes['TransactionChange'][]; // [TransactionChange!]!
     lastCommitTime: string; // String!
     transactionId: string; // String!
+  };
+  TransactionChange: {
+    // field return type
+    device: NexusGenRootTypes['Device']; // Device!
+    diff: NexusGenRootTypes['TransactionDiff'][]; // [TransactionDiff!]!
+  };
+  TransactionDiff: {
+    // field return type
+    dataAfter: string | null; // String
+    dataBefore: string | null; // String
+    path: string; // String!
   };
   UninstallDevicePayload: {
     // field return type
@@ -900,9 +922,20 @@ export interface NexusGenFieldTypeNames {
   };
   Transaction: {
     // field return type name
-    devices: 'Device';
+    changes: 'TransactionChange';
     lastCommitTime: 'String';
     transactionId: 'String';
+  };
+  TransactionChange: {
+    // field return type name
+    device: 'Device';
+    diff: 'TransactionDiff';
+  };
+  TransactionDiff: {
+    // field return type name
+    dataAfter: 'String';
+    dataBefore: 'String';
+    path: 'String';
   };
   UninstallDevicePayload: {
     // field return type name
