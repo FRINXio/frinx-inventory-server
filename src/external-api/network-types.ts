@@ -373,30 +373,41 @@ export function decodeUniconfigDeleteSnapshotOutput(value: unknown): UniconfigDe
   return extractResult(UniconfigDeleteSnapshotOutputValidator.decode(value));
 }
 
-const UniconfigTransactionLogOutputValidator = t.type({
-  'transactions-metadata': t.type({
-    'transaction-metadata': t.array(
-      t.type({
-        'transaction-id': t.string,
-        status: t.string,
-        'last-commit-time': t.string,
-        metadata: t.array(
+const SuccessTransaction = t.type({
+  'transaction-id': t.string,
+  status: t.literal('SUCCESS'),
+  'last-commit-time': t.string,
+  metadata: t.array(
+    t.type({
+      'node-id': t.string,
+      diff: optional(
+        t.array(
           t.type({
-            'node-id': t.string,
-            diff: optional(
-              t.array(
-                t.type({
-                  path: t.string,
-                  'data-before': optional(t.unknown),
-                  'data-after': t.unknown,
-                }),
-              ),
-            ),
-            // topology: t.string,
+            path: t.string,
+            'data-before': optional(t.unknown),
+            'data-after': t.unknown,
           }),
         ),
-      }),
-    ),
+      ),
+      // topology: t.string,
+    }),
+  ),
+});
+const FailedTransaction = t.type({
+  'transaction-id': t.string,
+  status: t.literal('FAILED'),
+  'failed-commit-time': t.string,
+});
+
+export type SuccessTransactionType = t.TypeOf<typeof SuccessTransaction>;
+
+const Transaction = t.union([SuccessTransaction, FailedTransaction]);
+
+export type TransactionType = t.TypeOf<typeof Transaction>;
+
+const UniconfigTransactionLogOutputValidator = t.type({
+  'transactions-metadata': t.type({
+    'transaction-metadata': t.array(Transaction),
   }),
 });
 
