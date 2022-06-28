@@ -1,8 +1,13 @@
 import { extendType, list, nonNull, objectType, stringArg } from 'nexus';
+import { SuccessTransactionType, TransactionType } from '../external-api/network-types';
 import { fromGraphId } from '../helpers/id-helper';
 import unwrap from '../helpers/unwrap';
 import { getUniconfigURL, makeUniconfigURL } from '../helpers/zone.helpers';
 import { Device } from './device';
+
+function ensureSuccessTransaction(transaction: TransactionType): transaction is SuccessTransactionType {
+  return transaction.status === 'SUCCESS';
+}
 
 export const TransactionDiff = objectType({
   name: 'TransactionDiff',
@@ -44,9 +49,9 @@ export const TransactionQuery = extendType({
           const transactions = transactionLogs.map((tr) => tr['transactions-metadata']['transaction-metadata']).flat();
           const dbDevices = await prisma.device.findMany({ where: { tenantId } });
           const deviceNames = dbDevices.map((device) => device.name);
-          const filteredTransactions = transactions.filter((tr) =>
-            tr.metadata.every((m) => deviceNames.includes(m['node-id'])),
-          );
+          const filteredTransactions = transactions
+            .filter(ensureSuccessTransaction)
+            .filter((tr) => tr.metadata.every((m) => deviceNames.includes(m['node-id'])));
           return filteredTransactions
             .map((transaction) => ({
               transactionId: transaction['transaction-id'],
@@ -151,7 +156,7 @@ export const RevertChangesMutation = extendType({
         const transactions = transactionLogs.map((tr) => tr['transactions-metadata']['transaction-metadata']).flat();
         const matchingTransaction = transactions.find((tr) => tr['transaction-id'] === args.transactionId);
 
-        if (matchingTransaction == null) {
+        if (matchingTransaction == null || matchingTransaction.status === 'FAILED') {
           throw new Error('transaction not found');
         }
         const dbZone = await prisma.device
