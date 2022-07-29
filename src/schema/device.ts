@@ -1,5 +1,8 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { arg, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { parse } from 'csv-parse';
+import { GraphQLUpload } from 'graphql-upload';
+import { arg, asNexusMethod, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { Stream } from 'node:stream';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
@@ -8,6 +11,7 @@ import {
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
 import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
 import { getUniconfigURL } from '../helpers/zone.helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
@@ -157,6 +161,7 @@ export const DevicesQuery = extendType({
           () => prisma.device.count(baseArgs),
           args,
         );
+
         return result;
       },
     });
@@ -392,6 +397,64 @@ export const UninstallDeviceMutation = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
         return { device };
+      },
+    });
+  },
+});
+
+export const Upload = asNexusMethod(GraphQLUpload, 'upload');
+
+export const CSVImportInput = inputObjectType({
+  name: 'CSVImportInput',
+  definition: (t) => {
+    t.nonNull.string('zoneId');
+    t.nonNull.field('file', { type: 'Upload' });
+  },
+});
+
+export const CSVImport = objectType({
+  name: 'CSVImport',
+  definition(t) {
+    t.boolean('isOk');
+  },
+});
+
+export const CSVImportMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.field('importCSV', {
+      type: CSVImport,
+      args: {
+        input: arg({ type: nonNull(CSVImportInput) }),
+      },
+      resolve: async (_, { input }, { prisma, tenantId }) => {
+        const { zoneId, file } = input;
+        const { createReadStream, mimetype } = await file;
+        const nativeZoneId = fromGraphId('Zone', zoneId);
+
+        if (mimetype !== 'text/csv') {
+          throw new Error(`Invalid file type: ${mimetype}.`);
+        }
+
+        const stream: Stream = createReadStream();
+
+        const parser = stream.pipe(parse());
+        const [header, ...records] = await CSVParserToPromise(parser);
+        if (!isHeaderValid(header)) {
+          throw new Error('Incorrect CSV values.');
+        }
+        const deviceList = CSVValuesToJSON(records);
+        // TODO: implement blueprint replace values
+        await prisma.device.createMany({
+          data: deviceList.map((dev) => ({
+            name: dev.nodeId,
+            tenantId,
+            source: 'IMPORTED' as const,
+            uniconfigZoneId: nativeZoneId,
+          })),
+        });
+
+        return { isOk: true };
       },
     });
   },

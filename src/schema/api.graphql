@@ -80,6 +80,15 @@ type BlueprintEdge {
   node: Blueprint!
 }
 
+type CSVImport {
+  isOk: Boolean
+}
+
+input CSVImportInput {
+  file: Upload!
+  zoneId: String!
+}
+
 type CalculatedDiffPayload {
   result: CalculatedDiffResult!
 }
@@ -283,6 +292,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
   revertChanges(transactionId: String!): RevertChangesPayload!
@@ -402,6 +412,11 @@ input UpdateDeviceInput {
 type UpdateDevicePayload {
   device: Device
 }
+
+"""
+The `Upload` scalar type represents a file upload.
+"""
+scalar Upload
 
 type Zone implements Node {
   createdAt: String!

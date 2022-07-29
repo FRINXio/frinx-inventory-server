@@ -6,6 +6,25 @@
 import type * as SourceTypes from './source-types';
 import type { Context } from './../context';
 import type { core } from 'nexus';
+declare global {
+  interface NexusGenCustomInputMethods<TypeName extends string> {
+    /**
+     * The `Upload` scalar type represents a file upload.
+     */
+    upload<FieldName extends string>(
+      fieldName: FieldName,
+      opts?: core.CommonInputFieldConfig<TypeName, FieldName>,
+    ): void; // "Upload";
+  }
+}
+declare global {
+  interface NexusGenCustomOutputMethods<TypeName extends string> {
+    /**
+     * The `Upload` scalar type represents a file upload.
+     */
+    upload<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void; // "Upload";
+  }
+}
 
 declare global {
   interface NexusGen extends NexusGenTypes {}
@@ -46,6 +65,11 @@ export interface NexusGenInputs {
     // input type
     deviceId: string; // String!
     name: string; // String!
+  };
+  CSVImportInput: {
+    // input type
+    file: NexusGenScalars['Upload']; // Upload!
+    zoneId: string; // String!
   };
   CommitConfigInput: {
     // input type
@@ -106,6 +130,7 @@ export interface NexusGenScalars {
   Float: number;
   Boolean: boolean;
   ID: string;
+  Upload: any;
 }
 
 export interface NexusGenObjects {
@@ -145,6 +170,10 @@ export interface NexusGenObjects {
     // root type
     cursor: string; // String!
     node: NexusGenRootTypes['Blueprint']; // Blueprint!
+  };
+  CSVImport: {
+    // root type
+    isOk?: boolean | null; // Boolean
   };
   CalculatedDiffPayload: {
     // root type
@@ -392,6 +421,10 @@ export interface NexusGenFieldTypes {
     cursor: string; // String!
     node: NexusGenRootTypes['Blueprint']; // Blueprint!
   };
+  CSVImport: {
+    // field return type
+    isOk: boolean | null; // Boolean
+  };
   CalculatedDiffPayload: {
     // field return type
     result: NexusGenRootTypes['CalculatedDiffResult']; // CalculatedDiffResult!
@@ -559,6 +592,7 @@ export interface NexusGenFieldTypes {
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
+    importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
@@ -706,6 +740,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     cursor: 'String';
     node: 'Blueprint';
+  };
+  CSVImport: {
+    // field return type name
+    isOk: 'Boolean';
   };
   CalculatedDiffPayload: {
     // field return type name
@@ -874,6 +912,7 @@ export interface NexusGenFieldTypeNames {
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
+    importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     resetConfig: 'ResetConfigPayload';
     revertChanges: 'RevertChangesPayload';
@@ -1047,6 +1086,10 @@ export interface NexusGenArgTypes {
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
+    };
+    importCSV: {
+      // args
+      input: NexusGenInputs['CSVImportInput']; // CSVImportInput!
     };
     installDevice: {
       // args

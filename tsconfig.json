@@ -5,12 +5,15 @@
     "isolatedModules": true,
     "strict": true,
     "moduleResolution": "node",
-    "module": "commonjs",
+    // "module": "commonjs",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["node", "jest"],
     "outDir": "build",
-    "rootDir": "src"
+    "rootDir": "src",
+    "allowJs": true,
+    "maxNodeModuleJsDepth": 10,
+    "module": "NodeNext"
   },
   "include": ["src"],
   "exclude": [".eslintrc.js", "babel.config.js", "babel-register-ts.js"]
