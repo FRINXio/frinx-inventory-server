@@ -1,0 +1,6 @@
+node_id,ip_address,port_number,device_type,version,user,password
+Leaf031,192.168.1.254,1337,foo,2,admin,admin1
+Leaf041,192.168.1.253,1336,bar,2,admin,admin2
+Leaf051,192.168.1.252,1335,baz,2,admin,admin3
+Leaf061,192.168.1.251,1334,qux,2,admin,admin4
+Leaf071,192.168.1.250,1333,foo,2,admin,admin5

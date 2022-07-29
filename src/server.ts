@@ -1,6 +1,7 @@
 import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
+import { graphqlUploadExpress } from 'graphql-upload';
 import { createServer, Server } from 'http';
 import createContext from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
@@ -32,6 +33,7 @@ const apolloServer = new ApolloServer({
 });
 
 const app = express();
+app.use(graphqlUploadExpress());
 apolloServer.start().then(() => {
   apolloServer.applyMiddleware({ app, path: '/graphql', bodyParserConfig: { limit: '50mb' } });
 });
