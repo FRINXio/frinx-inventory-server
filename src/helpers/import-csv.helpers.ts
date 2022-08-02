@@ -27,14 +27,26 @@ export async function CSVParserToPromise(parser: Parser): Promise<string[][]> {
   return result;
 }
 
-export function CSVValuesToJSON(values: string[][]): Record<string, string>[] {
+/* eslint-disable @typescript-eslint/naming-convention */
+export type JSONDevice = {
+  node_id: string;
+  ip_address: string;
+  port_number: number;
+  device_type: string;
+  version: number;
+  user: string;
+  password: string;
+};
+
+export function CSVValuesToJSON(values: string[][]): JSONDevice[] {
   return values.map((val) => ({
-    nodeId: val[0],
-    idAddress: val[1],
-    portNumber: val[2],
-    deviceType: val[3],
-    version: val[4],
+    node_id: val[0],
+    ip_address: val[1],
+    port_number: Number(val[2]),
+    device_type: val[3],
+    version: Number(val[4]),
     user: val[5],
     password: val[6],
   }));
 }
+/* eslint-enable */
