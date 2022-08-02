@@ -48,8 +48,7 @@ export function getArangoClient(): ArangoClient | undefined {
     return undefined;
   }
 
-  const client = initClient();
-  return client;
+  initClient();
 }
 
 export type ArangoClient = ReturnType<typeof initClient>;
