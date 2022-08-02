@@ -1,6 +1,7 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { parse } from 'csv-parse';
+import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
+import jsonParse from 'json-templates';
 import { arg, asNexusMethod, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
 import { Stream } from 'node:stream';
 import {
@@ -438,20 +439,29 @@ export const CSVImportMutation = extendType({
 
         const stream: Stream = createReadStream();
 
-        const parser = stream.pipe(parse());
+        const parser = stream.pipe(csvParse());
         const [header, ...records] = await CSVParserToPromise(parser);
         if (!isHeaderValid(header)) {
           throw new Error('Incorrect CSV values.');
         }
         const deviceList = CSVValuesToJSON(records);
-        // TODO: implement blueprint replace values
+        const blueprints = await prisma.blueprint.findMany();
         await prisma.device.createMany({
-          data: deviceList.map((dev) => ({
-            name: dev.nodeId,
-            tenantId,
-            source: 'IMPORTED' as const,
-            uniconfigZoneId: nativeZoneId,
-          })),
+          data: deviceList.map((dev) => {
+            const matchingBlueprint = blueprints.find(
+              (bp) => bp.name === `${dev.device_type}_${dev.version}_${dev.port_number}`,
+            );
+            const trimmedTemplate = matchingBlueprint?.template.trim() ?? '{}';
+            const parsedTemplate = jsonParse(trimmedTemplate);
+            return {
+              name: dev.node_id,
+              tenantId,
+              source: 'IMPORTED' as const,
+              uniconfigZoneId: nativeZoneId,
+              // we do this to remove whitespace
+              mountParameters: JSON.stringify(JSON.parse(parsedTemplate(dev))),
+            };
+          }),
         });
 
         return { isOk: true };
