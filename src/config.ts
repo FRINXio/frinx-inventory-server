@@ -14,32 +14,38 @@ function optionalEnvString(key: string): string | null {
   return value || null;
 }
 
-type TopologyConfig = {
-  topologyEnabled: boolean;
-  arangoURL?: string;
-  arangoUser?: string;
-  arangoPassword?: string;
-  arangoDb?: string;
+type ArangoConfigEnabled = {
+  arangoEnabled: true;
+  arangoURL: string;
+  arangoUser: string;
+  arangoPassword: string;
+  arangoDb: string;
 };
 
+type ArangoConfigDisabled = {
+  arangoEnabled: false;
+};
+
+type ArangoConfig = ArangoConfigDisabled | ArangoConfigEnabled;
+
 // all arango params must be present or none
-function getTopologyConfig(): TopologyConfig {
+function getArangoConfig(): ArangoConfig {
   const host = optionalEnvString('ARANGO_URL');
   const user = optionalEnvString('ARANGO_USER');
   const password = optionalEnvString('ARANGO_PASSWORD');
   const db = optionalEnvString('ARANGO_DB');
   if (!host && !user && !password && !db) {
     return {
-      topologyEnabled: false,
+      arangoEnabled: false,
     };
   }
 
   if (!host || !user || !password || !db) {
-    throw new Error(`Not all mandatory topology env variables were found.`);
+    throw new Error(`Not all mandatory arango env variables were found.`);
   }
 
   return {
-    topologyEnabled: true,
+    arangoEnabled: true,
     arangoURL: host,
     arangoUser: user,
     arangoPassword: password,
@@ -55,7 +61,7 @@ const config = {
   uniconfigApiPort: envString('UNICONFIG_API_PORT'),
   uniconfigListURL: envString('UNICONFIG_LIST_URL'),
   defaultTenantId: envString('X_TENANT_ID'),
-  ...getTopologyConfig(),
+  ...getArangoConfig(),
 };
 
 export default config;
