@@ -3,7 +3,6 @@ import { ExpressContext } from 'apollo-server-express';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import { ArangoClient, getArangoClient } from './arango-client';
 import prismaClient from './prisma-client';
-import config from './config';
 
 export type Context = {
   prisma: PrismaClient;

@@ -150,7 +150,7 @@ export const DevicesQuery = extendType({
         filter: FilterDevicesInput,
         orderBy: DeviceOrderByInput,
       },
-      resolve: async (_, args, { prisma, tenantId, arangoClient }) => {
+      resolve: async (_, args, { prisma, tenantId }) => {
         const { filter, orderBy } = args;
         const filterQuery = getFilterQuery(filter);
         const orderingArgs = getOrderingQuery(orderBy);

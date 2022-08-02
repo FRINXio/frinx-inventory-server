@@ -4,6 +4,7 @@ import config from './config';
 
 class Connection {
   private db: Database;
+
   private static instance: Connection;
 
   private constructor() {
@@ -42,11 +43,13 @@ function initClient() {
   };
 }
 
-export function getArangoClient() {
-  if (config.arangoEnabled) {
-    const client = initClient();
-    return client;
+export function getArangoClient(): ArangoClient | undefined {
+  if (!config.arangoEnabled) {
+    return undefined;
   }
+
+  const client = initClient();
+  return client;
 }
 
-export type ArangoClient = ReturnType<typeof getArangoClient>;
+export type ArangoClient = ReturnType<typeof initClient>;
