@@ -150,11 +150,16 @@ export const DevicesQuery = extendType({
         filter: FilterDevicesInput,
         orderBy: DeviceOrderByInput,
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, topologyAPI }) => {
         const { filter, orderBy } = args;
         const filterQuery = getFilterQuery(filter);
         const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
+
+        if (topologyAPI) {
+          const collections = await topologyAPI.getCollections();
+          console.log(collections);
+        }
 
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),
