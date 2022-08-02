@@ -1,5 +1,3 @@
-import { fromGraphId } from './id-helper';
-
 type FilterInput = {
   labelIds?: string[] | null;
   deviceName?: string | null;
@@ -25,9 +23,8 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
     return undefined;
   }
   const { labelIds, deviceName } = filter;
-  const nativeLabelIds = (labelIds ?? []).map((lId) => fromGraphId('Label', lId));
   return {
-    label: getLabelsQuery(nativeLabelIds),
+    label: getLabelsQuery(labelIds ?? []),
     name: getDeviceNameQuery(deviceName),
   };
 }
