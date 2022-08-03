@@ -1,9 +1,9 @@
 [
-  {"_key":"532","_id":"Device/532","_rev":"_ebyg51u---","name":"R1"},
-  {"_key":"536","_id":"Device/536","_rev":"_ebyg52e---","name":"R2"},
-  {"_key":"540","_id":"Device/540","_rev":"_ebyg53K---","name":"R3"},
-  {"_key":"544","_id":"Device/544","_rev":"_ebyg53y---","name":"R4"},
-  {"_key":"548","_id":"Device/548","_rev":"_ebyg54S---","name":"R5"},
-  {"_key":"552","_id":"Device/552","_rev":"_ebyg54u---","name":"R6"},
-  {"_key":"556","_id":"Device/556","_rev":"_ebyg55O---","name":"R7"}
+  { "_key": "532", "_id": "Device/532", "_rev": "_ebyg51u---", "name": "R1" },
+  { "_key": "536", "_id": "Device/536", "_rev": "_ebyg52e---", "name": "R2" },
+  { "_key": "540", "_id": "Device/540", "_rev": "_ebyg53K---", "name": "R3" },
+  { "_key": "544", "_id": "Device/544", "_rev": "_ebyg53y---", "name": "R4" },
+  { "_key": "548", "_id": "Device/548", "_rev": "_ebyg54S---", "name": "R5" },
+  { "_key": "552", "_id": "Device/552", "_rev": "_ebyg54u---", "name": "R6" },
+  { "_key": "556", "_id": "Device/556", "_rev": "_ebyg55O---", "name": "R7" }
 ]

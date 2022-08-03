@@ -151,7 +151,7 @@ export const DevicesQuery = extendType({
         filter: FilterDevicesInput,
         orderBy: DeviceOrderByInput,
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, arangoClient }) => {
         const { filter, orderBy } = args;
         const filterQuery = getFilterQuery(filter);
         const orderingArgs = getOrderingQuery(orderBy);
@@ -162,6 +162,10 @@ export const DevicesQuery = extendType({
           () => prisma.device.count(baseArgs),
           args,
         );
+
+        if (arangoClient) {
+          arangoClient.getCollections();
+        }
 
         return result;
       },
