@@ -67,7 +67,7 @@
     "graphql-relay": "0.10.0",
     "graphql-upload": "13",
     "helmet": "5.0.2",
-    "i18n-iso-countries": "7.4.0",
+    "i18n-iso-countries": "7.5.0",
     "io-ts": "2.2.16",
     "json-templates": "^4.2.0",
     "lodash": "4.17.21",
