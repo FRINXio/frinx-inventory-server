@@ -1,6 +1,13 @@
 import { Database } from 'arangojs';
-import { CollectionImportResult } from 'arangojs/collection';
+import { CollectionType, CollectionImportResult } from 'arangojs/collection';
 import { readFileSync } from 'fs';
+
+const COLLECTION_DATA: { name: string; type: CollectionType }[] = [
+  { name: 'Connected', type: CollectionType.EDGE_COLLECTION },
+  { name: 'Device', type: CollectionType.DOCUMENT_COLLECTION },
+  { name: 'Has', type: CollectionType.EDGE_COLLECTION },
+  { name: 'Interface', type: CollectionType.DOCUMENT_COLLECTION },
+];
 
 const db = new Database({
   auth: {
@@ -20,21 +27,21 @@ async function initDatabase() {
 }
 
 async function initCollections(db: Database): Promise<void> {
-  const collectionNames = ['Connected', 'Device', 'Has', 'Interface'];
-  const importCollectionsPromises = collectionNames.map((name) => importCollection(db, name));
+  const importCollectionsPromises = COLLECTION_DATA.map(({ name, type }) => importCollection(db, name, type));
   const importedCollections = await Promise.all(importCollectionsPromises);
   console.log(`Import result: `);
-  collectionNames.map((name, i) => {
+  COLLECTION_DATA.forEach(({ name }, i) => {
     console.log({ [name]: importedCollections[i] });
   });
 }
 
-async function importCollection(db: Database, collectionName: string): Promise<CollectionImportResult> {
-  const data = readFileSync(`./arango/data/${collectionName}.json`).toString();
+async function importCollection(db: Database, name: string, type: CollectionType): Promise<CollectionImportResult> {
+  const data = readFileSync(`./arango/data/${name}.json`).toString();
   const json = JSON.parse(data);
 
   // create new one and import data
-  const newCollection = await db.createCollection(collectionName);
+  const newCollection =
+    type === CollectionType.DOCUMENT_COLLECTION ? await db.createCollection(name) : await db.createEdgeCollection(name);
   const result = await newCollection.import(json);
   return result;
 }
