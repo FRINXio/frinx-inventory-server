@@ -164,7 +164,8 @@ export const DevicesQuery = extendType({
         );
 
         if (arangoClient) {
-          arangoClient.getCollections();
+          const collections = await arangoClient.getCollections();
+          console.log(collections);
         }
 
         return result;

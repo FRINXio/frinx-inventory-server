@@ -2,29 +2,26 @@ import { Database } from 'arangojs';
 import { CollectionImportResult } from 'arangojs/collection';
 import { readFileSync } from 'fs';
 
-const db = new Database();
-const myDb = db.database('lldp');
+const db = new Database({
+  auth: {
+    username: 'root',
+    password: 'frinx',
+  },
+});
 
-async function importCollection(collectionName: string): Promise<CollectionImportResult> {
-  const data = readFileSync(`./arango/data/${collectionName}.json`).toString();
-  const json = JSON.parse(data);
-
-  // drop existing collection
-  const collection = myDb.collection(collectionName);
-  const isExistingCollection = await collection.exists();
-  if (isExistingCollection) {
-    await collection.drop();
+async function initDatabase() {
+  let myDb = db.database('lldp');
+  if (await myDb.exists()) {
+    db.dropDatabase('lldp');
   }
 
-  // create new one and import data
-  const newCollection = await myDb.createCollection(collectionName);
-  const result = await newCollection.import(json);
-  return result;
+  const newDb = await db.createDatabase('lldp');
+  return newDb;
 }
 
-async function initDatabase(): Promise<void> {
+async function initCollections(db: Database): Promise<void> {
   const collectionNames = ['Connected', 'Device', 'Has', 'Interface'];
-  const importCollectionsPromises = collectionNames.map(importCollection);
+  const importCollectionsPromises = collectionNames.map((name) => importCollection(db, name));
   const importedCollections = await Promise.all(importCollectionsPromises);
   console.log(`Import result: `);
   collectionNames.map((name, i) => {
@@ -32,4 +29,19 @@ async function initDatabase(): Promise<void> {
   });
 }
 
-initDatabase();
+async function importCollection(db: Database, collectionName: string): Promise<CollectionImportResult> {
+  const data = readFileSync(`./arango/data/${collectionName}.json`).toString();
+  const json = JSON.parse(data);
+
+  // create new one and import data
+  const newCollection = await db.createCollection(collectionName);
+  const result = await newCollection.import(json);
+  return result;
+}
+
+async function init() {
+  const myDb = await initDatabase();
+  await initCollections(myDb);
+}
+
+init();
