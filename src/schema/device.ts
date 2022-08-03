@@ -163,11 +163,6 @@ export const DevicesQuery = extendType({
           args,
         );
 
-        if (arangoClient) {
-          const collections = await arangoClient.getCollections();
-          console.log(collections);
-        }
-
         return result;
       },
     });
