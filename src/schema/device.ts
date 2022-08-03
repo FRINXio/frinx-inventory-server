@@ -122,7 +122,7 @@ export const DeviceConnection = objectType({
 export const FilterDevicesInput = inputObjectType({
   name: 'FilterDevicesInput',
   definition: (t) => {
-    t.list.nonNull.string('labelIds');
+    t.list.nonNull.string('labels');
     t.string('deviceName');
   },
 });
@@ -153,7 +153,10 @@ export const DevicesQuery = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { filter, orderBy } = args;
-        const filterQuery = getFilterQuery(filter);
+        const labels = filter?.labels ?? [];
+        const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
+        const labelIds = dbLabels.map((l) => l.id);
+        const filterQuery = getFilterQuery({ deviceName: filter?.deviceName, labelIds });
         const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
 
