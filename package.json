@@ -12,7 +12,7 @@
     "build": "run-s build:clear build:ts",
     "dev": "cross-env DEBUG='frinx-inventory-server' DEBUG_COLORS=true DOTENV_CONFIG_PATH=./.env ts-node-dev --transpile-only -r dotenv/config ./src/index.ts",
     "dev:migrate": "prisma migrate save --experimental -c && prisma migrate up --experimental -c",
-    "arango:init": "ts-node ./arango/init.ts",
+    "arango:init": "ts-node -r dotenv/config ./arango/init.ts",
     "prisma:generate": "prisma generate",
     "lint": "eslint --ext .ts 'src/**/*.ts' --max-warnings 0",
     "type-check": "tsc --noEmit",
