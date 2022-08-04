@@ -94,7 +94,7 @@ export interface NexusGenInputs {
   FilterDevicesInput: {
     // input type
     deviceName?: string | null; // String
-    labelIds?: string[] | null; // [String!]
+    labels?: string[] | null; // [String!]
   };
   UpdateBlueprintInput: {
     // input type

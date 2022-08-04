@@ -233,7 +233,7 @@ type DiffData {
 
 input FilterDevicesInput {
   deviceName: String
-  labelIds: [String!]
+  labels: [String!]
 }
 
 type InstallDevicePayload {
