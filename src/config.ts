@@ -8,6 +8,51 @@ function envString(key: string): string {
   return value;
 }
 
+function optionalEnvString(key: string): string | null {
+  const { env } = process;
+  const value = env[key];
+  return value || null;
+}
+
+type ArangoConfigEnabled = {
+  arangoEnabled: true;
+  arangoURL: string;
+  arangoUser: string;
+  arangoPassword: string;
+  arangoDb: string;
+};
+
+type ArangoConfigDisabled = {
+  arangoEnabled: false;
+};
+
+type ArangoConfig = ArangoConfigDisabled | ArangoConfigEnabled;
+
+// all arango params must be present or none
+function getArangoConfig(): ArangoConfig {
+  const host = optionalEnvString('ARANGO_URL');
+  const user = optionalEnvString('ARANGO_USER');
+  const password = optionalEnvString('ARANGO_PASSWORD');
+  const db = optionalEnvString('ARANGO_DB');
+  if (!host && !user && !password && !db) {
+    return {
+      arangoEnabled: false,
+    };
+  }
+
+  if (!host || !user || !password || !db) {
+    throw new Error(`Not all mandatory arango env variables were found.`);
+  }
+
+  return {
+    arangoEnabled: true,
+    arangoURL: host,
+    arangoUser: user,
+    arangoPassword: password,
+    arangoDb: db,
+  };
+}
+
 const config = {
   host: envString('HOST'),
   port: envString('PORT'),
@@ -16,6 +61,7 @@ const config = {
   uniconfigApiPort: envString('UNICONFIG_API_PORT'),
   uniconfigListURL: envString('UNICONFIG_LIST_URL'),
   defaultTenantId: envString('X_TENANT_ID'),
+  ...getArangoConfig(),
 };
 
 export default config;
