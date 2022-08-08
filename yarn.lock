@@ -611,10 +611,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@devoxa/prisma-relay-cursor-connection@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@devoxa/prisma-relay-cursor-connection/-/prisma-relay-cursor-connection-2.2.1.tgz#40f65accff3d044a11c014fd03b17a12bca8fd81"
-  integrity sha512-WGtHPHDHaUJ4/ESmz+UL5T1FFZNYbgSBCTol488aInoDBttBmeNKHh5l66PzL9Z0GNwDUrfakWnAZs0DEA0XHw==
+"@devoxa/prisma-relay-cursor-connection@2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@devoxa/prisma-relay-cursor-connection/-/prisma-relay-cursor-connection-2.2.2.tgz#dd0d5656dfa3c1f357eadb1d069dddb9c89589e0"
+  integrity sha512-nR8/f8DQXNG6a1C3wNRs2YZa6eDCuygz/fzwt6a/ARMsr0asnMK95NhFkZ2jN+ksKHA/AtfvVZvG7UVtJOB09Q==
   dependencies:
     graphql-fields "^2.0.3"
 
