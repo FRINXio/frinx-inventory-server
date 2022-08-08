@@ -1255,7 +1255,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/graphql-upload@^8.0.11":
+"@types/graphql-upload@8.0.11":
   version "8.0.11"
   resolved "https://registry.yarnpkg.com/@types/graphql-upload/-/graphql-upload-8.0.11.tgz#0fef061be3dfc1f370d86cbc28bcb6a968c6b003"
   integrity sha512-AE8RWANHutpsQt945lQZKlkq0V/zBxU5R0xhKLZN3KkBMlW95/5uJzk01HUl8gbDkG7hGl8l8lJKbi91k0UnPw==
@@ -1307,7 +1307,7 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
   integrity sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==
 
-"@types/json-templates@^3.0.0":
+"@types/json-templates@3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/json-templates/-/json-templates-3.0.0.tgz#0b5b59e141a244ac9a9946bc7ff1ccf52715bec9"
   integrity sha512-oaCQfpgz/tL6s20Qs/UW4l1kBg8z48GbmwE74K2y6JG0Uud5BN36Fxev3HOhuJcbH+TpbfaK3cZuhuZ9bxrqeA==
@@ -1736,7 +1736,7 @@ apollo-server@3.10.0:
     apollo-server-express "^3.10.0"
     express "^4.17.1"
 
-arangojs@^7.8.0:
+arangojs@7.8.0:
   version "7.8.0"
   resolved "https://registry.yarnpkg.com/arangojs/-/arangojs-7.8.0.tgz#b474da294399c5108f085934e4ad7a41048a49b6"
   integrity sha512-aJFlMKlVr4sIO5GDMuykBVNVxWeZTkWDgYbbl9cIuxVctp8Lhs6dW5fr5MYlwAndnOEyi3bvbrhZIucly2IpWQ==
@@ -2243,7 +2243,7 @@ cssfilter@0.0.10:
   resolved "https://registry.yarnpkg.com/cssfilter/-/cssfilter-0.0.10.tgz#c6d2672632a2e5c83e013e6864a42ce8defd20ae"
   integrity sha1-xtJnJjKi5cg+AT5oZKQs6N79IK4=
 
-csv-parse@^5.3.0:
+csv-parse@5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.3.0.tgz#85cc02fc9d1c89bd1b02e69069c960f8b8064322"
   integrity sha512-UXJCGwvJ2fep39purtAn27OUYmxB1JQto+zhZ4QlJpzsirtSFbzLvip1aIgziqNdZp/TptvsKEV5BZSxe10/DQ==
@@ -3215,7 +3215,7 @@ graphql-tag@^2.11.0:
   dependencies:
     tslib "^2.1.0"
 
-graphql-upload@13:
+graphql-upload@13.0.0:
   version "13.0.0"
   resolved "https://registry.yarnpkg.com/graphql-upload/-/graphql-upload-13.0.0.tgz#1a255b64d3cbf3c9f9171fa62a8fb0b9b59bb1d9"
   integrity sha512-YKhx8m/uOtKu4Y1UzBFJhbBGJTlk7k4CydlUUiNrtxnwZv0WigbRHP+DVhRNKt7u7DXOtcKZeYJlGtnMXvreXA==
@@ -4035,7 +4035,7 @@ json-stable-stringify-without-jsonify@^1.0.1:
   resolved "https://registry.yarnpkg.com/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz#9db7b59496ad3f3cfef30a75142d2d930ad72651"
   integrity sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=
 
-json-templates@^4.2.0:
+json-templates@4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/json-templates/-/json-templates-4.2.0.tgz#34fdd6fedbe6955e934d86812a89d30d1df87415"
   integrity sha512-NX0r9SEI2bsz17DJpKhZPymvlw/vcMcRqjqRC0jl7pofLwcpaSsfjweatMFt9QXaUv+dR5EBzInBp8y5lzluIQ==
