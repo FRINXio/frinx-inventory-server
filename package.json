@@ -25,8 +25,8 @@
   "devDependencies": {
     "@frinx/eslint-config-typescript-base": "15.0.0-build.1",
     "@types/jest": "28.1.1",
-    "@typescript-eslint/eslint-plugin": "5.27.1",
-    "@typescript-eslint/parser": "5.27.1",
+    "@typescript-eslint/eslint-plugin": "5.32.0",
+    "@typescript-eslint/parser": "5.32.0",
     "@vercel/ncc": "0.29.2",
     "apollo-server": "3.10.0",
     "cross-env": "7.0.3",
