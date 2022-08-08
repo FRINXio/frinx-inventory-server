@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@devoxa/prisma-relay-cursor-connection": "2.2.2",
-    "@prisma/client": "3.15.2",
+    "@prisma/client": "4.1.1",
     "@types/express": "4.17.13",
     "@types/graphql-upload": "^8.0.11",
     "@types/json-templates": "^3.0.0",
@@ -77,7 +77,7 @@
     "node-fetch": "2.6.7",
     "pino": "8.4.0",
     "pino-pretty": "8.1.0",
-    "prisma": "3.15.2",
+    "prisma": "4.1.1",
     "url-join": "4.0.1"
   }
 }
