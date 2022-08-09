@@ -1,23 +1,10 @@
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum Source {
-  MANUAL
-  DISCOVERED
-  IMPORTED
-}
-
-enum ServiceState {
-  PLANNING
-  IN_SERVICE
-  OUT_OF_SERVICE
 }
 
 model device {
@@ -39,16 +26,15 @@ model device {
   password        String?
   tenantId        String        @map("tenant_id")
   uniconfigZoneId String        @map("uniconfig_zone")
-  uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id], onDelete: Cascade)
   source          Source
   serviceState    ServiceState  @default(PLANNING)
   locationId      String?       @map("location_id")
-  location        location?     @relation(fields: [locationId], references: [id], onDelete: SetNull)
-
-  label deviceLabel[]
+  location        location?     @relation(fields: [locationId], references: [id])
+  uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id], onDelete: Cascade)
+  label           deviceLabel[]
 
   @@unique([name, tenantId], name: "udx_device_name_tenant_id")
-  @@index([tenantId], name: "idx_device_tenant_id")
+  @@index([tenantId], map: "idx_device_tenant_id")
   @@map("device_inventory")
 }
 
@@ -60,23 +46,21 @@ model uniconfigZone {
   tenantId  String   @map("tenant_id")
   device    device[]
 
-
-
   @@unique([name, tenantId], name: "udx_uniconfig_zone_name_tenant_id")
-  @@index([tenantId], name: "idx_uniconfig_zone_tenant_id")
+  @@index([tenantId], map: "idx_uniconfig_zone_tenant_id")
   @@map("uniconfig_zone")
 }
 
 model label {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        String        @id @default(uuid())
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
   name      String
-  tenantId  String   @map("tenant_id")
+  tenantId  String        @map("tenant_id")
+  device    deviceLabel[]
 
-  device deviceLabel[]
   @@unique([name, tenantId], name: "udx_label_name_tenant_id")
-  @@index([tenantId], name: "idx_label_tenant_id")
+  @@index([tenantId], map: "idx_label_tenant_id")
 }
 
 model deviceLabel {
@@ -85,10 +69,8 @@ model deviceLabel {
   updatedAt DateTime @updatedAt @map("updated_at")
   deviceId  String   @map("device_id")
   labelId   String   @map("label_id")
-
-  device device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  label  label  @relation(fields: [labelId], references: [id], onDelete: Restrict)
-
+  device    device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  label     label    @relation(fields: [labelId], references: [id])
 
   @@unique([deviceId, labelId], name: "udx_device_label_device_id_label_id")
   @@map("device_label")
@@ -108,12 +90,12 @@ model location {
   sortingCode        String?  @map("sorting_code")
   dependentLocality  String?  @map("dependent_locality")
   locality           String?
-  administrativeArea String?  @map("administrative_area") // city
-  country            String   @map("country")
+  administrativeArea String?  @map("administrative_area")
+  country            String
   device             device[]
 
   @@unique([name, tenantId], name: "udx_location_name_tenant_id")
-  @@index([tenantId], name: "idx_location_tenant_id")
+  @@index([tenantId], map: "idx_location_tenant_id")
 }
 
 model blueprint {
@@ -125,6 +107,18 @@ model blueprint {
   template  String
 
   @@unique([name, tenantId], name: "udx_device_blueprint_name_tenant_id")
-  @@index([tenantId], name: "idx_device_blueprint_tenant_id")
+  @@index([tenantId], map: "idx_device_blueprint_tenant_id")
   @@map("device_blueprint")
+}
+
+enum Source {
+  MANUAL
+  DISCOVERED
+  IMPORTED
+}
+
+enum ServiceState {
+  PLANNING
+  IN_SERVICE
+  OUT_OF_SERVICE
 }
