@@ -1,7 +1,8 @@
 node_id,ip_address,port_number,device_type,version,user,password
-Leaf031,192.168.1.254,22,foo,2,admin,admin1
-Leaf041,192.168.1.253,22,foo,2,admin,admin2
-Leaf051,192.168.1.252,22,baz,2,admin,admin3
-Leaf061,192.168.1.251,22,baz,2,admin,admin4
-Leaf071,192.168.1.250,22,foo,2,admin,admin5
-Leaf011,192.168.1.244,22,foo,1,admin,admin5
+Device/532,192.168.1.254,22,foo,2,admin,admin1
+Device/536,192.168.1.253,22,foo,2,admin,admin2
+Device/540,192.168.1.252,22,baz,2,admin,admin3
+Device/544,192.168.1.251,22,baz,2,admin,admin4
+Device/548,192.168.1.250,22,foo,2,admin,admin5
+Device/552,192.168.1.244,22,foo,1,admin,admin5
+Device/556,192.168.1.243,22,baz,1,admin,admin6
