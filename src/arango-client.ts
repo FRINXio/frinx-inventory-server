@@ -1,6 +1,24 @@
-import { Database } from 'arangojs';
+import { aql, Database } from 'arangojs';
 import { CollectionMetadata } from 'arangojs/collection';
 import config from './config';
+
+export type ArangoDevice = {
+  _key: string;
+  _id: string;
+  _rev: string;
+  name: string;
+};
+export type ArangoEdge = {
+  _key: string;
+  _id: string;
+  _from: string;
+  _to: string;
+  _rev: string;
+};
+export type ArangoGraph = {
+  nodes: ArangoDevice[];
+  edges: ArangoEdge[];
+};
 
 class Connection {
   private db: Database;
@@ -38,8 +56,37 @@ function initClient() {
     return db.listCollections();
   }
 
+  async function getInterfaceEdges(): Promise<ArangoEdge[]> {
+    return db
+      .query(
+        aql`
+        LET has = (FOR h IN Has RETURN h)
+        
+        RETURN has
+    `,
+      )
+      .then((g) => g.all())
+      .then((arr) => arr[0]);
+  }
+
+  async function getGraph(): Promise<ArangoGraph> {
+    return db
+      .query(
+        aql`
+      LET devices = (FOR d IN Device RETURN d)
+      LET connected = (FOR c IN Connected RETURN c)
+      
+      RETURN { nodes: devices, edges: connected }
+    `,
+      )
+      .then((g) => g.all())
+      .then((arr) => arr[0]);
+  }
+
   return {
     getCollections,
+    getGraph,
+    getInterfaceEdges,
   };
 }
 

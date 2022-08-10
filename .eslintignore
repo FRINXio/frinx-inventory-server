@@ -4,3 +4,5 @@ babel-register-ts.js
 prettier.config.js
 nexus-typegen.ts
 jest.config.js
+seed.ts
+init.ts

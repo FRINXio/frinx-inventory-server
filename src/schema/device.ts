@@ -159,7 +159,6 @@ export const DevicesQuery = extendType({
         const filterQuery = getFilterQuery({ deviceName: filter?.deviceName, labelIds });
         const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
-
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),
           () => prisma.device.count(baseArgs),
