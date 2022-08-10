@@ -151,7 +151,7 @@ export const DevicesQuery = extendType({
         filter: FilterDevicesInput,
         orderBy: DeviceOrderByInput,
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, arangoClient }) => {
         const { filter, orderBy } = args;
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
@@ -159,6 +159,8 @@ export const DevicesQuery = extendType({
         const filterQuery = getFilterQuery({ deviceName: filter?.deviceName, labelIds });
         const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
+
+        console.log(await arangoClient?.getGraph());
 
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.device.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),

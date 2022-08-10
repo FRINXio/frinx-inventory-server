@@ -236,6 +236,17 @@ input FilterDevicesInput {
   labels: [String!]
 }
 
+type GraphEdge {
+  id: ID!
+  source: String!
+  target: String!
+}
+
+type GraphNode {
+  device: Device!
+  id: ID!
+}
+
 type InstallDevicePayload {
   device: Device!
 }
@@ -330,6 +341,7 @@ type Query {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
+  topology: Topology!
   transactions: [Transaction!]!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
@@ -359,6 +371,11 @@ enum SortDirection {
 
 type SyncFromNetworkPayload {
   dataStore: DataStore
+}
+
+type Topology {
+  edges: [GraphEdge!]!
+  nodes: [GraphNode!]!
 }
 
 type Transaction {
