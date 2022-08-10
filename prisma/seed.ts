@@ -75,10 +75,21 @@ async function importBlueprints() {
   });
 }
 
+async function importUniconfigZone() {
+  return await prisma.uniconfigZone.create({
+    data: {
+      name: 'localhost',
+      tenantId: 'frinx',
+    },
+  });
+}
+
 async function main() {
+  const uniconfigZone = await importUniconfigZone();
   const blueprints = await importBlueprints();
   const devices = await importDevices();
   return {
+    uniconfigZone,
     blueprints,
     devices,
   };
