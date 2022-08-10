@@ -36,6 +36,7 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
     const matchingBlueprint = blueprints.find((bp) => bp.name === `${device_type}_${version}_${port_number}`);
     const trimmedTemplate = matchingBlueprint?.template.trim() ?? '{}';
     const parsedTemplate = jsonParse(trimmedTemplate);
+    console.log(uniconfigZoneId);
     return {
       name: node_id,
       tenantId: 'frinx',
@@ -75,10 +76,21 @@ async function importBlueprints() {
   });
 }
 
+async function importUniconfigZone() {
+  return await prisma.uniconfigZone.create({
+    data: {
+      name: 'localhost',
+      tenantId: 'frinx',
+    },
+  });
+}
+
 async function main() {
+  const uniconfigZone = await importUniconfigZone();
   const blueprints = await importBlueprints();
   const devices = await importDevices();
   return {
+    uniconfigZone,
     blueprints,
     devices,
   };
