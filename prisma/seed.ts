@@ -1,19 +1,29 @@
-import { Source, Prisma, PrismaClient, blueprint } from '@prisma/client';
-import { createReadStream } from 'fs';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { parse } from 'csv-parse';
+import { createReadStream } from 'fs';
 import jsonParse from 'json-templates';
-import { isHeaderValid, CSVParserToPromise, CSVValuesToJSON, JSONDevice } from '../src/helpers/import-csv.helpers';
+import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid, JSONDevice } from '../src/helpers/import-csv.helpers';
 import unwrap from '../src/helpers/unwrap';
 
-const SAMPLE_BLUEPRINT_TEMPLATE = `{
-"node_id": "{{node_id}}",
-"ip_address":"{{ip_address}}",
-"port_number":{{port_number}},
-"device_type":"{{device_type}}",
-"version":{{version}},
-"user":"{{user}}",
-"password":"{{password}}"
-}`;
+const SAMPLE_BLUEPRINT_TEMPLATE = `
+{
+  "cli": {
+      "cli-topology:host" : "{{ip_address}}",
+      "cli-topology:port" : {{port_number}},
+      "cli-topology:transport-type": "ssh",
+      "cli-topology:device-type": "{{device_type}}",
+      "cli-topology:device-version": "{{version}}",
+      "cli-topology:username": "{{user}}",
+      "cli-topology:password": "{{password}}",
+      "cli-topology:journal-size": 150,
+      "cli-topology:dry-run-journal-size": 150,
+      "cli:topology:parsing-engine" : "tree-parser",
+      "node-extension:reconcile": false,
+      "uniconfig-config:install-uniconfig-node-enabled": true
+  }
+}
+
+`;
 
 const prisma = new PrismaClient();
 
@@ -41,7 +51,7 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
       tenantId: 'frinx',
       uniconfigZoneId: unwrap(uniconfigZoneId).id,
       mountParameters: JSON.stringify(JSON.parse(parsedTemplate(device))),
-      source: 'IMPORTED' as Source,
+      source: 'IMPORTED' as const,
     };
   });
 
@@ -62,12 +72,7 @@ async function importBlueprints() {
     data: [
       {
         tenantId: 'frinx',
-        name: 'foo_2_22',
-        template: SAMPLE_BLUEPRINT_TEMPLATE,
-      },
-      {
-        tenantId: 'frinx',
-        name: 'baz_2_22',
+        name: 'ios xr_5.3.*_22',
         template: SAMPLE_BLUEPRINT_TEMPLATE,
       },
     ],

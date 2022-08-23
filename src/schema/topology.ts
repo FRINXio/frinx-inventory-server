@@ -48,10 +48,24 @@ export const TopologyQuery = extendType({
         const dbDevices = await prisma.device.findMany({ where: { tenantId } });
         const graph = await arangoClient.getGraph();
         const { nodes, edges } = graph;
+        const deviceMap = dbDevices.reduce((acc, curr) => {
+          const nodeDev = nodes.find((n) => n.name === curr.name);
+          return {
+            ...acc,
+            [curr.name]: nodeDev?._id ?? '',
+          };
+        }, {} as Record<string, string>);
+        const nodesMap = nodes.reduce(
+          (acc, curr) => ({
+            ...acc,
+            [curr._id]: curr.name,
+          }),
+          {} as Record<string, string>,
+        );
         return {
           nodes: dbDevices
             .map((device) => {
-              const node = nodes.find((n) => n._id === device.name);
+              const node = nodes.find((n) => n.name === device.name);
               if (node != null) {
                 return {
                   id: toGraphId('GraphNode', node._key),
@@ -63,12 +77,15 @@ export const TopologyQuery = extendType({
             .filter(omitNullValue),
           edges: edges
             .map((edge) => {
-              const device = dbDevices.find((dvc) => dvc.name === interfaceMap[edge._from] && interfaceMap[edge._to]);
+              const device = dbDevices.find(
+                (dvc) =>
+                  deviceMap[dvc.name] === interfaceMap[edge._from] || deviceMap[dvc.name] === interfaceMap[edge._to],
+              );
               if (device != null) {
                 return {
                   id: toGraphId('GraphEdge', edge._key),
-                  source: interfaceMap[edge._from],
-                  target: interfaceMap[edge._to],
+                  source: nodesMap[interfaceMap[edge._from]],
+                  target: nodesMap[interfaceMap[edge._to]],
                 };
               }
               return null;

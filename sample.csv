@@ -1,8 +1,8 @@
 node_id,ip_address,port_number,device_type,version,user,password
-Device/532,192.168.1.254,22,foo,2,admin,admin1
-Device/536,192.168.1.253,22,foo,2,admin,admin2
-Device/540,192.168.1.252,22,baz,2,admin,admin3
-Device/544,192.168.1.251,22,baz,2,admin,admin4
-Device/548,192.168.1.250,22,foo,2,admin,admin5
-Device/552,192.168.1.244,22,foo,1,admin,admin5
-Device/556,192.168.1.243,22,baz,1,admin,admin6
+R1,192.168.1.41,22,ios xr,5.3.*,cisco,cisco
+R2,192.168.1.52,22,ios xr,5.3.*,cisco,cisco
+R3,192.168.1.43,22,ios xr,5.3.*,cisco,cisco
+R4,192.168.1.44,22,ios xr,5.3.*,cisco,cisco
+R5,192.168.1.45,22,ios xr,5.3.*,cisco,cisco
+R6,192.168.1.46,22,ios xr,5.3.*,cisco,cisco
+R7,192.168.1.47,22,ios xr,5.3.*,cisco,cisco

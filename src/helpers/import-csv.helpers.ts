@@ -33,7 +33,7 @@ export type JSONDevice = {
   ip_address: string;
   port_number: number;
   device_type: string;
-  version: number;
+  version: string;
   user: string;
   password: string;
 };
@@ -44,7 +44,7 @@ export function CSVValuesToJSON(values: string[][]): JSONDevice[] {
     ip_address: val[1],
     port_number: Number(val[2]),
     device_type: val[3],
-    version: Number(val[4]),
+    version: val[4],
     user: val[5],
     password: val[6],
   }));
