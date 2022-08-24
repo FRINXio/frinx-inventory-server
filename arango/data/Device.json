@@ -1,9 +1,9 @@
 [
-  { "_key": "532", "_id": "Device/532", "_rev": "_ebyg51u---", "name": "R1" },
-  { "_key": "536", "_id": "Device/536", "_rev": "_ebyg52e---", "name": "R2" },
-  { "_key": "540", "_id": "Device/540", "_rev": "_ebyg53K---", "name": "R3" },
-  { "_key": "544", "_id": "Device/544", "_rev": "_ebyg53y---", "name": "R4" },
-  { "_key": "548", "_id": "Device/548", "_rev": "_ebyg54S---", "name": "R5" },
-  { "_key": "552", "_id": "Device/552", "_rev": "_ebyg54u---", "name": "R6" },
-  { "_key": "556", "_id": "Device/556", "_rev": "_ebyg55O---", "name": "R7" }
+  { "_key": "77691", "_id": "Device/77691", "_rev": "_eqt1SZy---", "name": "R3", "labels": ["test"] },
+  { "_key": "77695", "_id": "Device/77695", "_rev": "_eqt1Sa----", "name": "R5", "labels": ["test"] },
+  { "_key": "77699", "_id": "Device/77699", "_rev": "_eqt1SaK---", "name": "R1", "labels": ["test"] },
+  { "_key": "77703", "_id": "Device/77703", "_rev": "_eqt1SaS---", "name": "R4", "labels": ["test"] },
+  { "_key": "77707", "_id": "Device/77707", "_rev": "_eqt1Saa---", "name": "R2", "labels": ["test"] },
+  { "_key": "77711", "_id": "Device/77711", "_rev": "_eqt1Sam---", "name": "R7", "labels": ["test"] },
+  { "_key": "77715", "_id": "Device/77715", "_rev": "_eqt1Say---", "name": "R6", "labels": ["test"] }
 ]
