@@ -1,9 +1,9 @@
 [
-  {"_key":"77691","_id":"Device/77691","_rev":"_eqt1SZy---","name":"R3","labels":["test"]},
-  {"_key":"77695","_id":"Device/77695","_rev":"_eqt1Sa----","name":"R5","labels":["test"]},
-  {"_key":"77699","_id":"Device/77699","_rev":"_eqt1SaK---","name":"R1","labels":["test"]},
-  {"_key":"77703","_id":"Device/77703","_rev":"_eqt1SaS---","name":"R4","labels":["test"]},
-  {"_key":"77707","_id":"Device/77707","_rev":"_eqt1Saa---","name":"R2","labels":["test"]},
-  {"_key":"77711","_id":"Device/77711","_rev":"_eqt1Sam---","name":"R7","labels":["test"]},
-  {"_key":"77715","_id":"Device/77715","_rev":"_eqt1Say---","name":"R6","labels":["test"]}
+  { "_key": "77691", "_id": "Device/77691", "_rev": "_eqt1SZy---", "name": "R3", "labels": ["test"] },
+  { "_key": "77695", "_id": "Device/77695", "_rev": "_eqt1Sa----", "name": "R5", "labels": ["test"] },
+  { "_key": "77699", "_id": "Device/77699", "_rev": "_eqt1SaK---", "name": "R1", "labels": ["test"] },
+  { "_key": "77703", "_id": "Device/77703", "_rev": "_eqt1SaS---", "name": "R4", "labels": ["test"] },
+  { "_key": "77707", "_id": "Device/77707", "_rev": "_eqt1Saa---", "name": "R2", "labels": ["test"] },
+  { "_key": "77711", "_id": "Device/77711", "_rev": "_eqt1Sam---", "name": "R7", "labels": ["test"] },
+  { "_key": "77715", "_id": "Device/77715", "_rev": "_eqt1Say---", "name": "R6", "labels": ["test"] }
 ]
