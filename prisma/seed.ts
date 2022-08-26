@@ -42,7 +42,7 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
   const deviceList = await getDeviceList();
   const blueprints = await prisma.blueprint.findMany();
   const data = deviceList.map((device) => {
-    const { node_id, device_type, version, port_number } = device;
+    const { node_id, device_type, version, port_number, ip_address } = device;
     const matchingBlueprint = blueprints.find((bp) => bp.name === `${device_type}_${version}_${port_number}`);
     const trimmedTemplate = matchingBlueprint?.template.trim() ?? '{}';
     const parsedTemplate = jsonParse(trimmedTemplate);
@@ -50,6 +50,10 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
       name: node_id,
       tenantId: 'frinx',
       uniconfigZoneId: unwrap(uniconfigZoneId).id,
+      managementIp: ip_address,
+      port: port_number,
+      software: device_type,
+      softwareVersion: version,
       mountParameters: JSON.stringify(JSON.parse(parsedTemplate(device))),
       source: 'IMPORTED' as const,
     };

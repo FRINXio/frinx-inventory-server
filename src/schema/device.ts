@@ -460,6 +460,10 @@ export const CSVImportMutation = extendType({
               tenantId,
               source: 'IMPORTED' as const,
               uniconfigZoneId: nativeZoneId,
+              managementIp: dev.ip_address,
+              port: dev.port_number,
+              software: dev.device_type,
+              softwareVersion: dev.version,
               // we do this to remove whitespace
               mountParameters: JSON.stringify(JSON.parse(parsedTemplate(dev))),
             };
