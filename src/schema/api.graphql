@@ -313,7 +313,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
-  updateDeviceMetadata(id: String!, input: UpdateDeviceMetadataInput!): UpdateDevicePayload!
+  updateDeviceMetadata(input: [PositionInput!]!): UpdateDeviceMetadataPayload!
 }
 
 interface Node {
@@ -333,6 +333,11 @@ type Position {
 }
 
 input PositionInput {
+  deviceId: ID!
+  position: PositionInputField!
+}
+
+input PositionInputField {
   x: Int!
   y: Int!
 }
@@ -438,8 +443,8 @@ input UpdateDeviceInput {
   vendor: String
 }
 
-input UpdateDeviceMetadataInput {
-  position: PositionInput!
+type UpdateDeviceMetadataPayload {
+  devices: [Device]
 }
 
 type UpdateDevicePayload {

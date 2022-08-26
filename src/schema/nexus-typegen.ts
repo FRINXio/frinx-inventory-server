@@ -98,6 +98,11 @@ export interface NexusGenInputs {
   };
   PositionInput: {
     // input type
+    deviceId: string; // ID!
+    position: NexusGenInputs['PositionInputField']; // PositionInputField!
+  };
+  PositionInputField: {
+    // input type
     x: number; // Int!
     y: number; // Int!
   };
@@ -119,10 +124,6 @@ export interface NexusGenInputs {
     mountParameters?: string | null; // String
     serviceState?: NexusGenEnums['DeviceServiceState'] | null; // DeviceServiceState
     vendor?: string | null; // String
-  };
-  UpdateDeviceMetadataInput: {
-    // input type
-    position: NexusGenInputs['PositionInput']; // PositionInput!
   };
 }
 
@@ -371,6 +372,10 @@ export interface NexusGenObjects {
   UpdateDataStorePayload: {
     // root type
     dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  UpdateDeviceMetadataPayload: {
+    // root type
+    devices?: Array<NexusGenRootTypes['Device'] | null> | null; // [Device]
   };
   UpdateDevicePayload: {
     // root type
@@ -643,7 +648,7 @@ export interface NexusGenFieldTypes {
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
-    updateDeviceMetadata: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
+    updateDeviceMetadata: NexusGenRootTypes['UpdateDeviceMetadataPayload']; // UpdateDeviceMetadataPayload!
   };
   PageInfo: {
     // field return type
@@ -721,6 +726,10 @@ export interface NexusGenFieldTypes {
   UpdateDataStorePayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  UpdateDeviceMetadataPayload: {
+    // field return type
+    devices: Array<NexusGenRootTypes['Device'] | null> | null; // [Device]
   };
   UpdateDevicePayload: {
     // field return type
@@ -987,7 +996,7 @@ export interface NexusGenFieldTypeNames {
     updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
-    updateDeviceMetadata: 'UpdateDevicePayload';
+    updateDeviceMetadata: 'UpdateDeviceMetadataPayload';
   };
   PageInfo: {
     // field return type name
@@ -1065,6 +1074,10 @@ export interface NexusGenFieldTypeNames {
   UpdateDataStorePayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  UpdateDeviceMetadataPayload: {
+    // field return type name
+    devices: 'Device';
   };
   UpdateDevicePayload: {
     // field return type name
@@ -1209,8 +1222,7 @@ export interface NexusGenArgTypes {
     };
     updateDeviceMetadata: {
       // args
-      id: string; // String!
-      input: NexusGenInputs['UpdateDeviceMetadataInput']; // UpdateDeviceMetadataInput!
+      input: NexusGenInputs['PositionInput'][]; // [PositionInput!]!
     };
   };
   Query: {

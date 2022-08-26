@@ -2,7 +2,7 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
-import { arg, asNexusMethod, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
 import { Stream } from 'node:stream';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import {
@@ -19,6 +19,7 @@ import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
+import unwrap from '../helpers/unwrap';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -36,11 +37,22 @@ export const Position = objectType({
     t.nonNull.int('y');
   },
 });
-export const PositionInput = inputObjectType({
-  name: 'PositionInput',
+
+export const PositionInputField = inputObjectType({
+  name: 'PositionInputField',
   definition: (t) => {
     t.nonNull.int('x');
     t.nonNull.int('y');
+  },
+});
+
+export const PositionInput = inputObjectType({
+  name: 'PositionInput',
+  definition: (t) => {
+    t.nonNull.id('deviceId');
+    t.nonNull.field('position', {
+      type: PositionInputField,
+    });
   },
 });
 
@@ -324,40 +336,53 @@ export const UpdateDeviceMutation = extendType({
   },
 });
 
-export const UpdateDeviceMetadataInput = inputObjectType({
-  name: 'UpdateDeviceMetadataInput',
+export const UpdateDeviceMetadataPayload = objectType({
+  name: 'UpdateDeviceMetadataPayload',
   definition: (t) => {
-    t.nonNull.field('position', { type: PositionInput });
+    t.list.field('devices', { type: Device });
   },
 });
+
 export const UpdateDeviceMetadataMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
     t.nonNull.field('updateDeviceMetadata', {
-      type: UpdateDevicePayload,
+      type: UpdateDeviceMetadataPayload,
       args: {
-        id: nonNull(stringArg()),
-        input: nonNull(arg({ type: UpdateDeviceMetadataInput })),
+        input: nonNull(list(nonNull(PositionInput))),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const nativeId = fromGraphId('Device', args.id);
-        const dbDevice = await prisma.device.findFirst({
-          where: { id: nativeId, tenantId },
-        });
-        if (dbDevice == null) {
-          throw new Error('device not found');
-        }
         const { input } = args;
-        const oldMetadata = decodeMetadataOutput(dbDevice.metadata);
-        const newMetadata = updateMetadataWithPosition(oldMetadata || null, input.position);
 
-        const updatedDevice = prisma.device.update({
-          where: { id: nativeId },
-          data: {
-            metadata: newMetadata,
-          },
+        const positionsMap = new Map(
+          input.map((item) => {
+            const nativeId = fromGraphId('Device', item.deviceId);
+            return [nativeId, item];
+          }),
+        );
+
+        const dbDevices = await prisma.device.findMany({
+          where: { id: { in: [...positionsMap.keys()] }, tenantId },
         });
-        return { device: updatedDevice };
+
+        const updatedPromises = dbDevices.map((device) => {
+          const oldMetadata = decodeMetadataOutput(device.metadata);
+          const newPosition = unwrap(positionsMap.get(device.id)).position;
+          const newMetadata = updateMetadataWithPosition(oldMetadata || null, newPosition);
+
+          return prisma.device.update({
+            where: { id: device.id },
+            data: {
+              metadata: newMetadata,
+            },
+          });
+        });
+
+        const updatedDevices = await Promise.all(updatedPromises);
+
+        return {
+          devices: updatedDevices,
+        };
       },
     });
   },
