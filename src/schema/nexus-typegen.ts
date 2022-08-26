@@ -96,6 +96,11 @@ export interface NexusGenInputs {
     deviceName?: string | null; // String
     labels?: string[] | null; // [String!]
   };
+  PositionInput: {
+    // input type
+    x: number; // Int!
+    y: number; // Int!
+  };
   UpdateBlueprintInput: {
     // input type
     name?: string | null; // String
@@ -114,6 +119,10 @@ export interface NexusGenInputs {
     mountParameters?: string | null; // String
     serviceState?: NexusGenEnums['DeviceServiceState'] | null; // DeviceServiceState
     vendor?: string | null; // String
+  };
+  UpdateDeviceMetadataInput: {
+    // input type
+    position: NexusGenInputs['PositionInput']; // PositionInput!
   };
 }
 
@@ -305,6 +314,11 @@ export interface NexusGenObjects {
     hasNextPage: boolean; // Boolean!
     hasPreviousPage: boolean; // Boolean!
     startCursor?: string | null; // String
+  };
+  Position: {
+    // root type
+    x: number; // Int!
+    y: number; // Int!
   };
   Query: {};
   ResetConfigPayload: {
@@ -529,6 +543,7 @@ export interface NexusGenFieldTypes {
     model: string | null; // String
     mountParameters: string | null; // String
     name: string; // String!
+    position: NexusGenRootTypes['Position'] | null; // Position
     serviceState: NexusGenEnums['DeviceServiceState']; // DeviceServiceState!
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
@@ -628,6 +643,7 @@ export interface NexusGenFieldTypes {
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
+    updateDeviceMetadata: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
   };
   PageInfo: {
     // field return type
@@ -635,6 +651,11 @@ export interface NexusGenFieldTypes {
     hasNextPage: boolean; // Boolean!
     hasPreviousPage: boolean; // Boolean!
     startCursor: string | null; // String
+  };
+  Position: {
+    // field return type
+    x: number; // Int!
+    y: number; // Int!
   };
   Query: {
     // field return type
@@ -866,6 +887,7 @@ export interface NexusGenFieldTypeNames {
     model: 'String';
     mountParameters: 'String';
     name: 'String';
+    position: 'Position';
     serviceState: 'DeviceServiceState';
     source: 'DeviceSource';
     updatedAt: 'String';
@@ -965,6 +987,7 @@ export interface NexusGenFieldTypeNames {
     updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
+    updateDeviceMetadata: 'UpdateDevicePayload';
   };
   PageInfo: {
     // field return type name
@@ -972,6 +995,11 @@ export interface NexusGenFieldTypeNames {
     hasNextPage: 'Boolean';
     hasPreviousPage: 'Boolean';
     startCursor: 'String';
+  };
+  Position: {
+    // field return type name
+    x: 'Int';
+    y: 'Int';
   };
   Query: {
     // field return type name
@@ -1178,6 +1206,11 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
       input: NexusGenInputs['UpdateDeviceInput']; // UpdateDeviceInput!
+    };
+    updateDeviceMetadata: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateDeviceMetadataInput']; // UpdateDeviceMetadataInput!
     };
   };
   Query: {

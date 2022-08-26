@@ -191,6 +191,7 @@ type Device implements Node {
   model: String
   mountParameters: String
   name: String!
+  position: Position
   serviceState: DeviceServiceState!
   source: DeviceSource!
   updatedAt: String!
@@ -312,6 +313,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
+  updateDeviceMetadata(id: String!, input: UpdateDeviceMetadataInput!): UpdateDevicePayload!
 }
 
 interface Node {
@@ -323,6 +325,16 @@ type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   startCursor: String
+}
+
+type Position {
+  x: Int!
+  y: Int!
+}
+
+input PositionInput {
+  x: Int!
+  y: Int!
 }
 
 type Query {
@@ -424,6 +436,10 @@ input UpdateDeviceInput {
   mountParameters: String
   serviceState: DeviceServiceState
   vendor: String
+}
+
+input UpdateDeviceMetadataInput {
+  position: PositionInput!
 }
 
 type UpdateDevicePayload {

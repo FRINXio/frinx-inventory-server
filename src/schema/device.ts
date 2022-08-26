@@ -4,13 +4,14 @@ import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
 import { arg, asNexusMethod, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
 import { Stream } from 'node:stream';
+import { decodeMetadataOutput } from '../helpers/device-types';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
-import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
+import { getFilterQuery, getOrderingQuery, updateMetadataWithPosition } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
 import { getUniconfigURL } from '../helpers/zone.helpers';
@@ -27,6 +28,22 @@ export const DeviceSource = enumType({
   name: 'DeviceSource',
   members: ['MANUAL', 'DISCOVERED', 'IMPORTED'],
 });
+
+export const Position = objectType({
+  name: 'Position',
+  definition: (t) => {
+    t.nonNull.int('x');
+    t.nonNull.int('y');
+  },
+});
+export const PositionInput = inputObjectType({
+  name: 'PositionInput',
+  definition: (t) => {
+    t.nonNull.int('x');
+    t.nonNull.int('y');
+  },
+});
+
 export const Device = objectType({
   name: 'Device',
   definition: (t) => {
@@ -94,6 +111,14 @@ export const Device = objectType({
           return null;
         }
         return location;
+      },
+    });
+    t.field('position', {
+      type: Position,
+      resolve: async (device) => {
+        const { metadata } = device;
+        const position = decodeMetadataOutput(metadata)?.position || null;
+        return position;
       },
     });
   },
@@ -291,6 +316,45 @@ export const UpdateDeviceMutation = extendType({
             mountParameters: deviceMountParameters,
             serviceState: input.serviceState ?? undefined,
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
+          },
+        });
+        return { device: updatedDevice };
+      },
+    });
+  },
+});
+
+export const UpdateDeviceMetadataInput = inputObjectType({
+  name: 'UpdateDeviceMetadataInput',
+  definition: (t) => {
+    t.nonNull.field('position', { type: PositionInput });
+  },
+});
+export const UpdateDeviceMetadataMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateDeviceMetadata', {
+      type: UpdateDevicePayload,
+      args: {
+        id: nonNull(stringArg()),
+        input: nonNull(arg({ type: UpdateDeviceMetadataInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Device', args.id);
+        const dbDevice = await prisma.device.findFirst({
+          where: { id: nativeId, tenantId },
+        });
+        if (dbDevice == null) {
+          throw new Error('device not found');
+        }
+        const { input } = args;
+        const oldMetadata = decodeMetadataOutput(dbDevice.metadata);
+        const newMetadata = updateMetadataWithPosition(oldMetadata || null, input.position);
+
+        const updatedDevice = prisma.device.update({
+          where: { id: nativeId },
+          data: {
+            metadata: newMetadata,
           },
         });
         return { device: updatedDevice };
