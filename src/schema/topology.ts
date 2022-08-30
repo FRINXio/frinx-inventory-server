@@ -8,6 +8,15 @@ export const GraphNode = objectType({
   definition: (t) => {
     t.nonNull.id('id');
     t.nonNull.field('device', { type: 'Device' });
+    t.nonNull.list.nonNull.string('interfaces');
+  },
+});
+
+export const EdgeSourceTarget = objectType({
+  name: 'EdgeSourceTarget',
+  definition: (t) => {
+    t.nonNull.string('nodeId');
+    t.nonNull.string('interface');
   },
 });
 
@@ -15,8 +24,8 @@ export const GraphEdge = objectType({
   name: 'GraphEdge',
   definition: (t) => {
     t.nonNull.id('id');
-    t.nonNull.string('source');
-    t.nonNull.string('target');
+    t.nonNull.field('source', { type: EdgeSourceTarget });
+    t.nonNull.field('target', { type: EdgeSourceTarget });
   },
 });
 
@@ -38,23 +47,23 @@ export const TopologyQuery = extendType({
           throw new Error('should not happen');
         }
         const interfaceEdges = await arangoClient.getInterfaceEdges();
-        const interfaceMap = interfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
+        const interfaceDeviceMap = interfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
           const dvc = unwrap(arr.find((int) => int._to === curr._to)?._from);
           return {
             ...acc,
             [curr._to]: dvc,
           };
         }, {} as Record<string, string>);
+        const interfaceMap = interfaceEdges.reduce<Record<string, string[]>>(
+          (acc, curr) => ({
+            ...acc,
+            [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], curr._to] : [curr._to],
+          }),
+          {} as Record<string, string[]>,
+        );
         const dbDevices = await prisma.device.findMany({ where: { tenantId } });
         const graph = await arangoClient.getGraph();
         const { nodes, edges } = graph;
-        const deviceMap = dbDevices.reduce((acc, curr) => {
-          const nodeDev = nodes.find((n) => n.name === curr.name);
-          return {
-            ...acc,
-            [curr.name]: nodeDev?._id ?? '',
-          };
-        }, {} as Record<string, string>);
         const nodesMap = nodes.reduce(
           (acc, curr) => ({
             ...acc,
@@ -70,27 +79,23 @@ export const TopologyQuery = extendType({
                 return {
                   id: toGraphId('GraphNode', node._key),
                   device,
+                  interfaces: interfaceMap[node._id],
                 };
               }
               return null;
             })
             .filter(omitNullValue),
-          edges: edges
-            .map((edge) => {
-              const device = dbDevices.find(
-                (dvc) =>
-                  deviceMap[dvc.name] === interfaceMap[edge._from] || deviceMap[dvc.name] === interfaceMap[edge._to],
-              );
-              if (device != null) {
-                return {
-                  id: toGraphId('GraphEdge', edge._key),
-                  source: nodesMap[interfaceMap[edge._from]],
-                  target: nodesMap[interfaceMap[edge._to]],
-                };
-              }
-              return null;
-            })
-            .filter(omitNullValue),
+          edges: edges.map((e) => ({
+            id: e._id,
+            source: {
+              interface: e._from,
+              nodeId: nodesMap[interfaceDeviceMap[e._from]],
+            },
+            target: {
+              interface: e._to,
+              nodeId: nodesMap[interfaceDeviceMap[e._to]],
+            },
+          })),
         };
       },
     });

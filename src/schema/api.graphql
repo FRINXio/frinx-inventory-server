@@ -232,6 +232,11 @@ type DiffData {
   path: String!
 }
 
+type EdgeSourceTarget {
+  interface: String!
+  nodeId: String!
+}
+
 input FilterDevicesInput {
   deviceName: String
   labels: [String!]
@@ -239,13 +244,14 @@ input FilterDevicesInput {
 
 type GraphEdge {
   id: ID!
-  source: String!
-  target: String!
+  source: EdgeSourceTarget!
+  target: EdgeSourceTarget!
 }
 
 type GraphNode {
   device: Device!
   id: ID!
+  interfaces: [String!]!
 }
 
 type InstallDevicePayload {
