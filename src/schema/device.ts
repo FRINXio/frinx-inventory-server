@@ -2,15 +2,16 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
-import { arg, asNexusMethod, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
 import { Stream } from 'node:stream';
+import { decodeMetadataOutput } from '../helpers/device-types';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
-import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
+import { getFilterQuery, getOrderingQuery, updateMetadataWithPosition } from '../helpers/device-helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
 import { getUniconfigURL } from '../helpers/zone.helpers';
@@ -18,6 +19,7 @@ import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
+import unwrap from '../helpers/unwrap';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -27,6 +29,33 @@ export const DeviceSource = enumType({
   name: 'DeviceSource',
   members: ['MANUAL', 'DISCOVERED', 'IMPORTED'],
 });
+
+export const Position = objectType({
+  name: 'Position',
+  definition: (t) => {
+    t.nonNull.int('x');
+    t.nonNull.int('y');
+  },
+});
+
+export const PositionInputField = inputObjectType({
+  name: 'PositionInputField',
+  definition: (t) => {
+    t.nonNull.int('x');
+    t.nonNull.int('y');
+  },
+});
+
+export const PositionInput = inputObjectType({
+  name: 'PositionInput',
+  definition: (t) => {
+    t.nonNull.id('deviceId');
+    t.nonNull.field('position', {
+      type: PositionInputField,
+    });
+  },
+});
+
 export const Device = objectType({
   name: 'Device',
   definition: (t) => {
@@ -94,6 +123,14 @@ export const Device = objectType({
           return null;
         }
         return location;
+      },
+    });
+    t.field('position', {
+      type: Position,
+      resolve: async (device) => {
+        const { metadata } = device;
+        const position = decodeMetadataOutput(metadata)?.position || null;
+        return position;
       },
     });
   },
@@ -294,6 +331,58 @@ export const UpdateDeviceMutation = extendType({
           },
         });
         return { device: updatedDevice };
+      },
+    });
+  },
+});
+
+export const UpdateDeviceMetadataPayload = objectType({
+  name: 'UpdateDeviceMetadataPayload',
+  definition: (t) => {
+    t.list.field('devices', { type: Device });
+  },
+});
+
+export const UpdateDeviceMetadataMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateDeviceMetadata', {
+      type: UpdateDeviceMetadataPayload,
+      args: {
+        input: nonNull(list(nonNull(PositionInput))),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const { input } = args;
+
+        const positionsMap = new Map(
+          input.map((item) => {
+            const nativeId = fromGraphId('Device', item.deviceId);
+            return [nativeId, item];
+          }),
+        );
+
+        const dbDevices = await prisma.device.findMany({
+          where: { id: { in: [...positionsMap.keys()] }, tenantId },
+        });
+
+        const updatedPromises = dbDevices.map((device) => {
+          const oldMetadata = decodeMetadataOutput(device.metadata);
+          const newPosition = unwrap(positionsMap.get(device.id)).position;
+          const newMetadata = updateMetadataWithPosition(oldMetadata || null, newPosition);
+
+          return prisma.device.update({
+            where: { id: device.id },
+            data: {
+              metadata: newMetadata,
+            },
+          });
+        });
+
+        const updatedDevices = await Promise.all(updatedPromises);
+
+        return {
+          devices: updatedDevices,
+        };
       },
     });
   },

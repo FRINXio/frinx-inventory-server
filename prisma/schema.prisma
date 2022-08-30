@@ -33,6 +33,7 @@ model device {
   location        location?     @relation(fields: [locationId], references: [id])
   uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id], onDelete: Cascade)
   label           deviceLabel[]
+  metadata        Json?
 
   @@unique([name, tenantId], name: "udx_device_name_tenant_id")
   @@index([tenantId], map: "idx_device_tenant_id")

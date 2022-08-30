@@ -1,3 +1,6 @@
+import { Prisma } from '@prisma/client';
+import { MetadataOutput } from './device-types';
+
 type FilterInput = {
   labelIds?: string[] | null;
   deviceName?: string | null;
@@ -10,6 +13,10 @@ type FilterQuery = {
 type OrderingInput = {
   sortKey: 'NAME' | 'CREATED_AT';
   direction: 'ASC' | 'DESC';
+};
+type Position = {
+  x: number;
+  y: number;
 };
 
 function getLabelsQuery(labelIds: string[]): Record<string, unknown> | undefined {
@@ -34,4 +41,18 @@ export function getOrderingQuery(ordering?: OrderingInput | null): Record<string
         orderBy: [{ [ordering.sortKey === 'NAME' ? 'name' : 'createdAt']: ordering.direction.toLowerCase() }],
       }
     : undefined;
+}
+
+export function updateMetadataWithPosition(
+  metadata: MetadataOutput | null,
+  position: Position,
+): Prisma.InputJsonObject {
+  return metadata == null
+    ? {
+        position,
+      }
+    : {
+        ...metadata,
+        position,
+      };
 }
