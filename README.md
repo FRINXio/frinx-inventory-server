@@ -20,7 +20,7 @@ $ yarn run dev
 
 `yarn prisma migrate dev` is optional and will migrate postgresql database when you are starting from scratch.
 
-`yarn prisma:seed && yarn arango:seed` these commands are optional. Use them when you want to use the topology service, else they are not needed.
+`yarn prisma:seed && yarn arango:seed` these commands use when you want to apply database migrations
 
 ### Troubleshoot
 
