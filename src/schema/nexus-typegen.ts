@@ -269,16 +269,22 @@ export interface NexusGenObjects {
     data: string; // String!
     path: string; // String!
   };
+  EdgeSourceTarget: {
+    // root type
+    interface: string; // String!
+    nodeId: string; // String!
+  };
   GraphEdge: {
     // root type
     id: string; // ID!
-    source: string; // String!
-    target: string; // String!
+    source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
   };
   GraphNode: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
     id: string; // ID!
+    interfaces: string[]; // [String!]!
   };
   InstallDevicePayload: {
     // root type
@@ -571,16 +577,22 @@ export interface NexusGenFieldTypes {
     data: string; // String!
     path: string; // String!
   };
+  EdgeSourceTarget: {
+    // field return type
+    interface: string; // String!
+    nodeId: string; // String!
+  };
   GraphEdge: {
     // field return type
     id: string; // ID!
-    source: string; // String!
-    target: string; // String!
+    source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
   };
   GraphNode: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
     id: string; // ID!
+    interfaces: string[]; // [String!]!
   };
   InstallDevicePayload: {
     // field return type
@@ -919,16 +931,22 @@ export interface NexusGenFieldTypeNames {
     data: 'String';
     path: 'String';
   };
+  EdgeSourceTarget: {
+    // field return type name
+    interface: 'String';
+    nodeId: 'String';
+  };
   GraphEdge: {
     // field return type name
     id: 'ID';
-    source: 'String';
-    target: 'String';
+    source: 'EdgeSourceTarget';
+    target: 'EdgeSourceTarget';
   };
   GraphNode: {
     // field return type name
     device: 'Device';
     id: 'ID';
+    interfaces: 'String';
   };
   InstallDevicePayload: {
     // field return type name
