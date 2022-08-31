@@ -10,11 +10,21 @@
 
 ```bash
 $ docker compose up
+$ yarn prisma migrate dev
 $ yarn run prisma:generate
+$ yarn prisma:seed && yarn arango:seed
 $ yarn run dev
 ```
 
 `docker compose up` will initialize a database along with some sample development data. Run `docker compose down` to start fresh.
+
+`yarn prisma migrate dev` is optional and will migrate postgresql database when you are starting from scratch.
+
+### Troubleshoot
+
+If you have problem to seed postgres DB `yarn prisma:seed`, try to delete all records from the database.
+
+`yarn prisma studio` this command will execute GUI for DB in your browser, then delete all records the DB has and then run `yarn prisma:seed` again.
 
 ## Enviroment variables
 
