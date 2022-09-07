@@ -17,6 +17,8 @@ model device {
   port            Int?
   config          Json?
   model           String?
+  deviceType      String?       @map("device_type")
+  version         String?       @map("version")
   software        String?
   softwareVersion String?       @map("sw_version")
   macAddress      String?       @map("mac_address")
