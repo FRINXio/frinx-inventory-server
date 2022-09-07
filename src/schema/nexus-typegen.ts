@@ -103,8 +103,8 @@ export interface NexusGenInputs {
   };
   PositionInputField: {
     // input type
-    x: number; // Int!
-    y: number; // Int!
+    x: number; // Float!
+    y: number; // Float!
   };
   UpdateBlueprintInput: {
     // input type
@@ -324,8 +324,8 @@ export interface NexusGenObjects {
   };
   Position: {
     // root type
-    x: number; // Int!
-    y: number; // Int!
+    x: number; // Float!
+    y: number; // Float!
   };
   Query: {};
   ResetConfigPayload: {
@@ -671,8 +671,8 @@ export interface NexusGenFieldTypes {
   };
   Position: {
     // field return type
-    x: number; // Int!
-    y: number; // Int!
+    x: number; // Float!
+    y: number; // Float!
   };
   Query: {
     // field return type
@@ -1025,8 +1025,8 @@ export interface NexusGenFieldTypeNames {
   };
   Position: {
     // field return type name
-    x: 'Int';
-    y: 'Int';
+    x: 'Float';
+    y: 'Float';
   };
   Query: {
     // field return type name
