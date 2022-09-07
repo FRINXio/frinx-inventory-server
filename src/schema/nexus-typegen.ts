@@ -39,6 +39,7 @@ export interface NexusGenInputs {
   AddDeviceInput: {
     // input type
     address?: string | null; // String
+    blueprintId?: string | null; // String
     labelIds?: string[] | null; // [String!]
     model?: string | null; // String
     mountParameters?: string | null; // String
@@ -118,6 +119,7 @@ export interface NexusGenInputs {
   UpdateDeviceInput: {
     // input type
     address?: string | null; // String
+    blueprintId?: string | null; // String
     labelIds?: string[] | null; // [String!]
     locationId?: string | null; // String
     model?: string | null; // String
@@ -546,6 +548,7 @@ export interface NexusGenFieldTypes {
   Device: {
     // field return type
     address: string | null; // String
+    blueprint: NexusGenRootTypes['Blueprint'] | null; // Blueprint
     createdAt: string; // String!
     id: string; // ID!
     isInstalled: boolean; // Boolean!
@@ -900,6 +903,7 @@ export interface NexusGenFieldTypeNames {
   Device: {
     // field return type name
     address: 'String';
+    blueprint: 'Blueprint';
     createdAt: 'String';
     id: 'ID';
     isInstalled: 'Boolean';

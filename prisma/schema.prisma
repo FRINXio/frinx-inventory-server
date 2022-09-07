@@ -110,6 +110,7 @@ model blueprint {
   tenantId  String   @map("tenant_id")
   template  String
   device    device[]
+
   @@unique([name, tenantId], name: "udx_device_blueprint_name_tenant_id")
   @@index([tenantId], map: "idx_device_blueprint_tenant_id")
   @@map("device_blueprint")
