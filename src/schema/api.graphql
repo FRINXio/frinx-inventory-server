@@ -12,12 +12,18 @@ type AddBlueprintPayload {
 
 input AddDeviceInput {
   address: String
+  blueprintId: String
+  deviceType: String
   labelIds: [String!]
   model: String
   mountParameters: String
   name: String!
+  password: String
+  port: Int
   serviceState: DeviceServiceState
+  username: String
   vendor: String
+  version: String
   zoneId: String!
 }
 
@@ -183,6 +189,7 @@ type DeleteSnapshotPayload {
 
 type Device implements Node {
   address: String
+  blueprint: Blueprint
   createdAt: String!
   id: ID!
   isInstalled: Boolean!
@@ -441,12 +448,18 @@ type UpdateDataStorePayload {
 
 input UpdateDeviceInput {
   address: String
+  blueprintId: String
+  deviceType: String
   labelIds: [String!]
   locationId: String
   model: String
   mountParameters: String
+  password: String
+  port: Int
   serviceState: DeviceServiceState
+  username: String
   vendor: String
+  version: String
 }
 
 type UpdateDeviceMetadataPayload {
