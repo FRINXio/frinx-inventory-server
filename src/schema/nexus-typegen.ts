@@ -39,12 +39,18 @@ export interface NexusGenInputs {
   AddDeviceInput: {
     // input type
     address?: string | null; // String
+    blueprintId?: string | null; // String
+    deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
     model?: string | null; // String
     mountParameters?: string | null; // String
     name: string; // String!
+    password?: string | null; // String
+    port?: number | null; // Int
     serviceState?: NexusGenEnums['DeviceServiceState'] | null; // DeviceServiceState
+    username?: string | null; // String
     vendor?: string | null; // String
+    version?: string | null; // String
     zoneId: string; // String!
   };
   AddLocationInput: {
@@ -118,12 +124,18 @@ export interface NexusGenInputs {
   UpdateDeviceInput: {
     // input type
     address?: string | null; // String
+    blueprintId?: string | null; // String
+    deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
     locationId?: string | null; // String
     model?: string | null; // String
     mountParameters?: string | null; // String
+    password?: string | null; // String
+    port?: number | null; // Int
     serviceState?: NexusGenEnums['DeviceServiceState'] | null; // DeviceServiceState
+    username?: string | null; // String
     vendor?: string | null; // String
+    version?: string | null; // String
   };
 }
 
@@ -546,6 +558,7 @@ export interface NexusGenFieldTypes {
   Device: {
     // field return type
     address: string | null; // String
+    blueprint: NexusGenRootTypes['Blueprint'] | null; // Blueprint
     createdAt: string; // String!
     id: string; // ID!
     isInstalled: boolean; // Boolean!
@@ -900,6 +913,7 @@ export interface NexusGenFieldTypeNames {
   Device: {
     // field return type name
     address: 'String';
+    blueprint: 'Blueprint';
     createdAt: 'String';
     id: 'ID';
     isInstalled: 'Boolean';

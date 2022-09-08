@@ -20,6 +20,7 @@ import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
 import unwrap from '../helpers/unwrap';
+import { Blueprint } from './blueprint';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -133,6 +134,19 @@ export const Device = objectType({
         return position;
       },
     });
+    t.field('blueprint', {
+      type: Blueprint,
+      resolve: async (device, _, { prisma }) => {
+        const { blueprintId } = device;
+
+        if (blueprintId == null) {
+          return null;
+        }
+
+        const blueprint = await prisma.blueprint.findUnique({ where: { id: blueprintId } });
+        return blueprint;
+      },
+    });
   },
 });
 export const DeviceEdge = objectType({
@@ -215,9 +229,15 @@ export const AddDeviceInput = inputObjectType({
     t.list.nonNull.string('labelIds');
     t.field('serviceState', { type: DeviceServiceState });
     t.string('mountParameters');
+    t.string('blueprintId');
     t.string('model');
     t.string('vendor');
     t.string('address');
+    t.string('username');
+    t.string('password');
+    t.int('port');
+    t.string('deviceType');
+    t.string('version');
   },
 });
 export const AddDevicePayload = objectType({
@@ -250,9 +270,15 @@ export const AddDeviceMutation = extendType({
             model: input.model,
             vendor: input.vendor,
             managementIp: input.address,
+            username: input.username,
+            password: input.password,
+            port: input.port ?? undefined,
+            deviceType: input.deviceType,
+            version: input.version,
             mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
             source: 'MANUAL',
             serviceState: input.serviceState ?? undefined,
+            blueprintId: input.blueprintId ?? undefined,
             label: labelIds
               ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
               : undefined,
@@ -269,9 +295,15 @@ export const UpdateDeviceInput = inputObjectType({
   name: 'UpdateDeviceInput',
   definition: (t) => {
     t.string('mountParameters');
+    t.string('blueprintId');
     t.string('model');
     t.string('vendor');
     t.string('address');
+    t.string('username');
+    t.string('password');
+    t.int('port');
+    t.string('deviceType');
+    t.string('version');
     t.list.nonNull.string('labelIds');
     t.field('serviceState', { type: DeviceServiceState });
     t.string('locationId');
@@ -326,8 +358,14 @@ export const UpdateDeviceMutation = extendType({
             vendor: input.vendor,
             managementIp: input.address,
             mountParameters: deviceMountParameters,
+            deviceType: input.deviceType,
+            version: input.version,
+            username: input.username,
+            password: input.password,
+            port: input.port,
             serviceState: input.serviceState ?? undefined,
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
+            blueprint: input.blueprintId ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } } : undefined,
           },
         });
         return { device: updatedDevice };

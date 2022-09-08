@@ -17,6 +17,8 @@ model device {
   port            Int?
   config          Json?
   model           String?
+  deviceType      String?       @map("device_type")
+  version         String?       @map("version")
   software        String?
   softwareVersion String?       @map("sw_version")
   macAddress      String?       @map("mac_address")
@@ -32,6 +34,8 @@ model device {
   locationId      String?       @map("location_id")
   location        location?     @relation(fields: [locationId], references: [id])
   uniconfigZone   uniconfigZone @relation(fields: [uniconfigZoneId], references: [id], onDelete: Cascade)
+  blueprintId     String?       @map("blueprint_id")
+  blueprint       blueprint?    @relation(fields: [blueprintId], references: [id])
   label           deviceLabel[]
   metadata        Json?
 
@@ -107,6 +111,7 @@ model blueprint {
   name      String
   tenantId  String   @map("tenant_id")
   template  String
+  device    device[]
 
   @@unique([name, tenantId], name: "udx_device_blueprint_name_tenant_id")
   @@index([tenantId], map: "idx_device_blueprint_tenant_id")
