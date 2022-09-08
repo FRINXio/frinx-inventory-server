@@ -341,8 +341,8 @@ type PageInfo {
 }
 
 type Position {
-  x: Int!
-  y: Int!
+  x: Float!
+  y: Float!
 }
 
 input PositionInput {
@@ -351,8 +351,8 @@ input PositionInput {
 }
 
 input PositionInputField {
-  x: Int!
-  y: Int!
+  x: Float!
+  y: Float!
 }
 
 type Query {

@@ -34,16 +34,16 @@ export const DeviceSource = enumType({
 export const Position = objectType({
   name: 'Position',
   definition: (t) => {
-    t.nonNull.int('x');
-    t.nonNull.int('y');
+    t.nonNull.float('x');
+    t.nonNull.float('y');
   },
 });
 
 export const PositionInputField = inputObjectType({
   name: 'PositionInputField',
   definition: (t) => {
-    t.nonNull.int('x');
-    t.nonNull.int('y');
+    t.nonNull.float('x');
+    t.nonNull.float('y');
   },
 });
 
