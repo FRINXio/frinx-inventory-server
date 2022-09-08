@@ -79,7 +79,7 @@ export const TopologyQuery = extendType({
                 return {
                   id: toGraphId('GraphNode', node._key),
                   device,
-                  interfaces: interfaceMap[node._id],
+                  interfaces: interfaceMap[node._id] ?? [],
                 };
               }
               return null;

@@ -6,3 +6,4 @@ R4,192.168.1.44,22,ios xr,5.3.*,cisco,cisco
 R5,192.168.1.45,22,ios xr,5.3.*,cisco,cisco
 R6,192.168.1.46,22,ios xr,5.3.*,cisco,cisco
 R7,192.168.1.47,22,ios xr,5.3.*,cisco,cisco
+R9,192.168.1.49,22,ios xr,5.3.*,cisco,cisco
