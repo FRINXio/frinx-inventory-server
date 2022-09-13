@@ -263,7 +263,7 @@ async function closeTransaction(baseURL: string, transactionId: string): Promise
 }
 
 async function getTransactionLog(baseURL: string): Promise<UniconfigTransactionLogOutput> {
-  const json = await sendGetRequest([baseURL, '/data/transaction-log:transactions-metadata']);
+  const json = await sendGetRequest([baseURL, '/data/transaction-log:transactions-metadata?content=nonconfig']);
   const data = decodeUniconfigTransactionLogOutput(json);
 
   return data;
