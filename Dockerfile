@@ -31,6 +31,7 @@ EXPOSE 8000
 
 COPY --from=build /app/build /app
 COPY --from=build /app/prisma /app/prisma
+COPY --from=build /app/arango /app/arango
 COPY --from=build /app/package.json /app
 
 WORKDIR /app
