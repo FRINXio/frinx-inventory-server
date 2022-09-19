@@ -2,7 +2,7 @@ import { Database } from 'arangojs';
 import { CollectionType, CollectionImportResult } from 'arangojs/collection';
 import { readFileSync } from 'fs';
 
-const { ARANGO_DB, ARANGO_USER, ARANGO_PASSWORD } = process.env;
+const { ARANGO_DB, ARANGO_USER, ARANGO_PASSWORD, ARANGO_TOKEN } = process.env;
 
 if (!ARANGO_DB || !ARANGO_USER || !ARANGO_PASSWORD) {
   throw new Error('Please set all mandatory arango .env variables');
@@ -12,6 +12,7 @@ const config = {
   user: ARANGO_USER,
   password: ARANGO_PASSWORD,
   databaseName: ARANGO_DB,
+  token: ARANGO_TOKEN || null,
 };
 
 const COLLECTION_DATA: { name: string; type: CollectionType }[] = [
@@ -21,11 +22,10 @@ const COLLECTION_DATA: { name: string; type: CollectionType }[] = [
   { name: 'Interface', type: CollectionType.DOCUMENT_COLLECTION },
 ];
 
+const auth = config.token ? { token: config.token } : { username: config.user, password: config.password };
+
 const db = new Database({
-  auth: {
-    username: config.user,
-    password: config.password,
-  },
+  auth,
 });
 
 async function initDatabase() {

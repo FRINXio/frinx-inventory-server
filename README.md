@@ -16,6 +16,20 @@ $ yarn run dev
 
 `docker compose up` will initialize a database along with some sample development data. Run `docker compose down` to start fresh.
 
+### Arango
+
+`.jwt-secret` was generated using this command:
+
+```bash
+$ docker exec <container-id> arangodb auth token --auth.jwt-secret=mysecret/.jwt-secret
+```
+
+`.jwt-token` is signed token that we got using:
+
+```bash
+$ docker exec <container-id> arangodb auth token --auth.jwt-secret=my-secret/.jwt-secret
+```
+
 ## Enviroment variables
 
 Example values are stored in `.env.example` in the root of the repository. These are required values:

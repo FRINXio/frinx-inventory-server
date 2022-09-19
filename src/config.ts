@@ -20,6 +20,7 @@ type ArangoConfigEnabled = {
   arangoUser: string;
   arangoPassword: string;
   arangoDb: string;
+  arangoToken: string | null;
 };
 
 type ArangoConfigDisabled = {
@@ -33,6 +34,7 @@ function getArangoConfig(): ArangoConfig {
   const host = optionalEnvString('ARANGO_URL');
   const user = optionalEnvString('ARANGO_USER');
   const password = optionalEnvString('ARANGO_PASSWORD');
+  const token = optionalEnvString('ARANGO_TOKEN');
   const db = optionalEnvString('ARANGO_DB');
   if (!host && !user && !password && !db) {
     return {
@@ -50,6 +52,7 @@ function getArangoConfig(): ArangoConfig {
     arangoUser: user,
     arangoPassword: password,
     arangoDb: db,
+    arangoToken: token,
   };
 }
 

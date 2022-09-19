@@ -1,6 +1,8 @@
 import { aql, Database } from 'arangojs';
 import { CollectionMetadata } from 'arangojs/collection';
+import { ArangoError } from 'arangojs/error';
 import config from './config';
+import CustomArangoError from './custom-arango-error';
 
 export type ArangoDevice = {
   _key: string;
@@ -30,11 +32,15 @@ class Connection {
       throw new Error('Arango connection should be defined in .env file');
     }
 
+    const auth = config.arangoToken
+      ? { token: config.arangoToken }
+      : { username: config.arangoUser, password: config.arangoPassword };
+
     this.db = new Database({
       url: config.arangoURL,
       databaseName: config.arangoDb,
+      auth,
     });
-    this.db.login(config.arangoUser, config.arangoPassword);
   }
 
   public static getInstance(): Connection {
@@ -66,7 +72,10 @@ function initClient() {
     `,
       )
       .then((g) => g.all())
-      .then((arr) => arr[0]);
+      .then((arr) => arr[0])
+      .catch((e: ArangoError) => {
+        throw new CustomArangoError(e.message, e.code);
+      });
   }
 
   async function getGraph(): Promise<ArangoGraph> {
@@ -80,7 +89,10 @@ function initClient() {
     `,
       )
       .then((g) => g.all())
-      .then((arr) => arr[0]);
+      .then((arr) => arr[0])
+      .catch((e: ArangoError) => {
+        throw new CustomArangoError(e.message, e.code);
+      });
   }
 
   return {
