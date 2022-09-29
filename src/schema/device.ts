@@ -74,9 +74,7 @@ export const Device = objectType({
     t.string('model');
     t.string('vendor');
     t.string('address', {
-      resolve: async (root) => {
-        return root.managementIp;
-      },
+      resolve: async (root) => root.managementIp,
     });
     t.string('mountParameters', {
       resolve: async (root) => {
