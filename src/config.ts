@@ -8,6 +8,21 @@ function envString(key: string): string {
   return value;
 }
 
+function stringToBoolean(value: string): boolean {
+  switch (value.toLowerCase()) {
+    case 'true':
+    case 'yes':
+    case '1':
+      return true;
+    case 'false':
+    case 'no':
+    case '0':
+    case '':
+    default:
+      return false;
+  }
+}
+
 function optionalEnvString(key: string): string | null {
   const { env } = process;
   const value = env[key];
@@ -36,7 +51,8 @@ function getArangoConfig(): ArangoConfig {
   const password = optionalEnvString('ARANGO_PASSWORD');
   const token = optionalEnvString('ARANGO_TOKEN');
   const db = optionalEnvString('ARANGO_DB');
-  if (!host && !user && !password && !db) {
+  const arangoEnabled = stringToBoolean(envString('ARANGO_ENABLED'));
+  if (!arangoEnabled) {
     return {
       arangoEnabled: false,
     };
