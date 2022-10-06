@@ -41,3 +41,37 @@ UNICONFIG_API_PORT=8181
 UNICONFIG_LIST_URL=http://10.19.0.7/static/list/uniconfig
 X_TENANT_ID="frinx"
 ```
+
+## Seed data
+
+### Development
+
+To seed arango data:
+
+```bash
+$ yarn arango:seed
+```
+
+To seed postgre data:
+
+```bash
+$ yarn prisma:seed
+```
+
+### Production
+
+Both script are compiled and included in running docker. So you can connect to running docker and run the script inside:
+
+```bash
+$ docker exec -it <inventory-container-id> sh
+$ node arango/init.js
+$ node prisma/seed.js
+```
+
+Or you can run it directly using:
+
+```bash
+$ docker exec <inventory-container-id> node arango/init.js
+$ docker exec <inventory-container-id> node prisma/seed.js
+
+```
