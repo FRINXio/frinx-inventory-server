@@ -9,8 +9,8 @@ const client_1 = require('@prisma/client');
 const csv_parse_1 = require('csv-parse');
 const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
-const import_csv_helpers_1 = require('../src/helpers/import-csv.helpers');
-const unwrap_1 = __importDefault(require('../src/helpers/unwrap'));
+const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
+const unwrap_1 = __importDefault(require('../helpers/unwrap'));
 const SAMPLE_BLUEPRINT_TEMPLATE = `
 {
   "cli": {
