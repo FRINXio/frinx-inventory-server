@@ -1,8 +1,15 @@
-import { extendType, nonNull, objectType } from 'nexus';
+import { extendType, inputObjectType, nonNull, objectType } from 'nexus';
 import { toGraphId } from '../helpers/id-helper';
 import { omitNullValue } from '../helpers/omit-null-value';
+import { getFilterQuery } from '../helpers/topology-helpers';
 import unwrap from '../helpers/unwrap';
 
+export const FilterTopologyInput = inputObjectType({
+  name: 'FilterTopologyInput',
+  definition: (t) => {
+    t.list.nonNull.string('labels');
+  },
+});
 export const GraphNode = objectType({
   name: 'GraphNode',
   definition: (t) => {
@@ -42,10 +49,15 @@ export const TopologyQuery = extendType({
   definition: (t) => {
     t.nonNull.field('topology', {
       type: nonNull(Topology),
-      resolve: async (root, _, { prisma, arangoClient, tenantId }) => {
+      args: {
+        filter: FilterTopologyInput,
+      },
+      resolve: async (root, args, { prisma, arangoClient, tenantId }) => {
         if (arangoClient == null) {
           throw new Error('should not happen');
         }
+        const { filter } = args;
+
         const interfaceEdges = await arangoClient.getInterfaceEdges();
         const interfaceDeviceMap = interfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
           const dvc = unwrap(arr.find((int) => int._to === curr._to)?._from);
@@ -61,7 +73,11 @@ export const TopologyQuery = extendType({
           }),
           {} as Record<string, string[]>,
         );
-        const dbDevices = await prisma.device.findMany({ where: { tenantId } });
+        const labels = filter?.labels ?? [];
+        const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
+        const labelIds = dbLabels.map((l) => l.id);
+        const filterQuery = getFilterQuery({ labelIds });
+        const dbDevices = await prisma.device.findMany({ where: { tenantId, ...filterQuery } });
         const graph = await arangoClient.getGraph();
         const { nodes, edges } = graph;
         const nodesMap = nodes.reduce(

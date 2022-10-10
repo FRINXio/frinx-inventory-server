@@ -102,6 +102,10 @@ export interface NexusGenInputs {
     deviceName?: string | null; // String
     labels?: string[] | null; // [String!]
   };
+  FilterTopologyInput: {
+    // input type
+    labels?: string[] | null; // [String!]
+  };
   PositionInput: {
     // input type
     deviceId: string; // ID!
@@ -1308,6 +1312,10 @@ export interface NexusGenArgTypes {
     node: {
       // args
       id: string; // ID!
+    };
+    topology: {
+      // args
+      filter?: NexusGenInputs['FilterTopologyInput'] | null; // FilterTopologyInput
     };
     zones: {
       // args
