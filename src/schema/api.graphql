@@ -249,6 +249,10 @@ input FilterDevicesInput {
   labels: [String!]
 }
 
+input FilterTopologyInput {
+  labels: [String!]
+}
+
 type GraphEdge {
   id: ID!
   source: EdgeSourceTarget!
@@ -371,7 +375,7 @@ type Query {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
-  topology: Topology!
+  topology(filter: FilterTopologyInput): Topology!
   transactions: [Transaction!]!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
