@@ -3,6 +3,7 @@ import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
 import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
+import { DeviceSize as DeviceSizeEnum } from '@prisma/client';
 import { Stream } from 'node:stream';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import {
@@ -29,6 +30,10 @@ export const DeviceServiceState = enumType({
 export const DeviceSource = enumType({
   name: 'DeviceSource',
   members: ['MANUAL', 'DISCOVERED', 'IMPORTED'],
+});
+export const DeviceSize = enumType({
+  name: 'DeviceSize',
+  members: ['SMALL', 'MEDIUM', 'LARGE'],
 });
 
 export const Position = objectType({
@@ -76,6 +81,10 @@ export const Device = objectType({
     t.string('address', {
       resolve: async (root) => root.managementIp,
     });
+    t.nonNull.field('deviceSize', {
+      type: DeviceSize,
+      resolve: async (root) => root.deviceSize,
+    });
     t.string('mountParameters', {
       resolve: async (root) => {
         if (root.mountParameters != null) {
@@ -102,6 +111,7 @@ export const Device = objectType({
         if (zone == null) {
           throw new Error('should never happen');
         }
+
         return zone;
       },
     });
@@ -229,6 +239,7 @@ export const AddDeviceInput = inputObjectType({
     t.nonNull.string('name');
     t.nonNull.string('zoneId');
     t.list.nonNull.string('labelIds');
+    t.nonNull.field({ name: 'deviceSize', type: DeviceSize });
     t.field('serviceState', { type: DeviceServiceState });
     t.string('mountParameters');
     t.string('blueprintId');
@@ -276,6 +287,7 @@ export const AddDeviceMutation = extendType({
             password: input.password,
             port: input.port ?? undefined,
             deviceType: input.deviceType,
+            deviceSize: input.deviceSize,
             version: input.version,
             mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
             source: 'MANUAL',
@@ -305,6 +317,7 @@ export const UpdateDeviceInput = inputObjectType({
     t.string('password');
     t.int('port');
     t.string('deviceType');
+    t.string('deviceSize');
     t.string('version');
     t.list.nonNull.string('labelIds');
     t.field('serviceState', { type: DeviceServiceState });
@@ -590,6 +603,7 @@ export const CSVImportMutation = extendType({
               source: 'IMPORTED' as const,
               uniconfigZoneId: nativeZoneId,
               managementIp: dev.ip_address,
+              deviceSize: DeviceSizeEnum.MEDIUM,
               port: dev.port_number,
               software: dev.device_type,
               softwareVersion: dev.version,

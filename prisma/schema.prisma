@@ -18,6 +18,7 @@ model device {
   config          Json?
   model           String?
   deviceType      String?       @map("device_type")
+  deviceSize      DeviceSize    @map("device_size")
   version         String?       @map("version")
   software        String?
   softwareVersion String?       @map("sw_version")
@@ -128,4 +129,10 @@ enum ServiceState {
   PLANNING
   IN_SERVICE
   OUT_OF_SERVICE
+}
+
+enum DeviceSize {
+  SMALL
+  MEDIUM
+  LARGE
 }

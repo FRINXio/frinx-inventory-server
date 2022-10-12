@@ -13,6 +13,7 @@ type AddBlueprintPayload {
 input AddDeviceInput {
   address: String
   blueprintId: String
+  deviceSize: DeviceSize!
   deviceType: String
   labelIds: [String!]
   model: String
@@ -191,6 +192,7 @@ type Device implements Node {
   address: String
   blueprint: Blueprint
   createdAt: String!
+  deviceSize: DeviceSize!
   id: ID!
   isInstalled: Boolean!
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
@@ -226,6 +228,12 @@ enum DeviceServiceState {
   IN_SERVICE
   OUT_OF_SERVICE
   PLANNING
+}
+
+enum DeviceSize {
+  LARGE
+  MEDIUM
+  SMALL
 }
 
 enum DeviceSource {
@@ -453,6 +461,7 @@ type UpdateDataStorePayload {
 input UpdateDeviceInput {
   address: String
   blueprintId: String
+  deviceSize: String
   deviceType: String
   labelIds: [String!]
   locationId: String
