@@ -18,7 +18,7 @@ model device {
   config          Json?
   model           String?
   deviceType      String?       @map("device_type")
-  deviceSize      DeviceSize    @map("device_size")
+  deviceSize      DeviceSize?   @map("device_size")
   version         String?       @map("version")
   software        String?
   softwareVersion String?       @map("sw_version")

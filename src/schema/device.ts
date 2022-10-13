@@ -83,7 +83,7 @@ export const Device = objectType({
     });
     t.nonNull.field('deviceSize', {
       type: DeviceSize,
-      resolve: async (root) => root.deviceSize,
+      resolve: async (root) => root.deviceSize || DeviceSizeEnum.MEDIUM,
     });
     t.string('mountParameters', {
       resolve: async (root) => {
