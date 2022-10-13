@@ -461,7 +461,7 @@ type UpdateDataStorePayload {
 input UpdateDeviceInput {
   address: String
   blueprintId: String
-  deviceSize: String
+  deviceSize: DeviceSize
   deviceType: String
   labelIds: [String!]
   locationId: String

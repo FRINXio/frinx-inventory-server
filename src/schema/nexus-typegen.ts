@@ -130,7 +130,7 @@ export interface NexusGenInputs {
     // input type
     address?: string | null; // String
     blueprintId?: string | null; // String
-    deviceSize?: string | null; // String
+    deviceSize?: NexusGenEnums['DeviceSize'] | null; // DeviceSize
     deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
     locationId?: string | null; // String

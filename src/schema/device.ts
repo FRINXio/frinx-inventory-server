@@ -317,7 +317,10 @@ export const UpdateDeviceInput = inputObjectType({
     t.string('password');
     t.int('port');
     t.string('deviceType');
-    t.string('deviceSize');
+    t.field({
+      name: 'deviceSize',
+      type: DeviceSize,
+    });
     t.string('version');
     t.list.nonNull.string('labelIds');
     t.field('serviceState', { type: DeviceServiceState });
@@ -381,6 +384,7 @@ export const UpdateDeviceMutation = extendType({
             serviceState: input.serviceState ?? undefined,
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
             blueprint: input.blueprintId ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } } : undefined,
+            ...(input.deviceSize != null && { deviceSize: input.deviceSize }),
           },
         });
         return { device: updatedDevice };
