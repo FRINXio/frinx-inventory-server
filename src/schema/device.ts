@@ -239,7 +239,7 @@ export const AddDeviceInput = inputObjectType({
     t.nonNull.string('name');
     t.nonNull.string('zoneId');
     t.list.nonNull.string('labelIds');
-    t.nonNull.field({ name: 'deviceSize', type: DeviceSize });
+    t.field({ name: 'deviceSize', type: DeviceSize });
     t.field('serviceState', { type: DeviceServiceState });
     t.string('mountParameters');
     t.string('blueprintId');
@@ -287,7 +287,7 @@ export const AddDeviceMutation = extendType({
             password: input.password,
             port: input.port ?? undefined,
             deviceType: input.deviceType,
-            deviceSize: input.deviceSize,
+            deviceSize: input.deviceSize ?? DeviceSizeEnum.MEDIUM,
             version: input.version,
             mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
             source: 'MANUAL',

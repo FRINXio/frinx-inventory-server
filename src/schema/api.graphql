@@ -13,7 +13,7 @@ type AddBlueprintPayload {
 input AddDeviceInput {
   address: String
   blueprintId: String
-  deviceSize: DeviceSize!
+  deviceSize: DeviceSize
   deviceType: String
   labelIds: [String!]
   model: String
