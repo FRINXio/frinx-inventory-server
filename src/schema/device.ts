@@ -3,7 +3,6 @@ import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
 import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
-import { DeviceSize as DeviceSizeEnum } from '@prisma/client';
 import { Stream } from 'node:stream';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import {
@@ -81,10 +80,6 @@ export const Device = objectType({
     t.string('address', {
       resolve: async (root) => root.managementIp,
     });
-    t.nonNull.field('deviceSize', {
-      type: DeviceSize,
-      resolve: async (root) => root.deviceSize || DeviceSizeEnum.MEDIUM,
-    });
     t.string('mountParameters', {
       resolve: async (root) => {
         if (root.mountParameters != null) {
@@ -144,6 +139,15 @@ export const Device = objectType({
         const { metadata } = device;
         const position = decodeMetadataOutput(metadata)?.position || null;
         return position;
+      },
+    });
+    t.nonNull.field('deviceSize', {
+      type: DeviceSize,
+      resolve: async (device) => {
+        const { metadata } = device;
+
+        const deviceSize = decodeMetadataOutput(metadata)?.deviceSize || 'MEDIUM';
+        return deviceSize;
       },
     });
     t.field('blueprint', {
@@ -287,7 +291,6 @@ export const AddDeviceMutation = extendType({
             password: input.password,
             port: input.port ?? undefined,
             deviceType: input.deviceType,
-            deviceSize: input.deviceSize ?? DeviceSizeEnum.MEDIUM,
             version: input.version,
             mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
             source: 'MANUAL',
@@ -296,6 +299,9 @@ export const AddDeviceMutation = extendType({
             label: labelIds
               ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
               : undefined,
+            metadata: {
+              deviceSize: input.deviceSize ?? 'MEDIUM',
+            },
           },
         });
 
@@ -384,7 +390,11 @@ export const UpdateDeviceMutation = extendType({
             serviceState: input.serviceState ?? undefined,
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
             blueprint: input.blueprintId ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } } : undefined,
-            ...(input.deviceSize != null && { deviceSize: input.deviceSize }),
+            ...(input.deviceSize != null && {
+              metadata: {
+                deviceSize: input.deviceSize,
+              },
+            }),
           },
         });
         return { device: updatedDevice };
@@ -607,7 +617,6 @@ export const CSVImportMutation = extendType({
               source: 'IMPORTED' as const,
               uniconfigZoneId: nativeZoneId,
               managementIp: dev.ip_address,
-              deviceSize: DeviceSizeEnum.MEDIUM,
               port: dev.port_number,
               software: dev.device_type,
               softwareVersion: dev.version,

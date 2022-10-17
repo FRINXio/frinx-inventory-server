@@ -1,4 +1,4 @@
-import { DeviceSize, Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { parse } from 'csv-parse';
 import { createReadStream } from 'fs';
 import jsonParse from 'json-templates';
@@ -54,7 +54,6 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
       port: port_number,
       software: device_type,
       softwareVersion: version,
-      deviceSize: DeviceSize.MEDIUM,
       mountParameters: JSON.stringify(JSON.parse(parsedTemplate(device))),
       source: 'IMPORTED' as const,
     };
