@@ -30,6 +30,10 @@ export const DeviceSource = enumType({
   name: 'DeviceSource',
   members: ['MANUAL', 'DISCOVERED', 'IMPORTED'],
 });
+export const DeviceSize = enumType({
+  name: 'DeviceSize',
+  members: ['SMALL', 'MEDIUM', 'LARGE'],
+});
 
 export const Position = objectType({
   name: 'Position',
@@ -102,6 +106,7 @@ export const Device = objectType({
         if (zone == null) {
           throw new Error('should never happen');
         }
+
         return zone;
       },
     });
@@ -134,6 +139,15 @@ export const Device = objectType({
         const { metadata } = device;
         const position = decodeMetadataOutput(metadata)?.position || null;
         return position;
+      },
+    });
+    t.nonNull.field('deviceSize', {
+      type: DeviceSize,
+      resolve: async (device) => {
+        const { metadata } = device;
+
+        const deviceSize = decodeMetadataOutput(metadata)?.deviceSize || 'MEDIUM';
+        return deviceSize;
       },
     });
     t.field('blueprint', {
@@ -229,6 +243,7 @@ export const AddDeviceInput = inputObjectType({
     t.nonNull.string('name');
     t.nonNull.string('zoneId');
     t.list.nonNull.string('labelIds');
+    t.field({ name: 'deviceSize', type: DeviceSize });
     t.field('serviceState', { type: DeviceServiceState });
     t.string('mountParameters');
     t.string('blueprintId');
@@ -284,6 +299,9 @@ export const AddDeviceMutation = extendType({
             label: labelIds
               ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
               : undefined,
+            metadata: {
+              deviceSize: input.deviceSize ?? 'MEDIUM',
+            },
           },
         });
 
@@ -305,6 +323,10 @@ export const UpdateDeviceInput = inputObjectType({
     t.string('password');
     t.int('port');
     t.string('deviceType');
+    t.field({
+      name: 'deviceSize',
+      type: DeviceSize,
+    });
     t.string('version');
     t.list.nonNull.string('labelIds');
     t.field('serviceState', { type: DeviceServiceState });
@@ -368,6 +390,11 @@ export const UpdateDeviceMutation = extendType({
             serviceState: input.serviceState ?? undefined,
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
             blueprint: input.blueprintId ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } } : undefined,
+            ...(input.deviceSize != null && {
+              metadata: {
+                deviceSize: input.deviceSize,
+              },
+            }),
           },
         });
         return { device: updatedDevice };

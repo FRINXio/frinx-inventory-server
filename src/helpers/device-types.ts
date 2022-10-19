@@ -23,6 +23,7 @@ const MetadataValidator = t.type({
       y: t.number,
     }),
   ),
+  deviceSize: t.union([t.literal('SMALL'), t.literal('MEDIUM'), t.literal('LARGE')]),
 });
 
 export type MetadataOutput = t.TypeOf<typeof MetadataValidator>;

@@ -40,6 +40,7 @@ export interface NexusGenInputs {
     // input type
     address?: string | null; // String
     blueprintId?: string | null; // String
+    deviceSize?: NexusGenEnums['DeviceSize'] | null; // DeviceSize
     deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
     model?: string | null; // String
@@ -129,6 +130,7 @@ export interface NexusGenInputs {
     // input type
     address?: string | null; // String
     blueprintId?: string | null; // String
+    deviceSize?: NexusGenEnums['DeviceSize'] | null; // DeviceSize
     deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
     locationId?: string | null; // String
@@ -145,6 +147,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
+  DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
@@ -564,6 +567,7 @@ export interface NexusGenFieldTypes {
     address: string | null; // String
     blueprint: NexusGenRootTypes['Blueprint'] | null; // Blueprint
     createdAt: string; // String!
+    deviceSize: NexusGenEnums['DeviceSize']; // DeviceSize!
     id: string; // ID!
     isInstalled: boolean; // Boolean!
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
@@ -919,6 +923,7 @@ export interface NexusGenFieldTypeNames {
     address: 'String';
     blueprint: 'Blueprint';
     createdAt: 'String';
+    deviceSize: 'DeviceSize';
     id: 'ID';
     isInstalled: 'Boolean';
     labels: 'LabelConnection';
