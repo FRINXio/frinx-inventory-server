@@ -47,12 +47,8 @@ export function updateMetadataWithPosition(
   metadata: MetadataOutput | null,
   position: Position,
 ): Prisma.InputJsonObject {
-  return metadata == null
-    ? {
-        position,
-      }
-    : {
-        ...metadata,
-        position,
-      };
+  return {
+    ...metadata,
+    position,
+  };
 }

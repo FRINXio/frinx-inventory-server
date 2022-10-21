@@ -375,6 +375,11 @@ export const UpdateDeviceMutation = extendType({
             }),
           }),
         ]);
+        const oldMetadata = decodeMetadataOutput(dbDevice.metadata);
+        const newMetadata = {
+          ...oldMetadata,
+          deviceSize: input.deviceSize,
+        };
         const updatedDevice = await prisma.device.update({
           where: { id: nativeId },
           data: {
@@ -391,9 +396,7 @@ export const UpdateDeviceMutation = extendType({
             location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
             blueprint: input.blueprintId ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } } : undefined,
             ...(input.deviceSize != null && {
-              metadata: {
-                deviceSize: input.deviceSize,
-              },
+              metadata: newMetadata,
             }),
           },
         });
