@@ -21,6 +21,7 @@ import { Location } from './location';
 import { Zone } from './zone';
 import unwrap from '../helpers/unwrap';
 import { Blueprint } from './blueprint';
+import { initSSH } from '../uniconfig-shell';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -219,6 +220,7 @@ export const DevicesQuery = extendType({
         orderBy: DeviceOrderByInput,
       },
       resolve: async (_, args, { prisma, tenantId }) => {
+        await initSSH();
         const { filter, orderBy } = args;
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
