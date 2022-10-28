@@ -5,6 +5,14 @@ import jsonParse from 'json-templates';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid, JSONDevice } from '../src/helpers/import-csv.helpers';
 import unwrap from '../src/helpers/unwrap';
 
+const { X_TENANT_ID } = process.env;
+
+if (!X_TENANT_ID) {
+  throw new Error('Please set all mandatory .env variables');
+}
+
+const tenantId = X_TENANT_ID;
+
 const SAMPLE_BLUEPRINT_TEMPLATE = `
 {
   "cli": {
@@ -48,7 +56,7 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
     const parsedTemplate = jsonParse(trimmedTemplate);
     return {
       name: node_id,
-      tenantId: 'frinx',
+      tenantId,
       uniconfigZoneId: unwrap(uniconfigZoneId).id,
       managementIp: ip_address,
       port: port_number,
@@ -75,7 +83,7 @@ async function importBlueprints() {
   return await prisma.blueprint.createMany({
     data: [
       {
-        tenantId: 'frinx',
+        tenantId,
         name: 'ios xr_5.3.*_22',
         template: SAMPLE_BLUEPRINT_TEMPLATE,
       },
@@ -85,10 +93,11 @@ async function importBlueprints() {
 }
 
 async function importUniconfigZone() {
+  await prisma.uniconfigZone.deleteMany({ where: {} });
   return await prisma.uniconfigZone.create({
     data: {
       name: 'localhost',
-      tenantId: 'frinx',
+      tenantId,
     },
   });
 }
