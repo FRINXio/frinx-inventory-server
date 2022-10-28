@@ -11,6 +11,11 @@ const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
 const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
 const unwrap_1 = __importDefault(require('../helpers/unwrap'));
+const { X_TENANT_ID } = process.env;
+if (!X_TENANT_ID) {
+  throw new Error('Please set all mandatory .env variables');
+}
+const tenantId = X_TENANT_ID;
 const SAMPLE_BLUEPRINT_TEMPLATE = `
 {
   "cli": {
@@ -51,7 +56,7 @@ async function getCreateDevicesArgs() {
     const parsedTemplate = (0, json_templates_1.default)(trimmedTemplate);
     return {
       name: node_id,
-      tenantId: 'frinx',
+      tenantId,
       uniconfigZoneId: (0, unwrap_1.default)(uniconfigZoneId).id,
       managementIp: ip_address,
       port: port_number,
@@ -75,7 +80,7 @@ async function importBlueprints() {
   return await prisma.blueprint.createMany({
     data: [
       {
-        tenantId: 'frinx',
+        tenantId,
         name: 'ios xr_5.3.*_22',
         template: SAMPLE_BLUEPRINT_TEMPLATE,
       },
@@ -84,10 +89,11 @@ async function importBlueprints() {
   });
 }
 async function importUniconfigZone() {
+  await prisma.uniconfigZone.deleteMany({ where: {} });
   return await prisma.uniconfigZone.create({
     data: {
       name: 'localhost',
-      tenantId: 'frinx',
+      tenantId,
     },
   });
 }
