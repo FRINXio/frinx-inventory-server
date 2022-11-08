@@ -56,6 +56,7 @@ To seed postgre data:
 
 ```bash
 $ yarn prisma:seed
+$ yarn prisma:seed -z <uniconfig_zone> # with optional uniconfigZone parameter
 ```
 
 ### Production
