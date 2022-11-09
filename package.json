@@ -59,7 +59,7 @@
     "@types/node-fetch": "2.6.2",
     "@types/pino": "7.0.4",
     "@types/url-join": "4.0.1",
-    "apollo-server-core": "3.10.1",
+    "apollo-server-core": "3.11.0",
     "apollo-server-express": "3.10.1",
     "arangojs": "7.8.0",
     "base64url": "3.0.1",
