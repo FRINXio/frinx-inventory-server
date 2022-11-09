@@ -5,6 +5,8 @@ import jsonParse from 'json-templates';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid, JSONDevice } from '../src/helpers/import-csv.helpers';
 import unwrap from '../src/helpers/unwrap';
 
+const DEFAULT_UNICONFIG_ZONE = 'localhost';
+
 const { X_TENANT_ID } = process.env;
 
 if (!X_TENANT_ID) {
@@ -32,6 +34,21 @@ const SAMPLE_BLUEPRINT_TEMPLATE = `
 }
 
 `;
+
+// TODO: we are setting uniconfig zone based on optional -z flag when running seed script
+// example: `yarn run prisma:seed -z uniconfig`
+// when flag is omitted, localhost is used
+// we should maybe look for other alternative how to fill uniconfig zone automatically
+function getUniconfigZone(): string {
+  const zoneFlagIndex = process.argv.indexOf('-z');
+
+  if (zoneFlagIndex === -1) {
+    return DEFAULT_UNICONFIG_ZONE;
+  }
+
+  const zoneFlagValue = process.argv[zoneFlagIndex + 1];
+  return zoneFlagValue || DEFAULT_UNICONFIG_ZONE;
+}
 
 const prisma = new PrismaClient();
 
@@ -92,18 +109,20 @@ async function importBlueprints() {
   });
 }
 
-async function importUniconfigZone() {
+async function importUniconfigZone(uniconfigZone: string) {
   await prisma.uniconfigZone.deleteMany({ where: {} });
   return await prisma.uniconfigZone.create({
     data: {
-      name: 'localhost',
+      name: uniconfigZone,
       tenantId,
     },
   });
 }
 
 async function main() {
-  const uniconfigZone = await importUniconfigZone();
+  const uniconfigZoneArg = getUniconfigZone();
+
+  const uniconfigZone = await importUniconfigZone(uniconfigZoneArg);
   const blueprints = await importBlueprints();
   const devices = await importDevices();
   return {
