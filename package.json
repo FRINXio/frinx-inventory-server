@@ -26,6 +26,7 @@
   "devDependencies": {
     "@frinx/eslint-config-typescript-base": "15.0.0-build.1",
     "@types/jest": "28.1.6",
+    "@types/ssh2": "^1.11.6",
     "@typescript-eslint/eslint-plugin": "5.33.0",
     "@typescript-eslint/parser": "5.33.0",
     "@vercel/ncc": "0.29.2",

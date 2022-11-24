@@ -19,9 +19,12 @@ function* streamAdapter(stream: ClientChannel, input: string | null): Generator<
   stream.write(input);
 
   while (!done) {
+    // TODO: FIX TYPES
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     yield new Promise((resolve, reject) => {
-      stream.once('data', resolve);
-      stream.once('error', reject);
+      stream.once('data', (data: Buffer) => resolve(data.toString()));
+      stream.once('error', (error: string) => reject(error));
     });
   }
 }
