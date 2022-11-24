@@ -1,4 +1,5 @@
 import { Config, NodeSSH } from 'node-ssh';
+import { ClientChannel } from 'ssh2';
 
 const ssh = new NodeSSH();
 
@@ -9,25 +10,29 @@ const config: Config = {
   password: 'admin',
 };
 
+function* streamAdapter(stream: ClientChannel, input: string | null): Generator<string> {
+  let done = false;
+  stream.on('exit', () => {
+    done = true;
+  });
+
+  stream.write(input);
+
+  while (!done) {
+    // TODO: FIX TYPES
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    yield new Promise((resolve, reject) => {
+      stream.once('data', (data: Buffer) => resolve(data.toString()));
+      stream.once('error', (error: string) => reject(error));
+    });
+  }
+}
+
 // eventuallly websocket will be an input parameter of this function
-export const initSSH = async (/* ws */) => {
+export async function* initSSH(input: string | null): AsyncGenerator<string> {
   await ssh.connect(config);
   const shellStream = await ssh.requestShell();
 
-  // this is just for testing purposes
-  // some snippet like below should be used send websocket messages
-  shellStream.write('show\n');
-
-  // we can listen to websocket messages and send them to ssh shell
-  //   ws.on('message', (data) => {
-  //     shellStream.write(data.trim() + '\n');
-  //   });
-
-  shellStream.on('data', (data: Buffer) => {
-    console.log(data.toString());
-  });
-
-  shellStream.stderr.on('data', (data) => {
-    console.log(data);
-  });
-};
+  yield* streamAdapter(shellStream, input);
+}

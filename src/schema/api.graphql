@@ -411,6 +411,10 @@ enum SortDirection {
   DESC
 }
 
+type Subscription {
+  uniconfigShell(input: String): String
+}
+
 type SyncFromNetworkPayload {
   dataStore: DataStore
 }

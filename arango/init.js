@@ -3,11 +3,12 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const arangojs_1 = require('arangojs');
 const collection_1 = require('arangojs/collection');
 const fs_1 = require('fs');
-const { ARANGO_DB, ARANGO_USER, ARANGO_PASSWORD, ARANGO_TOKEN } = process.env;
-if (!ARANGO_DB || !ARANGO_USER || !ARANGO_PASSWORD) {
+const { ARANGO_URL, ARANGO_DB, ARANGO_USER, ARANGO_PASSWORD, ARANGO_TOKEN } = process.env;
+if (!ARANGO_URL || !ARANGO_DB || !ARANGO_USER || !ARANGO_PASSWORD) {
   throw new Error('Please set all mandatory arango .env variables');
 }
 const config = {
+  url: ARANGO_URL,
   user: ARANGO_USER,
   password: ARANGO_PASSWORD,
   databaseName: ARANGO_DB,
@@ -21,6 +22,7 @@ const COLLECTION_DATA = [
 ];
 const auth = config.token ? { token: config.token } : { username: config.user, password: config.password };
 const db = new arangojs_1.Database({
+  url: config.url,
   auth,
 });
 async function initDatabase() {

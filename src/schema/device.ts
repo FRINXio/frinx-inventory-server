@@ -1,10 +1,21 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
+import { Prisma } from '@prisma/client';
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
-import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
+import {
+  arg,
+  asNexusMethod,
+  enumType,
+  extendType,
+  inputObjectType,
+  list,
+  nonNull,
+  nullable,
+  objectType,
+  stringArg,
+} from 'nexus';
 import { Stream } from 'node:stream';
-import { decodeMetadataOutput } from '../helpers/device-types';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
@@ -12,16 +23,17 @@ import {
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
 import { getFilterQuery, getOrderingQuery, updateMetadataWithPosition } from '../helpers/device-helpers';
+import { decodeMetadataOutput } from '../helpers/device-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
+import unwrap from '../helpers/unwrap';
 import { getUniconfigURL } from '../helpers/zone.helpers';
+import { initSSH } from '../uniconfig-shell';
+import { Blueprint } from './blueprint';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
-import unwrap from '../helpers/unwrap';
-import { Blueprint } from './blueprint';
-import { initSSH } from '../uniconfig-shell';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -220,7 +232,6 @@ export const DevicesQuery = extendType({
         orderBy: DeviceOrderByInput,
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        await initSSH();
         const { filter, orderBy } = args;
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
@@ -281,33 +292,41 @@ export const AddDeviceMutation = extendType({
           throw new Error('zone not found');
         }
         const labelIds = input.labelIds ? [...new Set(input.labelIds)] : null;
-        const device = await prisma.device.create({
-          data: {
-            name: input.name,
-            uniconfigZoneId: nativeZoneId,
-            tenantId,
-            model: input.model,
-            vendor: input.vendor,
-            managementIp: input.address,
-            username: input.username,
-            password: input.password,
-            port: input.port ?? undefined,
-            deviceType: input.deviceType,
-            version: input.version,
-            mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
-            source: 'MANUAL',
-            serviceState: input.serviceState ?? undefined,
-            blueprintId: input.blueprintId ?? undefined,
-            label: labelIds
-              ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
-              : undefined,
-            metadata: {
-              deviceSize: input.deviceSize ?? 'MEDIUM',
+        try {
+          const device = await prisma.device.create({
+            data: {
+              name: input.name,
+              uniconfigZoneId: nativeZoneId,
+              tenantId,
+              model: input.model,
+              vendor: input.vendor,
+              managementIp: input.address,
+              username: input.username,
+              password: input.password,
+              port: input.port ?? undefined,
+              deviceType: input.deviceType,
+              version: input.version,
+              mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
+              source: 'MANUAL',
+              serviceState: input.serviceState ?? undefined,
+              blueprintId: input.blueprintId ?? undefined,
+              label: labelIds
+                ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
+                : undefined,
+              metadata: {
+                deviceSize: input.deviceSize ?? 'MEDIUM',
+              },
             },
-          },
-        });
-
-        return { device };
+          });
+          return { device };
+        } catch (e) {
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === 'P2002') {
+              throw new Error('There is a unique constraint violation, a new device cannot be added with this name.');
+            }
+          }
+          throw e;
+        }
       },
     });
   },
@@ -633,6 +652,19 @@ export const CSVImportMutation = extendType({
 
         return { isOk: true };
       },
+    });
+  },
+});
+
+export const UniconfigShell = extendType({
+  type: 'Subscription',
+  definition: (t) => {
+    t.string('uniconfigShell', {
+      args: {
+        input: nullable(stringArg()),
+      },
+      subscribe: (_, args) => initSSH(args.input ?? null),
+      resolve: (eventData) => eventData.toString(),
     });
   },
 });

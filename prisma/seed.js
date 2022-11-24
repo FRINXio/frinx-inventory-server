@@ -11,6 +11,12 @@ const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
 const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
 const unwrap_1 = __importDefault(require('../helpers/unwrap'));
+const DEFAULT_UNICONFIG_ZONE = 'localhost';
+const { X_TENANT_ID } = process.env;
+if (!X_TENANT_ID) {
+  throw new Error('Please set all mandatory .env variables');
+}
+const tenantId = X_TENANT_ID;
 const SAMPLE_BLUEPRINT_TEMPLATE = `
 {
   "cli": {
@@ -30,6 +36,18 @@ const SAMPLE_BLUEPRINT_TEMPLATE = `
 }
 
 `;
+// TODO: we are setting uniconfig zone based on optional -z flag when running seed script
+// example: `yarn run prisma:seed -z uniconfig`
+// when flag is omitted, localhost is used
+// we should maybe look for other alternative how to fill uniconfig zone automatically
+function getUniconfigZone() {
+  const zoneFlagIndex = process.argv.indexOf('-z');
+  if (zoneFlagIndex === -1) {
+    return DEFAULT_UNICONFIG_ZONE;
+  }
+  const zoneFlagValue = process.argv[zoneFlagIndex + 1];
+  return zoneFlagValue || DEFAULT_UNICONFIG_ZONE;
+}
 const prisma = new client_1.PrismaClient();
 async function getDeviceList() {
   const stream = (0, fs_1.createReadStream)(`${__dirname}/../sample.csv`);
@@ -51,7 +69,7 @@ async function getCreateDevicesArgs() {
     const parsedTemplate = (0, json_templates_1.default)(trimmedTemplate);
     return {
       name: node_id,
-      tenantId: 'frinx',
+      tenantId,
       uniconfigZoneId: (0, unwrap_1.default)(uniconfigZoneId).id,
       managementIp: ip_address,
       port: port_number,
@@ -75,7 +93,7 @@ async function importBlueprints() {
   return await prisma.blueprint.createMany({
     data: [
       {
-        tenantId: 'frinx',
+        tenantId,
         name: 'ios xr_5.3.*_22',
         template: SAMPLE_BLUEPRINT_TEMPLATE,
       },
@@ -83,16 +101,18 @@ async function importBlueprints() {
     skipDuplicates: true,
   });
 }
-async function importUniconfigZone() {
+async function importUniconfigZone(uniconfigZone) {
+  await prisma.uniconfigZone.deleteMany({ where: {} });
   return await prisma.uniconfigZone.create({
     data: {
-      name: 'localhost',
-      tenantId: 'frinx',
+      name: uniconfigZone,
+      tenantId,
     },
   });
 }
 async function main() {
-  const uniconfigZone = await importUniconfigZone();
+  const uniconfigZoneArg = getUniconfigZone();
+  const uniconfigZone = await importUniconfigZone(uniconfigZoneArg);
   const blueprints = await importBlueprints();
   const devices = await importDevices();
   return {

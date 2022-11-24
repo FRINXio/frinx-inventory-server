@@ -360,6 +360,7 @@ export interface NexusGenObjects {
     createdAt: string; // String!
     name: string; // String!
   };
+  Subscription: {};
   SyncFromNetworkPayload: {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
@@ -722,6 +723,10 @@ export interface NexusGenFieldTypes {
     createdAt: string; // String!
     name: string; // String!
   };
+  Subscription: {
+    // field return type
+    uniconfigShell: string | null; // String
+  };
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
@@ -1078,6 +1083,10 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'String';
     name: 'String';
   };
+  Subscription: {
+    // field return type name
+    uniconfigShell: 'String';
+  };
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
@@ -1328,6 +1337,12 @@ export interface NexusGenArgTypes {
       before?: string | null; // String
       first?: number | null; // Int
       last?: number | null; // Int
+    };
+  };
+  Subscription: {
+    uniconfigShell: {
+      // args
+      input?: string | null; // String
     };
   };
 }
