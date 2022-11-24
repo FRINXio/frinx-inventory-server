@@ -3,7 +3,18 @@ import { Prisma } from '@prisma/client';
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
-import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
+import {
+  arg,
+  asNexusMethod,
+  enumType,
+  extendType,
+  inputObjectType,
+  list,
+  nonNull,
+  nullable,
+  objectType,
+  stringArg,
+} from 'nexus';
 import { Stream } from 'node:stream';
 import {
   getCachedDeviceInstallStatus,
@@ -17,6 +28,7 @@ import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
 import unwrap from '../helpers/unwrap';
 import { getUniconfigURL } from '../helpers/zone.helpers';
+import { initSSH } from '../uniconfig-shell';
 import { Blueprint } from './blueprint';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
@@ -640,6 +652,19 @@ export const CSVImportMutation = extendType({
 
         return { isOk: true };
       },
+    });
+  },
+});
+
+export const UniconfigShell = extendType({
+  type: 'Subscription',
+  definition: (t) => {
+    t.string('uniconfigShell', {
+      args: {
+        input: nullable(stringArg()),
+      },
+      subscribe: (_, args) => initSSH(args.input ?? null),
+      resolve: (eventData) => eventData.toString(),
     });
   },
 });
