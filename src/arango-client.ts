@@ -7,7 +7,7 @@ import CustomArangoError from './custom-arango-error';
 export type ArangoDevice = {
   _key: string;
   _id: string;
-  _rev: string;
+  // _rev: string;
   name: string;
 };
 export type ArangoEdge = {
@@ -28,7 +28,7 @@ class Connection {
   private static instance: Connection;
 
   private constructor() {
-    if (config.arangoEnabled === false) {
+    if (config.topologyEnabled === false) {
       throw new Error('Arango connection should be defined in .env file');
     }
 
@@ -103,7 +103,7 @@ function initClient() {
 }
 
 export function getArangoClient(): ArangoClient | undefined {
-  if (!config.arangoEnabled) {
+  if (!config.topologyEnabled) {
     return undefined;
   }
 
