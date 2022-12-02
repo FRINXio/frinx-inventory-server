@@ -199,13 +199,8 @@ export const TopologyQuery = extendType({
           {} as Record<string, string>,
         );
 
-        return {
-          nodes: oldDevices.map((device) => ({
-            id: toGraphId('GraphNode', device._key),
-            name: device.name,
-            interfaces: interfaceMap[device._id] ?? [],
-          })),
-          edges: edges.map((e) => ({
+        const oldEdges = edges
+          .map((e) => ({
             id: e._id,
             source: {
               interface: e._from,
@@ -215,7 +210,16 @@ export const TopologyQuery = extendType({
               interface: e._to,
               nodeId: nodesMap[interfaceDeviceMap[e._to]],
             },
+          }))
+          .filter((e) => e.source.nodeId != null && e.target.nodeId != null);
+
+        return {
+          nodes: oldDevices.map((device) => ({
+            id: toGraphId('GraphNode', device._key),
+            name: device.name,
+            interfaces: interfaceMap[device._id] ?? [],
           })),
+          edges: oldEdges,
         };
       },
     });
