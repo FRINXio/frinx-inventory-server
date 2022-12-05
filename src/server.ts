@@ -1,4 +1,4 @@
-import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
+import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
 import { graphqlUploadExpress } from 'graphql-upload';
@@ -40,6 +40,7 @@ const apolloServer = new ApolloServer({
   dataSources: () => ({}),
   plugins: [
     ApolloServerPluginDrainHttpServer({ httpServer: server }),
+    ApolloServerPluginLandingPageLocalDefault({ embed: true }),
     {
       async serverWillStart() {
         return {
