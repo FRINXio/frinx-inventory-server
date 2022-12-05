@@ -1,9 +1,12 @@
 import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
+import fs from 'fs';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { useServer } from 'graphql-ws/lib/use/ws';
-import { createServer, Server } from 'http';
+import { Server } from 'http';
+import https from 'https';
+import path from 'path';
 import { WebSocketServer } from 'ws';
 import createContext from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
@@ -24,7 +27,13 @@ process.on('unhandledRejection', (error) => {
 
 const app = express();
 app.use(graphqlUploadExpress());
-const server = createServer(app);
+const server = https.createServer(
+  {
+    key: fs.readFileSync(path.resolve(process.cwd(), './server.key')),
+    cert: fs.readFileSync(path.resolve(process.cwd(), './server.cert')),
+  },
+  app,
+);
 const wsServer = new WebSocketServer({
   server,
   path: '/graphql',
@@ -54,7 +63,12 @@ const apolloServer = new ApolloServer({
 });
 
 apolloServer.start().then(() => {
-  apolloServer.applyMiddleware({ app, path: '/graphql', bodyParserConfig: { limit: '50mb' } });
+  apolloServer.applyMiddleware({
+    app,
+    path: '/graphql',
+    bodyParserConfig: { limit: '50mb' },
+    cors: { origin: '*', credentials: true },
+  });
 });
 
 export function runSyncZones(serverInstance?: Server): void {
