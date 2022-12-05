@@ -8,16 +8,16 @@ services:
       - POSTGRES_DB=postgres
     ports:
       - 5432:5432
-  arango-local:
-    image: arangodb:3.9.2
-    environment:
-      - ARANGO_ROOT_PASSWORD=frinx
-    ports:
-      - 8529:8529
-    command:
-      # - '--log.level=all=debug'
-      # - '--log.level=queries=trace'
-      # - '--server.session-timeout=100'
-      - '--server.jwt-secret-keyfile=my-secret/.jwt-secret'
-    volumes:
-      - './.jwt-secret:/my-secret/.jwt-secret'
+  # arango-local:
+  #   image: arangodb:3.9.2
+  #   environment:
+  #     - ARANGO_ROOT_PASSWORD=frinx
+  #   ports:
+  #     - 8529:8529
+  #   command:
+  #     # - '--log.level=all=debug'
+  #     # - '--log.level=queries=trace'
+  #     # - '--server.session-timeout=100'
+  #     - '--server.jwt-secret-keyfile=my-secret/.jwt-secret'
+  #   volumes:
+  #     - './.jwt-secret:/my-secret/.jwt-secret'
