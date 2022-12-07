@@ -2,7 +2,12 @@ import { extendType, inputObjectType, nonNull, list, objectType, stringArg } fro
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { omitNullValue } from '../helpers/omit-null-value';
-import { getFilterQuery, getOldTopologyDevices, getOldTopologyInterfaceEdges } from '../helpers/topology-helpers';
+import {
+  getFilterQuery,
+  getOldTopologyConnectedEdges,
+  getOldTopologyDevices,
+  getOldTopologyInterfaceEdges,
+} from '../helpers/topology-helpers';
 import unwrap from '../helpers/unwrap';
 
 export const FilterTopologyInput = inputObjectType({
@@ -199,7 +204,7 @@ export const TopologyQuery = extendType({
           {} as Record<string, string>,
         );
 
-        const oldEdges = edges
+        const oldEdges = getOldTopologyConnectedEdges(edges, result)
           .map((e) => ({
             id: e._id,
             source: {
