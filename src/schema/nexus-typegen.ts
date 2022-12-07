@@ -305,6 +305,18 @@ export interface NexusGenObjects {
     id: string; // ID!
     interfaces: string[]; // [String!]!
   };
+  GraphVersionEdge: {
+    // root type
+    id: string; // ID!
+    source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+  };
+  GraphVersionNode: {
+    // root type
+    id: string; // ID!
+    interfaces: string[]; // [String!]!
+    name: string; // String!
+  };
   InstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
@@ -368,6 +380,11 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['GraphNode'][]; // [GraphNode!]!
+  };
+  TopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['GraphVersionNode'][]; // [GraphVersionNode!]!
   };
   Transaction: {
     // root type
@@ -615,6 +632,18 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     interfaces: string[]; // [String!]!
   };
+  GraphVersionEdge: {
+    // field return type
+    id: string; // ID!
+    source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+  };
+  GraphVersionNode: {
+    // field return type
+    id: string; // ID!
+    interfaces: string[]; // [String!]!
+    name: string; // String!
+  };
   InstallDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
@@ -706,6 +735,8 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
     topology: NexusGenRootTypes['Topology']; // Topology!
+    topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
+    topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
@@ -730,6 +761,11 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['GraphNode'][]; // [GraphNode!]!
+  };
+  TopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['GraphVersionNode'][]; // [GraphVersionNode!]!
   };
   Transaction: {
     // field return type
@@ -971,6 +1007,18 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     interfaces: 'String';
   };
+  GraphVersionEdge: {
+    // field return type name
+    id: 'ID';
+    source: 'EdgeSourceTarget';
+    target: 'EdgeSourceTarget';
+  };
+  GraphVersionNode: {
+    // field return type name
+    id: 'ID';
+    interfaces: 'String';
+    name: 'String';
+  };
   InstallDevicePayload: {
     // field return type name
     device: 'Device';
@@ -1062,6 +1110,8 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     node: 'Node';
     topology: 'Topology';
+    topologyVersionData: 'TopologyVersionData';
+    topologyVersions: 'String';
     transactions: 'Transaction';
     zones: 'ZonesConnection';
   };
@@ -1086,6 +1136,11 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'GraphEdge';
     nodes: 'GraphNode';
+  };
+  TopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
+    nodes: 'GraphVersionNode';
   };
   Transaction: {
     // field return type name
@@ -1321,6 +1376,10 @@ export interface NexusGenArgTypes {
     topology: {
       // args
       filter?: NexusGenInputs['FilterTopologyInput'] | null; // FilterTopologyInput
+    };
+    topologyVersionData: {
+      // args
+      version: string; // String!
     };
     zones: {
       // args
