@@ -84,7 +84,7 @@ export const Device = objectType({
     t.string('mountParameters', {
       resolve: async (root) => {
         if (root.mountParameters != null) {
-          return String(root.mountParameters);
+          return JSON.stringify(root.mountParameters);
         }
         return null;
       },
