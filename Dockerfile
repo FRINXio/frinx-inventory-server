@@ -1,4 +1,7 @@
-FROM node:18-alpine as build
+FROM node:18-slim as build
+
+RUN apt-get update
+RUN apt-get install -y openssl
 
 RUN mkdir /app
 
