@@ -28,7 +28,7 @@ import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
 import unwrap from '../helpers/unwrap';
 import { getUniconfigURL } from '../helpers/zone.helpers';
-import { initSSH } from '../uniconfig-shell';
+import { sshClient } from '../uniconfig-shell';
 import { Blueprint } from './blueprint';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
@@ -662,8 +662,9 @@ export const UniconfigShell = extendType({
     t.string('uniconfigShell', {
       args: {
         input: nullable(stringArg()),
+        timestamp: stringArg(),
       },
-      subscribe: (_, args) => initSSH(args.input ?? null),
+      subscribe: (_, args) => sshClient.initSSH(args.input ?? null),
       resolve: (eventData) => eventData.toString(),
     });
   },

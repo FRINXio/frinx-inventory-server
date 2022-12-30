@@ -1343,6 +1343,7 @@ export interface NexusGenArgTypes {
     uniconfigShell: {
       // args
       input?: string | null; // String
+      timestamp?: string | null; // String
     };
   };
 }

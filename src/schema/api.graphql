@@ -412,7 +412,7 @@ enum SortDirection {
 }
 
 type Subscription {
-  uniconfigShell(input: String): String
+  uniconfigShell(input: String, timestamp: String): String
 }
 
 type SyncFromNetworkPayload {

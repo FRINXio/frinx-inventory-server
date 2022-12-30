@@ -1,8 +1,6 @@
 import { Config, NodeSSH } from 'node-ssh';
 import { ClientChannel } from 'ssh2';
 
-const ssh = new NodeSSH();
-
 const config: Config = {
   host: '10.19.0.12',
   port: 2022,
@@ -10,29 +8,40 @@ const config: Config = {
   password: 'admin',
 };
 
-function* streamAdapter(stream: ClientChannel, input: string | null): Generator<string> {
-  let done = false;
-  stream.on('exit', () => {
-    done = true;
-  });
+class SSHClient {
+  requestShell: ClientChannel | null = null;
 
-  stream.write(input);
+  done = false;
 
-  while (!done) {
-    // TODO: FIX TYPES
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    yield new Promise((resolve, reject) => {
-      stream.once('data', (data: Buffer) => resolve(data.toString()));
-      stream.once('error', (error: string) => reject(error));
+  ssh: NodeSSH = new NodeSSH();
+
+  *streamAdapter(stream: ClientChannel, input: string | null): Generator<string> {
+    stream.on('exit', () => {
+      this.done = true;
     });
+
+    stream.write(input);
+
+    while (!this.done) {
+      // TODO: FIX TYPES
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      yield new Promise((resolve, reject) => {
+        stream.once('data', (data: Buffer) => resolve(data.toString()));
+        stream.once('error', (error: string) => reject(error));
+      });
+    }
+  }
+
+  async *initSSH(input: string | null): AsyncGenerator<string> {
+    if (!this.ssh.isConnected()) {
+      await this.ssh.connect(config);
+    }
+    if (this.requestShell == null) {
+      this.requestShell = await this.ssh.requestShell();
+    }
+    yield* this.streamAdapter(this.requestShell, input);
   }
 }
 
-// eventuallly websocket will be an input parameter of this function
-export async function* initSSH(input: string | null): AsyncGenerator<string> {
-  await ssh.connect(config);
-  const shellStream = await ssh.requestShell();
-
-  yield* streamAdapter(shellStream, input);
-}
+export const sshClient = new SSHClient();
