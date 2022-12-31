@@ -9,6 +9,7 @@ import {
   enumType,
   extendType,
   inputObjectType,
+  intArg,
   list,
   nonNull,
   nullable,
@@ -662,7 +663,9 @@ export const UniconfigShell = extendType({
     t.string('uniconfigShell', {
       args: {
         input: nullable(stringArg()),
-        timestamp: stringArg(),
+          // this is kind of an ugly hack, so we can send send the same character in sequence
+          // this is due to the nature of React render cycle - a === a, more info in the frontend project
+        trigger: intArg(),
       },
       subscribe: (_, args) => sshClient.initSSH(args.input ?? null),
       resolve: (eventData) => eventData.toString(),
