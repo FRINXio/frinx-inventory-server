@@ -273,6 +273,18 @@ type GraphNode {
   interfaces: [String!]!
 }
 
+type GraphVersionEdge {
+  id: ID!
+  source: EdgeSourceTarget!
+  target: EdgeSourceTarget!
+}
+
+type GraphVersionNode {
+  id: ID!
+  interfaces: [String!]!
+  name: String!
+}
+
 type InstallDevicePayload {
   device: Device!
 }
@@ -384,6 +396,8 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
   topology(filter: FilterTopologyInput): Topology!
+  topologyVersionData(version: String!): TopologyVersionData!
+  topologyVersions: [String!]
   transactions: [Transaction!]!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
@@ -422,6 +436,11 @@ type SyncFromNetworkPayload {
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
+}
+
+type TopologyVersionData {
+  edges: [GraphVersionEdge!]!
+  nodes: [GraphVersionNode!]!
 }
 
 type Transaction {

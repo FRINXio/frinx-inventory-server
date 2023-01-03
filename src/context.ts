@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
+import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topology-discovery';
 import { ArangoClient, getArangoClient } from './arango-client';
 import prismaClient from './prisma-client';
 
@@ -9,6 +10,7 @@ export type Context = {
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
   arangoClient?: ArangoClient;
+  topologyDiscoveryAPI: TopologyDiscoveryAPI;
 };
 
 export default function createContext(context: ExpressContext): Context {
@@ -24,5 +26,5 @@ export default function createContext(context: ExpressContext): Context {
 
   const arangoClient = getArangoClient();
 
-  return { prisma: prismaClient, tenantId, uniconfigAPI, arangoClient };
+  return { prisma: prismaClient, tenantId, uniconfigAPI, arangoClient, topologyDiscoveryAPI };
 }

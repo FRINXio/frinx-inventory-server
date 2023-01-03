@@ -97,7 +97,7 @@ export const Device = objectType({
     t.string('mountParameters', {
       resolve: async (root) => {
         if (root.mountParameters != null) {
-          return String(root.mountParameters);
+          return JSON.stringify(root.mountParameters);
         }
         return null;
       },
@@ -663,8 +663,8 @@ export const UniconfigShell = extendType({
     t.string('uniconfigShell', {
       args: {
         input: nullable(stringArg()),
-          // this is kind of an ugly hack, so we can send send the same character in sequence
-          // this is due to the nature of React render cycle - a === a, more info in the frontend project
+        // this is kind of an ugly hack, so we can send send the same character in sequence
+        // this is due to the nature of React render cycle - a === a, more info in the frontend project
         trigger: intArg(),
       },
       subscribe: (_, args) => sshClient.initSSH(args.input ?? null),

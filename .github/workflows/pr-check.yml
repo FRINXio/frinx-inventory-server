@@ -6,7 +6,7 @@ on:
 jobs:
   pr-check:
     runs-on: ubuntu-latest
-    container: node:18-alpine
+    container: node:18-slim
     services:
       postgres:
         image: postgres:14-alpine
@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v3
+      - name: Install apt deps
+        run: apt-get update && apt-get install -y openssl
       - name: Copy yarn.lock file
         run: cp yarn.lock yarn.lock.orig
       - name: Install dependencies
@@ -38,7 +40,7 @@ jobs:
           UNICONFIG_API_PORT: 4000
           UNICONFIG_LIST_URL: http://localhost:4000/static/list/uniconfig
           X_TENANT_ID: frinx
-          ARANGO_ENABLED: false
+          TOPOLOGY_ENABLED: false
       - name: Check code formatting
         run: yarn run formatter:check
       - name: Run eslint check
