@@ -4,13 +4,14 @@ import express from 'express';
 import fs from 'fs';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { useServer } from 'graphql-ws/lib/use/ws';
-import { Server } from 'http';
 import https from 'https';
+import http, { Server } from 'http';
 import path from 'path';
 import { WebSocketServer } from 'ws';
 import createContext from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
 import getLogger from './get-logger';
+import isDev from './is-dev';
 import schema from './schema';
 import syncZones from './sync-zones';
 
@@ -27,13 +28,17 @@ process.on('unhandledRejection', (error) => {
 
 const app = express();
 app.use(graphqlUploadExpress());
-const server = https.createServer(
-  {
-    key: fs.readFileSync(path.resolve(process.cwd(), './server.key')),
-    cert: fs.readFileSync(path.resolve(process.cwd(), './server.cert')),
-  },
-  app,
-);
+
+const server = isDev
+  ? https.createServer(
+      {
+        key: fs.readFileSync(path.resolve(process.cwd(), './server.key')),
+        cert: fs.readFileSync(path.resolve(process.cwd(), './server.cert')),
+      },
+      app,
+    )
+  : http.createServer(app);
+
 const wsServer = new WebSocketServer({
   server,
   path: '/graphql',
