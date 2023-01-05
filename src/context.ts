@@ -15,12 +15,14 @@ export type Context = {
 
 export default function createContext(context: ExpressContext): Context {
   const { req } = context;
-
   const { headers } = req;
+  let tenantId: string;
   if (headers['x-tenant-id'] == null) {
-    throw new Error('tenant id is missing');
+    // throw new Error('tenant id is missing');
+    tenantId = 'frinx';
+  } else {
+    tenantId = headers['x-tenant-id'] as string;
   }
-  const tenantId = headers['x-tenant-id'] as string;
 
   const arangoClient = getArangoClient();
 

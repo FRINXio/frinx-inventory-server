@@ -1,11 +1,17 @@
-import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
+import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
+import fs from 'fs';
 import { graphqlUploadExpress } from 'graphql-upload';
-import { createServer, Server } from 'http';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import https from 'https';
+import http, { Server } from 'http';
+import path from 'path';
+import { WebSocketServer } from 'ws';
 import createContext from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
 import getLogger from './get-logger';
+import isDev from './is-dev';
 import schema from './schema';
 import syncZones from './sync-zones';
 
@@ -20,24 +26,55 @@ process.on('unhandledRejection', (error) => {
   log.error(`Error: unhandled promise rejection: ${error}`);
 });
 
+const app = express();
+app.use(graphqlUploadExpress());
+
+const server = isDev
+  ? https.createServer(
+      {
+        key: fs.readFileSync(path.resolve(process.cwd(), './server.key')),
+        cert: fs.readFileSync(path.resolve(process.cwd(), './server.cert')),
+      },
+      app,
+    )
+  : http.createServer(app);
+
+const wsServer = new WebSocketServer({
+  server,
+  path: '/graphql',
+});
+const serverCleanup = useServer({ schema }, wsServer);
+
 const apolloServer = new ApolloServer({
+  csrfPrevention: true,
+  cache: 'bounded',
   context: createContext,
   schema,
   introspection: true,
   dataSources: () => ({}),
   plugins: [
-    ApolloServerPluginLandingPageGraphQLPlayground({
-      env: true,
-    }),
+    ApolloServerPluginDrainHttpServer({ httpServer: server }),
+    ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
   ],
 });
 
-const app = express();
-app.use(graphqlUploadExpress());
 apolloServer.start().then(() => {
-  apolloServer.applyMiddleware({ app, path: '/graphql', bodyParserConfig: { limit: '50mb' } });
+  apolloServer.applyMiddleware({
+    app,
+    path: '/graphql',
+    bodyParserConfig: { limit: '50mb' },
+    cors: { origin: '*', credentials: true },
+  });
 });
-export const server = createServer(app);
 
 export function runSyncZones(serverInstance?: Server): void {
   let syncJobId: NodeJS.Timeout;
@@ -61,3 +98,5 @@ export function runCacheClear(serverInstance?: Server): void {
     clearTimeout(clearJobId);
   });
 }
+
+export { server };

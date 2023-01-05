@@ -3,7 +3,19 @@ import { Prisma } from '@prisma/client';
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
-import { arg, asNexusMethod, enumType, extendType, inputObjectType, list, nonNull, objectType, stringArg } from 'nexus';
+import {
+  arg,
+  asNexusMethod,
+  enumType,
+  extendType,
+  inputObjectType,
+  intArg,
+  list,
+  nonNull,
+  nullable,
+  objectType,
+  stringArg,
+} from 'nexus';
 import { Stream } from 'node:stream';
 import {
   getCachedDeviceInstallStatus,
@@ -17,6 +29,7 @@ import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
 import unwrap from '../helpers/unwrap';
 import { getUniconfigURL } from '../helpers/zone.helpers';
+import { sshClient } from '../uniconfig-shell';
 import { Blueprint } from './blueprint';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { LabelConnection } from './label';
@@ -640,6 +653,22 @@ export const CSVImportMutation = extendType({
 
         return { isOk: true };
       },
+    });
+  },
+});
+
+export const UniconfigShell = extendType({
+  type: 'Subscription',
+  definition: (t) => {
+    t.string('uniconfigShell', {
+      args: {
+        input: nullable(stringArg()),
+        // this is kind of an ugly hack, so we can send send the same character in sequence
+        // this is due to the nature of React render cycle - a === a, more info in the frontend project
+        trigger: intArg(),
+      },
+      subscribe: (_, args) => sshClient.initSSH(args.input ?? null),
+      resolve: (eventData) => eventData.toString(),
     });
   },
 });
