@@ -76,6 +76,15 @@ export const TopologyVersionData = objectType({
   },
 });
 
+export const TopologyCommonNodes = objectType({
+  name: 'TopologyCommonNodes',
+  definition: (t) => {
+    t.nonNull.field('commonNodes', {
+      type: list('String'),
+    });
+  },
+});
+
 export const TopologyQuery = extendType({
   type: 'Query',
   definition: (t) => {
@@ -144,6 +153,25 @@ export const TopologyQuery = extendType({
               nodeId: nodesMap[interfaceDeviceMap[e._to]],
             },
           })),
+        };
+      },
+    });
+    t.field('commonNodes', {
+      type: TopologyCommonNodes,
+      args: {
+        nodes: nonNull(list(nonNull(stringArg()))),
+      },
+      resolve: async (_, args, { topologyDiscoveryAPI }) => {
+        if (!config.topologyEnabled) {
+          return null;
+        }
+        const { nodes } = args;
+        const { 'common-nodes': commonNodes } = await topologyDiscoveryAPI.getCommonNodes(
+          unwrap(config.topologyDiscoveryURL),
+          nodes,
+        );
+        return {
+          commonNodes,
         };
       },
     });

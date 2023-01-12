@@ -84,3 +84,13 @@ export type TopologyDiffOutput = t.TypeOf<typeof TopologyDiffOutputValidator>;
 export function decodeTopologyDiffOutput(value: unknown): TopologyDiffOutput {
   return extractResult(TopologyDiffOutputValidator.decode(value));
 }
+
+const TopologyCommonNodesOutputValidator = t.type({
+  'common-nodes': t.array(t.string),
+});
+
+export type TopologyCommonNodesOutput = t.TypeOf<typeof TopologyCommonNodesOutputValidator>;
+
+export function decodeTopologyCommonNodesOutput(value: unknown): TopologyCommonNodesOutput {
+  return extractResult(TopologyCommonNodesOutputValidator.decode(value));
+}

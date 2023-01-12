@@ -382,6 +382,7 @@ input PositionInputField {
 type Query {
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
+  commonNodes(nodes: [String!]!): TopologyCommonNodes
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
   devices(
@@ -436,6 +437,10 @@ type SyncFromNetworkPayload {
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
+}
+
+type TopologyCommonNodes {
+  commonNodes: [String]!
 }
 
 type TopologyVersionData {

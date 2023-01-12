@@ -382,6 +382,10 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['GraphNode'][]; // [GraphNode!]!
   };
+  TopologyCommonNodes: {
+    // root type
+    commonNodes: Array<string | null>; // [String]!
+  };
   TopologyVersionData: {
     // root type
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
@@ -729,6 +733,7 @@ export interface NexusGenFieldTypes {
     // field return type
     blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
+    commonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
@@ -766,6 +771,10 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['GraphNode'][]; // [GraphNode!]!
+  };
+  TopologyCommonNodes: {
+    // field return type
+    commonNodes: Array<string | null>; // [String]!
   };
   TopologyVersionData: {
     // field return type
@@ -1108,6 +1117,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     blueprints: 'BlueprintConnection';
     calculatedDiff: 'CalculatedDiffPayload';
+    commonNodes: 'TopologyCommonNodes';
     countries: 'CountryConnection';
     dataStore: 'DataStore';
     devices: 'DeviceConnection';
@@ -1145,6 +1155,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'GraphEdge';
     nodes: 'GraphNode';
+  };
+  TopologyCommonNodes: {
+    // field return type name
+    commonNodes: 'String';
   };
   TopologyVersionData: {
     // field return type name
@@ -1342,6 +1356,10 @@ export interface NexusGenArgTypes {
       // args
       deviceId: string; // String!
       transactionId: string; // String!
+    };
+    commonNodes: {
+      // args
+      nodes: string[]; // [String!]!
     };
     countries: {
       // args
