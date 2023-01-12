@@ -66,7 +66,7 @@ function initClient() {
     return db
       .query(
         aql`
-        LET has = (FOR h IN Has RETURN h)
+        LET has = (FOR h IN phy_has RETURN h)
         
         RETURN has
     `,
@@ -82,8 +82,8 @@ function initClient() {
     return db
       .query(
         aql`
-      LET devices = (FOR d IN Device RETURN d)
-      LET connected = (FOR c IN Connected RETURN c)
+      LET devices = (FOR d IN phy_device RETURN d)
+      LET connected = (FOR c IN phy_connected RETURN c)
       
       RETURN { nodes: devices, edges: connected }
     `,

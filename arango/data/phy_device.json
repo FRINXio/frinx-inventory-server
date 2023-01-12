@@ -1,0 +1,10 @@
+[
+  { "_key": "375", "_id": "phy_device/375", "_rev": "_e88bPnO---", "name": "R3", "labels": ["test"] },
+  { "_key": "379", "_id": "phy_device/379", "_rev": "_e88bPnW---", "name": "R7", "labels": ["test"] },
+  { "_key": "383", "_id": "phy_device/383", "_rev": "_e88bPne---", "name": "R4", "labels": ["test"] },
+  { "_key": "387", "_id": "phy_device/387", "_rev": "_e88bPnm---", "name": "R9", "labels": ["test"] },
+  { "_key": "391", "_id": "phy_device/391", "_rev": "_e88bPnu---", "name": "R2", "labels": ["test"] },
+  { "_key": "395", "_id": "phy_device/395", "_rev": "_e88bPn2---", "name": "R1", "labels": ["test"] },
+  { "_key": "399", "_id": "phy_device/399", "_rev": "_e88bPo----", "name": "R6", "labels": ["test"] },
+  { "_key": "403", "_id": "phy_device/403", "_rev": "_e88bPoG---", "name": "R5", "labels": ["test"] }
+]
