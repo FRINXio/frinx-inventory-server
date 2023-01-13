@@ -156,7 +156,7 @@ export const TopologyQuery = extendType({
         };
       },
     });
-    t.field('commonNodes', {
+    t.field('topologyCommonNodes', {
       type: TopologyCommonNodes,
       args: {
         nodes: nonNull(list(nonNull(stringArg()))),

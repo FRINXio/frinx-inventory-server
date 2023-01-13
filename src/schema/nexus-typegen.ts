@@ -733,7 +733,6 @@ export interface NexusGenFieldTypes {
     // field return type
     blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
-    commonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
@@ -741,6 +740,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
     topology: NexusGenRootTypes['Topology']; // Topology!
+    topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
@@ -1117,7 +1117,6 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     blueprints: 'BlueprintConnection';
     calculatedDiff: 'CalculatedDiffPayload';
-    commonNodes: 'TopologyCommonNodes';
     countries: 'CountryConnection';
     dataStore: 'DataStore';
     devices: 'DeviceConnection';
@@ -1125,6 +1124,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     node: 'Node';
     topology: 'Topology';
+    topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
     topologyVersions: 'String';
     transactions: 'Transaction';
@@ -1357,10 +1357,6 @@ export interface NexusGenArgTypes {
       deviceId: string; // String!
       transactionId: string; // String!
     };
-    commonNodes: {
-      // args
-      nodes: string[]; // [String!]!
-    };
     countries: {
       // args
       after?: string | null; // String
@@ -1403,6 +1399,10 @@ export interface NexusGenArgTypes {
     topology: {
       // args
       filter?: NexusGenInputs['FilterTopologyInput'] | null; // FilterTopologyInput
+    };
+    topologyCommonNodes: {
+      // args
+      nodes: string[]; // [String!]!
     };
     topologyVersionData: {
       // args

@@ -60,9 +60,31 @@ async function importCollection(db: Database, name: string, type: CollectionType
   return result;
 }
 
+async function createGraph(db: Database) {
+  const graph = db.graph('lldp');
+  if (await graph.exists()) {
+    graph.drop();
+  }
+
+  const info = await db.createGraph('LLDP', [
+    {
+      collection: 'phy_has',
+      from: 'phy_device',
+      to: 'phy_interface',
+    },
+    {
+      collection: 'phy_connected',
+      from: 'phy_interface',
+      to: 'phy_interface',
+    },
+  ]);
+  console.log(`Graph ${info.name} was created`);
+}
+
 async function init() {
   const myDb = await initDatabase();
   await initCollections(myDb);
+  await createGraph(myDb);
 }
 
 init();
