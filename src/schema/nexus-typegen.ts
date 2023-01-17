@@ -384,7 +384,7 @@ export interface NexusGenObjects {
   };
   TopologyCommonNodes: {
     // root type
-    commonNodes: Array<string | null>; // [String]!
+    commonNodes: string[]; // [String!]!
   };
   TopologyVersionData: {
     // root type
@@ -774,7 +774,7 @@ export interface NexusGenFieldTypes {
   };
   TopologyCommonNodes: {
     // field return type
-    commonNodes: Array<string | null>; // [String]!
+    commonNodes: string[]; // [String!]!
   };
   TopologyVersionData: {
     // field return type

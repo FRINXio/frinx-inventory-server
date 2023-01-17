@@ -80,7 +80,7 @@ export const TopologyCommonNodes = objectType({
   name: 'TopologyCommonNodes',
   definition: (t) => {
     t.nonNull.field('commonNodes', {
-      type: list('String'),
+      type: list(nonNull('String')),
     });
   },
 });
