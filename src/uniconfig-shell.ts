@@ -3,7 +3,7 @@ import { ClientChannel } from 'ssh2';
 import envConfig from './config';
 
 const config: Config = {
-  host: envConfig.shellHost || '10.19.0.12',
+  host: envConfig.shellHost,
   port: 2022,
   username: 'admin',
   password: 'admin',
