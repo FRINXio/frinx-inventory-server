@@ -17,10 +17,10 @@ const config = {
 };
 
 const COLLECTION_DATA: { name: string; type: CollectionType }[] = [
-  { name: 'Connected', type: CollectionType.EDGE_COLLECTION },
-  { name: 'Device', type: CollectionType.DOCUMENT_COLLECTION },
-  { name: 'Has', type: CollectionType.EDGE_COLLECTION },
-  { name: 'Interface', type: CollectionType.DOCUMENT_COLLECTION },
+  { name: 'phy_connected', type: CollectionType.EDGE_COLLECTION },
+  { name: 'phy_device', type: CollectionType.DOCUMENT_COLLECTION },
+  { name: 'phy_has', type: CollectionType.EDGE_COLLECTION },
+  { name: 'phy_interface', type: CollectionType.DOCUMENT_COLLECTION },
 ];
 
 const auth = config.token ? { token: config.token } : { username: config.user, password: config.password };

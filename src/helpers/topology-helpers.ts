@@ -25,12 +25,12 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
 export function getOldTopologyDevices(devices: ArangoDevice[], diffData: TopologyDiffOutput): ArangoDevice[] {
   const oldDevices: ArangoDevice[] = devices
     // filter devices added to current topology
-    .filter((n) => !diffData.added.Device.find((d) => n._id === d._id))
+    .filter((n) => !diffData.added.phy_device.find((d) => n._id === d._id))
     // add devices removed from current topology
-    .concat(diffData.deleted.Device)
+    .concat(diffData.deleted.phy_device)
     // change devices from old topology
     .map((n) => {
-      const changedDevice = diffData.changed.Device.find((d) => d.old._id === n._id);
+      const changedDevice = diffData.changed.phy_device.find((d) => d.old._id === n._id);
       if (!changedDevice) {
         return n;
       }
@@ -42,16 +42,16 @@ export function getOldTopologyDevices(devices: ArangoDevice[], diffData: Topolog
 export function getOldTopologyInterfaceEdges(interfaceEdges: ArangoEdge[], diffData: TopologyDiffOutput): ArangoEdge[] {
   const oldInterfaceEdges: ArangoEdge[] = interfaceEdges
     // filter has edges added to current topology
-    .filter((e) => !diffData.added.Has.find((h) => e._id === h._id))
+    .filter((e) => !diffData.added.phy_has.find((h) => e._id === h._id))
     // filter edges pointing to added interfaces
-    .filter((e) => !diffData.added.Interface.find((i) => e._to === i._id))
+    .filter((e) => !diffData.added.phy_interface.find((i) => e._to === i._id))
     // filter edges pointing to added device
-    .filter((e) => !diffData.added.Device.find((d) => e._from === d._id))
+    .filter((e) => !diffData.added.phy_device.find((d) => e._from === d._id))
     // add has edges removed from current topology
-    .concat(diffData.deleted.Has)
-    // change `Has` edges from old topology
+    .concat(diffData.deleted.phy_has)
+    // change `phy_has` edges from old topology
     .map((e) => {
-      const changedEdge = diffData.changed.Has.find((h) => h.old._id === e._id);
+      const changedEdge = diffData.changed.phy_has.find((h) => h.old._id === e._id);
       if (!changedEdge) {
         return e;
       }
@@ -63,14 +63,14 @@ export function getOldTopologyInterfaceEdges(interfaceEdges: ArangoEdge[], diffD
 export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: TopologyDiffOutput): ArangoEdge[] {
   const oldConnected: ArangoEdge[] = connected
     // filter connected edges added to current topology
-    .filter((e) => !diffData.added.Connected.find((c) => e._id === c._id))
+    .filter((e) => !diffData.added.phy_connected.find((c) => e._id === c._id))
     // filter edges pointing to added interfaces
-    .filter((e) => !diffData.added.Interface.find((i) => e._to === i._id))
+    .filter((e) => !diffData.added.phy_interface.find((i) => e._to === i._id))
     // add connected edges removed from current topology
-    .concat(diffData.deleted.Connected)
-    // change `Connected` edges from old topology
+    .concat(diffData.deleted.phy_connected)
+    // change `phy_connected` edges from old topology
     .map((e) => {
-      const changedEdge = diffData.changed.Connected.find((h) => h.old._id === e._id);
+      const changedEdge = diffData.changed.phy_connected.find((h) => h.old._id === e._id);
       if (!changedEdge) {
         return e;
       }
