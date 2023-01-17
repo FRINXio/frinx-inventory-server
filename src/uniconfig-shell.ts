@@ -1,8 +1,9 @@
 import { Config, NodeSSH } from 'node-ssh';
 import { ClientChannel } from 'ssh2';
+import envConfig from './config';
 
 const config: Config = {
-  host: process.env.SHELL_HOST || '10.19.0.12',
+  host: envConfig.shellHost || '10.19.0.12',
   port: 2022,
   username: 'admin',
   password: 'admin',
