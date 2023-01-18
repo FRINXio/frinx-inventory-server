@@ -83,7 +83,7 @@ function initClient() {
       .query(
         aql`
       LET devices = (FOR d IN phy_device RETURN d)
-      LET connected = (FOR c IN phy_connected RETURN c)
+      LET connected = (FOR c IN phy_link RETURN c)
       
       RETURN { nodes: devices, edges: connected }
     `,
