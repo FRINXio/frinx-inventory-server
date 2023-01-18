@@ -15,10 +15,10 @@ const config = {
   token: ARANGO_TOKEN || null,
 };
 const COLLECTION_DATA = [
-  { name: 'Connected', type: collection_1.CollectionType.EDGE_COLLECTION },
-  { name: 'Device', type: collection_1.CollectionType.DOCUMENT_COLLECTION },
-  { name: 'Has', type: collection_1.CollectionType.EDGE_COLLECTION },
-  { name: 'Interface', type: collection_1.CollectionType.DOCUMENT_COLLECTION },
+  { name: 'phy_link', type: collection_1.CollectionType.EDGE_COLLECTION },
+  { name: 'phy_device', type: collection_1.CollectionType.DOCUMENT_COLLECTION },
+  { name: 'phy_has', type: collection_1.CollectionType.EDGE_COLLECTION },
+  { name: 'phy_interface', type: collection_1.CollectionType.DOCUMENT_COLLECTION },
 ];
 const auth = config.token ? { token: config.token } : { username: config.user, password: config.password };
 const db = new arangojs_1.Database({
