@@ -87,6 +87,7 @@ const config = {
   uniconfigApiPort: envString('UNICONFIG_API_PORT'),
   uniconfigListURL: envString('UNICONFIG_LIST_URL'),
   defaultTenantId: envString('X_TENANT_ID'),
+  shellHost: envString('SHELL_HOST'),
   ...getTopologyConfig(),
 };
 

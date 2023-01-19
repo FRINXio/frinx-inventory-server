@@ -63,14 +63,14 @@ export function getOldTopologyInterfaceEdges(interfaceEdges: ArangoEdge[], diffD
 export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: TopologyDiffOutput): ArangoEdge[] {
   const oldConnected: ArangoEdge[] = connected
     // filter connected edges added to current topology
-    .filter((e) => !diffData.added.phy_connected.find((c) => e._id === c._id))
+    .filter((e) => !diffData.added.phy_link.find((c) => e._id === c._id))
     // filter edges pointing to added interfaces
     .filter((e) => !diffData.added.phy_interface.find((i) => e._to === i._id))
     // add connected edges removed from current topology
-    .concat(diffData.deleted.phy_connected)
-    // change `phy_connected` edges from old topology
+    .concat(diffData.deleted.phy_link)
+    // change `phy_link` edges from old topology
     .map((e) => {
-      const changedEdge = diffData.changed.phy_connected.find((h) => h.old._id === e._id);
+      const changedEdge = diffData.changed.phy_link.find((h) => h.old._id === e._id);
       if (!changedEdge) {
         return e;
       }

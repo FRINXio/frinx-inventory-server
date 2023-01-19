@@ -17,7 +17,7 @@ const config = {
 };
 
 const COLLECTION_DATA: { name: string; type: CollectionType }[] = [
-  { name: 'phy_connected', type: CollectionType.EDGE_COLLECTION },
+  { name: 'phy_link', type: CollectionType.EDGE_COLLECTION },
   { name: 'phy_device', type: CollectionType.DOCUMENT_COLLECTION },
   { name: 'phy_has', type: CollectionType.EDGE_COLLECTION },
   { name: 'phy_interface', type: CollectionType.DOCUMENT_COLLECTION },

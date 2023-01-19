@@ -15,7 +15,7 @@ const config = {
   token: ARANGO_TOKEN || null,
 };
 const COLLECTION_DATA = [
-  { name: 'phy_connected', type: collection_1.CollectionType.EDGE_COLLECTION },
+  { name: 'phy_link', type: collection_1.CollectionType.EDGE_COLLECTION },
   { name: 'phy_device', type: collection_1.CollectionType.DOCUMENT_COLLECTION },
   { name: 'phy_has', type: collection_1.CollectionType.EDGE_COLLECTION },
   { name: 'phy_interface', type: collection_1.CollectionType.DOCUMENT_COLLECTION },

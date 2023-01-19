@@ -48,7 +48,7 @@ const Diff = t.type({
   phy_device: t.array(Device),
   phy_has: t.array(Edge),
   phy_interface: t.array(Node),
-  phy_connected: t.array(Edge),
+  phy_link: t.array(Edge),
 });
 
 const ChangedNode = t.type({
@@ -70,7 +70,7 @@ const ChangeDiff = t.type({
   phy_device: t.array(ChangedDevice),
   phy_has: t.array(ChangedEdge),
   phy_interface: t.array(ChangedNode),
-  phy_connected: t.array(ChangedEdge),
+  phy_link: t.array(ChangedEdge),
 });
 
 const TopologyDiffOutputValidator = t.type({
