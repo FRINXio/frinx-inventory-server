@@ -64,7 +64,7 @@ async function createGraph(db) {
       to: 'phy_interface',
     },
     {
-      collection: 'phy_connected',
+      collection: 'phy_link',
       from: 'phy_interface',
       to: 'phy_interface',
     },
