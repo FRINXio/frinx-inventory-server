@@ -744,6 +744,7 @@ export interface NexusGenFieldTypes {
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
+    uniconfigShellSession: string | null; // String
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
   ResetConfigPayload: {
@@ -1128,6 +1129,7 @@ export interface NexusGenFieldTypeNames {
     topologyVersionData: 'TopologyVersionData';
     topologyVersions: 'String';
     transactions: 'Transaction';
+    uniconfigShellSession: 'String';
     zones: 'ZonesConnection';
   };
   ResetConfigPayload: {
@@ -1420,6 +1422,7 @@ export interface NexusGenArgTypes {
     uniconfigShell: {
       // args
       input?: string | null; // String
+      sessionId: string; // String!
       trigger?: number | null; // Int
     };
   };

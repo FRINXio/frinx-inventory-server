@@ -1,26 +1,24 @@
 import { Config, NodeSSH } from 'node-ssh';
 import { ClientChannel } from 'ssh2';
-import envConfig from './config';
+import config from './config';
 
-const config: Config = {
-  host: envConfig.shellHost,
+const shellConfig: Config = {
+  host: config.shellHost,
   port: 2022,
   username: 'admin',
   password: 'admin',
 };
 
+type RequestShellMap = Map<string, ClientChannel>;
+
 class SSHClient {
-  requestShell: ClientChannel | null = null;
+  requestShellMap: RequestShellMap = new Map();
 
   done = false;
 
   ssh: NodeSSH = new NodeSSH();
 
   *streamAdapter(stream: ClientChannel, input: string | null): Generator<string> {
-    stream.on('exit', () => {
-      this.done = true;
-    });
-
     stream.write(input);
 
     while (!this.done) {
@@ -34,14 +32,23 @@ class SSHClient {
     }
   }
 
-  async *initSSH(input: string | null): AsyncGenerator<string> {
+  async *initSSH(uuid: string, input: string | null): AsyncGenerator<string> {
+    const shell = this.requestShellMap.get(uuid);
+    if (shell == null) {
+      throw new Error('shell session does not exist');
+    }
+    yield* this.streamAdapter(shell, input);
+  }
+
+  async prepareShell(uuid: string): Promise<void> {
     if (!this.ssh.isConnected()) {
-      await this.ssh.connect(config);
+      await this.ssh.connect(shellConfig);
     }
-    if (this.requestShell == null) {
-      this.requestShell = await this.ssh.requestShell();
-    }
-    yield* this.streamAdapter(this.requestShell, input);
+    this.requestShellMap.set(uuid, await this.ssh.requestShell());
+    this.requestShellMap.get(uuid)?.on('close', () => {
+      this.requestShellMap.delete(uuid);
+      this.done = true;
+    });
   }
 }
 
