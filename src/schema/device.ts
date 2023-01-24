@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
+import { v4 as uuid } from 'uuid';
 import {
   arg,
   asNexusMethod,
@@ -666,9 +667,23 @@ export const UniconfigShell = extendType({
         // this is kind of an ugly hack, so we can send send the same character in sequence
         // this is due to the nature of React render cycle - a === a, more info in the frontend project
         trigger: intArg(),
+        sessionId: nonNull(stringArg()),
       },
-      subscribe: (_, args) => sshClient.initSSH(args.input ?? null),
+      subscribe: (_, args) => sshClient.initSSH(args.sessionId, args.input ?? null),
       resolve: (eventData) => eventData.toString(),
+    });
+  },
+});
+
+export const UniconfigShellSession = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.string('uniconfigShellSession', {
+      resolve: async () => {
+        const id = uuid();
+        await sshClient.prepareShell(id);
+        return id;
+      },
     });
   },
 });

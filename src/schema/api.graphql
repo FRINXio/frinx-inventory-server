@@ -399,6 +399,7 @@ type Query {
   topologyVersionData(version: String!): TopologyVersionData!
   topologyVersions: [String!]
   transactions: [Transaction!]!
+  uniconfigShellSession: String
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
@@ -426,7 +427,7 @@ enum SortDirection {
 }
 
 type Subscription {
-  uniconfigShell(input: String, trigger: Int): String
+  uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 
 type SyncFromNetworkPayload {
