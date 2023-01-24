@@ -396,6 +396,7 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
   topology(filter: FilterTopologyInput): Topology!
+  topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
   topologyVersions: [String!]
   transactions: [Transaction!]!
@@ -437,6 +438,10 @@ type SyncFromNetworkPayload {
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
+}
+
+type TopologyCommonNodes {
+  commonNodes: [String!]!
 }
 
 type TopologyVersionData {

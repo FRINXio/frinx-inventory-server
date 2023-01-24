@@ -382,6 +382,10 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['GraphNode'][]; // [GraphNode!]!
   };
+  TopologyCommonNodes: {
+    // root type
+    commonNodes: string[]; // [String!]!
+  };
   TopologyVersionData: {
     // root type
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
@@ -736,6 +740,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
     topology: NexusGenRootTypes['Topology']; // Topology!
+    topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
@@ -767,6 +772,10 @@ export interface NexusGenFieldTypes {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['GraphNode'][]; // [GraphNode!]!
+  };
+  TopologyCommonNodes: {
+    // field return type
+    commonNodes: string[]; // [String!]!
   };
   TopologyVersionData: {
     // field return type
@@ -1116,6 +1125,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     node: 'Node';
     topology: 'Topology';
+    topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
     topologyVersions: 'String';
     transactions: 'Transaction';
@@ -1147,6 +1157,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     edges: 'GraphEdge';
     nodes: 'GraphNode';
+  };
+  TopologyCommonNodes: {
+    // field return type name
+    commonNodes: 'String';
   };
   TopologyVersionData: {
     // field return type name
@@ -1387,6 +1401,10 @@ export interface NexusGenArgTypes {
     topology: {
       // args
       filter?: NexusGenInputs['FilterTopologyInput'] | null; // FilterTopologyInput
+    };
+    topologyCommonNodes: {
+      // args
+      nodes: string[]; // [String!]!
     };
     topologyVersionData: {
       // args
