@@ -97,7 +97,7 @@ export function decodeTopologyCommonNodesOutput(value: unknown): TopologyCommonN
 
 const LinksAndDevicesOutputValidator = t.type({
   edges: t.array(Edge),
-  nodes: t.array(Node),
+  nodes: t.array(Device),
 });
 
 export type LinksAndDevicesOutput = t.TypeOf<typeof LinksAndDevicesOutputValidator>;
