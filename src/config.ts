@@ -29,39 +29,25 @@ function optionalEnvString(key: string): string | null {
   return value || null;
 }
 
-type ArangoConfigEnabled = {
+type TopologyConfigEnabled = {
   topologyEnabled: true;
-  arangoURL: string;
-  arangoUser: string;
-  arangoPassword: string;
-  arangoDb: string;
-  arangoToken: string | null;
   topologyDiscoveryURL: string | null;
 };
 
-type ArangoConfigDisabled = {
+type TopologyConfigDisabled = {
   topologyEnabled: false;
 };
 
-type ArangoConfig = ArangoConfigDisabled | ArangoConfigEnabled;
+type TopologyConfig = TopologyConfigDisabled | TopologyConfigEnabled;
 
 // all arango params must be present or none
-function getTopologyConfig(): ArangoConfig {
-  const host = optionalEnvString('ARANGO_URL');
-  const user = optionalEnvString('ARANGO_USER');
-  const password = optionalEnvString('ARANGO_PASSWORD');
-  const token = optionalEnvString('ARANGO_TOKEN');
-  const db = optionalEnvString('ARANGO_DB');
+function getTopologyConfig(): TopologyConfig {
   const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
   const topologyDiscoveryURL = optionalEnvString('TOPOLOGY_DISCOVERY_API_URL');
   if (!topologyEnabled) {
     return {
       topologyEnabled: false,
     };
-  }
-
-  if (!host || !user || !password || !db) {
-    throw new Error(`Not all mandatory arango env variables were found.`);
   }
 
   if (!topologyDiscoveryURL) {
@@ -71,11 +57,6 @@ function getTopologyConfig(): ArangoConfig {
   return {
     topologyEnabled: true,
     topologyDiscoveryURL,
-    arangoURL: host,
-    arangoUser: user,
-    arangoPassword: password,
-    arangoDb: db,
-    arangoToken: token,
   };
 }
 

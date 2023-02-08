@@ -16,7 +16,6 @@
 !/tsconfig.production.json
 !/babel.config.js
 !/prisma
-!/arango
 !/sample.csv
 
 node_modules

@@ -88,18 +88,18 @@ export const TopologyCommonNodes = objectType({
 export const TopologyQuery = extendType({
   type: 'Query',
   definition: (t) => {
-    t.nonNull.field('topology', {
-      type: nonNull(Topology),
+    t.field('topology', {
+      type: Topology,
       args: {
         filter: FilterTopologyInput,
       },
-      resolve: async (root, args, { prisma, arangoClient, tenantId }) => {
-        if (arangoClient == null) {
-          throw new Error('should not happen');
+      resolve: async (root, args, { prisma, tenantId, topologyDiscoveryAPI }) => {
+        if (!config.topologyEnabled) {
+          return null;
         }
         const { filter } = args;
 
-        const interfaceEdges = await arangoClient.getInterfaceEdges();
+        const interfaceEdges = await topologyDiscoveryAPI.getHas(unwrap(config.topologyDiscoveryURL));
         const interfaceDeviceMap = interfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
           const dvc = unwrap(arr.find((int) => int._to === curr._to)?._from);
           return {
@@ -119,8 +119,8 @@ export const TopologyQuery = extendType({
         const labelIds = dbLabels.map((l) => l.id);
         const filterQuery = getFilterQuery({ labelIds });
         const dbDevices = await prisma.device.findMany({ where: { tenantId, ...filterQuery } });
-        const graph = await arangoClient.getGraph();
-        const { nodes, edges } = graph;
+        const linksAndDevices = await topologyDiscoveryAPI.getLinksAndDevices(unwrap(config.topologyDiscoveryURL));
+        const { nodes, edges } = linksAndDevices;
         const nodesMap = nodes.reduce(
           (acc, curr) => ({
             ...acc,
@@ -190,7 +190,7 @@ export const TopologyQuery = extendType({
       args: {
         version: nonNull(stringArg()),
       },
-      resolve: async (_, args, { arangoClient, topologyDiscoveryAPI }) => {
+      resolve: async (_, args, { topologyDiscoveryAPI }) => {
         if (!config.topologyEnabled) {
           return {
             nodes: [],
@@ -198,15 +198,14 @@ export const TopologyQuery = extendType({
           };
         }
 
-        const client = unwrap(arangoClient);
-        const { nodes, edges } = await client.getGraph();
+        const { nodes, edges } = await topologyDiscoveryAPI.getLinksAndDevices(unwrap(config.topologyDiscoveryURL));
 
         const { version } = args;
         const result = await topologyDiscoveryAPI.getTopologyDiff(unwrap(config.topologyDiscoveryURL), version);
         const oldDevices = getOldTopologyDevices(nodes, result);
 
         // get interface edges for old version
-        const interfaceEdges = await client.getInterfaceEdges();
+        const interfaceEdges = await topologyDiscoveryAPI.getHas(unwrap(config.topologyDiscoveryURL));
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
 
         const interfaceDeviceMap = oldInterfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
