@@ -1,8 +1,12 @@
 import { sendGetRequest, sendPostRequest } from './helpers';
 import {
+  decodeHasOutput,
+  decodeLinksAndDevicesOutput,
   decodeTopologyCommonNodesOutput,
   decodeTopologyDiffOutput,
   decodeVersionsOutput,
+  HasOutput,
+  LinksAndDevicesOutput,
   TopologyCommonNodesOutput,
   TopologyDiffOutput,
   VersionsOutput,
@@ -36,10 +40,24 @@ async function getCommonNodes(baseURL: string, nodes: string[]): Promise<Topolog
   return data;
 }
 
+async function getLinksAndDevices(baseURL: string): Promise<LinksAndDevicesOutput> {
+  const json = await sendGetRequest([baseURL, '/links-and-devices']);
+  const data = decodeLinksAndDevicesOutput(json);
+  return data;
+}
+
+async function getHas(baseURL: string): Promise<HasOutput> {
+  const json = await sendGetRequest([baseURL, '/has']);
+  const data = decodeHasOutput(json);
+  return data;
+}
+
 const topologyDiscoveryAPI = {
   getVersions,
   getTopologyDiff,
   getCommonNodes,
+  getLinksAndDevices,
+  getHas,
 };
 
 export type TopologyDiscoveryAPI = typeof topologyDiscoveryAPI;

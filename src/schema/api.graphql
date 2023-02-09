@@ -395,7 +395,7 @@ type Query {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
-  topology(filter: FilterTopologyInput): Topology!
+  topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
   topologyVersions: [String!]

@@ -1,5 +1,18 @@
-import { ArangoDevice, ArangoEdge } from '../arango-client';
 import { TopologyDiffOutput } from '../external-api/topology-network-types';
+
+export type ArangoDevice = {
+  _id: string;
+  _key: string;
+  name: string;
+  labels: string[];
+};
+export type ArangoEdge = {
+  _id: string;
+  _key: string;
+  _rev: string;
+  _from: string;
+  _to: string;
+};
 
 type FilterInput = {
   labelIds?: string[] | null;

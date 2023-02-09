@@ -94,3 +94,22 @@ export type TopologyCommonNodesOutput = t.TypeOf<typeof TopologyCommonNodesOutpu
 export function decodeTopologyCommonNodesOutput(value: unknown): TopologyCommonNodesOutput {
   return extractResult(TopologyCommonNodesOutputValidator.decode(value));
 }
+
+const LinksAndDevicesOutputValidator = t.type({
+  edges: t.array(Edge),
+  nodes: t.array(Device),
+});
+
+export type LinksAndDevicesOutput = t.TypeOf<typeof LinksAndDevicesOutputValidator>;
+
+export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutput {
+  return extractResult(LinksAndDevicesOutputValidator.decode(value));
+}
+
+const HasOutputValidator = t.array(Edge);
+
+export type HasOutput = t.TypeOf<typeof HasOutputValidator>;
+
+export function decodeHasOutput(value: unknown): HasOutput {
+  return extractResult(HasOutputValidator.decode(value));
+}
