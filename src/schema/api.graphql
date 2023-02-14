@@ -269,8 +269,10 @@ type GraphEdge {
 
 type GraphNode {
   device: Device!
+  deviceType: String
   id: ID!
   interfaces: [String!]!
+  softwareVersion: String
 }
 
 type GraphVersionEdge {

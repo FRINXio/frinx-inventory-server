@@ -34,7 +34,16 @@ const Node = t.type({
   name: t.string,
 });
 
-const Device = t.intersection([Node, t.type({ labels: t.array(t.string) })]);
+const Device = t.intersection([
+  Node,
+  t.type({
+    labels: t.array(t.string),
+    details: t.type({
+      device_type: optional(t.string),
+      sw_version: optional(t.string),
+    }),
+  }),
+]);
 
 const Edge = t.type({
   _id: t.string,

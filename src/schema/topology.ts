@@ -22,6 +22,8 @@ export const GraphNode = objectType({
     t.nonNull.id('id');
     t.nonNull.field('device', { type: 'Device' });
     t.nonNull.list.nonNull.string('interfaces');
+    t.string('deviceType');
+    t.string('softwareVersion');
   },
 });
 
@@ -135,6 +137,8 @@ export const TopologyQuery = extendType({
               if (node != null) {
                 return {
                   id: toGraphId('GraphNode', node._key),
+                  deviceType: node.details.device_type ?? null,
+                  softwareVersion: node.details.sw_version ?? null,
                   device,
                   interfaces: interfaceMap[node._id] ?? [],
                 };
