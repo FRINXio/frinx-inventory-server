@@ -303,8 +303,10 @@ export interface NexusGenObjects {
   GraphNode: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
+    deviceType?: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    softwareVersion?: string | null; // String
   };
   GraphNodeInterface: {
     // root type
@@ -640,8 +642,10 @@ export interface NexusGenFieldTypes {
   GraphNode: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
+    deviceType: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    softwareVersion: string | null; // String
   };
   GraphNodeInterface: {
     // field return type
@@ -1030,8 +1034,10 @@ export interface NexusGenFieldTypeNames {
   GraphNode: {
     // field return type name
     device: 'Device';
+    deviceType: 'String';
     id: 'ID';
     interfaces: 'GraphNodeInterface';
+    softwareVersion: 'String';
   };
   GraphNodeInterface: {
     // field return type name
