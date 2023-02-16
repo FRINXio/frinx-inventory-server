@@ -107,6 +107,12 @@ export interface NexusGenInputs {
     // input type
     labels?: string[] | null; // [String!]
   };
+  GraphNodeCoordinatesInput: {
+    // input type
+    deviceName: string; // String!
+    x: number; // Float!
+    y: number; // Float!
+  };
   PositionInput: {
     // input type
     deviceId: string; // ID!
@@ -302,11 +308,17 @@ export interface NexusGenObjects {
   };
   GraphNode: {
     // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
     device: NexusGenRootTypes['Device']; // Device!
     deviceType?: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     softwareVersion?: string | null; // String
+  };
+  GraphNodeCoordinates: {
+    // root type
+    x: number; // Float!
+    y: number; // Float!
   };
   GraphNodeInterface: {
     // root type
@@ -321,9 +333,12 @@ export interface NexusGenObjects {
   };
   GraphVersionNode: {
     // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    deviceType?: string | null; // String
     id: string; // ID!
-    interfaces: string[]; // [String!]!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     name: string; // String!
+    softwareVersion?: string | null; // String
   };
   InstallDevicePayload: {
     // root type
@@ -436,6 +451,10 @@ export interface NexusGenObjects {
     // root type
     device?: NexusGenRootTypes['Device'] | null; // Device
   };
+  UpdateGraphNodeCoordinatesPayload: {
+    // root type
+    deviceNames: string[]; // [String!]!
+  };
   Zone: SourceTypes.Zone;
   ZoneEdge: {
     // root type
@@ -451,6 +470,7 @@ export interface NexusGenObjects {
 }
 
 export interface NexusGenInterfaces {
+  BaseGraphNode: core.Discriminate<'GraphNode', 'required'> | core.Discriminate<'GraphVersionNode', 'required'>;
   Node:
     | core.Discriminate<'Blueprint', 'required'>
     | core.Discriminate<'Country', 'required'>
@@ -641,11 +661,17 @@ export interface NexusGenFieldTypes {
   };
   GraphNode: {
     // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
     device: NexusGenRootTypes['Device']; // Device!
     deviceType: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     softwareVersion: string | null; // String
+  };
+  GraphNodeCoordinates: {
+    // field return type
+    x: number; // Float!
+    y: number; // Float!
   };
   GraphNodeInterface: {
     // field return type
@@ -660,9 +686,12 @@ export interface NexusGenFieldTypes {
   };
   GraphVersionNode: {
     // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    deviceType: string | null; // String
     id: string; // ID!
-    interfaces: string[]; // [String!]!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     name: string; // String!
+    softwareVersion: string | null; // String
   };
   InstallDevicePayload: {
     // field return type
@@ -731,6 +760,7 @@ export interface NexusGenFieldTypes {
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateDeviceMetadata: NexusGenRootTypes['UpdateDeviceMetadataPayload']; // UpdateDeviceMetadataPayload!
+    updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
   };
   PageInfo: {
     // field return type
@@ -834,6 +864,10 @@ export interface NexusGenFieldTypes {
     // field return type
     device: NexusGenRootTypes['Device'] | null; // Device
   };
+  UpdateGraphNodeCoordinatesPayload: {
+    // field return type
+    deviceNames: string[]; // [String!]!
+  };
   Zone: {
     // field return type
     createdAt: string; // String!
@@ -851,6 +885,14 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['ZoneEdge'][]; // [ZoneEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount: number; // Int!
+  };
+  BaseGraphNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    deviceType: string | null; // String
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    softwareVersion: string | null; // String
   };
   Node: {
     // field return type
@@ -1033,11 +1075,17 @@ export interface NexusGenFieldTypeNames {
   };
   GraphNode: {
     // field return type name
+    coordinates: 'GraphNodeCoordinates';
     device: 'Device';
     deviceType: 'String';
     id: 'ID';
     interfaces: 'GraphNodeInterface';
     softwareVersion: 'String';
+  };
+  GraphNodeCoordinates: {
+    // field return type name
+    x: 'Float';
+    y: 'Float';
   };
   GraphNodeInterface: {
     // field return type name
@@ -1052,9 +1100,12 @@ export interface NexusGenFieldTypeNames {
   };
   GraphVersionNode: {
     // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    deviceType: 'String';
     id: 'ID';
-    interfaces: 'String';
+    interfaces: 'GraphNodeInterface';
     name: 'String';
+    softwareVersion: 'String';
   };
   InstallDevicePayload: {
     // field return type name
@@ -1123,6 +1174,7 @@ export interface NexusGenFieldTypeNames {
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
     updateDeviceMetadata: 'UpdateDeviceMetadataPayload';
+    updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
   };
   PageInfo: {
     // field return type name
@@ -1226,6 +1278,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     device: 'Device';
   };
+  UpdateGraphNodeCoordinatesPayload: {
+    // field return type name
+    deviceNames: 'String';
+  };
   Zone: {
     // field return type name
     createdAt: 'String';
@@ -1243,6 +1299,14 @@ export interface NexusGenFieldTypeNames {
     edges: 'ZoneEdge';
     pageInfo: 'PageInfo';
     totalCount: 'Int';
+  };
+  BaseGraphNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    deviceType: 'String';
+    id: 'ID';
+    interfaces: 'GraphNodeInterface';
+    softwareVersion: 'String';
   };
   Node: {
     // field return type name
@@ -1367,6 +1431,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['PositionInput'][]; // [PositionInput!]!
     };
+    updateGraphNodeCoordinates: {
+      // args
+      input: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
+    };
   };
   Query: {
     blueprints: {
@@ -1451,6 +1519,7 @@ export interface NexusGenArgTypes {
 }
 
 export interface NexusGenAbstractTypeMembers {
+  BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
   Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
 }
 
@@ -1458,6 +1527,8 @@ export interface NexusGenTypeInterfaces {
   Blueprint: 'Node';
   Country: 'Node';
   Device: 'Node';
+  GraphNode: 'BaseGraphNode';
+  GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
   Zone: 'Node';

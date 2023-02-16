@@ -121,3 +121,16 @@ export async function sendPutRequest(path: APIPath, body?: unknown, cookie?: str
   };
   return apiFetch(path, options);
 }
+
+export async function sendPatchRequest(path: APIPath, body?: unknown, cookie?: string): Promise<unknown> {
+  const options = {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+    headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/json',
+      ...(cookie != null ? { cookie } : {}),
+    },
+  };
+  return apiFetch(path, options);
+}
