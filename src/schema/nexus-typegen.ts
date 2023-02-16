@@ -149,6 +149,7 @@ export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
+  GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
 }
@@ -304,8 +305,13 @@ export interface NexusGenObjects {
     device: NexusGenRootTypes['Device']; // Device!
     deviceType?: string | null; // String
     id: string; // ID!
-    interfaces: string[]; // [String!]!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     softwareVersion?: string | null; // String
+  };
+  GraphNodeInterface: {
+    // root type
+    id: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
   GraphVersionEdge: {
     // root type
@@ -638,8 +644,13 @@ export interface NexusGenFieldTypes {
     device: NexusGenRootTypes['Device']; // Device!
     deviceType: string | null; // String
     id: string; // ID!
-    interfaces: string[]; // [String!]!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     softwareVersion: string | null; // String
+  };
+  GraphNodeInterface: {
+    // field return type
+    id: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
   GraphVersionEdge: {
     // field return type
@@ -1025,8 +1036,13 @@ export interface NexusGenFieldTypeNames {
     device: 'Device';
     deviceType: 'String';
     id: 'ID';
-    interfaces: 'String';
+    interfaces: 'GraphNodeInterface';
     softwareVersion: 'String';
+  };
+  GraphNodeInterface: {
+    // field return type name
+    id: 'String';
+    status: 'GraphEdgeStatus';
   };
   GraphVersionEdge: {
     // field return type name

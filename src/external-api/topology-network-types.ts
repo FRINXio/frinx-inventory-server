@@ -104,6 +104,9 @@ export function decodeTopologyCommonNodesOutput(value: unknown): TopologyCommonN
   return extractResult(TopologyCommonNodesOutputValidator.decode(value));
 }
 
+const EdgeStatus = t.union([t.literal('ok'), t.literal('unknown')]);
+const EdgeWithStatus = t.intersection([Edge, t.type({ status: EdgeStatus })]);
+
 const LinksAndDevicesOutputValidator = t.type({
   edges: t.array(Edge),
   nodes: t.array(Device),
@@ -115,7 +118,7 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
   return extractResult(LinksAndDevicesOutputValidator.decode(value));
 }
 
-const HasOutputValidator = t.array(Edge);
+const HasOutputValidator = t.array(EdgeWithStatus);
 
 export type HasOutput = t.TypeOf<typeof HasOutputValidator>;
 

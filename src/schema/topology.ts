@@ -1,4 +1,4 @@
-import { extendType, inputObjectType, nonNull, list, objectType, stringArg } from 'nexus';
+import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { omitNullValue } from '../helpers/omit-null-value';
@@ -16,12 +16,26 @@ export const FilterTopologyInput = inputObjectType({
     t.list.nonNull.string('labels');
   },
 });
+
+export const GraphInterfaceStatus = enumType({
+  name: 'GraphEdgeStatus',
+  members: ['ok', 'unknown'],
+});
+
+export const GraphNodeInterface = objectType({
+  name: 'GraphNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+  },
+});
+
 export const GraphNode = objectType({
   name: 'GraphNode',
   definition: (t) => {
     t.nonNull.id('id');
     t.nonNull.field('device', { type: 'Device' });
-    t.nonNull.list.nonNull.string('interfaces');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
     t.string('deviceType');
     t.string('softwareVersion');
   },
@@ -109,12 +123,14 @@ export const TopologyQuery = extendType({
             [curr._to]: dvc,
           };
         }, {} as Record<string, string>);
-        const interfaceMap = interfaceEdges.reduce<Record<string, string[]>>(
+        const interfaceMap = interfaceEdges.reduce<Record<string, { id: string; status: 'ok' | 'unknown' }[]>>(
           (acc, curr) => ({
             ...acc,
-            [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], curr._to] : [curr._to],
+            [curr._from]: acc[curr._from]?.length
+              ? [...acc[curr._from], { id: curr._to, status: curr.status }]
+              : [{ id: curr._to, status: curr.status }],
           }),
-          {} as Record<string, string[]>,
+          {} as Record<string, { id: string; status: 'ok' | 'unknown' }[]>,
         );
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
