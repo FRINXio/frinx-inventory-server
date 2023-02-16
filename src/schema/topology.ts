@@ -346,7 +346,6 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
           return { deviceNames: [] };
         }
         const { input } = args;
-        console.log(input);
         const apiParams = input.map((i) => ({ device: i.deviceName, x: i.x, y: i.y }));
         const response = await topologyDiscoveryAPI.updateCoordinates(unwrap(config.topologyDiscoveryURL), apiParams);
         return { deviceNames: response.updated_devices };
