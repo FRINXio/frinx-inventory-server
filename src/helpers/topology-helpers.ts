@@ -1,18 +1,9 @@
-import { TopologyDiffOutput } from '../external-api/topology-network-types';
-
-export type ArangoDevice = {
-  _id: string;
-  _key: string;
-  name: string;
-  labels: string[];
-};
-export type ArangoEdge = {
-  _id: string;
-  _key: string;
-  _rev: string;
-  _from: string;
-  _to: string;
-};
+import {
+  TopologyDiffOutput,
+  ArangoDevice,
+  ArangoEdge,
+  ArangoEdgeWithStatus,
+} from '../external-api/topology-network-types';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -36,7 +27,7 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
 }
 
 export function getOldTopologyDevices(devices: ArangoDevice[], diffData: TopologyDiffOutput): ArangoDevice[] {
-  const oldDevices: ArangoDevice[] = devices
+  const oldDevices = devices
     // filter devices added to current topology
     .filter((n) => !diffData.added.phy_device.find((d) => n._id === d._id))
     // add devices removed from current topology
@@ -52,8 +43,11 @@ export function getOldTopologyDevices(devices: ArangoDevice[], diffData: Topolog
   return oldDevices;
 }
 
-export function getOldTopologyInterfaceEdges(interfaceEdges: ArangoEdge[], diffData: TopologyDiffOutput): ArangoEdge[] {
-  const oldInterfaceEdges: ArangoEdge[] = interfaceEdges
+export function getOldTopologyInterfaceEdges(
+  interfaceEdges: ArangoEdgeWithStatus[],
+  diffData: TopologyDiffOutput,
+): ArangoEdgeWithStatus[] {
+  const oldInterfaceEdges: ArangoEdgeWithStatus[] = interfaceEdges
     // filter has edges added to current topology
     .filter((e) => !diffData.added.phy_has.find((h) => e._id === h._id))
     // filter edges pointing to added interfaces

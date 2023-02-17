@@ -17,12 +17,6 @@ export function extractResult<A>(result: Either<t.Errors, A>): A {
 }
 
 const MetadataValidator = t.type({
-  position: optional(
-    t.type({
-      x: t.number,
-      y: t.number,
-    }),
-  ),
   deviceSize: optional(t.union([t.literal('SMALL'), t.literal('MEDIUM'), t.literal('LARGE')])),
 });
 

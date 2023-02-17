@@ -27,7 +27,7 @@ export function decodeVersionsOutput(value: unknown): VersionsOutput {
   return extractResult(VersionsOutputValidator.decode(value));
 }
 
-const Node = t.type({
+const Interface = t.type({
   _id: t.string,
   _key: t.string,
   // _rev: t.string,
@@ -35,16 +35,23 @@ const Node = t.type({
 });
 
 const Device = t.intersection([
-  Node,
+  Interface,
   t.type({
     labels: t.array(t.string),
     details: t.type({
       device_type: optional(t.string),
       sw_version: optional(t.string),
     }),
+    coordinates: t.type({
+      x: t.number,
+      y: t.number,
+    }),
   }),
 ]);
 
+export type ArangoDevice = t.TypeOf<typeof Device>;
+
+const EdgeStatus = t.union([t.literal('ok'), t.literal('unknown')]);
 const Edge = t.type({
   _id: t.string,
   _key: t.string,
@@ -52,18 +59,27 @@ const Edge = t.type({
   _from: t.string,
   _to: t.string,
 });
+const EdgeWithStatus = t.intersection([
+  Edge,
+  t.type({
+    status: EdgeStatus,
+  }),
+]);
+
+export type ArangoEdge = t.TypeOf<typeof Edge>;
+export type ArangoEdgeWithStatus = t.TypeOf<typeof EdgeWithStatus>;
 
 const Diff = t.type({
   phy_device: t.array(Device),
-  phy_has: t.array(Edge),
-  phy_interface: t.array(Node),
+  phy_has: t.array(EdgeWithStatus),
+  phy_interface: t.array(Interface),
   phy_link: t.array(Edge),
 });
 
-const ChangedNode = t.type({
-  new: Node,
-  old: Node,
-});
+// const ChangedNode = t.type({
+//   new: Node,
+//   old: Node,
+// });
 
 const ChangedDevice = t.type({
   new: Device,
@@ -75,10 +91,15 @@ const ChangedEdge = t.type({
   old: Edge,
 });
 
+const ChangedEdgeWithStatus = t.type({
+  new: EdgeWithStatus,
+  old: EdgeWithStatus,
+});
+
 const ChangeDiff = t.type({
   phy_device: t.array(ChangedDevice),
-  phy_has: t.array(ChangedEdge),
-  phy_interface: t.array(ChangedNode),
+  phy_has: t.array(ChangedEdgeWithStatus),
+  phy_interface: t.array(ChangedDevice),
   phy_link: t.array(ChangedEdge),
 });
 
@@ -104,9 +125,6 @@ export function decodeTopologyCommonNodesOutput(value: unknown): TopologyCommonN
   return extractResult(TopologyCommonNodesOutputValidator.decode(value));
 }
 
-const EdgeStatus = t.union([t.literal('ok'), t.literal('unknown')]);
-const EdgeWithStatus = t.intersection([Edge, t.type({ status: EdgeStatus })]);
-
 const LinksAndDevicesOutputValidator = t.type({
   edges: t.array(Edge),
   nodes: t.array(Device),
@@ -124,4 +142,15 @@ export type HasOutput = t.TypeOf<typeof HasOutputValidator>;
 
 export function decodeHasOutput(value: unknown): HasOutput {
   return extractResult(HasOutputValidator.decode(value));
+}
+
+const UpdateCoordinatesOutputValidator = t.type({
+  not_updated_devices: t.array(t.string),
+  updated_devices: t.array(t.string),
+});
+
+export type UpdateCoordinatesOutput = t.TypeOf<typeof UpdateCoordinatesOutputValidator>;
+
+export function decodeUpdateCoordinatesOutput(value: unknown): UpdateCoordinatesOutput {
+  return extractResult(UpdateCoordinatesOutputValidator.decode(value));
 }

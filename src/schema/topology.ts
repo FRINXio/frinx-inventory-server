@@ -1,4 +1,4 @@
-import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType } from 'nexus';
+import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType, arg, interfaceType } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { omitNullValue } from '../helpers/omit-null-value';
@@ -30,14 +30,30 @@ export const GraphNodeInterface = objectType({
   },
 });
 
+export const GraphNodeCoordinates = objectType({
+  name: 'GraphNodeCoordinates',
+  definition: (t) => {
+    t.nonNull.float('x');
+    t.nonNull.float('y');
+  },
+});
+
+export const BaseGraphNode = interfaceType({
+  name: 'BaseGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+    t.string('deviceType');
+    t.string('softwareVersion');
+  },
+});
+
 export const GraphNode = objectType({
   name: 'GraphNode',
   definition: (t) => {
-    t.nonNull.id('id');
+    t.implements(BaseGraphNode);
     t.nonNull.field('device', { type: 'Device' });
-    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
-    t.string('deviceType');
-    t.string('softwareVersion');
   },
 });
 
@@ -69,9 +85,8 @@ export const Topology = objectType({
 const GraphVersionNode = objectType({
   name: 'GraphVersionNode',
   definition: (t) => {
-    t.nonNull.id('id');
+    t.implements(BaseGraphNode);
     t.nonNull.field('name', { type: nonNull('String') });
-    t.nonNull.list.nonNull.string('interfaces');
   },
 });
 
@@ -157,6 +172,7 @@ export const TopologyQuery = extendType({
                   softwareVersion: node.details.sw_version ?? null,
                   device,
                   interfaces: interfaceMap[node._id] ?? [],
+                  coordinates: node.coordinates,
                 };
               }
               return null;
@@ -176,6 +192,28 @@ export const TopologyQuery = extendType({
         };
       },
     });
+  },
+});
+
+export const TopologyVersionsQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.field('topologyVersions', {
+      type: list(nonNull('String')),
+      resolve: async (_, _args, { topologyDiscoveryAPI }) => {
+        if (!config.topologyEnabled) {
+          return null;
+        }
+        const { backups: versions } = await topologyDiscoveryAPI.getVersions(unwrap(config.topologyDiscoveryURL));
+        return versions;
+      },
+    });
+  },
+});
+
+export const TopologyCommonNodesQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
     t.field('topologyCommonNodes', {
       type: TopologyCommonNodes,
       args: {
@@ -195,16 +233,12 @@ export const TopologyQuery = extendType({
         };
       },
     });
-    t.field('topologyVersions', {
-      type: list(nonNull('String')),
-      resolve: async (_, _args, { topologyDiscoveryAPI }) => {
-        if (!config.topologyEnabled) {
-          return null;
-        }
-        const { backups: versions } = await topologyDiscoveryAPI.getVersions(unwrap(config.topologyDiscoveryURL));
-        return versions;
-      },
-    });
+  },
+});
+
+export const TopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
     t.nonNull.field('topologyVersionData', {
       type: TopologyVersionData,
       args: {
@@ -235,12 +269,14 @@ export const TopologyQuery = extendType({
             [curr._to]: dvc,
           };
         }, {} as Record<string, string>);
-        const interfaceMap = oldInterfaceEdges.reduce<Record<string, string[]>>(
+        const interfaceMap = oldInterfaceEdges.reduce<Record<string, { id: string; status: 'ok' | 'unknown' }[]>>(
           (acc, curr) => ({
             ...acc,
-            [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], curr._to] : [curr._to],
+            [curr._from]: acc[curr._from]?.length
+              ? [...acc[curr._from], { id: curr._to, status: curr.status }]
+              : [{ id: curr._to, status: curr.status }],
           }),
-          {} as Record<string, string[]>,
+          {} as Record<string, { id: string; status: 'ok' | 'unknown' }[]>,
         );
 
         const nodesMap = oldDevices.reduce(
@@ -270,9 +306,49 @@ export const TopologyQuery = extendType({
             id: toGraphId('GraphNode', device._key),
             name: device.name,
             interfaces: interfaceMap[device._id] ?? [],
+            coordinates: device.coordinates,
+            deviceType: device.details.device_type ?? null,
+            softwareVersion: device.details.sw_version ?? null,
           })),
           edges: oldEdges,
         };
+      },
+    });
+  },
+});
+
+export const GraphNodeCoordinatesInput = inputObjectType({
+  name: 'GraphNodeCoordinatesInput',
+  definition: (t) => {
+    t.nonNull.string('deviceName');
+    t.nonNull.float('x');
+    t.nonNull.float('y');
+  },
+});
+
+export const UpdateGraphNodeCoordinatesPayload = objectType({
+  name: 'UpdateGraphNodeCoordinatesPayload',
+  definition: (t) => {
+    t.nonNull.list.nonNull.string('deviceNames');
+  },
+});
+
+export const UpdateGraphNodeCoordinatesMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateGraphNodeCoordinates', {
+      type: UpdateGraphNodeCoordinatesPayload,
+      args: {
+        input: nonNull(arg({ type: list(nonNull(GraphNodeCoordinatesInput)) })),
+      },
+      resolve: async (_, args, { topologyDiscoveryAPI }) => {
+        if (!config.topologyEnabled) {
+          return { deviceNames: [] };
+        }
+        const { input } = args;
+        const apiParams = input.map((i) => ({ device: i.deviceName, x: i.x, y: i.y }));
+        const response = await topologyDiscoveryAPI.updateCoordinates(unwrap(config.topologyDiscoveryURL), apiParams);
+        return { deviceNames: response.updated_devices };
       },
     });
   },

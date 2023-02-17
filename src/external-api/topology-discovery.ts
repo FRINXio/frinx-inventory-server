@@ -1,14 +1,16 @@
-import { sendGetRequest, sendPostRequest } from './helpers';
+import { sendGetRequest, sendPatchRequest, sendPostRequest } from './helpers';
 import {
   decodeHasOutput,
   decodeLinksAndDevicesOutput,
   decodeTopologyCommonNodesOutput,
   decodeTopologyDiffOutput,
+  decodeUpdateCoordinatesOutput,
   decodeVersionsOutput,
   HasOutput,
   LinksAndDevicesOutput,
   TopologyCommonNodesOutput,
   TopologyDiffOutput,
+  UpdateCoordinatesOutput,
   VersionsOutput,
 } from './topology-network-types';
 
@@ -52,12 +54,28 @@ async function getHas(baseURL: string): Promise<HasOutput> {
   return data;
 }
 
+type NodeCoordinatesBody = {
+  device: string;
+  x: number;
+  y: number;
+};
+
+async function updateCoordinates(
+  baseURL: string,
+  nodeCoordinates: NodeCoordinatesBody[],
+): Promise<UpdateCoordinatesOutput> {
+  const json = await sendPatchRequest([baseURL, '/coordinates'], nodeCoordinates);
+  const data = decodeUpdateCoordinatesOutput(json);
+  return data;
+}
+
 const topologyDiscoveryAPI = {
   getVersions,
   getTopologyDiff,
   getCommonNodes,
   getLinksAndDevices,
   getHas,
+  updateCoordinates,
 };
 
 export type TopologyDiscoveryAPI = typeof topologyDiscoveryAPI;
