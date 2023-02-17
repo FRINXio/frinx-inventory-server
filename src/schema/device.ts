@@ -3,7 +3,6 @@ import { Prisma } from '@prisma/client';
 import { parse as csvParse } from 'csv-parse';
 import { GraphQLUpload } from 'graphql-upload';
 import jsonParse from 'json-templates';
-import { v4 as uuid } from 'uuid';
 import {
   arg,
   asNexusMethod,
@@ -11,24 +10,23 @@ import {
   extendType,
   inputObjectType,
   intArg,
-  list,
   nonNull,
   nullable,
   objectType,
   stringArg,
 } from 'nexus';
 import { Stream } from 'node:stream';
+import { v4 as uuid } from 'uuid';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
-import { getFilterQuery, getOrderingQuery, updateMetadataWithPosition } from '../helpers/device-helpers';
+import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
-import unwrap from '../helpers/unwrap';
 import { getUniconfigURL } from '../helpers/zone.helpers';
 import { sshClient } from '../uniconfig-shell';
 import { Blueprint } from './blueprint';
@@ -48,32 +46,6 @@ export const DeviceSource = enumType({
 export const DeviceSize = enumType({
   name: 'DeviceSize',
   members: ['SMALL', 'MEDIUM', 'LARGE'],
-});
-
-export const Position = objectType({
-  name: 'Position',
-  definition: (t) => {
-    t.nonNull.float('x');
-    t.nonNull.float('y');
-  },
-});
-
-export const PositionInputField = inputObjectType({
-  name: 'PositionInputField',
-  definition: (t) => {
-    t.nonNull.float('x');
-    t.nonNull.float('y');
-  },
-});
-
-export const PositionInput = inputObjectType({
-  name: 'PositionInput',
-  definition: (t) => {
-    t.nonNull.id('deviceId');
-    t.nonNull.field('position', {
-      type: PositionInputField,
-    });
-  },
 });
 
 export const Device = objectType({
@@ -146,14 +118,6 @@ export const Device = objectType({
           return null;
         }
         return location;
-      },
-    });
-    t.field('position', {
-      type: Position,
-      resolve: async (device) => {
-        const { metadata } = device;
-        const position = decodeMetadataOutput(metadata)?.position || null;
-        return position;
       },
     });
     t.nonNull.field('deviceSize', {
@@ -436,50 +400,6 @@ export const UpdateDeviceMetadataPayload = objectType({
   },
 });
 
-export const UpdateDeviceMetadataMutation = extendType({
-  type: 'Mutation',
-  definition: (t) => {
-    t.nonNull.field('updateDeviceMetadata', {
-      type: UpdateDeviceMetadataPayload,
-      args: {
-        input: nonNull(list(nonNull(PositionInput))),
-      },
-      resolve: async (_, args, { prisma, tenantId }) => {
-        const { input } = args;
-
-        const positionsMap = new Map(
-          input.map((item) => {
-            const nativeId = fromGraphId('Device', item.deviceId);
-            return [nativeId, item];
-          }),
-        );
-
-        const dbDevices = await prisma.device.findMany({
-          where: { id: { in: [...positionsMap.keys()] }, tenantId },
-        });
-
-        const updatedPromises = dbDevices.map((device) => {
-          const oldMetadata = decodeMetadataOutput(device.metadata);
-          const newPosition = unwrap(positionsMap.get(device.id)).position;
-          const newMetadata = updateMetadataWithPosition(oldMetadata || null, newPosition);
-
-          return prisma.device.update({
-            where: { id: device.id },
-            data: {
-              metadata: newMetadata,
-            },
-          });
-        });
-
-        const updatedDevices = await Promise.all(updatedPromises);
-
-        return {
-          devices: updatedDevices,
-        };
-      },
-    });
-  },
-});
 export const DeleteDevicePayload = objectType({
   name: 'DeleteDevicePayload',
   definition: (t) => {
