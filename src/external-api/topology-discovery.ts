@@ -1,12 +1,12 @@
 import { sendGetRequest, sendPatchRequest, sendPostRequest } from './helpers';
 import {
-  decodeHasOutput,
+  decodeHasAndInterfacesOutput,
   decodeLinksAndDevicesOutput,
   decodeTopologyCommonNodesOutput,
   decodeTopologyDiffOutput,
   decodeUpdateCoordinatesOutput,
   decodeVersionsOutput,
-  HasOutput,
+  HasAndInterfacesOutput,
   LinksAndDevicesOutput,
   TopologyCommonNodesOutput,
   TopologyDiffOutput,
@@ -48,9 +48,9 @@ async function getLinksAndDevices(baseURL: string): Promise<LinksAndDevicesOutpu
   return data;
 }
 
-async function getHas(baseURL: string): Promise<HasOutput> {
-  const json = await sendGetRequest([baseURL, '/has']);
-  const data = decodeHasOutput(json);
+async function getHasAndInterfaces(baseURL: string): Promise<HasAndInterfacesOutput> {
+  const json = await sendGetRequest([baseURL, '/has-and-interfaces']);
+  const data = decodeHasAndInterfacesOutput(json);
   return data;
 }
 
@@ -74,7 +74,7 @@ const topologyDiscoveryAPI = {
   getTopologyDiff,
   getCommonNodes,
   getLinksAndDevices,
-  getHas,
+  getHasAndInterfaces,
   updateCoordinates,
 };
 
