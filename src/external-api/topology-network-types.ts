@@ -51,7 +51,7 @@ const Device = t.intersection([
 
 export type ArangoDevice = t.TypeOf<typeof Device>;
 
-const EdgeStatus = t.union([t.literal('ok'), t.literal('unknown')]);
+const Status = t.union([t.literal('ok'), t.literal('unknown')]);
 const Edge = t.type({
   _id: t.string,
   _key: t.string,
@@ -62,7 +62,7 @@ const Edge = t.type({
 const EdgeWithStatus = t.intersection([
   Edge,
   t.type({
-    status: EdgeStatus,
+    status: Status,
   }),
 ]);
 
@@ -136,12 +136,22 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
   return extractResult(LinksAndDevicesOutputValidator.decode(value));
 }
 
-const HasOutputValidator = t.array(EdgeWithStatus);
+const InterfaceWithStatus = t.intersection([
+  Interface,
+  t.type({
+    status: Status,
+  }),
+]);
 
-export type HasOutput = t.TypeOf<typeof HasOutputValidator>;
+const HasAndInterfacesOutputValidator = t.type({
+  has: t.array(EdgeWithStatus),
+  interfaces: t.array(InterfaceWithStatus),
+});
 
-export function decodeHasOutput(value: unknown): HasOutput {
-  return extractResult(HasOutputValidator.decode(value));
+export type HasAndInterfacesOutput = t.TypeOf<typeof HasAndInterfacesOutputValidator>;
+
+export function decodeHasAndInterfacesOutput(value: unknown): HasAndInterfacesOutput {
+  return extractResult(HasAndInterfacesOutputValidator.decode(value));
 }
 
 const UpdateCoordinatesOutputValidator = t.type({

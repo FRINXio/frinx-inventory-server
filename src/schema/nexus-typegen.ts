@@ -313,6 +313,7 @@ export interface NexusGenObjects {
   GraphNodeInterface: {
     // root type
     id: string; // String!
+    name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
   GraphVersionEdge: {
@@ -660,6 +661,7 @@ export interface NexusGenFieldTypes {
   GraphNodeInterface: {
     // field return type
     id: string; // String!
+    name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
   GraphVersionEdge: {
@@ -1067,6 +1069,7 @@ export interface NexusGenFieldTypeNames {
   GraphNodeInterface: {
     // field return type name
     id: 'String';
+    name: 'String';
     status: 'GraphEdgeStatus';
   };
   GraphVersionEdge: {
