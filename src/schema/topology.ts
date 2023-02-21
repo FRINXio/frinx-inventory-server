@@ -7,7 +7,11 @@ import {
   getOldTopologyConnectedEdges,
   getOldTopologyDevices,
   getOldTopologyInterfaceEdges,
-} from '../helpers/topology-helpers';
+  makeInterfaceDeviceMap,
+  makeInterfaceMap,
+  makeInterfaceNameMap,
+  makeNodesMap,
+} from '../helpers/topology.helpers';
 import unwrap from '../helpers/unwrap';
 
 export const FilterTopologyInput = inputObjectType({
@@ -134,31 +138,9 @@ export const TopologyQuery = extendType({
         const { has: interfaceEdges, interfaces } = await topologyDiscoveryAPI.getHasAndInterfaces(
           unwrap(config.topologyDiscoveryURL),
         );
-        const interfaceDeviceMap = interfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
-          const dvc = unwrap(arr.find((int) => int._to === curr._to)?._from);
-          return {
-            ...acc,
-            [curr._to]: dvc,
-          };
-        }, {} as Record<string, string>);
-        const interfaceNameMap = interfaces.reduce<Record<string, string>>(
-          (acc, curr) => ({
-            ...acc,
-            [curr._id]: curr.name,
-          }),
-          {} as Record<string, string>,
-        );
-        const interfaceMap = interfaceEdges.reduce<
-          Record<string, { id: string; status: 'ok' | 'unknown'; name: string }[]>
-        >(
-          (acc, curr) => ({
-            ...acc,
-            [curr._from]: acc[curr._from]?.length
-              ? [...acc[curr._from], { id: curr._to, status: curr.status, name: interfaceNameMap[curr._to] }]
-              : [{ id: curr._to, status: curr.status, name: interfaceNameMap[curr._to] }],
-          }),
-          {} as Record<string, { id: string; status: 'ok' | 'unknown'; name: string }[]>,
-        );
+        const interfaceDeviceMap = makeInterfaceDeviceMap(interfaceEdges);
+        const interfaceNameMap = makeInterfaceNameMap(interfaces);
+        const interfaceMap = makeInterfaceMap(interfaceEdges, interfaceNameMap);
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
         const labelIds = dbLabels.map((l) => l.id);
@@ -166,13 +148,7 @@ export const TopologyQuery = extendType({
         const dbDevices = await prisma.device.findMany({ where: { tenantId, ...filterQuery } });
         const linksAndDevices = await topologyDiscoveryAPI.getLinksAndDevices(unwrap(config.topologyDiscoveryURL));
         const { nodes, edges } = linksAndDevices;
-        const nodesMap = nodes.reduce(
-          (acc, curr) => ({
-            ...acc,
-            [curr._id]: curr.name,
-          }),
-          {} as Record<string, string>,
-        );
+        const nodesMap = makeNodesMap(nodes);
         return {
           nodes: dbDevices
             .map((device) => {
@@ -275,39 +251,10 @@ export const TopologyVersionDataQuery = extendType({
           unwrap(config.topologyDiscoveryURL),
         );
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
-
-        const interfaceDeviceMap = oldInterfaceEdges.reduce<Record<string, string>>((acc, curr, i, arr) => {
-          const dvc = unwrap(arr.find((int) => int._to === curr._to)?._from);
-          return {
-            ...acc,
-            [curr._to]: dvc,
-          };
-        }, {} as Record<string, string>);
-        const interfaceNameMap = interfaces.reduce<Record<string, string>>(
-          (acc, curr) => ({
-            ...acc,
-            [curr._id]: curr.name,
-          }),
-          {} as Record<string, string>,
-        );
-        const interfaceMap = interfaceEdges.reduce<
-          Record<string, { id: string; status: 'ok' | 'unknown'; name: string }[]>
-        >(
-          (acc, curr) => ({
-            ...acc,
-            [curr._from]: acc[curr._from]?.length
-              ? [...acc[curr._from], { id: curr._to, status: curr.status, name: interfaceNameMap[curr._to] }]
-              : [{ id: curr._to, status: curr.status, name: interfaceNameMap[curr._to] }],
-          }),
-          {} as Record<string, { id: string; status: 'ok' | 'unknown'; name: string }[]>,
-        );
-        const nodesMap = oldDevices.reduce(
-          (acc, curr) => ({
-            ...acc,
-            [curr._id]: curr.name,
-          }),
-          {} as Record<string, string>,
-        );
+        const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
+        const interfaceNameMap = makeInterfaceNameMap(interfaces);
+        const interfaceMap = makeInterfaceMap(interfaceEdges, interfaceNameMap);
+        const nodesMap = makeNodesMap(oldDevices);
 
         const oldEdges = getOldTopologyConnectedEdges(edges, result)
           .map((e) => ({

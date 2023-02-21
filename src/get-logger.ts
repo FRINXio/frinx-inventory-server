@@ -4,6 +4,8 @@ import isDev from './is-dev';
 type Logger = {
   info: (text: string) => void;
   error: (text: string) => void;
+  warn: (text: string) => void;
+  debug: (text: string) => void;
 };
 
 function getLogger(name: string): Logger {
@@ -28,6 +30,12 @@ function getLogger(name: string): Logger {
     },
     error: (text: string) => {
       logger.error(text);
+    },
+    warn: (text: string) => {
+      logger.warn(text);
+    },
+    debug: (text: string) => {
+      logger.debug(text);
     },
   };
 }

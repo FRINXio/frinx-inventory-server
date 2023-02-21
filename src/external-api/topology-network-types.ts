@@ -30,12 +30,18 @@ export function decodeVersionsOutput(value: unknown): VersionsOutput {
 const Interface = t.type({
   _id: t.string,
   _key: t.string,
-  // _rev: t.string,
   name: t.string,
 });
-
-const Device = t.intersection([
+const StatusValidator = t.union([t.literal('ok'), t.literal('unknown')]);
+const InterfaceWithStatusValidator = t.intersection([
   Interface,
+  t.type({
+    status: StatusValidator,
+  }),
+]);
+
+const DeviceValidator = t.intersection([
+  InterfaceWithStatusValidator,
   t.type({
     labels: t.array(t.string),
     details: t.type({
@@ -49,57 +55,57 @@ const Device = t.intersection([
   }),
 ]);
 
-export type ArangoDevice = t.TypeOf<typeof Device>;
+export type ArangoDevice = t.TypeOf<typeof DeviceValidator>;
 
-const Status = t.union([t.literal('ok'), t.literal('unknown')]);
+export type Status = t.TypeOf<typeof StatusValidator>;
+
 const Edge = t.type({
   _id: t.string,
   _key: t.string,
-  _rev: t.string,
   _from: t.string,
   _to: t.string,
 });
-const EdgeWithStatus = t.intersection([
+const EdgeWithStatusValidator = t.intersection([
   Edge,
   t.type({
-    status: Status,
+    status: StatusValidator,
   }),
 ]);
 
+export type EdgeWithStatus = t.TypeOf<typeof EdgeWithStatusValidator>;
+
 export type ArangoEdge = t.TypeOf<typeof Edge>;
-export type ArangoEdgeWithStatus = t.TypeOf<typeof EdgeWithStatus>;
+export type ArangoEdgeWithStatus = t.TypeOf<typeof EdgeWithStatusValidator>;
 
 const Diff = t.type({
-  phy_device: t.array(Device),
-  phy_has: t.array(EdgeWithStatus),
-  phy_interface: t.array(Interface),
+  phy_device: t.array(DeviceValidator),
+  phy_has: t.array(EdgeWithStatusValidator),
+  phy_interface: t.array(InterfaceWithStatusValidator),
   phy_link: t.array(Edge),
 });
 
-// const ChangedNode = t.type({
-//   new: Node,
-//   old: Node,
-// });
-
 const ChangedDevice = t.type({
-  new: Device,
-  old: Device,
+  new: DeviceValidator,
+  old: DeviceValidator,
 });
 
 const ChangedEdge = t.type({
   new: Edge,
   old: Edge,
 });
-
-const ChangedEdgeWithStatus = t.type({
-  new: EdgeWithStatus,
-  old: EdgeWithStatus,
+const ChangedInterface = t.type({
+  new: InterfaceWithStatusValidator,
+  old: InterfaceWithStatusValidator,
+});
+const ChangedEdgeWithStatusValidator = t.type({
+  new: EdgeWithStatusValidator,
+  old: EdgeWithStatusValidator,
 });
 
 const ChangeDiff = t.type({
   phy_device: t.array(ChangedDevice),
-  phy_has: t.array(ChangedEdgeWithStatus),
-  phy_interface: t.array(ChangedDevice),
+  phy_has: t.array(ChangedEdgeWithStatusValidator),
+  phy_interface: t.array(ChangedInterface),
   phy_link: t.array(ChangedEdge),
 });
 
@@ -127,7 +133,7 @@ export function decodeTopologyCommonNodesOutput(value: unknown): TopologyCommonN
 
 const LinksAndDevicesOutputValidator = t.type({
   edges: t.array(Edge),
-  nodes: t.array(Device),
+  nodes: t.array(DeviceValidator),
 });
 
 export type LinksAndDevicesOutput = t.TypeOf<typeof LinksAndDevicesOutputValidator>;
@@ -136,16 +142,11 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
   return extractResult(LinksAndDevicesOutputValidator.decode(value));
 }
 
-const InterfaceWithStatus = t.intersection([
-  Interface,
-  t.type({
-    status: Status,
-  }),
-]);
+export type InterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
 
 const HasAndInterfacesOutputValidator = t.type({
-  has: t.array(EdgeWithStatus),
-  interfaces: t.array(InterfaceWithStatus),
+  has: t.array(EdgeWithStatusValidator),
+  interfaces: t.array(InterfaceWithStatusValidator),
 });
 
 export type HasAndInterfacesOutput = t.TypeOf<typeof HasAndInterfacesOutputValidator>;
