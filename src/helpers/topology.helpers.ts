@@ -1,9 +1,13 @@
 import {
-  TopologyDiffOutput,
   ArangoDevice,
   ArangoEdge,
   ArangoEdgeWithStatus,
+  EdgeWithStatus,
+  InterfaceWithStatus,
+  Status,
+  TopologyDiffOutput,
 } from '../external-api/topology-network-types';
+import unwrap from './unwrap';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -84,4 +88,46 @@ export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: 
       return changedEdge.old;
     });
   return oldConnected;
+}
+
+export function makeInterfaceDeviceMap(edges: EdgeWithStatus[]): Record<string, string> {
+  return edges.reduce((acc, curr, _, arr) => {
+    const device = unwrap(arr.find((intfc) => intfc._to === curr._to)?._from);
+    return {
+      ...acc,
+      [curr._to]: device,
+    };
+  }, {});
+}
+
+export function makeInterfaceNameMap(interfaces: InterfaceWithStatus[]): Record<string, string> {
+  return interfaces.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr._id]: curr.name,
+    }),
+    {},
+  );
+}
+
+export type InterfaceMap = Record<string, { id: string; status: Status; name: string }[]>;
+
+export function makeInterfaceMap(edges: EdgeWithStatus[], interfaceNameMap: Record<string, string>): InterfaceMap {
+  return edges.reduce((acc, curr) => {
+    const item = { id: curr._to, status: curr.status, name: interfaceNameMap[curr._to] };
+    return {
+      ...acc,
+      [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], item] : [item],
+    };
+  }, {} as InterfaceMap);
+}
+
+export function makeNodesMap(nodes: ArangoDevice[]): Record<string, string> {
+  return nodes.reduce(
+    (acc, curr) => ({
+      ...acc,
+      [curr._id]: curr.name,
+    }),
+    {} as Record<string, string>,
+  );
 }

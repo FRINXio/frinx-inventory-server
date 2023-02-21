@@ -25,6 +25,9 @@ const CACHE_CLEAR_INTERVAL = 1000 * 60 * 10;
 process.on('unhandledRejection', (error) => {
   log.error(`Error: unhandled promise rejection: ${error}`);
 });
+process.on('uncaughtException', (error) => {
+  log.error(`Error: uncaught exception: ${error}`);
+});
 
 const app = express();
 app.use(graphqlUploadExpress());
@@ -52,6 +55,11 @@ const apolloServer = new ApolloServer({
   schema,
   introspection: true,
   dataSources: () => ({}),
+  logger: log,
+  formatError: (err) => {
+    log.error(err.message);
+    return err;
+  },
   plugins: [
     ApolloServerPluginDrainHttpServer({ httpServer: server }),
     ApolloServerPluginLandingPageLocalDefault({ embed: true }),
