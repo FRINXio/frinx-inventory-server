@@ -58,7 +58,6 @@ export function getOldTopologyInterfaceEdges(
     .filter((e) => !diffData.added.phy_interface.find((i) => e._to === i._id))
     // filter edges pointing to added device
     .filter((e) => !diffData.added.phy_device.find((d) => e._from === d._id))
-    // .filter((e) => !diffData.deleted.phy_interface.find((i) => e._to === i._id))
     // add has edges removed from current topology
     .concat(diffData.deleted.phy_has)
     // change `phy_has` edges from old topology
@@ -78,7 +77,6 @@ export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: 
     .filter((e) => !diffData.added.phy_link.find((c) => e._id === c._id))
     // filter edges pointing to added interfaces
     .filter((e) => !diffData.added.phy_interface.find((i) => e._to === i._id))
-    // .filter((e) => !diffData.deleted.phy_interface.find((i) => e._to === i._id))
     // add connected edges removed from current topology
     .concat(diffData.deleted.phy_link)
     // change `phy_link` edges from old topology
