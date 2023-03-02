@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@frinx/eslint-config-typescript-base": "15.0.0-build.1",
-    "@types/jest": "28.1.6",
+    "@types/jest": "28.1.8",
     "@types/ssh2": "^1.11.6",
     "@typescript-eslint/eslint-plugin": "5.33.0",
     "@typescript-eslint/parser": "5.33.0",
@@ -55,7 +55,7 @@
     "@types/express": "4.17.13",
     "@types/graphql-upload": "8.0.12",
     "@types/json-templates": "3.0.0",
-    "@types/lodash": "4.14.180",
+    "@types/lodash": "4.14.191",
     "@types/node": "16.11.47",
     "@types/node-fetch": "2.6.2",
     "@types/pino": "7.0.4",
