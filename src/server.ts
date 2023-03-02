@@ -2,7 +2,7 @@ import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDe
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
 import fs from 'fs';
-import { graphqlUploadExpress } from 'graphql-upload';
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import https from 'https';
 import http, { Server } from 'http';

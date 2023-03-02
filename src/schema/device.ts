@@ -1,7 +1,7 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { Prisma } from '@prisma/client';
 import { parse as csvParse } from 'csv-parse';
-import { GraphQLUpload } from 'graphql-upload';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload';
 import jsonParse from 'json-templates';
 import {
   arg,
