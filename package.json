@@ -81,7 +81,7 @@
     "node-fetch": "2.6.7",
     "node-ssh": "^13.0.0",
     "pino": "8.4.0",
-    "pino-pretty": "9.0.0",
+    "pino-pretty": "9.4.0",
     "prisma": "4.2.1",
     "ssh2": "^1.11.0",
     "url-join": "4.0.1",
