@@ -421,6 +421,7 @@ type Query {
   topologyVersions: [String!]
   transactions: [Transaction!]!
   uniconfigShellSession: String
+  worfklows(after: String, before: String, first: Int, last: Int): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
@@ -540,6 +541,21 @@ type UpdateGraphNodeCoordinatesPayload {
 The `Upload` scalar type represents a file upload.
 """
 scalar Upload
+
+type Worfklow implements Node {
+  id: ID!
+}
+
+type WorkflowConnection {
+  edges: [WorkflowEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type WorkflowEdge {
+  cursor: String!
+  node: Worfklow!
+}
 
 type Zone implements Node {
   createdAt: String!

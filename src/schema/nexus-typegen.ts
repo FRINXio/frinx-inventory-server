@@ -441,6 +441,18 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
+  Worfklow: {};
+  WorkflowConnection: {
+    // root type
+    edges: NexusGenRootTypes['WorkflowEdge'][]; // [WorkflowEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  WorkflowEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Worfklow']; // Worfklow!
+  };
   Zone: SourceTypes.Zone;
   ZoneEdge: {
     // root type
@@ -463,6 +475,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Device', 'required'>
     | core.Discriminate<'Label', 'required'>
     | core.Discriminate<'Location', 'required'>
+    | core.Discriminate<'Worfklow', 'required'>
     | core.Discriminate<'Zone', 'required'>;
 }
 
@@ -770,6 +783,7 @@ export interface NexusGenFieldTypes {
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
+    worfklows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
   ResetConfigPayload: {
@@ -847,6 +861,21 @@ export interface NexusGenFieldTypes {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type
     deviceNames: string[]; // [String!]!
+  };
+  Worfklow: {
+    // field return type
+    id: string; // ID!
+  };
+  WorkflowConnection: {
+    // field return type
+    edges: NexusGenRootTypes['WorkflowEdge'][]; // [WorkflowEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  WorkflowEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Worfklow']; // Worfklow!
   };
   Zone: {
     // field return type
@@ -1178,6 +1207,7 @@ export interface NexusGenFieldTypeNames {
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
+    worfklows: 'WorkflowConnection';
     zones: 'ZonesConnection';
   };
   ResetConfigPayload: {
@@ -1255,6 +1285,21 @@ export interface NexusGenFieldTypeNames {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type name
     deviceNames: 'String';
+  };
+  Worfklow: {
+    // field return type name
+    id: 'ID';
+  };
+  WorkflowConnection: {
+    // field return type name
+    edges: 'WorkflowEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  WorkflowEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'Worfklow';
   };
   Zone: {
     // field return type name
@@ -1470,6 +1515,13 @@ export interface NexusGenArgTypes {
       // args
       version: string; // String!
     };
+    worfklows: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
     zones: {
       // args
       after?: string | null; // String
@@ -1490,7 +1542,7 @@ export interface NexusGenArgTypes {
 
 export interface NexusGenAbstractTypeMembers {
   BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
-  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
+  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Worfklow' | 'Zone';
 }
 
 export interface NexusGenTypeInterfaces {
@@ -1501,6 +1553,7 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
+  Worfklow: 'Node';
   Zone: 'Node';
 }
 
