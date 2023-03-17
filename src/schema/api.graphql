@@ -542,8 +542,13 @@ The `Upload` scalar type represents a file upload.
 """
 scalar Upload
 
-type Worfklow implements Node {
+type Workflow implements Node {
+  createdAt: String
+  createdBy: String
   id: ID!
+  name: String!
+  updatedAt: String
+  updatedBy: String
 }
 
 type WorkflowConnection {
@@ -554,7 +559,13 @@ type WorkflowConnection {
 
 type WorkflowEdge {
   cursor: String!
-  node: Worfklow!
+  node: Workflow!
+}
+
+type WorkflowTask {
+  name: String!
+  taskReferenceName: String!
+  type: String
 }
 
 type Zone implements Node {

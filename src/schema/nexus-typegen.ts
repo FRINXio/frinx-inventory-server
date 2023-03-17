@@ -441,7 +441,7 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
-  Worfklow: {};
+  Workflow: SourceTypes.Workflow;
   WorkflowConnection: {
     // root type
     edges: NexusGenRootTypes['WorkflowEdge'][]; // [WorkflowEdge!]!
@@ -451,7 +451,13 @@ export interface NexusGenObjects {
   WorkflowEdge: {
     // root type
     cursor: string; // String!
-    node: NexusGenRootTypes['Worfklow']; // Worfklow!
+    node: NexusGenRootTypes['Workflow']; // Workflow!
+  };
+  WorkflowTask: {
+    // root type
+    name: string; // String!
+    taskReferenceName: string; // String!
+    type?: string | null; // String
   };
   Zone: SourceTypes.Zone;
   ZoneEdge: {
@@ -475,7 +481,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Device', 'required'>
     | core.Discriminate<'Label', 'required'>
     | core.Discriminate<'Location', 'required'>
-    | core.Discriminate<'Worfklow', 'required'>
+    | core.Discriminate<'Workflow', 'required'>
     | core.Discriminate<'Zone', 'required'>;
 }
 
@@ -862,9 +868,14 @@ export interface NexusGenFieldTypes {
     // field return type
     deviceNames: string[]; // [String!]!
   };
-  Worfklow: {
+  Workflow: {
     // field return type
+    createdAt: string | null; // String
+    createdBy: string | null; // String
     id: string; // ID!
+    name: string; // String!
+    updatedAt: string | null; // String
+    updatedBy: string | null; // String
   };
   WorkflowConnection: {
     // field return type
@@ -875,7 +886,13 @@ export interface NexusGenFieldTypes {
   WorkflowEdge: {
     // field return type
     cursor: string; // String!
-    node: NexusGenRootTypes['Worfklow']; // Worfklow!
+    node: NexusGenRootTypes['Workflow']; // Workflow!
+  };
+  WorkflowTask: {
+    // field return type
+    name: string; // String!
+    taskReferenceName: string; // String!
+    type: string | null; // String
   };
   Zone: {
     // field return type
@@ -1286,9 +1303,14 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     deviceNames: 'String';
   };
-  Worfklow: {
+  Workflow: {
     // field return type name
+    createdAt: 'String';
+    createdBy: 'String';
     id: 'ID';
+    name: 'String';
+    updatedAt: 'String';
+    updatedBy: 'String';
   };
   WorkflowConnection: {
     // field return type name
@@ -1299,7 +1321,13 @@ export interface NexusGenFieldTypeNames {
   WorkflowEdge: {
     // field return type name
     cursor: 'String';
-    node: 'Worfklow';
+    node: 'Workflow';
+  };
+  WorkflowTask: {
+    // field return type name
+    name: 'String';
+    taskReferenceName: 'String';
+    type: 'String';
   };
   Zone: {
     // field return type name
@@ -1542,7 +1570,7 @@ export interface NexusGenArgTypes {
 
 export interface NexusGenAbstractTypeMembers {
   BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
-  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Worfklow' | 'Zone';
+  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Workflow' | 'Zone';
 }
 
 export interface NexusGenTypeInterfaces {
@@ -1553,7 +1581,7 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
-  Worfklow: 'Node';
+  Workflow: 'Node';
   Zone: 'Node';
 }
 
