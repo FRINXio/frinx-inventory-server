@@ -9,7 +9,7 @@ export const WorkflowTask = objectType({
   definition: (t) => {
     t.nonNull.string('name');
     t.nonNull.string('taskReferenceName');
-    t.string('type');
+    // t.nonNull.string('type');
   },
 });
 
@@ -29,9 +29,7 @@ export const Workflow = objectType({
     t.string('updatedAt', {
       resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
     });
-    // t.list.field('tasks', {
-    //   resolve: (workflow) => workflow.tasks,
-    // });
+    // t.list.field('tasks', WorkflowTask);
   },
 });
 

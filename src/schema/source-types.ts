@@ -1,5 +1,5 @@
 import { blueprint, device, label, location, uniconfigZone } from '@prisma/client';
-import { ApiWorkflow } from '../external-api/conductor-network-types';
+import { ApiWorkflow, NestedTask } from '../external-api/conductor-network-types';
 
 export type Label = label;
 export type Device = device;
@@ -17,3 +17,4 @@ export type Country = {
 };
 export type Blueprint = blueprint;
 export type Workflow = ApiWorkflow & { id: string };
+export type WorkflowTask = NestedTask;

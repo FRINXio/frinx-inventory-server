@@ -565,7 +565,6 @@ type WorkflowEdge {
 type WorkflowTask {
   name: String!
   taskReferenceName: String!
-  type: String
 }
 
 type Zone implements Node {
