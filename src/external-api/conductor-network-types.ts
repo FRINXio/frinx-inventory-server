@@ -37,6 +37,8 @@ export type NestedTask = BaseTask & {
   defaultCase: NestedTask[] | void;
 };
 
+// TODO: this is properly typed nested workflow but is not used in graphql schema as
+// we are not able to get whole  deeply nested object in graphql
 const WorkflowTask: t.Type<NestedTask> = t.recursion('NestedTask', () =>
   t.intersection([
     ApiBaseTask,
@@ -55,7 +57,7 @@ const WorkflowMetadata = t.type({
   name: t.string,
   description: optional(t.string),
   version: optional(t.number),
-  tasks: t.array(WorkflowTask),
+  tasks: t.UnknownArray, // TODO: we are passing task as stringified json for now (can we switch to WorkflowTask somehow?)
   timeoutSeconds: t.number,
   inputParameters: optional(t.array(t.string)),
   outputParameters: optional(t.record(t.string, t.string)),

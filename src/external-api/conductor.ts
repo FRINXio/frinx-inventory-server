@@ -1,5 +1,5 @@
 import { decodeWorkflowMetadataOutput, WorfklowMetadataOutput } from './conductor-network-types';
-import { sendGetRequest, sendPatchRequest, sendPostRequest } from './helpers';
+import { sendGetRequest } from './helpers';
 
 async function getWorkflowMetadata(baseURL: string): Promise<WorfklowMetadataOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/workflow']);

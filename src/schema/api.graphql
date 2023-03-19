@@ -547,6 +547,7 @@ type Workflow implements Node {
   createdBy: String
   id: ID!
   name: String!
+  tasks: String
   updatedAt: String
   updatedBy: String
 }
@@ -560,11 +561,6 @@ type WorkflowConnection {
 type WorkflowEdge {
   cursor: String!
   node: Workflow!
-}
-
-type WorkflowTask {
-  name: String!
-  taskReferenceName: String!
 }
 
 type Zone implements Node {

@@ -453,7 +453,6 @@ export interface NexusGenObjects {
     cursor: string; // String!
     node: NexusGenRootTypes['Workflow']; // Workflow!
   };
-  WorkflowTask: SourceTypes.WorkflowTask;
   Zone: SourceTypes.Zone;
   ZoneEdge: {
     // root type
@@ -869,6 +868,7 @@ export interface NexusGenFieldTypes {
     createdBy: string | null; // String
     id: string; // ID!
     name: string; // String!
+    tasks: string | null; // String
     updatedAt: string | null; // String
     updatedBy: string | null; // String
   };
@@ -882,11 +882,6 @@ export interface NexusGenFieldTypes {
     // field return type
     cursor: string; // String!
     node: NexusGenRootTypes['Workflow']; // Workflow!
-  };
-  WorkflowTask: {
-    // field return type
-    name: string; // String!
-    taskReferenceName: string; // String!
   };
   Zone: {
     // field return type
@@ -1303,6 +1298,7 @@ export interface NexusGenFieldTypeNames {
     createdBy: 'String';
     id: 'ID';
     name: 'String';
+    tasks: 'String';
     updatedAt: 'String';
     updatedBy: 'String';
   };
@@ -1316,11 +1312,6 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     cursor: 'String';
     node: 'Workflow';
-  };
-  WorkflowTask: {
-    // field return type name
-    name: 'String';
-    taskReferenceName: 'String';
   };
   Zone: {
     // field return type name

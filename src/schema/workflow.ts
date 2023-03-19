@@ -4,15 +4,6 @@ import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 
-export const WorkflowTask = objectType({
-  name: 'WorkflowTask',
-  definition: (t) => {
-    t.nonNull.string('name');
-    t.nonNull.string('taskReferenceName');
-    // t.nonNull.string('type');
-  },
-});
-
 export const Workflow = objectType({
   name: 'Workflow',
   definition: (t) => {
@@ -29,7 +20,7 @@ export const Workflow = objectType({
     t.string('updatedAt', {
       resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
     });
-    // t.list.field('tasks', WorkflowTask);
+    t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
   },
 });
 
