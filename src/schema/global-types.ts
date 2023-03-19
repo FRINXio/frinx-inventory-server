@@ -1,6 +1,8 @@
 import countries from 'i18n-iso-countries';
 import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
 import { fromGraphId, getType } from '../helpers/id-helper';
+import conductorAPI from '../external-api/conductor';
+import config from '../config';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -94,6 +96,14 @@ export const NodeQuery = extendType({
               return null;
             }
             return { ...blueprint, __typename: 'Blueprint' };
+          }
+          case 'Workflow': {
+            const id = fromGraphId('Workflow', args.id);
+            const workflow = await conductorAPI.getWorkflowDetail(config.conductorApiURL, id);
+            if (workflow == null) {
+              return null;
+            }
+            return { ...workflow, id: args.id, __typename: 'Workflow' };
           }
           /* eslint-enable */
           default:

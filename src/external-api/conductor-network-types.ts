@@ -79,3 +79,9 @@ export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 export function decodeWorkflowMetadataOutput(value: unknown): WorfklowMetadataOutput {
   return extractResult(WorkflowMetadataValidator.decode(value));
 }
+
+export type WorkflowDetailOutput = t.TypeOf<typeof WorkflowMetadata>;
+
+export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput {
+  return extractResult(WorkflowMetadata.decode(value));
+}
