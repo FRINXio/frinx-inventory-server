@@ -259,6 +259,112 @@ type EdgeSourceTarget {
   nodeId: String!
 }
 
+type ExecutedWorkflow implements Node {
+  correlationId: String
+  createdAt: String
+  createdBy: String
+  endTime: String
+  event: String
+  externalInputPayloadStoragePath: String
+  externalOutputPayloadStoragePath: String
+  failedReferenceTaskNames: [String]
+  failedTaskNames: [String]
+  id: ID!
+  input: String
+  lastRetriedTime: String
+  output: String
+  ownerApp: String
+  parentWorkflowId: String
+  parentWorkflowTaskId: String
+  priority: Int
+  reRunFromWorkflowId: String
+  reasonForIncompletion: String
+  startTime: String
+  status: ExecutedWorkflowStatus
+  taskToDomain: String
+  tasks: [ExecutedWorkflowTask]
+  updatedAt: String
+  updatedBy: String
+  variables: String
+  workflowDefinition: Workflow
+  workflowId: String
+  workflowName: String
+  workflowVersion: Int
+}
+
+type ExecutedWorkflowConnection {
+  edges: [ExecutedWorkflowEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ExecutedWorkflowEdge {
+  cursor: String!
+  node: ExecutedWorkflow!
+}
+
+enum ExecutedWorkflowStatus {
+  COMPLETED
+  FAILED
+  PAUSED
+  RUNNING
+  TERMINATED
+  TIMED_OUT
+}
+
+type ExecutedWorkflowTask implements Node {
+  callbackAfterSeconds: Int
+  callbackFromWorker: Boolean
+  correlationId: String
+  domain: String
+  endTime: String
+  executed: Boolean
+  executionNameSpace: String
+  externalInputPayloadStoragePath: String
+  externalOutputPayloadStoragePath: String
+  id: ID!
+  isolationGroupId: String
+  iteration: Int
+  loopOverTask: Boolean
+  pollCount: Int
+  queueWaitTime: Int
+  rateLimitFrequencyInSeconds: Int
+  rateLimitPerFrequency: Int
+  reasonForIncompletion: String
+  responseTimeoutSeconds: Int
+  retried: Boolean
+  retryCount: Int
+  scheduledTime: String
+  seq: String
+  startDelayInSeconds: Int
+  startTime: String
+  status: ExecutedWorkflowTaskStatus
+  subWorkflowChanged: Boolean
+  subWorkflowId: String
+  taskDefName: String
+  taskDefinition: String
+  taskId: String
+  taskReferenceName: String
+  taskType: String
+  updateTime: String
+  workerId: String
+  workflowInstanceId: String
+  workflowPriority: Int
+  workflowType: String
+}
+
+enum ExecutedWorkflowTaskStatus {
+  CANCELED
+  COMPLETED
+  COMPLETED_WITH_ERROR
+  FAILED
+  FAILED_WITH_TERMINAL_ERROR
+  IN_PROGRESS
+  SCHEDULED
+  SKIPPED
+  TIMED_OUT
+}
+
 input FilterDevicesInput {
   deviceName: String
   labels: [String!]
@@ -412,6 +518,7 @@ type Query {
     last: Int
     orderBy: DeviceOrderByInput
   ): DeviceConnection!
+  executedWorkflows(after: String, before: String, first: Int, last: Int): ExecutedWorkflowConnection
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node

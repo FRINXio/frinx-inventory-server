@@ -145,6 +145,17 @@ export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
+  ExecutedWorkflowStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT';
+  ExecutedWorkflowTaskStatus:
+    | 'CANCELED'
+    | 'COMPLETED'
+    | 'COMPLETED_WITH_ERROR'
+    | 'FAILED'
+    | 'FAILED_WITH_TERMINAL_ERROR'
+    | 'IN_PROGRESS'
+    | 'SCHEDULED'
+    | 'SKIPPED'
+    | 'TIMED_OUT';
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
@@ -290,6 +301,19 @@ export interface NexusGenObjects {
     interface: string; // String!
     nodeId: string; // String!
   };
+  ExecutedWorkflow: SourceTypes.ExecutedWorkflow;
+  ExecutedWorkflowConnection: {
+    // root type
+    edges: NexusGenRootTypes['ExecutedWorkflowEdge'][]; // [ExecutedWorkflowEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  ExecutedWorkflowEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
+  };
+  ExecutedWorkflowTask: SourceTypes.ExecutedWorkflowTask;
   GraphEdge: {
     // root type
     id: string; // ID!
@@ -473,6 +497,8 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Blueprint', 'required'>
     | core.Discriminate<'Country', 'required'>
     | core.Discriminate<'Device', 'required'>
+    | core.Discriminate<'ExecutedWorkflow', 'required'>
+    | core.Discriminate<'ExecutedWorkflowTask', 'required'>
     | core.Discriminate<'Label', 'required'>
     | core.Discriminate<'Location', 'required'>
     | core.Discriminate<'Workflow', 'required'>
@@ -651,6 +677,91 @@ export interface NexusGenFieldTypes {
     interface: string; // String!
     nodeId: string; // String!
   };
+  ExecutedWorkflow: {
+    // field return type
+    correlationId: string | null; // String
+    createdAt: string | null; // String
+    createdBy: string | null; // String
+    endTime: string | null; // String
+    event: string | null; // String
+    externalInputPayloadStoragePath: string | null; // String
+    externalOutputPayloadStoragePath: string | null; // String
+    failedReferenceTaskNames: Array<string | null> | null; // [String]
+    failedTaskNames: Array<string | null> | null; // [String]
+    id: string; // ID!
+    input: string | null; // String
+    lastRetriedTime: string | null; // String
+    output: string | null; // String
+    ownerApp: string | null; // String
+    parentWorkflowId: string | null; // String
+    parentWorkflowTaskId: string | null; // String
+    priority: number | null; // Int
+    reRunFromWorkflowId: string | null; // String
+    reasonForIncompletion: string | null; // String
+    startTime: string | null; // String
+    status: NexusGenEnums['ExecutedWorkflowStatus'] | null; // ExecutedWorkflowStatus
+    taskToDomain: string | null; // String
+    tasks: Array<NexusGenRootTypes['ExecutedWorkflowTask'] | null> | null; // [ExecutedWorkflowTask]
+    updatedAt: string | null; // String
+    updatedBy: string | null; // String
+    variables: string | null; // String
+    workflowDefinition: NexusGenRootTypes['Workflow'] | null; // Workflow
+    workflowId: string | null; // String
+    workflowName: string | null; // String
+    workflowVersion: number | null; // Int
+  };
+  ExecutedWorkflowConnection: {
+    // field return type
+    edges: NexusGenRootTypes['ExecutedWorkflowEdge'][]; // [ExecutedWorkflowEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  ExecutedWorkflowEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
+  };
+  ExecutedWorkflowTask: {
+    // field return type
+    callbackAfterSeconds: number | null; // Int
+    callbackFromWorker: boolean | null; // Boolean
+    correlationId: string | null; // String
+    domain: string | null; // String
+    endTime: string | null; // String
+    executed: boolean | null; // Boolean
+    executionNameSpace: string | null; // String
+    externalInputPayloadStoragePath: string | null; // String
+    externalOutputPayloadStoragePath: string | null; // String
+    id: string; // ID!
+    isolationGroupId: string | null; // String
+    iteration: number | null; // Int
+    loopOverTask: boolean | null; // Boolean
+    pollCount: number | null; // Int
+    queueWaitTime: number | null; // Int
+    rateLimitFrequencyInSeconds: number | null; // Int
+    rateLimitPerFrequency: number | null; // Int
+    reasonForIncompletion: string | null; // String
+    responseTimeoutSeconds: number | null; // Int
+    retried: boolean | null; // Boolean
+    retryCount: number | null; // Int
+    scheduledTime: string | null; // String
+    seq: string | null; // String
+    startDelayInSeconds: number | null; // Int
+    startTime: string | null; // String
+    status: NexusGenEnums['ExecutedWorkflowTaskStatus'] | null; // ExecutedWorkflowTaskStatus
+    subWorkflowChanged: boolean | null; // Boolean
+    subWorkflowId: string | null; // String
+    taskDefName: string | null; // String
+    taskDefinition: string | null; // String
+    taskId: string | null; // String
+    taskReferenceName: string | null; // String
+    taskType: string | null; // String
+    updateTime: string | null; // String
+    workerId: string | null; // String
+    workflowInstanceId: string | null; // String
+    workflowPriority: number | null; // Int
+    workflowType: string | null; // String
+  };
   GraphEdge: {
     // field return type
     id: string; // ID!
@@ -774,6 +885,7 @@ export interface NexusGenFieldTypes {
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
+    executedWorkflows: NexusGenRootTypes['ExecutedWorkflowConnection'] | null; // ExecutedWorkflowConnection
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
@@ -1081,6 +1193,91 @@ export interface NexusGenFieldTypeNames {
     interface: 'String';
     nodeId: 'String';
   };
+  ExecutedWorkflow: {
+    // field return type name
+    correlationId: 'String';
+    createdAt: 'String';
+    createdBy: 'String';
+    endTime: 'String';
+    event: 'String';
+    externalInputPayloadStoragePath: 'String';
+    externalOutputPayloadStoragePath: 'String';
+    failedReferenceTaskNames: 'String';
+    failedTaskNames: 'String';
+    id: 'ID';
+    input: 'String';
+    lastRetriedTime: 'String';
+    output: 'String';
+    ownerApp: 'String';
+    parentWorkflowId: 'String';
+    parentWorkflowTaskId: 'String';
+    priority: 'Int';
+    reRunFromWorkflowId: 'String';
+    reasonForIncompletion: 'String';
+    startTime: 'String';
+    status: 'ExecutedWorkflowStatus';
+    taskToDomain: 'String';
+    tasks: 'ExecutedWorkflowTask';
+    updatedAt: 'String';
+    updatedBy: 'String';
+    variables: 'String';
+    workflowDefinition: 'Workflow';
+    workflowId: 'String';
+    workflowName: 'String';
+    workflowVersion: 'Int';
+  };
+  ExecutedWorkflowConnection: {
+    // field return type name
+    edges: 'ExecutedWorkflowEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  ExecutedWorkflowEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'ExecutedWorkflow';
+  };
+  ExecutedWorkflowTask: {
+    // field return type name
+    callbackAfterSeconds: 'Int';
+    callbackFromWorker: 'Boolean';
+    correlationId: 'String';
+    domain: 'String';
+    endTime: 'String';
+    executed: 'Boolean';
+    executionNameSpace: 'String';
+    externalInputPayloadStoragePath: 'String';
+    externalOutputPayloadStoragePath: 'String';
+    id: 'ID';
+    isolationGroupId: 'String';
+    iteration: 'Int';
+    loopOverTask: 'Boolean';
+    pollCount: 'Int';
+    queueWaitTime: 'Int';
+    rateLimitFrequencyInSeconds: 'Int';
+    rateLimitPerFrequency: 'Int';
+    reasonForIncompletion: 'String';
+    responseTimeoutSeconds: 'Int';
+    retried: 'Boolean';
+    retryCount: 'Int';
+    scheduledTime: 'String';
+    seq: 'String';
+    startDelayInSeconds: 'Int';
+    startTime: 'String';
+    status: 'ExecutedWorkflowTaskStatus';
+    subWorkflowChanged: 'Boolean';
+    subWorkflowId: 'String';
+    taskDefName: 'String';
+    taskDefinition: 'String';
+    taskId: 'String';
+    taskReferenceName: 'String';
+    taskType: 'String';
+    updateTime: 'String';
+    workerId: 'String';
+    workflowInstanceId: 'String';
+    workflowPriority: 'Int';
+    workflowType: 'String';
+  };
   GraphEdge: {
     // field return type name
     id: 'ID';
@@ -1204,6 +1401,7 @@ export interface NexusGenFieldTypeNames {
     countries: 'CountryConnection';
     dataStore: 'DataStore';
     devices: 'DeviceConnection';
+    executedWorkflows: 'ExecutedWorkflowConnection';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     node: 'Node';
@@ -1497,6 +1695,13 @@ export interface NexusGenArgTypes {
       last?: number | null; // Int
       orderBy?: NexusGenInputs['DeviceOrderByInput'] | null; // DeviceOrderByInput
     };
+    executedWorkflows: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
     labels: {
       // args
       after?: string | null; // String
@@ -1554,13 +1759,24 @@ export interface NexusGenArgTypes {
 
 export interface NexusGenAbstractTypeMembers {
   BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
-  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Workflow' | 'Zone';
+  Node:
+    | 'Blueprint'
+    | 'Country'
+    | 'Device'
+    | 'ExecutedWorkflow'
+    | 'ExecutedWorkflowTask'
+    | 'Label'
+    | 'Location'
+    | 'Workflow'
+    | 'Zone';
 }
 
 export interface NexusGenTypeInterfaces {
   Blueprint: 'Node';
   Country: 'Node';
   Device: 'Node';
+  ExecutedWorkflow: 'Node';
+  ExecutedWorkflowTask: 'Node';
   GraphNode: 'BaseGraphNode';
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
