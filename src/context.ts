@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
 import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topology-discovery';
+import conductorAPI, { ConductorAPI } from './external-api/conductor';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
 
@@ -9,6 +10,7 @@ export type Context = {
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
   topologyDiscoveryAPI: TopologyDiscoveryAPI;
+  conductorAPI: ConductorAPI;
 };
 
 export default function createContext(context: ExpressContext): Context {
@@ -22,5 +24,5 @@ export default function createContext(context: ExpressContext): Context {
     tenantId = headers['x-tenant-id'] as string;
   }
 
-  return { prisma: prismaClient, tenantId, uniconfigAPI, topologyDiscoveryAPI };
+  return { prisma: prismaClient, tenantId, uniconfigAPI, topologyDiscoveryAPI, conductorAPI };
 }
