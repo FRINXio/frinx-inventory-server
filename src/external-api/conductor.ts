@@ -1,3 +1,4 @@
+import { formatSearchQueryToString, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import {
   decodeExecutedWorkflowOutput,
   decodeWorkflowDetailOutput,
@@ -20,27 +21,22 @@ async function getWorkflowDetail(baseURL: string, workflowName: string): Promise
   return data;
 }
 
-export type SearchQuery = {
-  freeText?: string;
-  rootWf?: boolean;
-  query?: string;
-};
-
-export type PaginationArgs = {
-  first?: number;
-  last?: number;
-  before?: string;
-  after?: string;
-};
-
-async function getExecutedWorkflows(baseURL: string, query: SearchQuery): Promise<ExecutedWorkflowOutput> {
-  const formattedQuery = Object.entries(query)
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&');
+async function getExecutedWorkflows(
+  baseURL: string,
+  query?: SearchQuery | null,
+  paginationArgs?: PaginationArgs | null,
+): Promise<{
+  results: ExecutedWorkflowOutput;
+  totalHits: number;
+}> {
+  const formattedQuery = formatSearchQueryToString(query, paginationArgs);
   const json = await sendGetRequest([baseURL, `workflow/search-v2?${formattedQuery}`]);
-  const data = decodeExecutedWorkflowOutput(json as { results: unknown[]; totalHits: number });
+  const data = decodeExecutedWorkflowOutput(json);
 
-  return data;
+  return {
+    results: data,
+    totalHits: json.totalHits ?? 0,
+  };
 }
 
 const conductorAPI = {

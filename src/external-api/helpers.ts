@@ -2,6 +2,7 @@ import https from 'https';
 import fetch, { RequestInit } from 'node-fetch';
 import join from 'url-join';
 import getLogger from '../get-logger';
+import { ExecutedWorkflowResult } from '../helpers/conductor.helpers';
 import { ExternalApiError } from './errors';
 
 const log = getLogger('inventory-server:fetch');
@@ -84,7 +85,7 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
   return json;
 }
 
-export async function sendGetRequest(path: APIPath, cookie?: string): Promise<unknown> {
+export async function sendGetRequest(path: APIPath, cookie?: string): Promise<ExecutedWorkflowResult> {
   const options = {
     method: 'GET',
     headers: {
@@ -93,7 +94,7 @@ export async function sendGetRequest(path: APIPath, cookie?: string): Promise<un
       ...(cookie != null ? { cookie } : {}),
     },
   };
-  return apiFetch(path, options);
+  return apiFetch(path, options) as Promise<ExecutedWorkflowResult>;
 }
 
 export async function sendPostRequest(path: APIPath, body?: unknown, cookie?: string): Promise<unknown> {

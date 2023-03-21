@@ -98,6 +98,24 @@ export interface NexusGenInputs {
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
   };
+  ExecutedWorkflowFilterInput: {
+    // input type
+    startTime?: NexusGenInputs['ExecutedWorkflowStartTimeRange'] | null; // ExecutedWorkflowStartTimeRange
+    status?: NexusGenEnums['ExecutedWorkflowStatus'][] | null; // [ExecutedWorkflowStatus!]
+    workflowId?: string[] | null; // [String!]
+    workflowType?: string[] | null; // [String!]
+  };
+  ExecutedWorkflowSearchInput: {
+    // input type
+    freeText?: string | null; // String
+    query?: NexusGenInputs['ExecutedWorkflowFilterInput'] | null; // ExecutedWorkflowFilterInput
+    rootWf?: boolean | null; // Boolean
+  };
+  ExecutedWorkflowStartTimeRange: {
+    // input type
+    from: string; // String!
+    to?: string | null; // String
+  };
   FilterDevicesInput: {
     // input type
     deviceName?: string | null; // String
@@ -112,6 +130,11 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
+  };
+  PaginationArgs: {
+    // input type
+    size: number; // Int!
+    start: number; // Int!
   };
   UpdateBlueprintInput: {
     // input type
@@ -1697,10 +1720,8 @@ export interface NexusGenArgTypes {
     };
     executedWorkflows: {
       // args
-      after?: string | null; // String
-      before?: string | null; // String
-      first?: number | null; // Int
-      last?: number | null; // Int
+      pagination?: NexusGenInputs['PaginationArgs'] | null; // PaginationArgs
+      searchQuery?: NexusGenInputs['ExecutedWorkflowSearchInput'] | null; // ExecutedWorkflowSearchInput
     };
     labels: {
       // args

@@ -1,9 +1,8 @@
-import { connectionFromArray } from 'graphql-relay';
-import { enumType, objectType, queryField } from 'nexus';
+import { arg, enumType, inputObjectType, objectType, queryField } from 'nexus';
 import { v4 as uuid } from 'uuid';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
-import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { Node, PageInfo } from './global-types';
 import { ExecutedWorkflowTask } from './task';
 import { Workflow } from './workflow';
 
@@ -86,18 +85,84 @@ export const ExecutedWorkflowConnection = objectType({
   },
 });
 
+export const ExecutedWorkflowStartTimeRange = inputObjectType({
+  name: 'ExecutedWorkflowStartTimeRange',
+  definition: (t) => {
+    t.nonNull.string('from');
+    t.string('to');
+  },
+});
+
+export const ExecutedWorkflowFilterInput = inputObjectType({
+  name: 'ExecutedWorkflowFilterInput',
+  definition: (t) => {
+    t.list.nonNull.string('workflowId');
+    t.list.nonNull.string('workflowType');
+    t.list.nonNull.field('status', { type: ExecutedWorkflowStatus });
+    t.field('startTime', { type: ExecutedWorkflowStartTimeRange });
+  },
+});
+
+export const ExecutedWorkflowSearchInput = inputObjectType({
+  name: 'ExecutedWorkflowSearchInput',
+  definition: (t) => {
+    t.string('freeText');
+    t.boolean('rootWf');
+    t.field('query', { type: ExecutedWorkflowFilterInput });
+  },
+});
+
+export const PaginationArgs = inputObjectType({
+  name: 'PaginationArgs',
+  definition: (t) => {
+    t.nonNull.int('size');
+    t.nonNull.int('start');
+  },
+});
+
 export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
   type: ExecutedWorkflowConnection,
-  args: PaginationConnectionArgs,
+  args: {
+    pagination: arg({ type: PaginationArgs }),
+    searchQuery: arg({ type: ExecutedWorkflowSearchInput }),
+  },
   resolve: async (_, args, { conductorAPI }) => {
-    const executedWorkflows = await conductorAPI.getExecutedWorkflows(config.conductorApiURL, {});
+    const { results: executedWorkflows, totalHits } = await conductorAPI.getExecutedWorkflows(
+      config.conductorApiURL,
+      {
+        ...args.searchQuery,
+        query: {
+          ...args.searchQuery?.query,
+          startTime: args.searchQuery?.query?.startTime
+            ? {
+                from: Date.parse(args.searchQuery.query.startTime.from),
+                to: args.searchQuery.query.startTime.to ? Date.parse(args.searchQuery.query.startTime.to) : undefined,
+              }
+            : undefined,
+        },
+      },
+      args.pagination,
+    );
 
     const executedWorkflowsWithId = executedWorkflows.map((w) => ({
       ...w,
       id: toGraphId('ExecutedWorkflow', w.workflowId || uuid()),
     }));
     return {
-      ...connectionFromArray(executedWorkflowsWithId, args),
+      edges: executedWorkflowsWithId.map((w) => ({
+        node: w,
+        cursor: w.id,
+      })),
+      pageInfo: {
+        hasNextPage:
+          args.pagination?.start && args.pagination?.size
+            ? args.pagination.start + args.pagination.size < totalHits
+            : false,
+        hasPreviousPage:
+          args.pagination?.start && args.pagination?.size ? args.pagination.start >= args.pagination.size : false,
+        endCursor: executedWorkflowsWithId[executedWorkflowsWithId.length - 1]?.id,
+        startCursor: executedWorkflowsWithId[0]?.id,
+      },
       totalCount: executedWorkflows.length,
     };
   },

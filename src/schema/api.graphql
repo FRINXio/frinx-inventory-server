@@ -303,6 +303,24 @@ type ExecutedWorkflowEdge {
   node: ExecutedWorkflow!
 }
 
+input ExecutedWorkflowFilterInput {
+  startTime: ExecutedWorkflowStartTimeRange
+  status: [ExecutedWorkflowStatus!]
+  workflowId: [String!]
+  workflowType: [String!]
+}
+
+input ExecutedWorkflowSearchInput {
+  freeText: String
+  query: ExecutedWorkflowFilterInput
+  rootWf: Boolean
+}
+
+input ExecutedWorkflowStartTimeRange {
+  from: String!
+  to: String
+}
+
 enum ExecutedWorkflowStatus {
   COMPLETED
   FAILED
@@ -505,6 +523,11 @@ type PageInfo {
   startCursor: String
 }
 
+input PaginationArgs {
+  size: Int!
+  start: Int!
+}
+
 type Query {
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
@@ -518,7 +541,7 @@ type Query {
     last: Int
     orderBy: DeviceOrderByInput
   ): DeviceConnection!
-  executedWorkflows(after: String, before: String, first: Int, last: Int): ExecutedWorkflowConnection
+  executedWorkflows(pagination: PaginationArgs, searchQuery: ExecutedWorkflowSearchInput): ExecutedWorkflowConnection
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
