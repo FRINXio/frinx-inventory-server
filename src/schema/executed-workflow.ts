@@ -106,8 +106,7 @@ export const ExecutedWorkflowFilterInput = inputObjectType({
 export const ExecutedWorkflowSearchInput = inputObjectType({
   name: 'ExecutedWorkflowSearchInput',
   definition: (t) => {
-    t.string('freeText');
-    t.boolean('rootWf');
+    t.boolean('isRootWorkflow');
     t.field('query', { type: ExecutedWorkflowFilterInput });
   },
 });
@@ -127,7 +126,7 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
     searchQuery: arg({ type: ExecutedWorkflowSearchInput }),
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { results: executedWorkflows, totalHits } = await conductorAPI.getExecutedWorkflows(
+    const executedWorkflows = await conductorAPI.getExecutedWorkflows(
       config.conductorApiURL,
       {
         ...args.searchQuery,
@@ -141,25 +140,29 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
             : undefined,
         },
       },
-      args.pagination,
+      args.pagination != null
+        ? {
+            size: args.pagination.size + 1,
+            start: args.pagination.start,
+          }
+        : null,
     );
 
-    const executedWorkflowsWithId = executedWorkflows.map((w) => ({
-      ...w,
-      id: toGraphId('ExecutedWorkflow', w.workflowId || uuid()),
-    }));
+    const executedWorkflowsWithId = executedWorkflows
+      .map((w) => ({
+        ...w,
+        id: toGraphId('ExecutedWorkflow', w.workflowId || uuid()),
+      }))
+      .slice(0, args.pagination?.size ?? 0 - 1);
+
     return {
       edges: executedWorkflowsWithId.map((w) => ({
         node: w,
         cursor: w.id,
       })),
       pageInfo: {
-        hasNextPage:
-          args.pagination?.start && args.pagination?.size
-            ? args.pagination.start + args.pagination.size < totalHits
-            : false,
-        hasPreviousPage:
-          args.pagination?.start && args.pagination?.size ? args.pagination.start >= args.pagination.size : false,
+        hasNextPage: args.pagination ? executedWorkflowsWithId.length < executedWorkflows.length : false,
+        hasPreviousPage: args.pagination ? args.pagination.start >= args.pagination.size : false,
         endCursor: executedWorkflowsWithId[executedWorkflowsWithId.length - 1]?.id,
         startCursor: executedWorkflowsWithId[0]?.id,
       },

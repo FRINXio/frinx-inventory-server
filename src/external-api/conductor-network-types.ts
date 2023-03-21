@@ -186,6 +186,6 @@ export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput
   return extractResult(WorkflowMetadata.decode(value));
 }
 
-export function decodeExecutedWorkflowOutput(value: { results: unknown; totalHits: number }): ExecutedWorkflowOutput {
+export function decodeExecutedWorkflowOutput(value: { results: unknown }): ExecutedWorkflowOutput {
   return extractResult(ExecutedWorkflowValidator.decode(value?.results));
 }

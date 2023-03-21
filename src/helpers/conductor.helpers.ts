@@ -14,14 +14,13 @@ type ConductorQuery = {
 };
 
 export type SearchQuery = {
-  freeText?: string | null;
-  rootWf?: boolean | null;
+  isRootWorkflow?: boolean | null;
   query?: ConductorQuery | null;
 };
 
 export type PaginationArgs = {
-  size?: number | null;
-  start?: number | null;
+  size: number;
+  start: number;
 };
 
 function formatQueryToString(query: ConductorQuery): string {
@@ -62,20 +61,12 @@ function formatQueryToString(query: ConductorQuery): string {
     .join(' AND ');
 }
 
-function formatRootWfToString(rootWf: boolean): string {
-  if (rootWf) {
+function formatRootWfToString(isRootWorkflow: boolean): string {
+  if (isRootWorkflow) {
     return 'freeText=root_wf';
   }
 
   return '';
-}
-
-function formatFreeTextToString(freeText?: string | null): string {
-  if (freeText && freeText.trim().length > 0) {
-    return freeText;
-  }
-
-  return '*';
 }
 
 function formatPaginationArgsToString(paginationArgs: PaginationArgs): string {
@@ -91,22 +82,22 @@ export function formatSearchQueryToString(
   const result = [];
 
   if (searchQuery) {
-    const { freeText, rootWf, query } = searchQuery;
+    const { isRootWorkflow, query } = searchQuery;
 
-    if (rootWf) {
-      result.push(formatRootWfToString(rootWf));
+    if (isRootWorkflow) {
+      result.push(formatRootWfToString(isRootWorkflow));
     }
 
     if (query) {
       result.push(`query=${formatQueryToString(query)}`);
     }
-
-    result.push(`freeText=${formatFreeTextToString(freeText)}`);
   }
 
   if (paginationArgs) {
     result.push(formatPaginationArgsToString(paginationArgs));
   }
+
+  result.push('freeText=*');
 
   return result.join('&');
 }

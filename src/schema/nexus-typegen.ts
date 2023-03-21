@@ -107,9 +107,8 @@ export interface NexusGenInputs {
   };
   ExecutedWorkflowSearchInput: {
     // input type
-    freeText?: string | null; // String
+    isRootWorkflow?: boolean | null; // Boolean
     query?: NexusGenInputs['ExecutedWorkflowFilterInput'] | null; // ExecutedWorkflowFilterInput
-    rootWf?: boolean | null; // Boolean
   };
   ExecutedWorkflowStartTimeRange: {
     // input type

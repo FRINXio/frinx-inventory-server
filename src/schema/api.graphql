@@ -311,9 +311,8 @@ input ExecutedWorkflowFilterInput {
 }
 
 input ExecutedWorkflowSearchInput {
-  freeText: String
+  isRootWorkflow: Boolean
   query: ExecutedWorkflowFilterInput
-  rootWf: Boolean
 }
 
 input ExecutedWorkflowStartTimeRange {
