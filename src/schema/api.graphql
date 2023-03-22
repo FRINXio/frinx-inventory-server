@@ -95,6 +95,11 @@ type BlueprintEdge {
   node: Blueprint!
 }
 
+type BulkOperationResponse {
+  bulkErrorResults: String
+  bulkSuccessfulResults: [String!]
+}
+
 type CSVImport {
   isOk: Boolean
 }
@@ -368,6 +373,8 @@ type Mutation {
   addSnapshot(input: AddSnapshotInput!, transactionId: String!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
+  bulkPauseWorkflow(workflowIds: [String!]!): BulkOperationResponse
+  bulkResumeWorkflow(workflowIds: [String!]!): BulkOperationResponse
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
@@ -378,7 +385,9 @@ type Mutation {
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
+  pauseWorkflow(workflowId: String!): String
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
+  resumeWorkflow(workflowId: String!): String
   revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
