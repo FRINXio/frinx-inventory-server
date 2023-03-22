@@ -1,10 +1,10 @@
 import { formatSearchQueryToString, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import {
+  ApiExecutedWorkflow,
   decodeExecutedWorkflowDetailOutput,
   decodeExecutedWorkflowsOutput,
   decodeWorkflowDetailOutput,
   decodeWorkflowMetadataOutput,
-  ExecutedWorkflowDetailOutput,
   ExecutedWorkflowsOutput,
   WorfklowMetadataOutput,
   WorkflowDetailOutput,
@@ -35,9 +35,9 @@ async function getExecutedWorkflows(
   return data;
 }
 
-async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): Promise<ExecutedWorkflowDetailOutput> {
+async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): Promise<ApiExecutedWorkflow> {
   const json = await sendGetRequest([baseURL, `workflow/${workflowId}`]);
-  const data = decodeExecutedWorkflowDetailOutput(json as { results: ExecutedWorkflowDetailOutput });
+  const data = decodeExecutedWorkflowDetailOutput(json);
 
   return data;
 }

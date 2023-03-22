@@ -170,10 +170,7 @@ const ExecutedWorkflowsValidator = t.type({
   results: t.array(ExecutedWorkflow),
 });
 
-const ExecutedWorkflowTaskValidator = t.array(ExecutedWorkflowTask);
-
 export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowsValidator>;
-export type ExecutedWorkflowDetailOutput = t.TypeOf<typeof ExecutedWorkflow>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 export type ApiExecutedWorkflow = t.TypeOf<typeof ExecutedWorkflow>;
@@ -193,6 +190,6 @@ export function decodeExecutedWorkflowsOutput(value: unknown): ExecutedWorkflows
   return extractResult(ExecutedWorkflowsValidator.decode(value));
 }
 
-export function decodeExecutedWorkflowDetailOutput(value: unknown): ExecutedWorkflowDetailOutput {
+export function decodeExecutedWorkflowDetailOutput(value: unknown): ApiExecutedWorkflow {
   return extractResult(ExecutedWorkflow.decode(value));
 }
