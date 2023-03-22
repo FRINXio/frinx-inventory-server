@@ -64,6 +64,10 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     name: string; // String!
   };
+  AddWorkflowInput: {
+    // input type
+    workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
+  };
   AddZoneInput: {
     // input type
     name: string; // String!
@@ -139,6 +143,12 @@ export interface NexusGenInputs {
     vendor?: string | null; // String
     version?: string | null; // String
   };
+  WorkflowInput: {
+    // input type
+    name: string; // String!
+    tasks: string; // String!
+    timeoutSeconds: number; // Int!
+  };
 }
 
 export interface NexusGenEnums {
@@ -175,6 +185,10 @@ export interface NexusGenObjects {
   AddSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  AddWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   AddZonePayload: {
     // root type
@@ -267,6 +281,10 @@ export interface NexusGenObjects {
   DeleteSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  DeleteWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Device: SourceTypes.Device;
   DeviceConnection: {
@@ -502,6 +520,10 @@ export interface NexusGenFieldTypes {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
   };
+  AddWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
+  };
   AddZonePayload: {
     // field return type
     zone: NexusGenRootTypes['Zone']; // Zone!
@@ -610,6 +632,10 @@ export interface NexusGenFieldTypes {
   DeleteSnapshotPayload: {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  DeleteWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Device: {
     // field return type
@@ -739,6 +765,7 @@ export interface NexusGenFieldTypes {
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
     addLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
+    addWorkflow: NexusGenRootTypes['AddWorkflowPayload']; // AddWorkflowPayload!
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
@@ -749,6 +776,7 @@ export interface NexusGenFieldTypes {
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
+    deleteWorkflow: NexusGenRootTypes['DeleteWorkflowPayload']; // DeleteWorkflowPayload!
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
@@ -932,6 +960,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     snapshot: 'Snapshot';
   };
+  AddWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
+  };
   AddZonePayload: {
     // field return type name
     zone: 'Zone';
@@ -1040,6 +1072,10 @@ export interface NexusGenFieldTypeNames {
   DeleteSnapshotPayload: {
     // field return type name
     snapshot: 'Snapshot';
+  };
+  DeleteWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
   };
   Device: {
     // field return type name
@@ -1169,6 +1205,7 @@ export interface NexusGenFieldTypeNames {
     addDevice: 'AddDevicePayload';
     addLocation: 'AddLocationPayload';
     addSnapshot: 'AddSnapshotPayload';
+    addWorkflow: 'AddWorkflowPayload';
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     closeTransaction: 'CloseTransactionPayload';
@@ -1179,6 +1216,7 @@ export interface NexusGenFieldTypeNames {
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
+    deleteWorkflow: 'DeleteWorkflowPayload';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     resetConfig: 'ResetConfigPayload';
@@ -1373,6 +1411,10 @@ export interface NexusGenArgTypes {
       input: NexusGenInputs['AddSnapshotInput']; // AddSnapshotInput!
       transactionId: string; // String!
     };
+    addWorkflow: {
+      // args
+      input: NexusGenInputs['AddWorkflowInput']; // AddWorkflowInput!
+    };
     addZone: {
       // args
       input: NexusGenInputs['AddZoneInput']; // AddZoneInput!
@@ -1415,6 +1457,11 @@ export interface NexusGenArgTypes {
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
+    };
+    deleteWorkflow: {
+      // args
+      name: string; // String!
+      version: number; // Int!
     };
     importCSV: {
       // args

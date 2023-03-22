@@ -17,48 +17,61 @@ export function extractResult<A>(result: Either<t.Errors, A>): A {
   )(result);
 }
 
-const ApiBaseTask = t.type({
+export const ApiBaseTask = t.type({
   name: t.string,
   taskReferenceName: t.string,
-  description: optional(t.string),
-  inputParameters: optional(t.record(t.string, t.any)),
-  type: optional(t.string),
-  dynamicTaskNameParam: optional(t.string),
-  scriptExpression: optional(t.string),
-  dynamicForkTasksParam: optional(t.string),
-  dynamicForkTasksInputParamName: optional(t.string),
-  forkTasks: optional(t.UnknownArray),
+  // description: optional(t.string),
+  // inputParameters: optional(t.record(t.string, t.any)),
+  // type: optional(t.string),
+  // dynamicTaskNameParam: optional(t.string),
+  // scriptExpression: optional(t.string),
+  // dynamicForkTasksParam: optional(t.string),
+  // dynamicForkTasksInputParamName: optional(t.string),
+  // forkTasks: optional(t.UnknownArray),
 });
 
 export type BaseTask = t.TypeOf<typeof ApiBaseTask>;
 
-export type NestedTask = BaseTask & {
-  decisionCases: Record<string, NestedTask[]> | void;
-  defaultCase: NestedTask[] | void;
-};
+export type NestedTask = BaseTask &
+  Partial<{
+    decisionCases: Record<string, NestedTask[]> | void;
+    defaultCase: NestedTask[] | void;
+  }>;
 
 // TODO: this is properly typed nested workflow but is not used in graphql schema as
 // we are not able to get whole  deeply nested object in graphql
-const WorkflowTask: t.Type<NestedTask> = t.recursion('NestedTask', () =>
+export const WorkflowTask: t.Type<NestedTask> = t.recursion('NestedTask', () =>
   t.intersection([
     ApiBaseTask,
-    t.type({
+    t.partial({
       decisionCases: optional(t.record(t.string, t.array(WorkflowTask))),
       defaultCase: optional(t.array(WorkflowTask)),
     }),
   ]),
 );
 
-const WorkflowMetadata = t.type({
+// const WorkflowTask = ApiBaseTask;
+const WorkflowTasksValidator = t.array(WorkflowTask);
+
+type WorkflowTaskInput = t.TypeOf<typeof WorkflowTasksValidator>;
+
+export function decodeWorkflowTaskInput(value: unknown): WorkflowTaskInput {
+  return extractResult(WorkflowTasksValidator.decode(value));
+}
+
+const WorkflowMetadataRequired = t.type({
+  name: t.string,
+  timeoutSeconds: t.number,
+  tasks: t.UnknownArray, // TODO: we are passing task as stringified json for now (can we switch to WorkflowTask somehow?)
+});
+
+const WorkflowMetadataOptional = t.partial({
   createTime: optional(t.number),
   updateTime: optional(t.number),
   createdBy: optional(t.string),
   updatedBy: optional(t.string),
-  name: t.string,
   description: optional(t.string),
   version: optional(t.number),
-  tasks: t.UnknownArray, // TODO: we are passing task as stringified json for now (can we switch to WorkflowTask somehow?)
-  timeoutSeconds: t.number,
   inputParameters: optional(t.array(t.string)),
   outputParameters: optional(t.record(t.string, t.string)),
   failureWorkflow: optional(t.string),
@@ -71,6 +84,8 @@ const WorkflowMetadata = t.type({
   inputTemplate: optional(t.record(t.string, t.UnknownRecord)),
 });
 
+const WorkflowMetadata = t.intersection([WorkflowMetadataRequired, WorkflowMetadataOptional]);
+
 const WorkflowMetadataValidator = t.array(WorkflowMetadata);
 
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
@@ -81,6 +96,7 @@ export function decodeWorkflowMetadataOutput(value: unknown): WorfklowMetadataOu
 }
 
 export type WorkflowDetailOutput = t.TypeOf<typeof WorkflowMetadata>;
+export type WorkflowDetailInput = t.TypeOf<typeof WorkflowMetadata>;
 
 export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput {
   return extractResult(WorkflowMetadata.decode(value));

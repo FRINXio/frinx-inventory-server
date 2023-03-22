@@ -1,7 +1,9 @@
 import { connectionFromArray } from 'graphql-relay';
-import { extendType, objectType } from 'nexus';
+import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
 import config from '../config';
+import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { toGraphId } from '../helpers/id-helper';
+import { validateTasks } from '../helpers/workflow-helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 
 export const Workflow = objectType({
@@ -63,6 +65,96 @@ export const WorkflowsQuery = extendType({
         return {
           ...connectionFromArray(workflowsWithId, args),
           totalCount: workflows.length,
+        };
+      },
+    });
+  },
+});
+
+export const AddWorkflowPayload = objectType({
+  name: 'AddWorkflowPayload',
+  definition: (t) => {
+    t.nonNull.field('workflow', { type: Workflow });
+  },
+});
+
+const WorkflowInput = inputObjectType({
+  name: 'WorkflowInput',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.nonNull.int('timeoutSeconds');
+    t.nonNull.string('tasks');
+  },
+});
+
+export const AddWorkflowInput = inputObjectType({
+  name: 'AddWorkflowInput',
+  definition: (t) => {
+    t.nonNull.field('workflow', {
+      type: WorkflowInput,
+    });
+  },
+});
+
+export const AddWorkflowMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('addWorkflow', {
+      type: AddWorkflowPayload,
+      args: {
+        input: nonNull(arg({ type: AddWorkflowInput })),
+      },
+      resolve: async (_, args, { conductorAPI }) => {
+        const { input } = args;
+        const { workflow } = input;
+
+        const parsedTasks = validateTasks(workflow.tasks);
+
+        const apiWorkflow: WorkflowDetailInput = {
+          name: workflow.name,
+          timeoutSeconds: 60,
+          tasks: parsedTasks,
+        };
+
+        await conductorAPI.createWorkflow(config.conductorApiURL, apiWorkflow);
+        return {
+          workflow: {
+            id: toGraphId('Workflow', apiWorkflow.name),
+            ...apiWorkflow,
+          },
+        };
+      },
+    });
+  },
+});
+
+const DeleteWorkflowPayload = objectType({
+  name: 'DeleteWorkflowPayload',
+  definition: (t) => {
+    t.nonNull.field('workflow', {
+      type: Workflow,
+    });
+  },
+});
+
+export const DeleteWorkflowMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteWorkflow', {
+      type: DeleteWorkflowPayload,
+      args: {
+        name: nonNull(stringArg()),
+        version: nonNull(intArg()),
+      },
+      resolve: async (_, args, { conductorAPI }) => {
+        const { name, version } = args;
+        const workflowToDelete = await conductorAPI.getWorkflowDetail(config.conductorApiURL, name);
+        await conductorAPI.deleteWorkflow(config.conductorApiURL, name, version);
+        return {
+          workflow: {
+            ...workflowToDelete,
+            id: toGraphId('Workflow', workflowToDelete.name),
+          },
         };
       },
     });

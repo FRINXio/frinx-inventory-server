@@ -50,6 +50,14 @@ type AddSnapshotPayload {
   snapshot: Snapshot
 }
 
+input AddWorkflowInput {
+  workflow: WorkflowInput!
+}
+
+type AddWorkflowPayload {
+  workflow: Workflow!
+}
+
 input AddZoneInput {
   name: String!
 }
@@ -194,6 +202,10 @@ input DeleteSnapshotInput {
 
 type DeleteSnapshotPayload {
   snapshot: Snapshot
+}
+
+type DeleteWorkflowPayload {
+  workflow: Workflow!
 }
 
 type Device implements Node {
@@ -366,6 +378,7 @@ type Mutation {
   addDevice(input: AddDeviceInput!): AddDevicePayload!
   addLocation(input: AddLocationInput!): AddLocationPayload!
   addSnapshot(input: AddSnapshotInput!, transactionId: String!): AddSnapshotPayload
+  addWorkflow(input: AddWorkflowInput!): AddWorkflowPayload!
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
@@ -376,6 +389,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  deleteWorkflow(name: String!, version: Int!): DeleteWorkflowPayload!
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
@@ -561,6 +575,12 @@ type WorkflowConnection {
 type WorkflowEdge {
   cursor: String!
   node: Workflow!
+}
+
+input WorkflowInput {
+  name: String!
+  tasks: String!
+  timeoutSeconds: Int!
 }
 
 type Zone implements Node {
