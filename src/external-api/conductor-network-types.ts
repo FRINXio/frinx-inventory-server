@@ -4,7 +4,7 @@ import * as t from 'io-ts';
 import { PathReporter } from 'io-ts/lib/PathReporter';
 
 export function optional<T, U>(type: t.Type<T, U>) {
-  return t.union([type, t.void, t.undefined]);
+  return t.union([type, t.void]);
 }
 
 export function extractResult<A>(result: Either<t.Errors, A>): A {
