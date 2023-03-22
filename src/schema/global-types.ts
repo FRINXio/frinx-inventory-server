@@ -105,14 +105,14 @@ export const NodeQuery = extendType({
             }
             return { ...workflow, id: args.id, __typename: 'Workflow' };
           }
-          // case 'ExecutedWorkflow': {
-          // const id = fromGraphId('ExecutedWorkflow', args.id);
-          // const workflow = await conductorAPI.getExecutedWorkflows(config.conductorApiURL, {});
-          // if (workflow == null) {
-          //   return null;
-          // }
-          // return { ...workflow, id: args.id, __typename: 'Workflow' };
-          // }
+          case 'ExecutedWorkflow': {
+            const id = fromGraphId('ExecutedWorkflow', args.id);
+            const workflow = await conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, id);
+            if (workflow == null) {
+              return null;
+            }
+            return { ...workflow, id: args.id, __typename: 'ExecutedWorkflow' };
+          }
           /* eslint-enable */
           default:
             return null;

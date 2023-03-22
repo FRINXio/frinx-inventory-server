@@ -170,7 +170,8 @@ const ExecutedWorkflow = t.type({
 const ExecutedWorkflowValidator = t.array(ExecutedWorkflow);
 const ExecutedWorkflowTaskValidator = t.array(ExecutedWorkflowTask);
 
-export type ExecutedWorkflowOutput = t.TypeOf<typeof ExecutedWorkflowValidator>;
+export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowValidator>;
+export type ExecutedWorkflowDetailOutput = t.TypeOf<typeof ExecutedWorkflow>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 export type ApiExecutedWorkflow = t.TypeOf<typeof ExecutedWorkflow>;
@@ -186,6 +187,10 @@ export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput
   return extractResult(WorkflowMetadata.decode(value));
 }
 
-export function decodeExecutedWorkflowOutput(value: { results: unknown }): ExecutedWorkflowOutput {
+export function decodeExecutedWorkflowOutput(value: { results: unknown }): ExecutedWorkflowsOutput {
   return extractResult(ExecutedWorkflowValidator.decode(value?.results));
+}
+
+export function decodeExecutedWorkflowDetailOutput(value: unknown): ExecutedWorkflowDetailOutput {
+  return extractResult(ExecutedWorkflow.decode(value));
 }

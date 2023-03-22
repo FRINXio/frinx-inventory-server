@@ -1,9 +1,11 @@
 import { formatSearchQueryToString, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import {
+  decodeExecutedWorkflowDetailOutput,
   decodeExecutedWorkflowOutput,
   decodeWorkflowDetailOutput,
   decodeWorkflowMetadataOutput,
-  ExecutedWorkflowOutput,
+  ExecutedWorkflowDetailOutput,
+  ExecutedWorkflowsOutput,
   WorfklowMetadataOutput,
   WorkflowDetailOutput,
 } from './conductor-network-types';
@@ -25,10 +27,17 @@ async function getExecutedWorkflows(
   baseURL: string,
   query?: SearchQuery | null,
   paginationArgs?: PaginationArgs | null,
-): Promise<ExecutedWorkflowOutput> {
+): Promise<ExecutedWorkflowsOutput> {
   const formattedQuery = formatSearchQueryToString(query, paginationArgs);
   const json = await sendGetRequest([baseURL, `workflow/search-v2?${formattedQuery}`]);
-  const data = decodeExecutedWorkflowOutput(json as { results: ExecutedWorkflowOutput });
+  const data = decodeExecutedWorkflowOutput(json as { results: ExecutedWorkflowsOutput });
+
+  return data;
+}
+
+async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): Promise<ExecutedWorkflowDetailOutput> {
+  const json = await sendGetRequest([baseURL, `workflow/${workflowId}`]);
+  const data = decodeExecutedWorkflowDetailOutput(json as { results: ExecutedWorkflowDetailOutput });
 
   return data;
 }
@@ -37,6 +46,7 @@ const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
   getExecutedWorkflows,
+  getExecutedWorkflowDetail,
 };
 
 export type ConductorAPI = typeof conductorAPI;
