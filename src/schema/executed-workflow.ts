@@ -2,6 +2,7 @@ import { arg, enumType, inputObjectType, objectType, queryField } from 'nexus';
 import { v4 as uuid } from 'uuid';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
+import { makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
 import { Node, PageInfo } from './global-types';
 import { ExecutedWorkflowTask } from './task';
 import { Workflow } from './workflow';
@@ -29,24 +30,15 @@ export const ExecutedWorkflow = objectType({
     t.field('status', { type: ExecutedWorkflowStatus });
     t.string('parentWorkflowId');
     t.string('ownerApp');
-    t.string('parentWorkflowTaskId');
     t.string('input', { resolve: (workflow) => JSON.stringify(workflow.input) });
     t.string('output', { resolve: (workflow) => JSON.stringify(workflow.output) });
-    t.string('correlationId');
-    t.string('reRunFromWorkflowId');
     t.string('reasonForIncompletion');
-    t.string('event');
-    t.string('taskToDomain', { resolve: (workflow) => JSON.stringify(workflow.taskToDomain) });
     t.list.string('failedReferenceTaskNames');
     t.field('workflowDefinition', { type: Workflow });
-    t.string('externalInputPayloadStoragePath');
-    t.string('externalOutputPayloadStoragePath');
-    t.int('priority');
     t.string('variables', { resolve: (workflow) => JSON.stringify(workflow.variables) });
     t.string('lastRetriedTime', {
       resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
     });
-    t.nullable.list.nullable.string('failedTaskNames');
     t.string('startTime', {
       resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
     });
@@ -126,26 +118,10 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
     searchQuery: arg({ type: ExecutedWorkflowSearchInput }),
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const executedWorkflows = await conductorAPI.getExecutedWorkflows(
+    const { results: executedWorkflows } = await conductorAPI.getExecutedWorkflows(
       config.conductorApiURL,
-      {
-        ...args.searchQuery,
-        query: {
-          ...args.searchQuery?.query,
-          startTime: args.searchQuery?.query?.startTime
-            ? {
-                from: Date.parse(args.searchQuery.query.startTime.from),
-                to: args.searchQuery.query.startTime.to ? Date.parse(args.searchQuery.query.startTime.to) : undefined,
-              }
-            : undefined,
-        },
-      },
-      args.pagination != null
-        ? {
-            size: args.pagination.size + 1,
-            start: args.pagination.start,
-          }
-        : null,
+      makeSearchQueryFromArgs(args.searchQuery),
+      makePaginationFromArgs(args.pagination),
     );
 
     const executedWorkflowsWithId = executedWorkflows

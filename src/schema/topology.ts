@@ -1,7 +1,6 @@
 import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType, arg, interfaceType } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
-import { omitNullValue } from '../helpers/omit-null-value';
 import {
   getFilterQuery,
   getOldTopologyConnectedEdges,
@@ -12,7 +11,7 @@ import {
   makeInterfaceNameMap,
   makeNodesMap,
 } from '../helpers/topology.helpers';
-import unwrap from '../helpers/unwrap';
+import { unwrap, omitNullValue } from '../helpers/utils.helpers';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',

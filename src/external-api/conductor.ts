@@ -1,7 +1,7 @@
 import { formatSearchQueryToString, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import {
   decodeExecutedWorkflowDetailOutput,
-  decodeExecutedWorkflowOutput,
+  decodeExecutedWorkflowsOutput,
   decodeWorkflowDetailOutput,
   decodeWorkflowMetadataOutput,
   ExecutedWorkflowDetailOutput,
@@ -30,7 +30,7 @@ async function getExecutedWorkflows(
 ): Promise<ExecutedWorkflowsOutput> {
   const formattedQuery = formatSearchQueryToString(query, paginationArgs);
   const json = await sendGetRequest([baseURL, `workflow/search-v2?${formattedQuery}`]);
-  const data = decodeExecutedWorkflowOutput(json as { results: ExecutedWorkflowsOutput });
+  const data = decodeExecutedWorkflowsOutput(json);
 
   return data;
 }

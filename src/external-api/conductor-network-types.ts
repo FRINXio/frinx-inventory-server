@@ -73,24 +73,31 @@ const WorkflowMetadata = t.type({
 
 const WorkflowMetadataValidator = t.array(WorkflowMetadata);
 
+const ExecutedWorkflowTaskStatus = t.union([
+  t.literal('IN_PROGRESS'),
+  t.literal('COMPLETED'),
+  t.literal('FAILED'),
+  t.literal('TIMED_OUT'),
+  t.literal('SCHEDULED'),
+  t.literal('CANCELED'),
+  t.literal('SKIPPED'),
+  t.literal('FAILED_WITH_TERMINAL_ERROR'),
+  t.literal('COMPLETED_WITH_ERROR'),
+]);
+
+const ExecutedWorkflowStatus = t.union([
+  t.literal('RUNNING'),
+  t.literal('COMPLETED'),
+  t.literal('FAILED'),
+  t.literal('TERMINATED'),
+  t.literal('TIMED_OUT'),
+  t.literal('PAUSED'),
+]);
+
 const ExecutedWorkflowTask = t.type({
   taskType: optional(t.string),
-  status: optional(
-    t.union([
-      t.literal('IN_PROGRESS'),
-      t.literal('COMPLETED'),
-      t.literal('FAILED'),
-      t.literal('TIMED_OUT'),
-      t.literal('SCHEDULED'),
-      t.literal('CANCELED'),
-      t.literal('SKIPPED'),
-      t.literal('FAILED_WITH_TERMINAL_ERROR'),
-      t.literal('COMPLETED_WITH_ERROR'),
-    ]),
-  ),
+  status: optional(ExecutedWorkflowTaskStatus),
   referenceTaskName: optional(t.string),
-  // inputData: t.union([optional(t.record(t.string, t.UnknownRecord)), optional(t.string)]),
-  // outputData: t.union([optional(t.record(t.string, t.UnknownRecord)), optional(t.string)]),
   retryCount: optional(t.number),
   seq: optional(t.number),
   pollCount: optional(t.number),
@@ -107,7 +114,6 @@ const ExecutedWorkflowTask = t.type({
   executionNameSpace: optional(t.string),
   workflowInstanceId: optional(t.string),
   workflowType: optional(t.string),
-  // workflowTask: optional(WorkflowTask),
   executed: optional(t.boolean),
   callbackFromWorker: optional(t.boolean),
   workerId: optional(t.string),
@@ -134,14 +140,7 @@ const ExecutedWorkflow = t.type({
   updateTime: optional(t.number),
   createdBy: optional(t.string),
   updatedBy: optional(t.string),
-  status: t.union([
-    t.literal('RUNNING'),
-    t.literal('COMPLETED'),
-    t.literal('FAILED'),
-    t.literal('TERMINATED'),
-    t.literal('TIMED_OUT'),
-    t.literal('PAUSED'),
-  ]),
+  status: ExecutedWorkflowStatus,
   endTime: optional(t.number),
   workflowId: optional(t.string),
   parentWorkflowId: optional(t.string),
@@ -167,10 +166,13 @@ const ExecutedWorkflow = t.type({
   workflowName: optional(t.string),
 });
 
-const ExecutedWorkflowValidator = t.array(ExecutedWorkflow);
+const ExecutedWorkflowsValidator = t.type({
+  results: t.array(ExecutedWorkflow),
+});
+
 const ExecutedWorkflowTaskValidator = t.array(ExecutedWorkflowTask);
 
-export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowValidator>;
+export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowsValidator>;
 export type ExecutedWorkflowDetailOutput = t.TypeOf<typeof ExecutedWorkflow>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
@@ -187,8 +189,8 @@ export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput
   return extractResult(WorkflowMetadata.decode(value));
 }
 
-export function decodeExecutedWorkflowOutput(value: { results: unknown }): ExecutedWorkflowsOutput {
-  return extractResult(ExecutedWorkflowValidator.decode(value?.results));
+export function decodeExecutedWorkflowsOutput(value: unknown): ExecutedWorkflowsOutput {
+  return extractResult(ExecutedWorkflowsValidator.decode(value));
 }
 
 export function decodeExecutedWorkflowDetailOutput(value: unknown): ExecutedWorkflowDetailOutput {

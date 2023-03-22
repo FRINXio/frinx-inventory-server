@@ -701,28 +701,19 @@ export interface NexusGenFieldTypes {
   };
   ExecutedWorkflow: {
     // field return type
-    correlationId: string | null; // String
     createdAt: string | null; // String
     createdBy: string | null; // String
     endTime: string | null; // String
-    event: string | null; // String
-    externalInputPayloadStoragePath: string | null; // String
-    externalOutputPayloadStoragePath: string | null; // String
     failedReferenceTaskNames: Array<string | null> | null; // [String]
-    failedTaskNames: Array<string | null> | null; // [String]
     id: string; // ID!
     input: string | null; // String
     lastRetriedTime: string | null; // String
     output: string | null; // String
     ownerApp: string | null; // String
     parentWorkflowId: string | null; // String
-    parentWorkflowTaskId: string | null; // String
-    priority: number | null; // Int
-    reRunFromWorkflowId: string | null; // String
     reasonForIncompletion: string | null; // String
     startTime: string | null; // String
     status: NexusGenEnums['ExecutedWorkflowStatus'] | null; // ExecutedWorkflowStatus
-    taskToDomain: string | null; // String
     tasks: Array<NexusGenRootTypes['ExecutedWorkflowTask'] | null> | null; // [ExecutedWorkflowTask]
     updatedAt: string | null; // String
     updatedBy: string | null; // String
@@ -745,33 +736,15 @@ export interface NexusGenFieldTypes {
   };
   ExecutedWorkflowTask: {
     // field return type
-    callbackAfterSeconds: number | null; // Int
-    callbackFromWorker: boolean | null; // Boolean
-    correlationId: string | null; // String
-    domain: string | null; // String
     endTime: string | null; // String
     executed: boolean | null; // Boolean
-    executionNameSpace: string | null; // String
-    externalInputPayloadStoragePath: string | null; // String
-    externalOutputPayloadStoragePath: string | null; // String
     id: string; // ID!
-    isolationGroupId: string | null; // String
-    iteration: number | null; // Int
-    loopOverTask: boolean | null; // Boolean
-    pollCount: number | null; // Int
-    queueWaitTime: number | null; // Int
-    rateLimitFrequencyInSeconds: number | null; // Int
-    rateLimitPerFrequency: number | null; // Int
     reasonForIncompletion: string | null; // String
-    responseTimeoutSeconds: number | null; // Int
     retried: boolean | null; // Boolean
     retryCount: number | null; // Int
     scheduledTime: string | null; // String
-    seq: string | null; // String
-    startDelayInSeconds: number | null; // Int
     startTime: string | null; // String
     status: NexusGenEnums['ExecutedWorkflowTaskStatus'] | null; // ExecutedWorkflowTaskStatus
-    subWorkflowChanged: boolean | null; // Boolean
     subWorkflowId: string | null; // String
     taskDefName: string | null; // String
     taskDefinition: string | null; // String
@@ -779,9 +752,6 @@ export interface NexusGenFieldTypes {
     taskReferenceName: string | null; // String
     taskType: string | null; // String
     updateTime: string | null; // String
-    workerId: string | null; // String
-    workflowInstanceId: string | null; // String
-    workflowPriority: number | null; // Int
     workflowType: string | null; // String
   };
   GraphEdge: {
@@ -1217,28 +1187,19 @@ export interface NexusGenFieldTypeNames {
   };
   ExecutedWorkflow: {
     // field return type name
-    correlationId: 'String';
     createdAt: 'String';
     createdBy: 'String';
     endTime: 'String';
-    event: 'String';
-    externalInputPayloadStoragePath: 'String';
-    externalOutputPayloadStoragePath: 'String';
     failedReferenceTaskNames: 'String';
-    failedTaskNames: 'String';
     id: 'ID';
     input: 'String';
     lastRetriedTime: 'String';
     output: 'String';
     ownerApp: 'String';
     parentWorkflowId: 'String';
-    parentWorkflowTaskId: 'String';
-    priority: 'Int';
-    reRunFromWorkflowId: 'String';
     reasonForIncompletion: 'String';
     startTime: 'String';
     status: 'ExecutedWorkflowStatus';
-    taskToDomain: 'String';
     tasks: 'ExecutedWorkflowTask';
     updatedAt: 'String';
     updatedBy: 'String';
@@ -1261,33 +1222,15 @@ export interface NexusGenFieldTypeNames {
   };
   ExecutedWorkflowTask: {
     // field return type name
-    callbackAfterSeconds: 'Int';
-    callbackFromWorker: 'Boolean';
-    correlationId: 'String';
-    domain: 'String';
     endTime: 'String';
     executed: 'Boolean';
-    executionNameSpace: 'String';
-    externalInputPayloadStoragePath: 'String';
-    externalOutputPayloadStoragePath: 'String';
     id: 'ID';
-    isolationGroupId: 'String';
-    iteration: 'Int';
-    loopOverTask: 'Boolean';
-    pollCount: 'Int';
-    queueWaitTime: 'Int';
-    rateLimitFrequencyInSeconds: 'Int';
-    rateLimitPerFrequency: 'Int';
     reasonForIncompletion: 'String';
-    responseTimeoutSeconds: 'Int';
     retried: 'Boolean';
     retryCount: 'Int';
     scheduledTime: 'String';
-    seq: 'String';
-    startDelayInSeconds: 'Int';
     startTime: 'String';
     status: 'ExecutedWorkflowTaskStatus';
-    subWorkflowChanged: 'Boolean';
     subWorkflowId: 'String';
     taskDefName: 'String';
     taskDefinition: 'String';
@@ -1295,9 +1238,6 @@ export interface NexusGenFieldTypeNames {
     taskReferenceName: 'String';
     taskType: 'String';
     updateTime: 'String';
-    workerId: 'String';
-    workflowInstanceId: 'String';
-    workflowPriority: 'Int';
     workflowType: 'String';
   };
   GraphEdge: {

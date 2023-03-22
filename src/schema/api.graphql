@@ -260,28 +260,19 @@ type EdgeSourceTarget {
 }
 
 type ExecutedWorkflow implements Node {
-  correlationId: String
   createdAt: String
   createdBy: String
   endTime: String
-  event: String
-  externalInputPayloadStoragePath: String
-  externalOutputPayloadStoragePath: String
   failedReferenceTaskNames: [String]
-  failedTaskNames: [String]
   id: ID!
   input: String
   lastRetriedTime: String
   output: String
   ownerApp: String
   parentWorkflowId: String
-  parentWorkflowTaskId: String
-  priority: Int
-  reRunFromWorkflowId: String
   reasonForIncompletion: String
   startTime: String
   status: ExecutedWorkflowStatus
-  taskToDomain: String
   tasks: [ExecutedWorkflowTask]
   updatedAt: String
   updatedBy: String
@@ -330,33 +321,15 @@ enum ExecutedWorkflowStatus {
 }
 
 type ExecutedWorkflowTask implements Node {
-  callbackAfterSeconds: Int
-  callbackFromWorker: Boolean
-  correlationId: String
-  domain: String
   endTime: String
   executed: Boolean
-  executionNameSpace: String
-  externalInputPayloadStoragePath: String
-  externalOutputPayloadStoragePath: String
   id: ID!
-  isolationGroupId: String
-  iteration: Int
-  loopOverTask: Boolean
-  pollCount: Int
-  queueWaitTime: Int
-  rateLimitFrequencyInSeconds: Int
-  rateLimitPerFrequency: Int
   reasonForIncompletion: String
-  responseTimeoutSeconds: Int
   retried: Boolean
   retryCount: Int
   scheduledTime: String
-  seq: String
-  startDelayInSeconds: Int
   startTime: String
   status: ExecutedWorkflowTaskStatus
-  subWorkflowChanged: Boolean
   subWorkflowId: String
   taskDefName: String
   taskDefinition: String
@@ -364,9 +337,6 @@ type ExecutedWorkflowTask implements Node {
   taskReferenceName: String
   taskType: String
   updateTime: String
-  workerId: String
-  workflowInstanceId: String
-  workflowPriority: Int
   workflowType: String
 }
 
