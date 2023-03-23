@@ -259,6 +259,99 @@ type EdgeSourceTarget {
   nodeId: String!
 }
 
+type ExecutedWorkflow implements Node {
+  createdAt: String
+  createdBy: String
+  endTime: String
+  failedReferenceTaskNames: [String]
+  id: ID!
+  input: String
+  lastRetriedTime: String
+  output: String
+  ownerApp: String
+  parentWorkflowId: String
+  reasonForIncompletion: String
+  startTime: String
+  status: ExecutedWorkflowStatus
+  tasks: [ExecutedWorkflowTask]
+  updatedAt: String
+  updatedBy: String
+  variables: String
+  workflowDefinition: Workflow
+  workflowId: String
+  workflowName: String
+  workflowVersion: Int
+}
+
+type ExecutedWorkflowConnection {
+  edges: [ExecutedWorkflowEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ExecutedWorkflowEdge {
+  cursor: String!
+  node: ExecutedWorkflow!
+}
+
+input ExecutedWorkflowFilterInput {
+  startTime: ExecutedWorkflowStartTimeRange
+  status: [ExecutedWorkflowStatus!]
+  workflowId: [String!]
+  workflowType: [String!]
+}
+
+input ExecutedWorkflowSearchInput {
+  isRootWorkflow: Boolean
+  query: ExecutedWorkflowFilterInput
+}
+
+input ExecutedWorkflowStartTimeRange {
+  from: String!
+  to: String
+}
+
+enum ExecutedWorkflowStatus {
+  COMPLETED
+  FAILED
+  PAUSED
+  RUNNING
+  TERMINATED
+  TIMED_OUT
+}
+
+type ExecutedWorkflowTask implements Node {
+  endTime: String
+  executed: Boolean
+  id: ID!
+  reasonForIncompletion: String
+  retried: Boolean
+  retryCount: Int
+  scheduledTime: String
+  startTime: String
+  status: ExecutedWorkflowTaskStatus
+  subWorkflowId: String
+  taskDefName: String
+  taskDefinition: String
+  taskId: String
+  taskReferenceName: String
+  taskType: String
+  updateTime: String
+  workflowType: String
+}
+
+enum ExecutedWorkflowTaskStatus {
+  CANCELED
+  COMPLETED
+  COMPLETED_WITH_ERROR
+  FAILED
+  FAILED_WITH_TERMINAL_ERROR
+  IN_PROGRESS
+  SCHEDULED
+  SKIPPED
+  TIMED_OUT
+}
+
 input FilterDevicesInput {
   deviceName: String
   labels: [String!]
@@ -399,6 +492,11 @@ type PageInfo {
   startCursor: String
 }
 
+input PaginationArgs {
+  size: Int!
+  start: Int!
+}
+
 type Query {
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
@@ -412,6 +510,7 @@ type Query {
     last: Int
     orderBy: DeviceOrderByInput
   ): DeviceConnection!
+  executedWorkflows(pagination: PaginationArgs, searchQuery: ExecutedWorkflowSearchInput): ExecutedWorkflowConnection
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node

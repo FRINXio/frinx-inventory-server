@@ -4,6 +4,8 @@ export type DataType =
   | 'Zone'
   | 'Device'
   | 'Workflow'
+  | 'ExecutedWorkflow'
+  | 'ExecutedWorkflowTask'
   | 'Label'
   | 'Location'
   | 'Country'
@@ -16,6 +18,8 @@ function isDataType(value: string): value is DataType {
     value === 'Zone' ||
     value === 'Device' ||
     value === 'Workflow' ||
+    value === 'ExecutedWorkflow' ||
+    value === 'ExecutedWorkflowTask' ||
     value === 'Label' ||
     value === 'Location' ||
     value === 'Country' ||

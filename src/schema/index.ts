@@ -10,6 +10,8 @@ import * as zone from './zone';
 import * as transaction from './transaction';
 import * as topology from './topology';
 import * as workflow from './workflow';
+import * as executedWorkflow from './executed-workflow';
+import * as executedWorkflowTask from './task';
 
 export default makeSchema({
   features: {
@@ -27,7 +29,20 @@ export default makeSchema({
     schema: join(__dirname, './api.graphql'),
   },
   shouldExitAfterGenerateArtifacts: Boolean(process.env.NEXUS_SHOULD_EXIT_AFTER_REFLECTION),
-  types: [globalTypes, device, zone, dataStore, label, location, blueprint, transaction, topology, workflow],
+  types: [
+    globalTypes,
+    device,
+    zone,
+    dataStore,
+    label,
+    location,
+    blueprint,
+    transaction,
+    topology,
+    workflow,
+    executedWorkflow,
+    executedWorkflowTask,
+  ],
   sourceTypes: {
     modules: [
       {
