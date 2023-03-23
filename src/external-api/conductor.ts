@@ -1,13 +1,15 @@
 import {
   decodeWorkflowDetailOutput,
+  decodeWorkflowEditOutput,
   decodeWorkflowMetadataOutput,
-  WorfklowMetadataOutput,
+  WorkflowMetadataOutput,
   WorkflowDetailInput,
   WorkflowDetailOutput,
+  WorkflowEditOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
-async function getWorkflowMetadata(baseURL: string): Promise<WorfklowMetadataOutput> {
+async function getWorkflowMetadata(baseURL: string): Promise<WorkflowMetadataOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/workflow']);
   const data = decodeWorkflowMetadataOutput(json);
   return data;
@@ -23,8 +25,10 @@ async function createWorkflow(baseURL: string, workflow: WorkflowDetailInput): P
   await sendPostRequest([baseURL, 'metadata/workflow'], workflow);
 }
 
-async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Promise<void> {
-  await sendPutRequest([baseURL, 'metadata/workflow'], [workflow]);
+async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Promise<WorkflowEditOutput> {
+  const json = await sendPutRequest([baseURL, 'metadata/workflow'], [workflow]);
+  const data = decodeWorkflowEditOutput(json);
+  return data;
 }
 
 async function deleteWorkflow(baseURL: string, name: string, version: number): Promise<void> {

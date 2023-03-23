@@ -88,10 +88,10 @@ const WorkflowMetadata = t.intersection([WorkflowMetadataRequired, WorkflowMetad
 
 const WorkflowMetadataValidator = t.array(WorkflowMetadata);
 
-export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
+export type WorkflowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 
-export function decodeWorkflowMetadataOutput(value: unknown): WorfklowMetadataOutput {
+export function decodeWorkflowMetadataOutput(value: unknown): WorkflowMetadataOutput {
   return extractResult(WorkflowMetadataValidator.decode(value));
 }
 
@@ -100,4 +100,15 @@ export type WorkflowDetailInput = t.TypeOf<typeof WorkflowMetadata>;
 
 export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput {
   return extractResult(WorkflowMetadata.decode(value));
+}
+
+const WorkflowEditValidator = t.type({
+  bulkErrorResults: t.record(t.string, t.string),
+  bulkSuccessfulResults: t.array(t.string),
+});
+
+export type WorkflowEditOutput = t.TypeOf<typeof WorkflowEditValidator>;
+
+export function decodeWorkflowEditOutput(value: unknown): WorkflowEditOutput {
+  return extractResult(WorkflowEditValidator.decode(value));
 }

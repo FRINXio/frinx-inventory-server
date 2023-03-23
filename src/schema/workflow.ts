@@ -14,6 +14,8 @@ export const Workflow = objectType({
       resolve: (workflow) => toGraphId('Workflow', workflow.name),
     });
     t.nonNull.string('name');
+    t.string('description');
+    t.int('version');
     t.string('createdBy', { resolve: (workflow) => workflow.createdBy ?? null });
     t.string('updatedBy', { resolve: (workflow) => workflow.updatedBy ?? null });
     t.string('createdAt', {
@@ -52,7 +54,7 @@ export const WorkflowConnection = objectType({
 export const WorkflowsQuery = extendType({
   type: 'Query',
   definition: (t) => {
-    t.nonNull.field('worfklows', {
+    t.nonNull.field('workflows', {
       type: WorkflowConnection,
       args: PaginationConnectionArgs,
       resolve: async (_, args, { conductorAPI }) => {
@@ -84,6 +86,8 @@ const WorkflowInput = inputObjectType({
     t.nonNull.string('name');
     t.nonNull.int('timeoutSeconds');
     t.nonNull.string('tasks');
+    t.string('description');
+    t.int('version');
   },
 });
 
@@ -114,9 +118,63 @@ export const AddWorkflowMutation = extendType({
           name: workflow.name,
           timeoutSeconds: 60,
           tasks: parsedTasks,
+          version: workflow.version || undefined,
+          description: workflow.description || undefined,
         };
 
         await conductorAPI.createWorkflow(config.conductorApiURL, apiWorkflow);
+        return {
+          workflow: {
+            id: toGraphId('Workflow', apiWorkflow.name),
+            ...apiWorkflow,
+          },
+        };
+      },
+    });
+  },
+});
+
+export const UpdateWorkflowPayload = objectType({
+  name: 'UpdateWorkflowPayload',
+  definition: (t) => {
+    t.nonNull.field('workflow', { type: Workflow });
+  },
+});
+
+export const UpdateWorkflowInput = inputObjectType({
+  name: 'UpdateWorkflowInput',
+  definition: (t) => {
+    t.nonNull.field('workflow', {
+      type: WorkflowInput,
+    });
+  },
+});
+
+export const UpdateWorkflowMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateWorkflow', {
+      type: UpdateWorkflowPayload,
+      args: {
+        id: nonNull(stringArg()),
+        input: nonNull(arg({ type: UpdateWorkflowInput })),
+      },
+      resolve: async (_, args, { conductorAPI }) => {
+        const { input } = args;
+        const { workflow } = input;
+
+        const parsedTasks = validateTasks(workflow.tasks);
+
+        const apiWorkflow: WorkflowDetailInput = {
+          name: workflow.name,
+          timeoutSeconds: 60,
+          tasks: parsedTasks,
+          version: workflow.version || undefined,
+          description: workflow.description || undefined,
+        };
+
+        const result = await conductorAPI.editWorkflow(config.conductorApiURL, apiWorkflow);
+
         return {
           workflow: {
             id: toGraphId('Workflow', apiWorkflow.name),

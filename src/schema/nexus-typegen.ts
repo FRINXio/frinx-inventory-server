@@ -143,11 +143,17 @@ export interface NexusGenInputs {
     vendor?: string | null; // String
     version?: string | null; // String
   };
+  UpdateWorkflowInput: {
+    // input type
+    workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
+  };
   WorkflowInput: {
     // input type
+    description?: string | null; // String
     name: string; // String!
     tasks: string; // String!
     timeoutSeconds: number; // Int!
+    version?: number | null; // Int
   };
 }
 
@@ -458,6 +464,10 @@ export interface NexusGenObjects {
   UpdateGraphNodeCoordinatesPayload: {
     // root type
     deviceNames: string[]; // [String!]!
+  };
+  UpdateWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Workflow: SourceTypes.Workflow;
   WorkflowConnection: {
@@ -787,6 +797,7 @@ export interface NexusGenFieldTypes {
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
+    updateWorkflow: NexusGenRootTypes['UpdateWorkflowPayload']; // UpdateWorkflowPayload!
   };
   PageInfo: {
     // field return type
@@ -811,7 +822,7 @@ export interface NexusGenFieldTypes {
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
-    worfklows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
+    workflows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
   ResetConfigPayload: {
@@ -890,15 +901,21 @@ export interface NexusGenFieldTypes {
     // field return type
     deviceNames: string[]; // [String!]!
   };
+  UpdateWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
+  };
   Workflow: {
     // field return type
     createdAt: string | null; // String
     createdBy: string | null; // String
+    description: string | null; // String
     id: string; // ID!
     name: string; // String!
     tasks: string | null; // String
     updatedAt: string | null; // String
     updatedBy: string | null; // String
+    version: number | null; // Int
   };
   WorkflowConnection: {
     // field return type
@@ -1227,6 +1244,7 @@ export interface NexusGenFieldTypeNames {
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
+    updateWorkflow: 'UpdateWorkflowPayload';
   };
   PageInfo: {
     // field return type name
@@ -1251,7 +1269,7 @@ export interface NexusGenFieldTypeNames {
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
-    worfklows: 'WorkflowConnection';
+    workflows: 'WorkflowConnection';
     zones: 'ZonesConnection';
   };
   ResetConfigPayload: {
@@ -1330,15 +1348,21 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     deviceNames: 'String';
   };
+  UpdateWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
+  };
   Workflow: {
     // field return type name
     createdAt: 'String';
     createdBy: 'String';
+    description: 'String';
     id: 'ID';
     name: 'String';
     tasks: 'String';
     updatedAt: 'String';
     updatedBy: 'String';
+    version: 'Int';
   };
   WorkflowConnection: {
     // field return type name
@@ -1509,6 +1533,11 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
     };
+    updateWorkflow: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateWorkflowInput']; // UpdateWorkflowInput!
+    };
   };
   Query: {
     blueprints: {
@@ -1574,7 +1603,7 @@ export interface NexusGenArgTypes {
       // args
       version: string; // String!
     };
-    worfklows: {
+    workflows: {
       // args
       after?: string | null; // String
       before?: string | null; // String
