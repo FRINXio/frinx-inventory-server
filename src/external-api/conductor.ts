@@ -1,4 +1,4 @@
-import { formatSearchQueryToString, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
+import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import {
   ApiExecutedWorkflow,
   decodeExecutedWorkflowDetailOutput,
@@ -28,7 +28,7 @@ async function getExecutedWorkflows(
   query?: SearchQuery | null,
   paginationArgs?: PaginationArgs | null,
 ): Promise<ExecutedWorkflowsOutput> {
-  const formattedQuery = formatSearchQueryToString(query, paginationArgs);
+  const formattedQuery = makeStringQueryFromSearchQueryObject(query, paginationArgs);
   const json = await sendGetRequest([baseURL, `workflow/search-v2?${formattedQuery}`]);
   const data = decodeExecutedWorkflowsOutput(json);
 

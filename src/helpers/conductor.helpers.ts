@@ -5,14 +5,14 @@ export type ExecutedWorkflowResult = {
   totalHits: number;
 };
 
-type ConductorQuerySearchTime = {
+export type ConductorQuerySearchTime = {
   from: number;
   to?: number | null;
 };
 
-type ConductorQueryStatus = 'RUNNING' | 'COMPLETED' | 'FAILED' | 'TERMINATED' | 'TIMED_OUT' | 'PAUSED';
+export type ConductorQueryStatus = 'RUNNING' | 'COMPLETED' | 'FAILED' | 'TERMINATED' | 'TIMED_OUT' | 'PAUSED';
 
-type ConductorQuery = {
+export type ConductorQuery = {
   status?: ConductorQueryStatus[] | null;
   startTime?: ConductorQuerySearchTime | null;
   workflowId?: string[] | null;
@@ -29,7 +29,7 @@ export type PaginationArgs = {
   start: number;
 };
 
-function makeStringQueryFromSearchTime(searchTime: ConductorQuerySearchTime): string {
+export function makeStringQueryFromSearchTime(searchTime: ConductorQuerySearchTime): string {
   const { from, to } = searchTime;
 
   if (from != null && to != null) {
@@ -39,7 +39,7 @@ function makeStringQueryFromSearchTime(searchTime: ConductorQuerySearchTime): st
   }
 }
 
-function makeStringFromQuery(query: ConductorQuery): string {
+export function makeStringFromQuery(query: ConductorQuery): string {
   const entries = Object.entries(query);
 
   return entries
@@ -63,7 +63,7 @@ function makeStringFromQuery(query: ConductorQuery): string {
     .join(' AND ');
 }
 
-function makeStringFromIsRootWorkflow(isRootWorkflow?: boolean | null): string {
+export function makeStringFromIsRootWorkflow(isRootWorkflow?: boolean | null): string {
   if (isRootWorkflow) {
     return 'freeText=root_wf';
   }
@@ -71,13 +71,13 @@ function makeStringFromIsRootWorkflow(isRootWorkflow?: boolean | null): string {
   return 'freeText=*';
 }
 
-function makeStringFromPagination(paginationArgs: PaginationArgs): string {
+export function makeStringFromPagination(paginationArgs: PaginationArgs): string {
   const { size, start } = paginationArgs;
 
   return `size=${size ?? 100}&start=${start ?? 0}`;
 }
 
-export function formatSearchQueryToString(
+export function makeStringQueryFromSearchQueryObject(
   searchQuery?: SearchQuery | null,
   paginationArgs?: PaginationArgs | null,
 ): string {
@@ -91,6 +91,8 @@ export function formatSearchQueryToString(
     }
 
     result.push(makeStringFromIsRootWorkflow(isRootWorkflow));
+  } else {
+    result.push('freeText=*');
   }
 
   if (paginationArgs) {
