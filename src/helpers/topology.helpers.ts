@@ -7,7 +7,7 @@ import {
   Status,
   TopologyDiffOutput,
 } from '../external-api/topology-network-types';
-import unwrap from './unwrap';
+import { unwrap } from './utils.helpers';
 
 type FilterInput = {
   labelIds?: string[] | null;

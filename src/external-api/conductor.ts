@@ -1,9 +1,14 @@
+import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import {
+  ApiExecutedWorkflow,
+  decodeExecutedWorkflowDetailOutput,
+  decodeExecutedWorkflowsOutput,
   decodeWorkflowDetailOutput,
   decodeWorkflowEditOutput,
   decodeWorkflowMetadataOutput,
   WorkflowMetadataOutput,
   WorkflowDetailInput,
+  ExecutedWorkflowsOutput,
   WorkflowDetailOutput,
   WorkflowEditOutput,
 } from './conductor-network-types';
@@ -34,6 +39,24 @@ async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Pro
 async function deleteWorkflow(baseURL: string, name: string, version: number): Promise<void> {
   await sendDeleteRequest([baseURL, `metadata/workflow/${name}/${version}`]);
 }
+async function getExecutedWorkflows(
+  baseURL: string,
+  query?: SearchQuery | null,
+  paginationArgs?: PaginationArgs | null,
+): Promise<ExecutedWorkflowsOutput> {
+  const formattedQuery = makeStringQueryFromSearchQueryObject(query, paginationArgs);
+  const json = await sendGetRequest([baseURL, `workflow/search-v2?${formattedQuery}`]);
+  const data = decodeExecutedWorkflowsOutput(json);
+
+  return data;
+}
+
+async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): Promise<ApiExecutedWorkflow> {
+  const json = await sendGetRequest([baseURL, `workflow/${workflowId}`]);
+  const data = decodeExecutedWorkflowDetailOutput(json);
+
+  return data;
+}
 
 const conductorAPI = {
   getWorkflowMetadata,
@@ -41,6 +64,8 @@ const conductorAPI = {
   createWorkflow,
   editWorkflow,
   deleteWorkflow,
+  getExecutedWorkflows,
+  getExecutedWorkflowDetail,
 };
 
 export type ConductorAPI = typeof conductorAPI;
