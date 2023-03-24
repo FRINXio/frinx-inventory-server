@@ -175,6 +175,10 @@ export const UpdateWorkflowMutation = extendType({
 
         const result = await conductorAPI.editWorkflow(config.conductorApiURL, apiWorkflow);
 
+        if (result.bulkErrorResults[workflow.name]) {
+          throw new Error(`update workflow error: ${result.bulkErrorResults[workflow.name]}`);
+        }
+
         return {
           workflow: {
             id: toGraphId('Workflow', apiWorkflow.name),
