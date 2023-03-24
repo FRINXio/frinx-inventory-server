@@ -98,7 +98,7 @@ export interface NexusGenInputs {
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
   };
-  ExecuteNewWorkflowInputPayload: {
+  ExecuteNewWorkflowInput: {
     // input type
     correlationId?: string | null; // String
     externalInputPayloadStoragePath?: string | null; // String
@@ -106,30 +106,6 @@ export interface NexusGenInputs {
     name: string; // String!
     priority?: number | null; // Int
     taskToDomain?: string | null; // String
-    version?: number | null; // Int
-    workflowDef?: NexusGenInputs['ExecuteWorkflowDefinitionInputPayload'] | null; // ExecuteWorkflowDefinitionInputPayload
-  };
-  ExecuteWorkflowDefinitionInputPayload: {
-    // input type
-    createTime?: number | null; // Int
-    createdAt?: number | null; // Int
-    createdBy?: string | null; // String
-    description?: string | null; // String
-    inputParameters?: Array<string | null> | null; // [String]
-    inputTemplate?: string | null; // String
-    name: string; // String!
-    outputParameters?: string | null; // String
-    ownerApp?: string | null; // String
-    ownerEmail?: string | null; // String
-    restartable?: boolean | null; // Boolean
-    schemaVersion?: number | null; // Int
-    tasks: NexusGenInputs['TaskInputPayload'][]; // [TaskInputPayload!]!
-    timeoutPolicy?: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
-    timeoutSeconds: number; // Int!
-    updateTime?: number | null; // Int
-    updatedAt?: number | null; // Int
-    updatedBy?: string | null; // String
-    variables?: string | null; // String
     version?: number | null; // Int
   };
   ExecutedWorkflowFilterInput: {
@@ -169,7 +145,12 @@ export interface NexusGenInputs {
     size: number; // Int!
     start: number; // Int!
   };
-  TaskInputPayload: {
+  StartWorkflowRequestInput: {
+    // input type
+    workflow: NexusGenInputs['ExecuteNewWorkflowInput']; // ExecuteNewWorkflowInput!
+    workflowDefinition?: NexusGenInputs['WorkflowDefinitionInput'] | null; // WorkflowDefinitionInput
+  };
+  TaskInput: {
     // input type
     asyncComplete?: boolean | null; // Boolean
     decisionCases?: string | null; // String
@@ -180,7 +161,7 @@ export interface NexusGenInputs {
     loopCondition?: string | null; // String
     name: string; // String!
     optional?: boolean | null; // Boolean
-    retryCount?: boolean | null; // Boolean
+    retryCount?: number | null; // Int
     startDelay?: number | null; // Int
     taskReferenceName: string; // String!
     type?: string | null; // String
@@ -211,6 +192,29 @@ export interface NexusGenInputs {
     username?: string | null; // String
     vendor?: string | null; // String
     version?: string | null; // String
+  };
+  WorkflowDefinitionInput: {
+    // input type
+    createTime?: number | null; // Int
+    createdAt?: number | null; // Int
+    createdBy?: string | null; // String
+    description?: string | null; // String
+    inputParameters?: Array<string | null> | null; // [String]
+    inputTemplate?: string | null; // String
+    name: string; // String!
+    outputParameters?: string | null; // String
+    ownerApp?: string | null; // String
+    ownerEmail?: string | null; // String
+    restartable?: boolean | null; // Boolean
+    schemaVersion?: number | null; // Int
+    tasks: NexusGenInputs['TaskInput'][]; // [TaskInput!]!
+    timeoutPolicy?: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
+    timeoutSeconds: number; // Int!
+    updateTime?: number | null; // Int
+    updatedAt?: number | null; // Int
+    updatedBy?: string | null; // String
+    variables?: string | null; // String
+    version?: number | null; // Int
   };
 }
 
@@ -1655,7 +1659,7 @@ export interface NexusGenArgTypes {
     };
     executeNewWorkflow: {
       // args
-      input: NexusGenInputs['ExecuteNewWorkflowInputPayload']; // ExecuteNewWorkflowInputPayload!
+      input: NexusGenInputs['StartWorkflowRequestInput']; // StartWorkflowRequestInput!
     };
     importCSV: {
       // args

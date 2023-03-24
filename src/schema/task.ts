@@ -79,8 +79,8 @@ export const ExecutedWorkflowTask = objectType({
   },
 });
 
-export const TaskInputPayload = inputObjectType({
-  name: 'TaskInputPayload',
+export const TaskInput = inputObjectType({
+  name: 'TaskInput',
   definition: (t) => {
     t.nonNull.string('name');
     t.nonNull.string('taskReferenceName');
@@ -95,6 +95,6 @@ export const TaskInputPayload = inputObjectType({
     t.string('decisionCases');
     t.string('defaultCase');
     t.string('loopCondition');
-    t.boolean('retryCount');
+    t.int('retryCount');
   },
 });

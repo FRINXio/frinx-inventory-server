@@ -27,32 +27,6 @@ export type PaginationArgs = {
   start: number;
 };
 
-// eslint-disable-next-line no-shadow
-enum TaskType {
-  SIMPLE,
-  DECISION,
-  DYNAMIC,
-  FORK_JOIN,
-  JOIN,
-  SUB_WORKFLOW,
-  FORK_JOIN_DYNAMIC,
-  EVENT,
-  LAMBDA,
-  HTTP,
-  KAFKA_PUBLISH,
-  TERMINATE,
-  HUMAN,
-  WAIT,
-  JSON_JQ_TRANSFORM,
-  SET_VARIABLE,
-  DO_WHILE,
-  START_WORKFLOW,
-  USER_DEFINED,
-  INLINE,
-  EXCLUSIVE_JOIN,
-  SWITCH,
-}
-
 export type Task = {
   name: string;
   taskReferenceName: string;
@@ -62,10 +36,36 @@ export type Task = {
   startDelay?: number | null;
   optional?: boolean | null;
   asyncComplete?: boolean | null;
-  workflowTaskType?: (TaskType | null)[] | null;
+  workflowTaskType?:
+    | (
+        | 'SIMPLE'
+        | 'DECISION'
+        | 'DYNAMIC'
+        | 'FORK_JOIN'
+        | 'JOIN'
+        | 'SUB_WORKFLOW'
+        | 'FORK_JOIN_DYNAMIC'
+        | 'EVENT'
+        | 'LAMBDA'
+        | 'HTTP'
+        | 'KAFKA_PUBLISH'
+        | 'TERMINATE'
+        | 'HUMAN'
+        | 'WAIT'
+        | 'JSON_JQ_TRANSFORM'
+        | 'SET_VARIABLE'
+        | 'DO_WHILE'
+        | 'START_WORKFLOW'
+        | 'USER_DEFINED'
+        | 'INLINE'
+        | 'EXCLUSIVE_JOIN'
+        | 'SWITCH'
+        | null
+      )[]
+    | null;
   joinOn?: (string | null)[] | null;
   decisionCases?: Record<string, unknown[]> | null;
-  defaultCase: unknown[];
+  defaultCase?: unknown[] | null;
   loopCondition?: string | null;
   retryCount?: number | null;
 };
@@ -93,7 +93,7 @@ export type WorkflowDefinition = {
   updatedAt?: number | null;
 };
 
-export type ExecuteNewWorkflowPayload = {
+export type StartWorkflowInput = {
   name: string;
   version?: number | null;
   correlationId?: string | null;

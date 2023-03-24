@@ -259,37 +259,13 @@ type EdgeSourceTarget {
   nodeId: String!
 }
 
-input ExecuteNewWorkflowInputPayload {
+input ExecuteNewWorkflowInput {
   correlationId: String
   externalInputPayloadStoragePath: String
   input: String
   name: String!
   priority: Int
   taskToDomain: String
-  version: Int
-  workflowDef: ExecuteWorkflowDefinitionInputPayload
-}
-
-input ExecuteWorkflowDefinitionInputPayload {
-  createTime: Int
-  createdAt: Int
-  createdBy: String
-  description: String
-  inputParameters: [String]
-  inputTemplate: String
-  name: String!
-  outputParameters: String
-  ownerApp: String
-  ownerEmail: String
-  restartable: Boolean
-  schemaVersion: Int
-  tasks: [TaskInputPayload!]!
-  timeoutPolicy: TimeoutPolicy
-  timeoutSeconds: Int!
-  updateTime: Int
-  updatedAt: Int
-  updatedBy: String
-  variables: String
   version: Int
 }
 
@@ -503,7 +479,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
-  executeNewWorkflow(input: ExecuteNewWorkflowInputPayload!): String
+  executeNewWorkflow(input: StartWorkflowRequestInput!): String
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
@@ -582,6 +558,11 @@ enum SortDirection {
   DESC
 }
 
+input StartWorkflowRequestInput {
+  workflow: ExecuteNewWorkflowInput!
+  workflowDefinition: WorkflowDefinitionInput
+}
+
 type Subscription {
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
@@ -590,7 +571,7 @@ type SyncFromNetworkPayload {
   dataStore: DataStore
 }
 
-input TaskInputPayload {
+input TaskInput {
   asyncComplete: Boolean
   decisionCases: String
   defaultCase: String
@@ -600,7 +581,7 @@ input TaskInputPayload {
   loopCondition: String
   name: String!
   optional: Boolean
-  retryCount: Boolean
+  retryCount: Int
   startDelay: Int
   taskReferenceName: String!
   type: String
@@ -712,6 +693,29 @@ type WorkflowConnection {
   edges: [WorkflowEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+input WorkflowDefinitionInput {
+  createTime: Int
+  createdAt: Int
+  createdBy: String
+  description: String
+  inputParameters: [String]
+  inputTemplate: String
+  name: String!
+  outputParameters: String
+  ownerApp: String
+  ownerEmail: String
+  restartable: Boolean
+  schemaVersion: Int
+  tasks: [TaskInput!]!
+  timeoutPolicy: TimeoutPolicy
+  timeoutSeconds: Int!
+  updateTime: Int
+  updatedAt: Int
+  updatedBy: String
+  variables: String
+  version: Int
 }
 
 type WorkflowEdge {

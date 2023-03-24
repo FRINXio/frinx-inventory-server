@@ -1,5 +1,5 @@
 import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
-import { ExecuteNewWorkflowPayload } from '../types/conductor.types';
+import { StartWorkflowInput } from '../types/conductor.types';
 import {
   ApiExecutedWorkflow,
   decodeExecutedWorkflowDetailOutput,
@@ -43,7 +43,7 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
   return data;
 }
 
-async function executeNewWorkflow(baseURL: string, inputPayload: ExecuteNewWorkflowPayload): Promise<string> {
+async function executeNewWorkflow(baseURL: string, inputPayload: StartWorkflowInput): Promise<string> {
   try {
     const json = await sendPostRequest([baseURL, 'workflow'], inputPayload);
 

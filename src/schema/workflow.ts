@@ -1,9 +1,13 @@
 import { connectionFromArray } from 'graphql-relay';
-import { enumType, extendType, inputObjectType, objectType } from 'nexus';
+import { v4 as uuid } from 'uuid';
+import { arg, enumType, extendType, inputObjectType, mutationField, nonNull, objectType, queryField } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
-import { TaskInputPayload } from './task';
+import { TaskInput, ExecutedWorkflowTask } from './task';
+import { makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
+import { StartWorkflowInput } from '../types/conductor.types';
+import { parseJson } from '../helpers/utils.helpers';
 
 export const Workflow = objectType({
   name: 'Workflow',
@@ -75,12 +79,12 @@ export const TimeoutPolicy = enumType({
   members: ['TIME_OUT_WF', 'ALERT_ONLY'],
 });
 
-export const ExecuteWorkflowDefinitionInputPayload = inputObjectType({
-  name: 'ExecuteWorkflowDefinitionInputPayload',
+export const WorkflowDefinitionInput = inputObjectType({
+  name: 'WorkflowDefinitionInput',
   definition: (t) => {
     t.nonNull.string('name');
     t.nonNull.list.nonNull.field('tasks', {
-      type: TaskInputPayload,
+      type: TaskInput,
     });
     t.nonNull.int('timeoutSeconds');
     t.list.string('inputParameters');
@@ -102,5 +106,210 @@ export const ExecuteWorkflowDefinitionInputPayload = inputObjectType({
     t.int('updateTime');
     t.string('createdBy');
     t.string('updatedBy');
+  },
+});
+
+export const ExecutedWorkflowStatus = enumType({
+  name: 'ExecutedWorkflowStatus',
+  members: ['RUNNING', 'COMPLETED', 'FAILED', 'TERMINATED', 'TIMED_OUT', 'PAUSED'],
+});
+
+export const ExecutedWorkflow = objectType({
+  name: 'ExecutedWorkflow',
+  definition(t) {
+    t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (executedWorkflow) => toGraphId('ExecutedWorkflow', executedWorkflow.workflowId ?? uuid()),
+    });
+    t.string('createdBy', { resolve: (executedWorkflow) => executedWorkflow.createdBy ?? null });
+    t.string('updatedBy', { resolve: (workflow) => workflow.updatedBy ?? null });
+    t.string('createdAt', {
+      resolve: (workflow) => (workflow.createTime ? new Date(workflow.createTime).toISOString() : null),
+    });
+    t.string('updatedAt', {
+      resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
+    });
+    t.field('status', { type: ExecutedWorkflowStatus });
+    t.string('parentWorkflowId');
+    t.string('ownerApp');
+    t.string('input', { resolve: (workflow) => JSON.stringify(workflow.input) });
+    t.string('output', { resolve: (workflow) => JSON.stringify(workflow.output) });
+    t.string('reasonForIncompletion');
+    t.list.string('failedReferenceTaskNames');
+    t.field('workflowDefinition', { type: Workflow });
+    t.string('variables', { resolve: (workflow) => JSON.stringify(workflow.variables) });
+    t.string('lastRetriedTime', {
+      resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
+    });
+    t.string('startTime', {
+      resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
+    });
+    t.string('endTime', {
+      resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
+    });
+    t.int('workflowVersion');
+    t.string('workflowName');
+    t.string('workflowId');
+    t.list.field('tasks', {
+      type: ExecutedWorkflowTask,
+    });
+  },
+});
+
+export const ExecutedWorkflowEdge = objectType({
+  name: 'ExecutedWorkflowEdge',
+  definition: (t) => {
+    t.nonNull.field('node', {
+      type: ExecutedWorkflow,
+    });
+    t.nonNull.string('cursor');
+  },
+});
+
+export const ExecutedWorkflowConnection = objectType({
+  name: 'ExecutedWorkflowConnection',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('edges', {
+      type: ExecutedWorkflowEdge,
+    });
+    t.nonNull.field('pageInfo', {
+      type: PageInfo,
+    });
+    t.nonNull.int('totalCount');
+  },
+});
+
+export const ExecutedWorkflowStartTimeRange = inputObjectType({
+  name: 'ExecutedWorkflowStartTimeRange',
+  definition: (t) => {
+    t.nonNull.string('from');
+    t.string('to');
+  },
+});
+
+export const ExecutedWorkflowFilterInput = inputObjectType({
+  name: 'ExecutedWorkflowFilterInput',
+  definition: (t) => {
+    t.list.nonNull.string('workflowId');
+    t.list.nonNull.string('workflowType');
+    t.list.nonNull.field('status', { type: ExecutedWorkflowStatus });
+    t.field('startTime', { type: ExecutedWorkflowStartTimeRange });
+  },
+});
+
+export const ExecutedWorkflowSearchInput = inputObjectType({
+  name: 'ExecutedWorkflowSearchInput',
+  definition: (t) => {
+    t.boolean('isRootWorkflow');
+    t.field('query', { type: ExecutedWorkflowFilterInput });
+  },
+});
+
+export const PaginationArgs = inputObjectType({
+  name: 'PaginationArgs',
+  definition: (t) => {
+    t.nonNull.int('size');
+    t.nonNull.int('start');
+  },
+});
+
+export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
+  type: ExecutedWorkflowConnection,
+  args: {
+    pagination: arg({ type: PaginationArgs }),
+    searchQuery: arg({ type: ExecutedWorkflowSearchInput }),
+  },
+  resolve: async (_, args, { conductorAPI }) => {
+    const { results: executedWorkflows } = await conductorAPI.getExecutedWorkflows(
+      config.conductorApiURL,
+      makeSearchQueryFromArgs(args.searchQuery),
+      makePaginationFromArgs(args.pagination),
+    );
+
+    const executedWorkflowsWithId = executedWorkflows
+      .map((w) => ({
+        ...w,
+        id: toGraphId('ExecutedWorkflow', w.workflowId || uuid()),
+      }))
+      .slice(0, args.pagination?.size ?? 0 - 1);
+
+    return {
+      edges: executedWorkflowsWithId.map((w) => ({
+        node: w,
+        cursor: w.id,
+      })),
+      pageInfo: {
+        hasNextPage: args.pagination ? executedWorkflowsWithId.length < executedWorkflows.length : false,
+        hasPreviousPage: args.pagination ? args.pagination.start >= args.pagination.size : false,
+        endCursor: executedWorkflowsWithId[executedWorkflowsWithId.length - 1]?.id,
+        startCursor: executedWorkflowsWithId[0]?.id,
+      },
+      totalCount: executedWorkflows.length,
+    };
+  },
+});
+
+export const ExecuteNewWorkflowInput = inputObjectType({
+  name: 'ExecuteNewWorkflowInput',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.int('version');
+    t.string('correlationId');
+    t.string('input');
+    t.string('taskToDomain');
+    t.string('externalInputPayloadStoragePath');
+    t.int('priority');
+  },
+});
+
+export const StartWorkflowRequestInput = inputObjectType({
+  name: 'StartWorkflowRequestInput',
+  definition: (t) => {
+    t.nonNull.field('workflow', {
+      type: ExecuteNewWorkflowInput,
+    });
+    t.field('workflowDefinition', {
+      type: WorkflowDefinitionInput,
+    });
+  },
+});
+
+export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
+  type: 'String',
+  args: {
+    input: nonNull(arg({ type: StartWorkflowRequestInput })),
+  },
+  resolve: async (_, { input }, { conductorAPI }) => {
+    try {
+      const { workflow, workflowDefinition } = input;
+
+      const newWorkflow: StartWorkflowInput = {
+        ...workflow,
+        input: parseJson(workflow.input, false),
+        taskToDomain: parseJson(workflow.taskToDomain, false),
+        ...(workflowDefinition && {
+          workflowDef: {
+            ...workflowDefinition,
+            inputTemplate: parseJson(workflowDefinition.inputTemplate, false),
+            outputParameters: parseJson(workflowDefinition.outputParameters, false),
+            variables: parseJson(workflowDefinition.variables, false),
+            tasks: workflowDefinition.tasks.map((t) => ({
+              ...t,
+              inputParameters: parseJson<Record<string, unknown>>(t.inputParameters, false),
+              decisionCases: parseJson<Record<string, unknown[]>>(t.decisionCases, false),
+              defaultCase: parseJson<unknown[]>(t.defaultCase, false),
+            })),
+          },
+        }),
+      };
+
+      const workflowId = await conductorAPI.executeNewWorkflow(config.conductorApiURL, newWorkflow);
+
+      return workflowId;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      throw new Error('We could not execute the workflow');
+    }
   },
 });
