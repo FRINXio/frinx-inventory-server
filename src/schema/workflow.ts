@@ -1,8 +1,9 @@
 import { connectionFromArray } from 'graphql-relay';
-import { extendType, objectType } from 'nexus';
+import { enumType, extendType, inputObjectType, objectType } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { TaskInputPayload } from './task';
 
 export const Workflow = objectType({
   name: 'Workflow',
@@ -66,5 +67,40 @@ export const WorkflowsQuery = extendType({
         };
       },
     });
+  },
+});
+
+export const TimeoutPolicy = enumType({
+  name: 'TimeoutPolicy',
+  members: ['TIME_OUT_WF', 'ALERT_ONLY'],
+});
+
+export const ExecuteWorkflowDefinitionInputPayload = inputObjectType({
+  name: 'ExecuteWorkflowDefinitionInputPayload',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.nonNull.list.nonNull.field('tasks', {
+      type: TaskInputPayload,
+    });
+    t.nonNull.int('timeoutSeconds');
+    t.list.string('inputParameters');
+    t.string('outputParameters');
+    t.string('description');
+    t.int('version');
+    t.int('schemaVersion');
+    t.string('ownerApp');
+    t.string('ownerEmail');
+    t.string('variables');
+    t.string('inputTemplate');
+    t.boolean('restartable');
+    t.field('timeoutPolicy', {
+      type: TimeoutPolicy,
+    });
+    t.int('createdAt');
+    t.int('updatedAt');
+    t.int('createTime');
+    t.int('updateTime');
+    t.string('createdBy');
+    t.string('updatedBy');
   },
 });

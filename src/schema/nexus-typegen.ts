@@ -98,6 +98,40 @@ export interface NexusGenInputs {
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
   };
+  ExecuteNewWorkflowInputPayload: {
+    // input type
+    correlationId?: string | null; // String
+    externalInputPayloadStoragePath?: string | null; // String
+    input?: string | null; // String
+    name: string; // String!
+    priority?: number | null; // Int
+    taskToDomain?: string | null; // String
+    version?: number | null; // Int
+    workflowDef?: NexusGenInputs['ExecuteWorkflowDefinitionInputPayload'] | null; // ExecuteWorkflowDefinitionInputPayload
+  };
+  ExecuteWorkflowDefinitionInputPayload: {
+    // input type
+    createTime?: number | null; // Int
+    createdAt?: number | null; // Int
+    createdBy?: string | null; // String
+    description?: string | null; // String
+    inputParameters?: Array<string | null> | null; // [String]
+    inputTemplate?: string | null; // String
+    name: string; // String!
+    outputParameters?: string | null; // String
+    ownerApp?: string | null; // String
+    ownerEmail?: string | null; // String
+    restartable?: boolean | null; // Boolean
+    schemaVersion?: number | null; // Int
+    tasks: NexusGenInputs['TaskInputPayload'][]; // [TaskInputPayload!]!
+    timeoutPolicy?: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
+    timeoutSeconds: number; // Int!
+    updateTime?: number | null; // Int
+    updatedAt?: number | null; // Int
+    updatedBy?: string | null; // String
+    variables?: string | null; // String
+    version?: number | null; // Int
+  };
   ExecutedWorkflowFilterInput: {
     // input type
     startTime?: NexusGenInputs['ExecutedWorkflowStartTimeRange'] | null; // ExecutedWorkflowStartTimeRange
@@ -134,6 +168,23 @@ export interface NexusGenInputs {
     // input type
     size: number; // Int!
     start: number; // Int!
+  };
+  TaskInputPayload: {
+    // input type
+    asyncComplete?: boolean | null; // Boolean
+    decisionCases?: string | null; // String
+    defaultCase?: string | null; // String
+    description?: string | null; // String
+    inputParameters?: string | null; // String
+    joinOn?: Array<string | null> | null; // [String]
+    loopCondition?: string | null; // String
+    name: string; // String!
+    optional?: boolean | null; // Boolean
+    retryCount?: boolean | null; // Boolean
+    startDelay?: number | null; // Int
+    taskReferenceName: string; // String!
+    type?: string | null; // String
+    workflowTaskType?: Array<NexusGenEnums['WorkflowTaskType'] | null> | null; // [WorkflowTaskType]
   };
   UpdateBlueprintInput: {
     // input type
@@ -181,6 +232,30 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
+  TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
+  WorkflowTaskType:
+    | 'DECISION'
+    | 'DO_WHILE'
+    | 'DYNAMIC'
+    | 'EVENT'
+    | 'EXCLUSIVE_JOIN'
+    | 'FORK_JOIN'
+    | 'FORK_JOIN_DYNAMIC'
+    | 'HTTP'
+    | 'HUMAN'
+    | 'INLINE'
+    | 'JOIN'
+    | 'JSON_JQ_TRANSFORM'
+    | 'KAFKA_PUBLISH'
+    | 'LAMBDA'
+    | 'SET_VARIABLE'
+    | 'SIMPLE'
+    | 'START_WORKFLOW'
+    | 'SUB_WORKFLOW'
+    | 'SWITCH'
+    | 'TERMINATE'
+    | 'USER_DEFINED'
+    | 'WAIT';
 }
 
 export interface NexusGenScalars {
@@ -852,6 +927,7 @@ export interface NexusGenFieldTypes {
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
+    executeNewWorkflow: string | null; // String
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
@@ -1338,6 +1414,7 @@ export interface NexusGenFieldTypeNames {
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
+    executeNewWorkflow: 'String';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     resetConfig: 'ResetConfigPayload';
@@ -1575,6 +1652,10 @@ export interface NexusGenArgTypes {
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
+    };
+    executeNewWorkflow: {
+      // args
+      input: NexusGenInputs['ExecuteNewWorkflowInputPayload']; // ExecuteNewWorkflowInputPayload!
     };
     importCSV: {
       // args

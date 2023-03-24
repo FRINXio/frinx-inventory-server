@@ -259,6 +259,40 @@ type EdgeSourceTarget {
   nodeId: String!
 }
 
+input ExecuteNewWorkflowInputPayload {
+  correlationId: String
+  externalInputPayloadStoragePath: String
+  input: String
+  name: String!
+  priority: Int
+  taskToDomain: String
+  version: Int
+  workflowDef: ExecuteWorkflowDefinitionInputPayload
+}
+
+input ExecuteWorkflowDefinitionInputPayload {
+  createTime: Int
+  createdAt: Int
+  createdBy: String
+  description: String
+  inputParameters: [String]
+  inputTemplate: String
+  name: String!
+  outputParameters: String
+  ownerApp: String
+  ownerEmail: String
+  restartable: Boolean
+  schemaVersion: Int
+  tasks: [TaskInputPayload!]!
+  timeoutPolicy: TimeoutPolicy
+  timeoutSeconds: Int!
+  updateTime: Int
+  updatedAt: Int
+  updatedBy: String
+  variables: String
+  version: Int
+}
+
 type ExecutedWorkflow implements Node {
   createdAt: String
   createdBy: String
@@ -469,6 +503,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  executeNewWorkflow(input: ExecuteNewWorkflowInputPayload!): String
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
@@ -553,6 +588,28 @@ type Subscription {
 
 type SyncFromNetworkPayload {
   dataStore: DataStore
+}
+
+input TaskInputPayload {
+  asyncComplete: Boolean
+  decisionCases: String
+  defaultCase: String
+  description: String
+  inputParameters: String
+  joinOn: [String]
+  loopCondition: String
+  name: String!
+  optional: Boolean
+  retryCount: Boolean
+  startDelay: Int
+  taskReferenceName: String!
+  type: String
+  workflowTaskType: [WorkflowTaskType]
+}
+
+enum TimeoutPolicy {
+  ALERT_ONLY
+  TIME_OUT_WF
 }
 
 type Topology {
@@ -660,6 +717,31 @@ type WorkflowConnection {
 type WorkflowEdge {
   cursor: String!
   node: Workflow!
+}
+
+enum WorkflowTaskType {
+  DECISION
+  DO_WHILE
+  DYNAMIC
+  EVENT
+  EXCLUSIVE_JOIN
+  FORK_JOIN
+  FORK_JOIN_DYNAMIC
+  HTTP
+  HUMAN
+  INLINE
+  JOIN
+  JSON_JQ_TRANSFORM
+  KAFKA_PUBLISH
+  LAMBDA
+  SET_VARIABLE
+  SIMPLE
+  START_WORKFLOW
+  SUB_WORKFLOW
+  SWITCH
+  TERMINATE
+  USER_DEFINED
+  WAIT
 }
 
 type Zone implements Node {

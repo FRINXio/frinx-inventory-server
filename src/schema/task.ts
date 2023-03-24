@@ -1,4 +1,4 @@
-import { enumType, objectType } from 'nexus';
+import { enumType, inputObjectType, objectType } from 'nexus';
 import { v4 as uuid } from 'uuid';
 import { toGraphId } from '../helpers/id-helper';
 
@@ -14,6 +14,34 @@ export const ExecutedWorkflowTaskStatus = enumType({
     'SKIPPED',
     'FAILED_WITH_TERMINAL_ERROR',
     'COMPLETED_WITH_ERROR',
+  ],
+});
+
+export const WorkflowTaskType = enumType({
+  name: 'WorkflowTaskType',
+  members: [
+    'SIMPLE',
+    'DECISION',
+    'DYNAMIC',
+    'FORK_JOIN',
+    'JOIN',
+    'SUB_WORKFLOW',
+    'FORK_JOIN_DYNAMIC',
+    'EVENT',
+    'LAMBDA',
+    'HTTP',
+    'KAFKA_PUBLISH',
+    'TERMINATE',
+    'HUMAN',
+    'WAIT',
+    'JSON_JQ_TRANSFORM',
+    'SET_VARIABLE',
+    'DO_WHILE',
+    'START_WORKFLOW',
+    'USER_DEFINED',
+    'INLINE',
+    'EXCLUSIVE_JOIN',
+    'SWITCH',
   ],
 });
 
@@ -48,5 +76,25 @@ export const ExecutedWorkflowTask = objectType({
     t.string('reasonForIncompletion');
     t.string('taskDefinition', { resolve: (task) => JSON.stringify(task.taskDefinition) });
     t.string('subWorkflowId');
+  },
+});
+
+export const TaskInputPayload = inputObjectType({
+  name: 'TaskInputPayload',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.nonNull.string('taskReferenceName');
+    t.string('description');
+    t.string('inputParameters');
+    t.string('type');
+    t.int('startDelay');
+    t.boolean('optional');
+    t.boolean('asyncComplete');
+    t.list.field('workflowTaskType', { type: WorkflowTaskType });
+    t.list.string('joinOn');
+    t.string('decisionCases');
+    t.string('defaultCase');
+    t.string('loopCondition');
+    t.boolean('retryCount');
   },
 });

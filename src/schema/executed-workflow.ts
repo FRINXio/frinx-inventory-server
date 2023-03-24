@@ -1,11 +1,13 @@
-import { arg, enumType, inputObjectType, objectType, queryField } from 'nexus';
+import { arg, enumType, inputObjectType, mutationField, nonNull, objectType, queryField } from 'nexus';
 import { v4 as uuid } from 'uuid';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
+import { parseJson } from '../helpers/utils.helpers';
 import { makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
+import { ExecuteNewWorkflowPayload } from '../types/conductor.types';
 import { Node, PageInfo } from './global-types';
 import { ExecutedWorkflowTask } from './task';
-import { Workflow } from './workflow';
+import { ExecuteWorkflowDefinitionInputPayload, Workflow } from './workflow';
 
 export const ExecutedWorkflowStatus = enumType({
   name: 'ExecutedWorkflowStatus',
@@ -144,5 +146,62 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
       },
       totalCount: executedWorkflows.length,
     };
+  },
+});
+
+export const ExecuteNewWorkflowInputPayload = inputObjectType({
+  name: 'ExecuteNewWorkflowInputPayload',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.int('version');
+    t.string('correlationId');
+    t.string('input');
+    t.string('taskToDomain');
+    t.string('externalInputPayloadStoragePath');
+    t.int('priority');
+    t.field('workflowDef', { type: ExecuteWorkflowDefinitionInputPayload });
+  },
+});
+
+export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
+  type: 'String',
+  args: {
+    input: nonNull(arg({ type: ExecuteNewWorkflowInputPayload })),
+  },
+  resolve: async (_, { input }, { conductorAPI }) => {
+    try {
+      const workflow: ExecuteNewWorkflowPayload = {
+        ...input,
+        input: input.input ? parseJson(input.input) : undefined,
+        taskToDomain: input.taskToDomain ? parseJson(input.taskToDomain) : undefined,
+        ...(input.workflowDef && {
+          workflowDef: {
+            ...input.workflowDef,
+            inputParameters: input.workflowDef.inputParameters,
+            outputParameters: input.workflowDef.outputParameters
+              ? parseJson(input.workflowDef.outputParameters)
+              : undefined,
+            variables: input.workflowDef.variables ? parseJson(input.workflowDef.variables) : undefined,
+            inputTemplate: input.workflowDef.inputTemplate ? parseJson(input.workflowDef.inputTemplate) : undefined,
+            tasks: input.workflowDef.tasks.map((task) => ({
+              ...task,
+              decisionCases: task.decisionCases ? parseJson(task.decisionCases) : undefined,
+              defaultCase: task.defaultCase ? parseJson(task.defaultCase) : undefined,
+              inputParameters: task.inputParameters
+                ? parseJson<Record<string, unknown>>(task.inputParameters)
+                : undefined,
+            })),
+          },
+        }),
+      };
+
+      const workflowId = await conductorAPI.executeNewWorkflow(config.conductorApiURL, workflow);
+
+      return workflowId;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      throw new Error('We could not execute the workflow');
+    }
   },
 });

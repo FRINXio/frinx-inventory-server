@@ -1,4 +1,5 @@
 import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
+import { ExecuteNewWorkflowPayload } from '../types/conductor.types';
 import {
   ApiExecutedWorkflow,
   decodeExecutedWorkflowDetailOutput,
@@ -9,7 +10,7 @@ import {
   WorfklowMetadataOutput,
   WorkflowDetailOutput,
 } from './conductor-network-types';
-import { sendGetRequest } from './helpers';
+import { sendGetRequest, sendPostRequest } from './helpers';
 
 async function getWorkflowMetadata(baseURL: string): Promise<WorfklowMetadataOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/workflow']);
@@ -42,11 +43,28 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
   return data;
 }
 
+async function executeNewWorkflow(baseURL: string, inputPayload: ExecuteNewWorkflowPayload): Promise<string> {
+  try {
+    const json = await sendPostRequest([baseURL, 'workflow'], inputPayload);
+
+    if (json != null && typeof json === 'string') {
+      return json;
+    } else {
+      throw new Error('We could not execute the workflow');
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    throw new Error('We could not execute the workflow');
+  }
+}
+
 const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
   getExecutedWorkflows,
   getExecutedWorkflowDetail,
+  executeNewWorkflow,
 };
 
 export type ConductorAPI = typeof conductorAPI;

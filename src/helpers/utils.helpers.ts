@@ -23,3 +23,12 @@ export function isValidType<T>(key: string, obj: unknown): obj is T {
 
   return key in obj;
 }
+
+export function parseJson<T>(json: string): T {
+  try {
+    const parsed = JSON.parse(json);
+    return parsed;
+  } catch (error) {
+    throw new Error(`Could not parse JSON: ${json}`);
+  }
+}
