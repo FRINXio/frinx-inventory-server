@@ -64,10 +64,6 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     name: string; // String!
   };
-  AddWorkflowInput: {
-    // input type
-    workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
-  };
   AddZoneInput: {
     // input type
     name: string; // String!
@@ -90,6 +86,10 @@ export interface NexusGenInputs {
   CreateLabelInput: {
     // input type
     name: string; // String!
+  };
+  CreateWorkflowInput: {
+    // input type
+    workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
   };
   DeleteSnapshotInput: {
     // input type
@@ -225,10 +225,6 @@ export interface NexusGenObjects {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
   };
-  AddWorkflowPayload: {
-    // root type
-    workflow: NexusGenRootTypes['Workflow']; // Workflow!
-  };
   AddZonePayload: {
     // root type
     zone: NexusGenRootTypes['Zone']; // Zone!
@@ -303,6 +299,10 @@ export interface NexusGenObjects {
   CreateTransactionPayload: {
     // root type
     transactionId?: string | null; // String
+  };
+  CreateWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   DataStore: SourceTypes.DataStore;
   DeleteBlueprintPayload: {
@@ -578,10 +578,6 @@ export interface NexusGenFieldTypes {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
   };
-  AddWorkflowPayload: {
-    // field return type
-    workflow: NexusGenRootTypes['Workflow']; // Workflow!
-  };
   AddZonePayload: {
     // field return type
     zone: NexusGenRootTypes['Zone']; // Zone!
@@ -668,6 +664,10 @@ export interface NexusGenFieldTypes {
   CreateTransactionPayload: {
     // field return type
     transactionId: string | null; // String
+  };
+  CreateWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   DataStore: {
     // field return type
@@ -878,13 +878,13 @@ export interface NexusGenFieldTypes {
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
     addLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
-    addWorkflow: NexusGenRootTypes['AddWorkflowPayload']; // AddWorkflowPayload!
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
+    createWorkflow: NexusGenRootTypes['CreateWorkflowPayload']; // CreateWorkflowPayload!
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
@@ -1081,10 +1081,6 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     snapshot: 'Snapshot';
   };
-  AddWorkflowPayload: {
-    // field return type name
-    workflow: 'Workflow';
-  };
   AddZonePayload: {
     // field return type name
     zone: 'Zone';
@@ -1171,6 +1167,10 @@ export interface NexusGenFieldTypeNames {
   CreateTransactionPayload: {
     // field return type name
     transactionId: 'String';
+  };
+  CreateWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
   };
   DataStore: {
     // field return type name
@@ -1381,13 +1381,13 @@ export interface NexusGenFieldTypeNames {
     addDevice: 'AddDevicePayload';
     addLocation: 'AddLocationPayload';
     addSnapshot: 'AddSnapshotPayload';
-    addWorkflow: 'AddWorkflowPayload';
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
     createTransaction: 'CreateTransactionPayload';
+    createWorkflow: 'CreateWorkflowPayload';
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
@@ -1595,10 +1595,6 @@ export interface NexusGenArgTypes {
       input: NexusGenInputs['AddSnapshotInput']; // AddSnapshotInput!
       transactionId: string; // String!
     };
-    addWorkflow: {
-      // args
-      input: NexusGenInputs['AddWorkflowInput']; // AddWorkflowInput!
-    };
     addZone: {
       // args
       input: NexusGenInputs['AddZoneInput']; // AddZoneInput!
@@ -1625,6 +1621,10 @@ export interface NexusGenArgTypes {
     createTransaction: {
       // args
       deviceId: string; // String!
+    };
+    createWorkflow: {
+      // args
+      input: NexusGenInputs['CreateWorkflowInput']; // CreateWorkflowInput!
     };
     deleteBlueprint: {
       // args

@@ -73,8 +73,8 @@ export const WorkflowsQuery = extendType({
   },
 });
 
-export const AddWorkflowPayload = objectType({
-  name: 'AddWorkflowPayload',
+export const CreateWorkflowPayload = objectType({
+  name: 'CreateWorkflowPayload',
   definition: (t) => {
     t.nonNull.field('workflow', { type: Workflow });
   },
@@ -91,8 +91,8 @@ const WorkflowInput = inputObjectType({
   },
 });
 
-export const AddWorkflowInput = inputObjectType({
-  name: 'AddWorkflowInput',
+export const CreateWorkflowInput = inputObjectType({
+  name: 'CreateWorkflowInput',
   definition: (t) => {
     t.nonNull.field('workflow', {
       type: WorkflowInput,
@@ -100,13 +100,13 @@ export const AddWorkflowInput = inputObjectType({
   },
 });
 
-export const AddWorkflowMutation = extendType({
+export const CreateWorkflowMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
-    t.nonNull.field('addWorkflow', {
-      type: AddWorkflowPayload,
+    t.nonNull.field('createWorkflow', {
+      type: CreateWorkflowPayload,
       args: {
-        input: nonNull(arg({ type: AddWorkflowInput })),
+        input: nonNull(arg({ type: CreateWorkflowInput })),
       },
       resolve: async (_, args, { conductorAPI }) => {
         const { input } = args;
