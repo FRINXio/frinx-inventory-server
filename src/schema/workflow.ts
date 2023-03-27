@@ -1,6 +1,17 @@
 import { connectionFromArray } from 'graphql-relay';
 import { v4 as uuid } from 'uuid';
-import { arg, enumType, extendType, inputObjectType, mutationField, nonNull, objectType, queryField } from 'nexus';
+import {
+  arg,
+  enumType,
+  extendType,
+  inputObjectType,
+  intArg,
+  mutationField,
+  nonNull,
+  objectType,
+  queryField,
+  stringArg,
+} from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
@@ -304,6 +315,34 @@ export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
       };
 
       const workflowId = await conductorAPI.executeNewWorkflow(config.conductorApiURL, newWorkflow);
+
+      return workflowId;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      throw new Error('We could not execute the workflow');
+    }
+  },
+});
+
+export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
+  type: 'String',
+  args: {
+    inputParameters: arg({ type: 'JSON' }),
+    workflowName: nonNull(stringArg()),
+    workflowVersion: intArg(),
+    correlationId: stringArg(),
+    priority: intArg(),
+  },
+  resolve: async (_, { inputParameters, workflowName, workflowVersion, correlationId, priority }, { conductorAPI }) => {
+    try {
+      const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
+        inputParameters,
+        name: workflowName,
+        version: workflowVersion,
+        correlationId,
+        priority,
+      });
 
       return workflowId;
     } catch (error) {

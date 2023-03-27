@@ -43,9 +43,39 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
   return data;
 }
 
-async function executeNewWorkflow(baseURL: string, inputPayload: StartWorkflowInput): Promise<string> {
+async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {
   try {
-    const json = await sendPostRequest([baseURL, 'workflow'], inputPayload);
+    const json = await sendPostRequest([baseURL, 'workflow'], input);
+
+    if (json != null && typeof json === 'string') {
+      return json;
+    } else {
+      throw new Error('We could not execute the workflow');
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    throw new Error('We could not execute the workflow');
+  }
+}
+
+type ExecuteWorkflowByNameInput = {
+  name: string;
+  inputParameters: Record<string, unknown>;
+  correlationId?: string;
+  version?: number;
+  priority?: number;
+};
+
+async function executeWorkflowByName(
+  baseURL: string,
+  { name, inputParameters, correlationId, version, priority }: ExecuteWorkflowByNameInput,
+): Promise<string> {
+  try {
+    const json = await sendPostRequest(
+      [baseURL, `workflow/${name}?version=${version}&correlationId=${correlationId}&priority=${priority}`],
+      inputParameters,
+    );
 
     if (json != null && typeof json === 'string') {
       return json;
@@ -65,6 +95,7 @@ const conductorAPI = {
   getExecutedWorkflows,
   getExecutedWorkflowDetail,
   executeNewWorkflow,
+  executeWorkflowByName,
 };
 
 export type ConductorAPI = typeof conductorAPI;
