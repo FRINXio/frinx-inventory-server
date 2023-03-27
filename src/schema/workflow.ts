@@ -258,9 +258,7 @@ export const ResumeWorkflowMutation = mutationField('resumeWorkflow', {
 export const BulkOperationResponse = objectType({
   name: 'BulkOperationResponse',
   definition: (t) => {
-    t.string('bulkErrorResults', {
-      resolve: (response) => JSON.stringify(response.bulkErrorResults ?? null),
-    });
+    t.string('bulkErrorResults');
     t.list.nonNull.string('bulkSuccessfulResults');
   },
 });
@@ -274,7 +272,10 @@ export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
     try {
       const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
 
-      return data;
+      return {
+        bulkErrorResults: JSON.stringify(data.bulkErrorResults),
+        bulkSuccessfulResults: data.bulkSuccessfulResults,
+      };
     } catch (error) {
       throw new Error('Bulk resume of workflows was not successful');
     }
@@ -290,7 +291,10 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
     try {
       const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, workflowIds);
 
-      return data;
+      return {
+        bulkErrorResults: JSON.stringify(data.bulkErrorResults),
+        bulkSuccessfulResults: data.bulkSuccessfulResults,
+      };
     } catch (error) {
       throw new Error('Bulk pause of workflows was not successful');
     }
