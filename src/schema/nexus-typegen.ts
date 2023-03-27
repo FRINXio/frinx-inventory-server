@@ -232,6 +232,7 @@ export interface NexusGenObjects {
   };
   BulkOperationResponse: {
     // root type
+    bulkErrorResults?: string | null; // String
     bulkSuccessfulResults?: string[] | null; // [String!]
   };
   CSVImport: {
