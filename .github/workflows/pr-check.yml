@@ -42,6 +42,7 @@ jobs:
           X_TENANT_ID: frinx
           TOPOLOGY_ENABLED: false
           SHELL_HOST: 10.19.0.12
+          CONDUCTOR_API_URL: 10.19.0.7
       - name: Check code formatting
         run: yarn run formatter:check
       - name: Run eslint check
