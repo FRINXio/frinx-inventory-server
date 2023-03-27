@@ -5,6 +5,9 @@ import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { toGraphId } from '../helpers/id-helper';
 import { validateTasks } from '../helpers/workflow-helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import getLogger from '../get-logger';
+
+const log = getLogger('frinx-inventory-server');
 
 export const Workflow = objectType({
   name: 'Workflow',
@@ -25,6 +28,17 @@ export const Workflow = objectType({
       resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
     });
     t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
+    t.boolean('hasSchedule', {
+      resolve: async (workflow, _, { schedulerAPI }) => {
+        try {
+          await schedulerAPI.getSchedule(config.schedulerApiURL, workflow.name, workflow.version ?? 1);
+          return true;
+        } catch (e) {
+          log.info(`cannot get schedule info for workflow ${workflow.name}: ${e}`);
+          return false;
+        }
+      },
+    });
   },
 });
 

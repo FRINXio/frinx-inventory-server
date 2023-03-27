@@ -1028,6 +1028,7 @@ export interface NexusGenFieldTypes {
     createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
+    hasSchedule: boolean | null; // Boolean
     id: string; // ID!
     name: string; // String!
     tasks: string | null; // String
@@ -1540,6 +1541,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'String';
     createdBy: 'String';
     description: 'String';
+    hasSchedule: 'Boolean';
     id: 'ID';
     name: 'String';
     tasks: 'String';
