@@ -1,5 +1,5 @@
 import { connectionFromArray } from 'graphql-relay';
-import { extendType, list, mutationField, nonNull, objectType, stringArg } from 'nexus';
+import { booleanArg, extendType, list, mutationField, nonNull, objectType, stringArg } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
@@ -143,6 +143,74 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
       };
     } catch (error) {
       throw new Error('Bulk pause of workflows was not successful');
+    }
+  },
+});
+
+export const RetryWorkflowMutation = mutationField('retryWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+    resumeSubworkflowTasks: booleanArg(),
+  },
+  resolve: async (_, { workflowId, resumeSubworkflowTasks }, { conductorAPI }) => {
+    try {
+      await conductorAPI.retryWorkflow(config.conductorApiURL, workflowId, resumeSubworkflowTasks);
+
+      return 'Workflow retried';
+    } catch (error) {
+      throw new Error("Workflow couldn't be retried");
+    }
+  },
+});
+
+export const RestartWorkflowMutation = mutationField('restartWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+    useLatestDefinitions: booleanArg(),
+  },
+  resolve: async (_, { workflowId, useLatestDefinitions }, { conductorAPI }) => {
+    try {
+      await conductorAPI.restartWorkflow(config.conductorApiURL, workflowId, useLatestDefinitions);
+
+      return 'Workflow retried';
+    } catch (error) {
+      throw new Error("Workflow couldn't be retried");
+    }
+  },
+});
+
+export const TerminateWorkflowMutation = mutationField('terminateWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+    reason: stringArg(),
+  },
+  resolve: async (_, { workflowId, reason }, { conductorAPI }) => {
+    try {
+      await conductorAPI.terminateWorkflow(config.conductorApiURL, workflowId, reason);
+
+      return 'Workflow terminated';
+    } catch (error) {
+      throw new Error("Workflow couldn't be terminated");
+    }
+  },
+});
+
+export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+    archiveWorkflow: booleanArg(),
+  },
+  resolve: async (_, { workflowId, archiveWorkflow }, { conductorAPI }) => {
+    try {
+      await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, archiveWorkflow);
+
+      return 'Workflow removed';
+    } catch (error) {
+      throw new Error("Workflow couldn't be removed");
     }
   },
 });

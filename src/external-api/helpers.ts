@@ -134,3 +134,16 @@ export async function sendPatchRequest(path: APIPath, body?: unknown, cookie?: s
   };
   return apiFetch(path, options);
 }
+
+export async function sendDeleteRequest(path: APIPath, body?: unknown, cookie?: string): Promise<unknown> {
+  const options = {
+    method: 'DELETE',
+    body: JSON.stringify(body),
+    headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/json',
+      ...(cookie != null ? { cookie } : {}),
+    },
+  };
+  return apiFetch(path, options);
+}

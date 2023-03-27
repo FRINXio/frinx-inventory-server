@@ -11,7 +11,7 @@ import {
   decodeExecutedWorkflowsOutput,
   ExecutedWorkflowsOutput,
 } from './conductor-network-types';
-import { sendGetRequest, sendPutRequest } from './helpers';
+import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
 async function getWorkflowMetadata(baseURL: string): Promise<WorfklowMetadataOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/workflow']);
@@ -86,6 +86,65 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
   return data;
 }
 
+async function retryWorkflow(
+  baseURL: string,
+  workflowId: string,
+  resumeSubworkflowTasks: boolean | null = true,
+): Promise<string> {
+  try {
+    await sendPostRequest([baseURL, `workflow/${workflowId}/retry?resumeSubworkflowTasks=${resumeSubworkflowTasks}`]);
+
+    return 'Workflow successfully retried';
+  } catch (error) {
+    throw new Error("Workflow couldn't be retried");
+  }
+}
+
+async function restartWorkflow(
+  baseURL: string,
+  workflowId: string,
+  useLatestDefinitions: boolean | null = true,
+): Promise<string> {
+  try {
+    const json = await sendPostRequest([
+      baseURL,
+      `workflow/${workflowId}/restart?useLatestDefinitions=${useLatestDefinitions}`,
+    ]);
+
+    return String(json);
+  } catch (error) {
+    throw new Error("Workflow couldn't be restarted");
+  }
+}
+
+async function terminateWorkflow(baseURL: string, workflowId: string, reason?: string | null): Promise<string> {
+  try {
+    if (reason) {
+      await sendDeleteRequest([baseURL, `workflow/${workflowId}?reason=${reason}`]);
+    } else {
+      await sendDeleteRequest([baseURL, `workflow/${workflowId}`]);
+    }
+
+    return 'Workflow successfully terminated';
+  } catch (error) {
+    throw new Error("Workflow couldn't be terminated");
+  }
+}
+
+async function removeWorkflow(
+  baseURL: string,
+  workflowId: string,
+  archiveWorkflow: boolean | null = true,
+): Promise<string> {
+  try {
+    await sendDeleteRequest([baseURL, `workflow/${workflowId}/remove?archiveWorkflow=${archiveWorkflow}`]);
+
+    return 'Workflow successfully removed';
+  } catch (error) {
+    throw new Error("Workflow couldn't be removed");
+  }
+}
+
 const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
@@ -95,6 +154,10 @@ const conductorAPI = {
   bulkPauseWorkflow,
   getExecutedWorkflows,
   getExecutedWorkflowDetail,
+  retryWorkflow,
+  restartWorkflow,
+  terminateWorkflow,
+  removeWorkflow,
 };
 
 export type ConductorAPI = typeof conductorAPI;

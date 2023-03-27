@@ -479,10 +479,14 @@ type Mutation {
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   pauseWorkflow(workflowId: String!): String
+  removeWorkflow(archiveWorkflow: Boolean, workflowId: String!): String
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
+  restartWorkflow(useLatestDefinitions: Boolean, workflowId: String!): String
   resumeWorkflow(workflowId: String!): String
+  retryWorkflow(resumeSubworkflowTasks: Boolean, workflowId: String!): String
   revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
+  terminateWorkflow(reason: String, workflowId: String!): String
   uninstallDevice(id: String!): UninstallDevicePayload!
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
