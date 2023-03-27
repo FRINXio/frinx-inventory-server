@@ -309,6 +309,11 @@ export interface NexusGenObjects {
     cursor: string; // String!
     node: NexusGenRootTypes['Blueprint']; // Blueprint!
   };
+  BulkOperationResponse: {
+    // root type
+    bulkErrorResults?: string | null; // String
+    bulkSuccessfulResults?: string[] | null; // [String!]
+  };
   CSVImport: {
     // root type
     isOk?: boolean | null; // Boolean
@@ -657,6 +662,11 @@ export interface NexusGenFieldTypes {
     cursor: string; // String!
     node: NexusGenRootTypes['Blueprint']; // Blueprint!
   };
+  BulkOperationResponse: {
+    // field return type
+    bulkErrorResults: string | null; // String
+    bulkSuccessfulResults: string[] | null; // [String!]
+  };
   CSVImport: {
     // field return type
     isOk: boolean | null; // Boolean
@@ -923,6 +933,8 @@ export interface NexusGenFieldTypes {
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
+    bulkPauseWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkResumeWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
@@ -932,9 +944,12 @@ export interface NexusGenFieldTypes {
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     executeNewWorkflow: string | null; // String
+    executeWorkflowByName: string | null; // String
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
+    pauseWorkflow: string | null; // String
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
+    resumeWorkflow: string | null; // String
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
@@ -1143,6 +1158,11 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     cursor: 'String';
     node: 'Blueprint';
+  };
+  BulkOperationResponse: {
+    // field return type name
+    bulkErrorResults: 'String';
+    bulkSuccessfulResults: 'String';
   };
   CSVImport: {
     // field return type name
@@ -1410,6 +1430,8 @@ export interface NexusGenFieldTypeNames {
     addSnapshot: 'AddSnapshotPayload';
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
+    bulkPauseWorkflow: 'BulkOperationResponse';
+    bulkResumeWorkflow: 'BulkOperationResponse';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
@@ -1419,9 +1441,12 @@ export interface NexusGenFieldTypeNames {
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
     executeNewWorkflow: 'String';
+    executeWorkflowByName: 'String';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
+    pauseWorkflow: 'String';
     resetConfig: 'ResetConfigPayload';
+    resumeWorkflow: 'String';
     revertChanges: 'RevertChangesPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
     uninstallDevice: 'UninstallDevicePayload';
@@ -1623,6 +1648,14 @@ export interface NexusGenArgTypes {
       input: NexusGenInputs['ApplySnapshotInput']; // ApplySnapshotInput!
       transactionId: string; // String!
     };
+    bulkPauseWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
+    bulkResumeWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
     closeTransaction: {
       // args
       deviceId: string; // String!
@@ -1661,6 +1694,14 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['StartWorkflowRequestInput']; // StartWorkflowRequestInput!
     };
+    executeWorkflowByName: {
+      // args
+      correlationId?: string | null; // String
+      inputParameters: string; // String!
+      priority?: number | null; // Int
+      workflowName: string; // String!
+      workflowVersion?: number | null; // Int
+    };
     importCSV: {
       // args
       input: NexusGenInputs['CSVImportInput']; // CSVImportInput!
@@ -1669,10 +1710,18 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
     };
+    pauseWorkflow: {
+      // args
+      workflowId: string; // String!
+    };
     resetConfig: {
       // args
       deviceId: string; // String!
       transactionId: string; // String!
+    };
+    resumeWorkflow: {
+      // args
+      workflowId: string; // String!
     };
     revertChanges: {
       // args

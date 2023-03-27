@@ -6,6 +6,7 @@ import {
   extendType,
   inputObjectType,
   intArg,
+  list,
   mutationField,
   nonNull,
   objectType,
@@ -325,10 +326,69 @@ export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
   },
 });
 
+export const PauseWorkflowMutation = mutationField('pauseWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+  },
+  resolve: async (_, { workflowId }, { conductorAPI }) => {
+    try {
+      await conductorAPI.pauseWorkflow(config.conductorApiURL, workflowId);
+
+      return 'Workflow paused';
+    } catch (error) {
+      throw new Error("Workflow couldn't be paused");
+    }
+  },
+});
+
+export const ResumeWorkflowMutation = mutationField('resumeWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+  },
+  resolve: async (_, { workflowId }, { conductorAPI }) => {
+    try {
+      await conductorAPI.resumeWorkflow(config.conductorApiURL, workflowId);
+
+      return 'Workflow resumed';
+    } catch (error) {
+      throw new Error("Workflow couldn't be resumed");
+    }
+  },
+});
+
+export const BulkOperationResponse = objectType({
+  name: 'BulkOperationResponse',
+  definition: (t) => {
+    t.string('bulkErrorResults');
+    t.list.nonNull.string('bulkSuccessfulResults');
+  },
+});
+
+export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
+  type: BulkOperationResponse,
+  args: {
+    workflowIds: nonNull(list(nonNull(stringArg()))),
+  },
+  resolve: async (_, { workflowIds }, { conductorAPI }) => {
+    try {
+      const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
+
+      return {
+        bulkErrorResults: JSON.stringify(data.bulkErrorResults),
+        bulkSuccessfulResults: data.bulkSuccessfulResults,
+      };
+    } catch (error) {
+      throw new Error('Bulk resume of workflows was not successful');
+    }
+  },
+});
+
 export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
   type: 'String',
   args: {
-    inputParameters: arg({ type: 'JSON' }),
+    inputParameters: nonNull(stringArg({ description: 'JSON string of input parameters' })),
     workflowName: nonNull(stringArg()),
     workflowVersion: intArg(),
     correlationId: stringArg(),
@@ -337,7 +397,7 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
   resolve: async (_, { inputParameters, workflowName, workflowVersion, correlationId, priority }, { conductorAPI }) => {
     try {
       const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
-        inputParameters,
+        inputParameters: parseJson(inputParameters),
         name: workflowName,
         version: workflowVersion,
         correlationId,
@@ -349,6 +409,25 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
       // eslint-disable-next-line no-console
       console.error(error);
       throw new Error('We could not execute the workflow');
+    }
+  },
+});
+
+export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
+  type: BulkOperationResponse,
+  args: {
+    workflowIds: nonNull(list(nonNull(stringArg()))),
+  },
+  resolve: async (_, { workflowIds }, { conductorAPI }) => {
+    try {
+      const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, workflowIds);
+
+      return {
+        bulkErrorResults: JSON.stringify(data.bulkErrorResults),
+        bulkSuccessfulResults: data.bulkSuccessfulResults,
+      };
+    } catch (error) {
+      throw new Error('Bulk pause of workflows was not successful');
     }
   },
 });
