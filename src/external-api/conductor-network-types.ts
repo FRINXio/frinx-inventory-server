@@ -88,6 +88,11 @@ const WorkflowMetadata = t.intersection([WorkflowMetadataRequired, WorkflowMetad
 
 const WorkflowMetadataValidator = t.array(WorkflowMetadata);
 
+const BulkOperation = t.type({
+  bulkErrorResults: t.record(t.string, t.string),
+  bulkSuccessfulResults: t.array(t.string),
+});
+
 const ExecutedWorkflowTaskStatus = t.union([
   t.literal('IN_PROGRESS'),
   t.literal('COMPLETED'),
@@ -213,6 +218,12 @@ export type WorkflowEditOutput = t.TypeOf<typeof WorkflowEditValidator>;
 export function decodeWorkflowEditOutput(value: unknown): WorkflowEditOutput {
   return extractResult(WorkflowEditValidator.decode(value));
 }
+export type BulkOperationOutput = t.TypeOf<typeof BulkOperation>;
+
+export function decodeBulkOperationOutput(value: unknown): BulkOperationOutput {
+  return extractResult(BulkOperation.decode(value));
+}
+
 export function decodeExecutedWorkflowsOutput(value: unknown): ExecutedWorkflowsOutput {
   return extractResult(ExecutedWorkflowsValidator.decode(value));
 }

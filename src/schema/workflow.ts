@@ -1,5 +1,5 @@
 import { connectionFromArray } from 'graphql-relay';
-import { arg, extendType, inputObjectType, intArg, nonNull, objectType, stringArg } from 'nexus';
+import { arg, extendType, inputObjectType, list, mutationField, intArg, nonNull, objectType, stringArg } from 'nexus';
 import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { toGraphId } from '../helpers/id-helper';
@@ -220,5 +220,79 @@ export const DeleteWorkflowMutation = extendType({
         };
       },
     });
+  },
+});
+
+export const PauseWorkflowMutation = mutationField('pauseWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+  },
+  resolve: async (_, { workflowId }, { conductorAPI }) => {
+    try {
+      await conductorAPI.pauseWorkflow(config.conductorApiURL, workflowId);
+
+      return 'Workflow paused';
+    } catch (error) {
+      throw new Error("Workflow couldn't be paused");
+    }
+  },
+});
+
+export const ResumeWorkflowMutation = mutationField('resumeWorkflow', {
+  type: 'String',
+  args: {
+    workflowId: nonNull(stringArg()),
+  },
+  resolve: async (_, { workflowId }, { conductorAPI }) => {
+    try {
+      await conductorAPI.resumeWorkflow(config.conductorApiURL, workflowId);
+
+      return 'Workflow resumed';
+    } catch (error) {
+      throw new Error("Workflow couldn't be resumed");
+    }
+  },
+});
+
+export const BulkOperationResponse = objectType({
+  name: 'BulkOperationResponse',
+  definition: (t) => {
+    t.string('bulkErrorResults', {
+      resolve: (response) => JSON.stringify(response.bulkErrorResults ?? null),
+    });
+    t.list.nonNull.string('bulkSuccessfulResults');
+  },
+});
+
+export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
+  type: BulkOperationResponse,
+  args: {
+    workflowIds: nonNull(list(nonNull(stringArg()))),
+  },
+  resolve: async (_, { workflowIds }, { conductorAPI }) => {
+    try {
+      const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
+
+      return data;
+    } catch (error) {
+      throw new Error('Bulk resume of workflows was not successful');
+    }
+  },
+});
+
+export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
+  type: BulkOperationResponse,
+  args: {
+    workflowIds: nonNull(list(nonNull(stringArg()))),
+  },
+  resolve: async (_, { workflowIds }, { conductorAPI }) => {
+    try {
+      const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, workflowIds);
+
+      return data;
+    } catch (error) {
+      throw new Error('Bulk pause of workflows was not successful');
+    }
   },
 });
