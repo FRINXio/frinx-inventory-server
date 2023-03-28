@@ -128,6 +128,11 @@ export interface NexusGenInputs {
     // input type
     labels?: string[] | null; // [String!]
   };
+  FilterWorkflowsInput: {
+    // input type
+    keyword?: string | null; // String
+    labels?: string[] | null; // [String!]
+  };
   GraphNodeCoordinatesInput: {
     // input type
     deviceName: string; // String!
@@ -1815,6 +1820,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
+      filter?: NexusGenInputs['FilterWorkflowsInput'] | null; // FilterWorkflowsInput
       first?: number | null; // Int
       last?: number | null; // Int
     };

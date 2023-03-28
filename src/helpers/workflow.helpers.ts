@@ -36,3 +36,15 @@ export function makePaginationFromArgs(pagination?: PaginationArgs | null) {
       }
     : null;
 }
+
+export function jsonParse<T = { description: string }>(json?: string | null): T | null {
+  if (json == null) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(json);
+  } catch (e) {
+    return null;
+  }
+}

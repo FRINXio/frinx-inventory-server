@@ -6,6 +6,9 @@ import { toGraphId } from '../helpers/id-helper';
 import { validateTasks } from '../helpers/workflow-helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import getLogger from '../get-logger';
+import { jsonParse } from '../helpers/workflow.helpers';
+
+type DescriptionJSON = { labels?: string[]; description: string };
 
 const log = getLogger('frinx-inventory-server');
 
@@ -65,22 +68,44 @@ export const WorkflowConnection = objectType({
   },
 });
 
+export const FilterWorkflowsInput = inputObjectType({
+  name: 'FilterWorkflowsInput',
+  definition: (t) => {
+    t.list.nonNull.string('labels');
+    t.string('keyword');
+  },
+});
+
 export const WorkflowsQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('workflows', {
       type: WorkflowConnection,
-      args: PaginationConnectionArgs,
+      args: {
+        ...PaginationConnectionArgs,
+        filter: FilterWorkflowsInput,
+      },
       resolve: async (_, args, { conductorAPI }) => {
+        const { filter, ...paginationArgs } = args;
         const workflows = await conductorAPI.getWorkflowMetadata(config.conductorApiURL);
 
-        const workflowsWithId = workflows.map((w) => ({
+        const filteredWorkflows =
+          filter?.labels || filter?.keyword
+            ? workflows.filter((w) => {
+                const json = jsonParse<DescriptionJSON>(w.description ?? '');
+                const hasFilterLabels = filter.labels ? filter?.labels?.every((f) => json?.labels?.includes(f)) : true;
+                const hasKeyword = filter.keyword ? w.name.toLowerCase().includes(filter.keyword.toLowerCase()) : true;
+                return hasFilterLabels && hasKeyword;
+              })
+            : workflows;
+
+        const workflowsWithId = filteredWorkflows.map((w) => ({
           ...w,
           id: w.name,
         }));
         return {
-          ...connectionFromArray(workflowsWithId, args),
-          totalCount: workflows.length,
+          ...connectionFromArray(workflowsWithId, paginationArgs),
+          totalCount: filteredWorkflows.length,
         };
       },
     });
