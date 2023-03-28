@@ -1,3 +1,4 @@
+import getLogger from '../get-logger';
 import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
 import {
@@ -16,6 +17,8 @@ import {
   WorkflowEditOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
+
+export const log = getLogger('frinx-graphql-conductor');
 
 async function getWorkflowMetadata(baseURL: string): Promise<WorkflowMetadataOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/workflow']);
@@ -42,11 +45,12 @@ async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Pro
 async function deleteWorkflow(baseURL: string, name: string, version: number): Promise<void> {
   await sendDeleteRequest([baseURL, `metadata/workflow/${name}/${version}`]);
 }
+
 async function pauseWorkflow(baseURL: string, workflowId: string): Promise<string> {
   try {
-    const json = await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
+    await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
 
-    return String(json);
+    return 'Workflow successfully paused';
   } catch (error) {
     throw new Error("Workflow couldn't be paused");
   }
@@ -54,9 +58,9 @@ async function pauseWorkflow(baseURL: string, workflowId: string): Promise<strin
 
 async function resumeWorkflow(baseURL: string, workflowId: string): Promise<string> {
   try {
-    const json = await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
+    await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
 
-    return String(json);
+    return 'Workflow successfully resumed';
   } catch (error) {
     throw new Error("Workflow couldn't be resumed");
   }
@@ -105,16 +109,15 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
 
 async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {
   try {
-    const json = await sendPostRequest([baseURL, 'workflow'], input);
+    const executedWorkflowId = await sendPostRequest([baseURL, 'workflow'], input);
 
-    if (json != null && typeof json === 'string') {
-      return json;
+    if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+      return executedWorkflowId;
     } else {
       throw new Error('We could not execute the workflow');
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
+    log.error(`Execute New Workflow Error: ${error}`);
     throw new Error('We could not execute the workflow');
   }
 }
@@ -132,19 +135,18 @@ async function executeWorkflowByName(
   { name, inputParameters, correlationId, version, priority }: ExecuteWorkflowByNameInput,
 ): Promise<string> {
   try {
-    const json = await sendPostRequest(
+    const executedWorkflowId = await sendPostRequest(
       [baseURL, `workflow/${name}?version=${version}&correlationId=${correlationId}&priority=${priority}`],
       inputParameters,
     );
 
-    if (json != null && typeof json === 'string') {
-      return json;
+    if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+      return executedWorkflowId;
     } else {
       throw new Error('We could not execute the workflow');
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
+    log.error(`Execute Workflow By Name Error: ${error}`);
     throw new Error('We could not execute the workflow');
   }
 }

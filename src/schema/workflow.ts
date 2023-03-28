@@ -350,8 +350,6 @@ export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
 
       return workflowId;
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
       throw new Error('We could not execute the workflow');
     }
   },
@@ -560,8 +558,6 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
 
       return workflowId;
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
       throw new Error('We could not execute the workflow');
     }
   },
