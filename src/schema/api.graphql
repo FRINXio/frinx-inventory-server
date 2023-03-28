@@ -566,6 +566,7 @@ type Query {
   topologyVersions: [String!]
   transactions: [Transaction!]!
   uniconfigShellSession: String
+  workflowLabels: [String!]!
   workflows(after: String, before: String, first: Int, last: Int): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
