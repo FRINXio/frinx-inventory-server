@@ -12,6 +12,7 @@ import * as topology from './topology';
 import * as workflow from './workflow';
 import * as executedWorkflow from './executed-workflow';
 import * as executedWorkflowTask from './task';
+import * as workflowLabels from './workflow-labels';
 
 export default makeSchema({
   features: {
@@ -40,6 +41,7 @@ export default makeSchema({
     transaction,
     topology,
     workflow,
+    workflowLabels,
     executedWorkflow,
     executedWorkflowTask,
   ],

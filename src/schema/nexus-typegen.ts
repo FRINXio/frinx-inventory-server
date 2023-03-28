@@ -940,6 +940,7 @@ export interface NexusGenFieldTypes {
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
+    workflowLabels: string[]; // [String!]!
     workflows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
@@ -1453,6 +1454,7 @@ export interface NexusGenFieldTypeNames {
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
+    workflowLabels: 'String';
     workflows: 'WorkflowConnection';
     zones: 'ZonesConnection';
   };
