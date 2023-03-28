@@ -677,6 +677,7 @@ type Workflow implements Node {
   createdAt: String
   createdBy: String
   description: String
+  hasSchedule: Boolean
   id: ID!
   name: String!
   tasks: String
