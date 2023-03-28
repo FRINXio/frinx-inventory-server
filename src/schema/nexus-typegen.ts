@@ -87,6 +87,10 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  CreateWorkflowInput: {
+    // input type
+    workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
+  };
   DeleteSnapshotInput: {
     // input type
     deviceId: string; // String!
@@ -193,6 +197,10 @@ export interface NexusGenInputs {
     vendor?: string | null; // String
     version?: string | null; // String
   };
+  UpdateWorkflowInput: {
+    // input type
+    workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
+  };
   WorkflowDefinitionInput: {
     // input type
     createTime?: number | null; // Int
@@ -214,6 +222,14 @@ export interface NexusGenInputs {
     updatedAt?: number | null; // Int
     updatedBy?: string | null; // String
     variables?: string | null; // String
+    version?: number | null; // Int
+  };
+  WorkflowInput: {
+    // input type
+    description?: string | null; // String
+    name: string; // String!
+    tasks: string; // String!
+    timeoutSeconds: number; // Int!
     version?: number | null; // Int
   };
 }
@@ -368,6 +384,10 @@ export interface NexusGenObjects {
     // root type
     transactionId?: string | null; // String
   };
+  CreateWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
+  };
   DataStore: SourceTypes.DataStore;
   DeleteBlueprintPayload: {
     // root type
@@ -384,6 +404,10 @@ export interface NexusGenObjects {
   DeleteSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  DeleteWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Device: SourceTypes.Device;
   DeviceConnection: {
@@ -571,6 +595,10 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
+  UpdateWorkflowPayload: {
+    // root type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
+  };
   Workflow: SourceTypes.Workflow;
   WorkflowConnection: {
     // root type
@@ -726,6 +754,10 @@ export interface NexusGenFieldTypes {
     // field return type
     transactionId: string | null; // String
   };
+  CreateWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
+  };
   DataStore: {
     // field return type
     config: string; // String!
@@ -747,6 +779,10 @@ export interface NexusGenFieldTypes {
   DeleteSnapshotPayload: {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  DeleteWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Device: {
     // field return type
@@ -939,10 +975,12 @@ export interface NexusGenFieldTypes {
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
+    createWorkflow: NexusGenRootTypes['CreateWorkflowPayload']; // CreateWorkflowPayload!
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
+    deleteWorkflow: NexusGenRootTypes['DeleteWorkflowPayload']; // DeleteWorkflowPayload!
     executeNewWorkflow: string | null; // String
     executeWorkflowByName: string | null; // String
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
@@ -957,6 +995,7 @@ export interface NexusGenFieldTypes {
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
+    updateWorkflow: NexusGenRootTypes['UpdateWorkflowPayload']; // UpdateWorkflowPayload!
   };
   PageInfo: {
     // field return type
@@ -982,7 +1021,7 @@ export interface NexusGenFieldTypes {
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
-    worfklows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
+    workflows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
   };
   ResetConfigPayload: {
@@ -1061,15 +1100,21 @@ export interface NexusGenFieldTypes {
     // field return type
     deviceNames: string[]; // [String!]!
   };
+  UpdateWorkflowPayload: {
+    // field return type
+    workflow: NexusGenRootTypes['Workflow']; // Workflow!
+  };
   Workflow: {
     // field return type
     createdAt: string | null; // String
     createdBy: string | null; // String
+    description: string | null; // String
     id: string; // ID!
     name: string; // String!
     tasks: string | null; // String
     updatedAt: string | null; // String
     updatedBy: string | null; // String
+    version: number | null; // Int
   };
   WorkflowConnection: {
     // field return type
@@ -1223,6 +1268,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     transactionId: 'String';
   };
+  CreateWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
+  };
   DataStore: {
     // field return type name
     config: 'String';
@@ -1244,6 +1293,10 @@ export interface NexusGenFieldTypeNames {
   DeleteSnapshotPayload: {
     // field return type name
     snapshot: 'Snapshot';
+  };
+  DeleteWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
   };
   Device: {
     // field return type name
@@ -1436,10 +1489,12 @@ export interface NexusGenFieldTypeNames {
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
     createTransaction: 'CreateTransactionPayload';
+    createWorkflow: 'CreateWorkflowPayload';
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
+    deleteWorkflow: 'DeleteWorkflowPayload';
     executeNewWorkflow: 'String';
     executeWorkflowByName: 'String';
     importCSV: 'CSVImport';
@@ -1454,6 +1509,7 @@ export interface NexusGenFieldTypeNames {
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
+    updateWorkflow: 'UpdateWorkflowPayload';
   };
   PageInfo: {
     // field return type name
@@ -1479,7 +1535,7 @@ export interface NexusGenFieldTypeNames {
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
-    worfklows: 'WorkflowConnection';
+    workflows: 'WorkflowConnection';
     zones: 'ZonesConnection';
   };
   ResetConfigPayload: {
@@ -1558,15 +1614,21 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     deviceNames: 'String';
   };
+  UpdateWorkflowPayload: {
+    // field return type name
+    workflow: 'Workflow';
+  };
   Workflow: {
     // field return type name
     createdAt: 'String';
     createdBy: 'String';
+    description: 'String';
     id: 'ID';
     name: 'String';
     tasks: 'String';
     updatedAt: 'String';
     updatedBy: 'String';
+    version: 'Int';
   };
   WorkflowConnection: {
     // field return type name
@@ -1674,6 +1736,10 @@ export interface NexusGenArgTypes {
       // args
       deviceId: string; // String!
     };
+    createWorkflow: {
+      // args
+      input: NexusGenInputs['CreateWorkflowInput']; // CreateWorkflowInput!
+    };
     deleteBlueprint: {
       // args
       id: string; // String!
@@ -1689,6 +1755,11 @@ export interface NexusGenArgTypes {
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
+    };
+    deleteWorkflow: {
+      // args
+      name: string; // String!
+      version: number; // Int!
     };
     executeNewWorkflow: {
       // args
@@ -1755,6 +1826,11 @@ export interface NexusGenArgTypes {
     updateGraphNodeCoordinates: {
       // args
       input: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
+    };
+    updateWorkflow: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateWorkflowInput']; // UpdateWorkflowInput!
     };
   };
   Query: {
@@ -1826,7 +1902,7 @@ export interface NexusGenArgTypes {
       // args
       version: string; // String!
     };
-    worfklows: {
+    workflows: {
       // args
       after?: string | null; // String
       before?: string | null; // String
