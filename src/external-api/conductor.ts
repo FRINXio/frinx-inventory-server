@@ -1,6 +1,6 @@
 import getLogger from '../get-logger';
-import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
-import { StartWorkflowInput } from '../types/conductor.types';
+import { makeStringQueryFromSearchQueryObject } from '../helpers/conductor.helpers';
+import { PaginationArgs, SearchQuery, StartWorkflowInput } from '../types/conductor.types';
 import {
   BulkOperationOutput,
   ApiExecutedWorkflow,

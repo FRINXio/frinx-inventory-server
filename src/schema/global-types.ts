@@ -1,5 +1,6 @@
+import { Kind } from 'graphql';
 import countries from 'i18n-iso-countries';
-import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
+import { extendType, idArg, intArg, interfaceType, nonNull, objectType, scalarType, stringArg } from 'nexus';
 import config from '../config';
 import conductorAPI from '../external-api/conductor';
 import { fromGraphId, getType } from '../helpers/id-helper';
@@ -119,5 +120,23 @@ export const NodeQuery = extendType({
         }
       },
     });
+  },
+});
+
+export const VoidScalar = scalarType({
+  name: 'Void',
+  asNexusMethod: 'void',
+  description: 'Void custom scalar type',
+  parseValue() {
+    return null;
+  },
+  serialize() {
+    return undefined;
+  },
+  parseLiteral(ast) {
+    if (ast.kind === Kind.NULL) {
+      return undefined;
+    }
+    return null;
   },
 });

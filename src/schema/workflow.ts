@@ -339,25 +339,31 @@ export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
   resolve: async (_, { input }, { conductorAPI }) => {
     const { workflow, workflowDefinition } = input;
 
-    const newWorkflow: StartWorkflowInput = {
-      ...workflow,
-      input: parseJson(workflow.input, false),
-      taskToDomain: parseJson(workflow.taskToDomain, false),
-      ...(workflowDefinition && {
-        workflowDef: {
-          ...workflowDefinition,
-          inputTemplate: parseJson(workflowDefinition.inputTemplate, false),
-          outputParameters: parseJson(workflowDefinition.outputParameters, false),
-          variables: parseJson(workflowDefinition.variables, false),
-          tasks: workflowDefinition.tasks.map((t) => ({
-            ...t,
-            inputParameters: parseJson<Record<string, unknown>>(t.inputParameters, false),
-            decisionCases: parseJson<Record<string, unknown[]>>(t.decisionCases, false),
-            defaultCase: parseJson<unknown[]>(t.defaultCase, false),
-          })),
-        },
-      }),
-    };
+    let newWorkflow: StartWorkflowInput;
+
+    try {
+      newWorkflow = {
+        ...workflow,
+        input: parseJson(workflow.input),
+        taskToDomain: parseJson(workflow.taskToDomain),
+        ...(workflowDefinition && {
+          workflowDef: {
+            ...workflowDefinition,
+            inputTemplate: parseJson(workflowDefinition.inputTemplate),
+            outputParameters: parseJson(workflowDefinition.outputParameters),
+            variables: parseJson(workflowDefinition.variables),
+            tasks: workflowDefinition.tasks.map((t) => ({
+              ...t,
+              inputParameters: parseJson<Record<string, unknown>>(t.inputParameters),
+              decisionCases: parseJson<Record<string, unknown[]>>(t.decisionCases),
+              defaultCase: parseJson<unknown[]>(t.defaultCase),
+            })),
+          },
+        }),
+      };
+    } catch (error) {
+      throw new Error(`Invalid JSON: ${error}`);
+    }
 
     const workflowId = await conductorAPI.executeNewWorkflow(config.conductorApiURL, newWorkflow);
 

@@ -9,6 +9,10 @@ import type { core } from 'nexus';
 declare global {
   interface NexusGenCustomInputMethods<TypeName extends string> {
     /**
+     * Void custom scalar type
+     */
+    void<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void; // "Void";
+    /**
      * The `Upload` scalar type represents a file upload.
      */
     upload<FieldName extends string>(
@@ -19,6 +23,10 @@ declare global {
 }
 declare global {
   interface NexusGenCustomOutputMethods<TypeName extends string> {
+    /**
+     * Void custom scalar type
+     */
+    void<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void; // "Void";
     /**
      * The `Upload` scalar type represents a file upload.
      */
@@ -285,6 +293,7 @@ export interface NexusGenScalars {
   Boolean: boolean;
   ID: string;
   Upload: any;
+  Void: any;
 }
 
 export interface NexusGenObjects {
