@@ -1,33 +1,5 @@
+import { ConductorQuerySearchTime, ConductorQuery, PaginationArgs, SearchQuery } from '../types/conductor.types';
 import { isValidType } from './utils.helpers';
-
-export type ExecutedWorkflowResult = {
-  results: unknown[];
-  totalHits: number;
-};
-
-export type ConductorQuerySearchTime = {
-  from: number;
-  to?: number | null;
-};
-
-export type ConductorQueryStatus = 'RUNNING' | 'COMPLETED' | 'FAILED' | 'TERMINATED' | 'TIMED_OUT' | 'PAUSED';
-
-export type ConductorQuery = {
-  status?: ConductorQueryStatus[] | null;
-  startTime?: ConductorQuerySearchTime | null;
-  workflowId?: string[] | null;
-  workflowType?: string[] | null;
-};
-
-export type SearchQuery = {
-  isRootWorkflow?: boolean | null;
-  query?: ConductorQuery | null;
-};
-
-export type PaginationArgs = {
-  size: number;
-  start: number;
-};
 
 export function makeStringQueryFromSearchTime(searchTime: ConductorQuerySearchTime): string {
   const { from, to } = searchTime;

@@ -121,3 +121,10 @@ export const NodeQuery = extendType({
     });
   },
 });
+
+export const IsOkResponse = objectType({
+  name: 'IsOkResponse',
+  definition: (t) => {
+    t.nonNull.boolean('isOk');
+  },
+});
