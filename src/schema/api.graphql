@@ -173,6 +173,14 @@ type CreateTransactionPayload {
   transactionId: String
 }
 
+input CreateWorkflowInput {
+  workflow: WorkflowInput!
+}
+
+type CreateWorkflowPayload {
+  workflow: Workflow!
+}
+
 type DataStore {
   config: String!
   operational: String!
@@ -199,6 +207,10 @@ input DeleteSnapshotInput {
 
 type DeleteSnapshotPayload {
   snapshot: Snapshot
+}
+
+type DeleteWorkflowPayload {
+  workflow: Workflow!
 }
 
 type Device implements Node {
@@ -472,10 +484,12 @@ type Mutation {
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
   createTransaction(deviceId: String!): CreateTransactionPayload!
+  createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  deleteWorkflow(name: String!, version: Int!): DeleteWorkflowPayload!
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   pauseWorkflow(workflowId: String!): String
@@ -492,6 +506,7 @@ type Mutation {
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
   updateGraphNodeCoordinates(input: [GraphNodeCoordinatesInput!]!): UpdateGraphNodeCoordinatesPayload!
+  updateWorkflow(id: String!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
 }
 
 interface Node {
@@ -533,7 +548,8 @@ type Query {
   topologyVersions: [String!]
   transactions: [Transaction!]!
   uniconfigShellSession: String
-  worfklows(after: String, before: String, first: Int, last: Int): WorkflowConnection!
+  workflowLabels: [String!]!
+  workflows(after: String, before: String, first: Int, last: Int): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
@@ -649,6 +665,14 @@ type UpdateGraphNodeCoordinatesPayload {
   deviceNames: [String!]!
 }
 
+input UpdateWorkflowInput {
+  workflow: WorkflowInput!
+}
+
+type UpdateWorkflowPayload {
+  workflow: Workflow!
+}
+
 """
 The `Upload` scalar type represents a file upload.
 """
@@ -657,11 +681,14 @@ scalar Upload
 type Workflow implements Node {
   createdAt: String
   createdBy: String
+  description: String
+  hasSchedule: Boolean
   id: ID!
   name: String!
   tasks: String
   updatedAt: String
   updatedBy: String
+  version: Int
 }
 
 type WorkflowConnection {
@@ -673,6 +700,14 @@ type WorkflowConnection {
 type WorkflowEdge {
   cursor: String!
   node: Workflow!
+}
+
+input WorkflowInput {
+  description: String
+  name: String!
+  tasks: String!
+  timeoutSeconds: Int!
+  version: Int
 }
 
 type Zone implements Node {
