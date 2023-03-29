@@ -1,4 +1,5 @@
-import { makeStringQueryFromSearchQueryObject, PaginationArgs, SearchQuery } from '../helpers/conductor.helpers';
+import { makeStringQueryFromSearchQueryObject } from '../helpers/conductor.helpers';
+import { PaginationArgs, SearchQuery, StartWorkflowInput } from '../types/conductor.types';
 import {
   BulkOperationOutput,
   ApiExecutedWorkflow,
@@ -41,46 +42,27 @@ async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Pro
 async function deleteWorkflow(baseURL: string, name: string, version: number): Promise<void> {
   await sendDeleteRequest([baseURL, `metadata/workflow/${name}/${version}`]);
 }
-async function pauseWorkflow(baseURL: string, workflowId: string): Promise<string> {
-  try {
-    const json = await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
 
-    return String(json);
-  } catch (error) {
-    throw new Error("Workflow couldn't be paused");
-  }
+async function pauseWorkflow(baseURL: string, workflowId: string): Promise<void> {
+  await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
 }
 
-async function resumeWorkflow(baseURL: string, workflowId: string): Promise<string> {
-  try {
-    const json = await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
-
-    return String(json);
-  } catch (error) {
-    throw new Error("Workflow couldn't be resumed");
-  }
+async function resumeWorkflow(baseURL: string, workflowId: string): Promise<void> {
+  await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
 }
 
 async function bulkResumeWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
-  try {
-    const json = await sendPutRequest([baseURL, `workflow/bulk/resume`], workflowIds);
-    const data = decodeBulkOperationOutput(json);
+  const json = await sendPutRequest([baseURL, `workflow/bulk/resume`], workflowIds);
+  const data = decodeBulkOperationOutput(json);
 
-    return data;
-  } catch (error) {
-    throw new Error('Bulk resume of workflows was not successful');
-  }
+  return data;
 }
 
 async function bulkPauseWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
-  try {
-    const json = await sendPutRequest([baseURL, `workflow/bulk/pause`], workflowIds);
-    const data = decodeBulkOperationOutput(json);
+  const json = await sendPutRequest([baseURL, `workflow/bulk/pause`], workflowIds);
+  const data = decodeBulkOperationOutput(json);
 
-    return data;
-  } catch (error) {
-    throw new Error('Bulk pause of workflows was not successful');
-  }
+  return data;
 }
 
 async function getExecutedWorkflows(
@@ -161,6 +143,40 @@ async function removeWorkflow(
   }
 }
 
+async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {
+  const executedWorkflowId = await sendPostRequest([baseURL, 'workflow'], input);
+
+  if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+    return executedWorkflowId;
+  } else {
+    throw new Error('We could not execute the workflow');
+  }
+}
+
+type ExecuteWorkflowByNameInput = {
+  name: string;
+  inputParameters: Record<string, unknown>;
+  correlationId?: string | null;
+  version?: number | null;
+  priority?: number | null;
+};
+
+async function executeWorkflowByName(
+  baseURL: string,
+  { name, inputParameters, correlationId, version, priority }: ExecuteWorkflowByNameInput,
+): Promise<string> {
+  const executedWorkflowId = await sendPostRequest(
+    [baseURL, `workflow/${name}?version=${version}&correlationId=${correlationId}&priority=${priority}`],
+    inputParameters,
+  );
+
+  if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+    return executedWorkflowId;
+  } else {
+    throw new Error('We could not execute the workflow');
+  }
+}
+
 const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
@@ -177,6 +193,8 @@ const conductorAPI = {
   restartWorkflow,
   terminateWorkflow,
   removeWorkflow,
+  executeNewWorkflow,
+  executeWorkflowByName,
 };
 
 export type ConductorAPI = typeof conductorAPI;

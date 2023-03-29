@@ -10,7 +10,6 @@ import * as zone from './zone';
 import * as transaction from './transaction';
 import * as topology from './topology';
 import * as workflow from './workflow';
-import * as executedWorkflow from './executed-workflow';
 import * as executedWorkflowTask from './task';
 import * as workflowLabels from './workflow-labels';
 
@@ -42,7 +41,6 @@ export default makeSchema({
     topology,
     workflow,
     workflowLabels,
-    executedWorkflow,
     executedWorkflowTask,
   ],
   sourceTypes: {

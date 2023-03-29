@@ -1,4 +1,4 @@
-import { PaginationArgs, SearchQuery } from './conductor.helpers';
+import { SearchQuery, PaginationArgs } from '../types/conductor.types';
 
 type GraphQLSearchQuery = {
   isRootWorkflow?: boolean | null;
