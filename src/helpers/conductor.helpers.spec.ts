@@ -1,8 +1,5 @@
+import { ConductorQuerySearchTime, PaginationArgs, ConductorQuery, SearchQuery } from '../types/conductor.types';
 import {
-  ConductorQuery,
-  ConductorQuerySearchTime,
-  PaginationArgs,
-  SearchQuery,
   makeStringFromIsRootWorkflow,
   makeStringFromPagination,
   makeStringFromQuery,

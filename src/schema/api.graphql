@@ -276,6 +276,16 @@ type EdgeSourceTarget {
   nodeId: String!
 }
 
+input ExecuteNewWorkflowInput {
+  correlationId: String
+  externalInputPayloadStoragePath: String
+  input: String
+  name: String!
+  priority: Int
+  taskToDomain: String
+  version: Int
+}
+
 type ExecutedWorkflow implements Node {
   createdAt: String
   createdBy: String
@@ -434,6 +444,10 @@ type InstallDevicePayload {
   device: Device!
 }
 
+type IsOkResponse {
+  isOk: Boolean!
+}
+
 type Label implements Node {
   createdAt: String!
   id: ID!
@@ -490,11 +504,23 @@ type Mutation {
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   deleteWorkflow(name: String!, version: Int!): DeleteWorkflowPayload!
+  executeNewWorkflow(input: StartWorkflowRequestInput!): String
+  executeWorkflowByName(
+    correlationId: String
+
+    """
+    JSON string of input parameters
+    """
+    inputParameters: String!
+    priority: Int
+    workflowName: String!
+    workflowVersion: Int
+  ): String
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
-  pauseWorkflow(workflowId: String!): String
+  pauseWorkflow(workflowId: String!): IsOkResponse
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
-  resumeWorkflow(workflowId: String!): String
+  resumeWorkflow(workflowId: String!): IsOkResponse
   revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
@@ -572,12 +598,39 @@ enum SortDirection {
   DESC
 }
 
+input StartWorkflowRequestInput {
+  workflow: ExecuteNewWorkflowInput!
+  workflowDefinition: WorkflowDefinitionInput
+}
+
 type Subscription {
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 
 type SyncFromNetworkPayload {
   dataStore: DataStore
+}
+
+input TaskInput {
+  asyncComplete: Boolean
+  decisionCases: String
+  defaultCase: String
+  description: String
+  inputParameters: String
+  joinOn: [String]
+  loopCondition: String
+  name: String!
+  optional: Boolean
+  retryCount: Int
+  startDelay: Int
+  taskReferenceName: String!
+  type: String
+  workflowTaskType: [WorkflowTaskType]
+}
+
+enum TimeoutPolicy {
+  ALERT_ONLY
+  TIME_OUT_WF
 }
 
 type Topology {
@@ -693,6 +746,29 @@ type WorkflowConnection {
   totalCount: Int!
 }
 
+input WorkflowDefinitionInput {
+  createTime: Int
+  createdAt: Int
+  createdBy: String
+  description: String
+  inputParameters: [String]
+  inputTemplate: String
+  name: String!
+  outputParameters: String
+  ownerApp: String
+  ownerEmail: String
+  restartable: Boolean
+  schemaVersion: Int
+  tasks: [TaskInput!]!
+  timeoutPolicy: TimeoutPolicy
+  timeoutSeconds: Int!
+  updateTime: Int
+  updatedAt: Int
+  updatedBy: String
+  variables: String
+  version: Int
+}
+
 type WorkflowEdge {
   cursor: String!
   node: Workflow!
@@ -704,6 +780,31 @@ input WorkflowInput {
   tasks: String!
   timeoutSeconds: Int!
   version: Int
+}
+
+enum WorkflowTaskType {
+  DECISION
+  DO_WHILE
+  DYNAMIC
+  EVENT
+  EXCLUSIVE_JOIN
+  FORK_JOIN
+  FORK_JOIN_DYNAMIC
+  HTTP
+  HUMAN
+  INLINE
+  JOIN
+  JSON_JQ_TRANSFORM
+  KAFKA_PUBLISH
+  LAMBDA
+  SET_VARIABLE
+  SIMPLE
+  START_WORKFLOW
+  SUB_WORKFLOW
+  SWITCH
+  TERMINATE
+  USER_DEFINED
+  WAIT
 }
 
 type Zone implements Node {
