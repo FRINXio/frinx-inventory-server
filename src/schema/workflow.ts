@@ -22,9 +22,6 @@ import { TaskInput, ExecutedWorkflowTask } from './task';
 import { makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
 import { parseJson } from '../helpers/utils.helpers';
-import getLogger from '../get-logger';
-
-const log = getLogger('frinx-inventory-server');
 
 export const Workflow = objectType({
   name: 'Workflow',
@@ -51,7 +48,6 @@ export const Workflow = objectType({
           await schedulerAPI.getSchedule(config.schedulerApiURL, workflow.name, workflow.version ?? 1);
           return true;
         } catch (e) {
-          log.info(`cannot get schedule info for workflow ${workflow.name}: ${e}`);
           return false;
         }
       },
