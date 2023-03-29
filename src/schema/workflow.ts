@@ -337,35 +337,31 @@ export const ExecuteNewWorkflow = mutationField('executeNewWorkflow', {
     input: nonNull(arg({ type: StartWorkflowRequestInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    try {
-      const { workflow, workflowDefinition } = input;
+    const { workflow, workflowDefinition } = input;
 
-      const newWorkflow: StartWorkflowInput = {
-        ...workflow,
-        input: parseJson(workflow.input, false),
-        taskToDomain: parseJson(workflow.taskToDomain, false),
-        ...(workflowDefinition && {
-          workflowDef: {
-            ...workflowDefinition,
-            inputTemplate: parseJson(workflowDefinition.inputTemplate, false),
-            outputParameters: parseJson(workflowDefinition.outputParameters, false),
-            variables: parseJson(workflowDefinition.variables, false),
-            tasks: workflowDefinition.tasks.map((t) => ({
-              ...t,
-              inputParameters: parseJson<Record<string, unknown>>(t.inputParameters, false),
-              decisionCases: parseJson<Record<string, unknown[]>>(t.decisionCases, false),
-              defaultCase: parseJson<unknown[]>(t.defaultCase, false),
-            })),
-          },
-        }),
-      };
+    const newWorkflow: StartWorkflowInput = {
+      ...workflow,
+      input: parseJson(workflow.input, false),
+      taskToDomain: parseJson(workflow.taskToDomain, false),
+      ...(workflowDefinition && {
+        workflowDef: {
+          ...workflowDefinition,
+          inputTemplate: parseJson(workflowDefinition.inputTemplate, false),
+          outputParameters: parseJson(workflowDefinition.outputParameters, false),
+          variables: parseJson(workflowDefinition.variables, false),
+          tasks: workflowDefinition.tasks.map((t) => ({
+            ...t,
+            inputParameters: parseJson<Record<string, unknown>>(t.inputParameters, false),
+            decisionCases: parseJson<Record<string, unknown[]>>(t.decisionCases, false),
+            defaultCase: parseJson<unknown[]>(t.defaultCase, false),
+          })),
+        },
+      }),
+    };
 
-      const workflowId = await conductorAPI.executeNewWorkflow(config.conductorApiURL, newWorkflow);
+    const workflowId = await conductorAPI.executeNewWorkflow(config.conductorApiURL, newWorkflow);
 
-      return workflowId;
-    } catch (error) {
-      throw new Error('We could not execute the workflow');
-    }
+    return workflowId;
   },
 });
 
@@ -498,13 +494,9 @@ export const PauseWorkflowMutation = mutationField('pauseWorkflow', {
     workflowId: nonNull(stringArg()),
   },
   resolve: async (_, { workflowId }, { conductorAPI }) => {
-    try {
-      await conductorAPI.pauseWorkflow(config.conductorApiURL, workflowId);
+    await conductorAPI.pauseWorkflow(config.conductorApiURL, workflowId);
 
-      return 'Workflow paused';
-    } catch (error) {
-      throw new Error("Workflow couldn't be paused");
-    }
+    return 'Workflow paused';
   },
 });
 
@@ -514,13 +506,9 @@ export const ResumeWorkflowMutation = mutationField('resumeWorkflow', {
     workflowId: nonNull(stringArg()),
   },
   resolve: async (_, { workflowId }, { conductorAPI }) => {
-    try {
-      await conductorAPI.resumeWorkflow(config.conductorApiURL, workflowId);
+    await conductorAPI.resumeWorkflow(config.conductorApiURL, workflowId);
 
-      return 'Workflow resumed';
-    } catch (error) {
-      throw new Error("Workflow couldn't be resumed");
-    }
+    return 'Workflow resumed';
   },
 });
 
@@ -538,16 +526,12 @@ export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
     workflowIds: nonNull(list(nonNull(stringArg()))),
   },
   resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    try {
-      const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
+    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
 
-      return {
-        bulkErrorResults: JSON.stringify(data.bulkErrorResults),
-        bulkSuccessfulResults: data.bulkSuccessfulResults,
-      };
-    } catch (error) {
-      throw new Error('Bulk resume of workflows was not successful');
-    }
+    return {
+      bulkErrorResults: JSON.stringify(data.bulkErrorResults),
+      bulkSuccessfulResults: data.bulkSuccessfulResults,
+    };
   },
 });
 
@@ -561,19 +545,15 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
     priority: intArg(),
   },
   resolve: async (_, { inputParameters, workflowName, workflowVersion, correlationId, priority }, { conductorAPI }) => {
-    try {
-      const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
-        inputParameters: parseJson(inputParameters),
-        name: workflowName,
-        version: workflowVersion,
-        correlationId,
-        priority,
-      });
+    const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
+      inputParameters: parseJson(inputParameters),
+      name: workflowName,
+      version: workflowVersion,
+      correlationId,
+      priority,
+    });
 
-      return workflowId;
-    } catch (error) {
-      throw new Error('We could not execute the workflow');
-    }
+    return workflowId;
   },
 });
 
@@ -583,15 +563,11 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
     workflowIds: nonNull(list(nonNull(stringArg()))),
   },
   resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    try {
-      const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, workflowIds);
+    const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, workflowIds);
 
-      return {
-        bulkErrorResults: JSON.stringify(data.bulkErrorResults),
-        bulkSuccessfulResults: data.bulkSuccessfulResults,
-      };
-    } catch (error) {
-      throw new Error('Bulk pause of workflows was not successful');
-    }
+    return {
+      bulkErrorResults: JSON.stringify(data.bulkErrorResults),
+      bulkSuccessfulResults: data.bulkSuccessfulResults,
+    };
   },
 });

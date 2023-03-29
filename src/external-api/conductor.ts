@@ -47,45 +47,29 @@ async function deleteWorkflow(baseURL: string, name: string, version: number): P
 }
 
 async function pauseWorkflow(baseURL: string, workflowId: string): Promise<string> {
-  try {
-    await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
+  await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
 
-    return 'Workflow successfully paused';
-  } catch (error) {
-    throw new Error("Workflow couldn't be paused");
-  }
+  return 'Workflow successfully paused';
 }
 
 async function resumeWorkflow(baseURL: string, workflowId: string): Promise<string> {
-  try {
-    await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
+  await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
 
-    return 'Workflow successfully resumed';
-  } catch (error) {
-    throw new Error("Workflow couldn't be resumed");
-  }
+  return 'Workflow successfully resumed';
 }
 
 async function bulkResumeWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
-  try {
-    const json = await sendPutRequest([baseURL, `workflow/bulk/resume`], workflowIds);
-    const data = decodeBulkOperationOutput(json);
+  const json = await sendPutRequest([baseURL, `workflow/bulk/resume`], workflowIds);
+  const data = decodeBulkOperationOutput(json);
 
-    return data;
-  } catch (error) {
-    throw new Error('Bulk resume of workflows was not successful');
-  }
+  return data;
 }
 
 async function bulkPauseWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
-  try {
-    const json = await sendPutRequest([baseURL, `workflow/bulk/pause`], workflowIds);
-    const data = decodeBulkOperationOutput(json);
+  const json = await sendPutRequest([baseURL, `workflow/bulk/pause`], workflowIds);
+  const data = decodeBulkOperationOutput(json);
 
-    return data;
-  } catch (error) {
-    throw new Error('Bulk pause of workflows was not successful');
-  }
+  return data;
 }
 
 async function getExecutedWorkflows(
@@ -108,16 +92,11 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
 }
 
 async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {
-  try {
-    const executedWorkflowId = await sendPostRequest([baseURL, 'workflow'], input);
+  const executedWorkflowId = await sendPostRequest([baseURL, 'workflow'], input);
 
-    if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
-      return executedWorkflowId;
-    } else {
-      throw new Error('We could not execute the workflow');
-    }
-  } catch (error) {
-    log.error(`Execute New Workflow Error: ${error}`);
+  if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+    return executedWorkflowId;
+  } else {
     throw new Error('We could not execute the workflow');
   }
 }
@@ -134,19 +113,14 @@ async function executeWorkflowByName(
   baseURL: string,
   { name, inputParameters, correlationId, version, priority }: ExecuteWorkflowByNameInput,
 ): Promise<string> {
-  try {
-    const executedWorkflowId = await sendPostRequest(
-      [baseURL, `workflow/${name}?version=${version}&correlationId=${correlationId}&priority=${priority}`],
-      inputParameters,
-    );
+  const executedWorkflowId = await sendPostRequest(
+    [baseURL, `workflow/${name}?version=${version}&correlationId=${correlationId}&priority=${priority}`],
+    inputParameters,
+  );
 
-    if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
-      return executedWorkflowId;
-    } else {
-      throw new Error('We could not execute the workflow');
-    }
-  } catch (error) {
-    log.error(`Execute Workflow By Name Error: ${error}`);
+  if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+    return executedWorkflowId;
+  } else {
     throw new Error('We could not execute the workflow');
   }
 }
