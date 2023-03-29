@@ -444,6 +444,10 @@ type InstallDevicePayload {
   device: Device!
 }
 
+type IsOkResponse {
+  isOk: Boolean!
+}
+
 type Label implements Node {
   createdAt: String!
   id: ID!
@@ -514,9 +518,9 @@ type Mutation {
   ): String
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
-  pauseWorkflow(workflowId: String!): String
+  pauseWorkflow(workflowId: String!): IsOkResponse
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
-  resumeWorkflow(workflowId: String!): String
+  resumeWorkflow(workflowId: String!): IsOkResponse
   revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   uninstallDevice(id: String!): UninstallDevicePayload!
@@ -722,11 +726,6 @@ type UpdateWorkflowPayload {
 The `Upload` scalar type represents a file upload.
 """
 scalar Upload
-
-"""
-Void custom scalar type
-"""
-scalar Void
 
 type Workflow implements Node {
   createdAt: String

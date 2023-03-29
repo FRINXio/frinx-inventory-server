@@ -9,10 +9,6 @@ import type { core } from 'nexus';
 declare global {
   interface NexusGenCustomInputMethods<TypeName extends string> {
     /**
-     * Void custom scalar type
-     */
-    void<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void; // "Void";
-    /**
      * The `Upload` scalar type represents a file upload.
      */
     upload<FieldName extends string>(
@@ -23,10 +19,6 @@ declare global {
 }
 declare global {
   interface NexusGenCustomOutputMethods<TypeName extends string> {
-    /**
-     * Void custom scalar type
-     */
-    void<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void; // "Void";
     /**
      * The `Upload` scalar type represents a file upload.
      */
@@ -293,7 +285,6 @@ export interface NexusGenScalars {
   Boolean: boolean;
   ID: string;
   Upload: any;
-  Void: any;
 }
 
 export interface NexusGenObjects {
@@ -497,6 +488,10 @@ export interface NexusGenObjects {
   InstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
+  };
+  IsOkResponse: {
+    // root type
+    isOk: boolean; // Boolean!
   };
   Label: SourceTypes.Label;
   LabelConnection: {
@@ -933,6 +928,10 @@ export interface NexusGenFieldTypes {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
   };
+  IsOkResponse: {
+    // field return type
+    isOk: boolean; // Boolean!
+  };
   Label: {
     // field return type
     createdAt: string; // String!
@@ -994,9 +993,9 @@ export interface NexusGenFieldTypes {
     executeWorkflowByName: string | null; // String
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
-    pauseWorkflow: string | null; // String
+    pauseWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
-    resumeWorkflow: string | null; // String
+    resumeWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
@@ -1449,6 +1448,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     device: 'Device';
   };
+  IsOkResponse: {
+    // field return type name
+    isOk: 'Boolean';
+  };
   Label: {
     // field return type name
     createdAt: 'String';
@@ -1510,9 +1513,9 @@ export interface NexusGenFieldTypeNames {
     executeWorkflowByName: 'String';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
-    pauseWorkflow: 'String';
+    pauseWorkflow: 'IsOkResponse';
     resetConfig: 'ResetConfigPayload';
-    resumeWorkflow: 'String';
+    resumeWorkflow: 'IsOkResponse';
     revertChanges: 'RevertChangesPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
     uninstallDevice: 'UninstallDevicePayload';

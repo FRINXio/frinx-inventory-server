@@ -46,16 +46,12 @@ async function deleteWorkflow(baseURL: string, name: string, version: number): P
   await sendDeleteRequest([baseURL, `metadata/workflow/${name}/${version}`]);
 }
 
-async function pauseWorkflow(baseURL: string, workflowId: string): Promise<string> {
+async function pauseWorkflow(baseURL: string, workflowId: string): Promise<void> {
   await sendPutRequest([baseURL, `workflow/${workflowId}/pause`]);
-
-  return 'Workflow successfully paused';
 }
 
-async function resumeWorkflow(baseURL: string, workflowId: string): Promise<string> {
+async function resumeWorkflow(baseURL: string, workflowId: string): Promise<void> {
   await sendPutRequest([baseURL, `workflow/${workflowId}/resume`]);
-
-  return 'Workflow successfully resumed';
 }
 
 async function bulkResumeWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {

@@ -17,7 +17,7 @@ import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { toGraphId } from '../helpers/id-helper';
 import { validateTasks } from '../helpers/workflow-helpers';
-import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import { makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
@@ -495,26 +495,26 @@ export const DeleteWorkflowMutation = extendType({
 });
 
 export const PauseWorkflowMutation = mutationField('pauseWorkflow', {
-  type: 'String',
+  type: IsOkResponse,
   args: {
     workflowId: nonNull(stringArg()),
   },
   resolve: async (_, { workflowId }, { conductorAPI }) => {
     await conductorAPI.pauseWorkflow(config.conductorApiURL, workflowId);
 
-    return 'Workflow paused';
+    return { isOk: true };
   },
 });
 
 export const ResumeWorkflowMutation = mutationField('resumeWorkflow', {
-  type: 'String',
+  type: IsOkResponse,
   args: {
     workflowId: nonNull(stringArg()),
   },
   resolve: async (_, { workflowId }, { conductorAPI }) => {
     await conductorAPI.resumeWorkflow(config.conductorApiURL, workflowId);
 
-    return 'Workflow resumed';
+    return { isOk: true };
   },
 });
 
