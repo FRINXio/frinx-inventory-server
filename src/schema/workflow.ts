@@ -6,9 +6,7 @@ import { toGraphId } from '../helpers/id-helper';
 import { validateTasks } from '../helpers/workflow-helpers';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import getLogger from '../get-logger';
-import { jsonParse } from '../helpers/workflow.helpers';
-
-type DescriptionJSON = { labels?: string[]; description: string };
+import { getFilteredWorkflows } from '../helpers/workflow.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
@@ -90,14 +88,7 @@ export const WorkflowsQuery = extendType({
         const workflows = await conductorAPI.getWorkflowMetadata(config.conductorApiURL);
 
         const filteredWorkflows =
-          filter?.labels || filter?.keyword
-            ? workflows.filter((w) => {
-                const json = jsonParse<DescriptionJSON>(w.description ?? '');
-                const hasFilterLabels = filter.labels ? filter?.labels?.every((f) => json?.labels?.includes(f)) : true;
-                const hasKeyword = filter.keyword ? w.name.toLowerCase().includes(filter.keyword.toLowerCase()) : true;
-                return hasFilterLabels && hasKeyword;
-              })
-            : workflows;
+          filter?.labels || filter?.keyword ? getFilteredWorkflows(workflows, filter) : workflows;
 
         const workflowsWithId = filteredWorkflows.map((w) => ({
           ...w,
