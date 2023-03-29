@@ -994,14 +994,14 @@ export interface NexusGenFieldTypes {
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     pauseWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
-    removeWorkflow: string | null; // String
+    removeWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
-    restartWorkflow: string | null; // String
+    restartWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     resumeWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
-    retryWorkflow: string | null; // String
+    retryWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
-    terminateWorkflow: string | null; // String
+    terminateWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
@@ -1518,14 +1518,14 @@ export interface NexusGenFieldTypeNames {
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     pauseWorkflow: 'IsOkResponse';
-    removeWorkflow: 'String';
+    removeWorkflow: 'IsOkResponse';
     resetConfig: 'ResetConfigPayload';
-    restartWorkflow: 'String';
+    restartWorkflow: 'IsOkResponse';
     resumeWorkflow: 'IsOkResponse';
-    retryWorkflow: 'String';
+    retryWorkflow: 'IsOkResponse';
     revertChanges: 'RevertChangesPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
-    terminateWorkflow: 'String';
+    terminateWorkflow: 'IsOkResponse';
     uninstallDevice: 'UninstallDevicePayload';
     updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
