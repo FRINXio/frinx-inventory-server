@@ -17,11 +17,14 @@ import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { toGraphId } from '../helpers/id-helper';
 import { validateTasks } from '../helpers/workflow-helpers';
+import getLogger from '../get-logger';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
-import { makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
+import { getFilteredWorkflows, makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
 import { parseJson } from '../helpers/utils.helpers';
+
+const log = getLogger('frinx-inventory-server');
 
 export const Workflow = objectType({
   name: 'Workflow',
@@ -48,6 +51,7 @@ export const Workflow = objectType({
           await schedulerAPI.getSchedule(config.schedulerApiURL, workflow.name, workflow.version ?? 1);
           return true;
         } catch (e) {
+          log.info(`cannot get schedule info for workflow ${workflow.name}: ${e}`);
           return false;
         }
       },
@@ -78,22 +82,37 @@ export const WorkflowConnection = objectType({
   },
 });
 
+export const FilterWorkflowsInput = inputObjectType({
+  name: 'FilterWorkflowsInput',
+  definition: (t) => {
+    t.list.nonNull.string('labels');
+    t.string('keyword');
+  },
+});
+
 export const WorkflowsQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('workflows', {
       type: WorkflowConnection,
-      args: PaginationConnectionArgs,
+      args: {
+        ...PaginationConnectionArgs,
+        filter: FilterWorkflowsInput,
+      },
       resolve: async (_, args, { conductorAPI }) => {
+        const { filter, ...paginationArgs } = args;
         const workflows = await conductorAPI.getWorkflowMetadata(config.conductorApiURL);
 
-        const workflowsWithId = workflows.map((w) => ({
+        const filteredWorkflows =
+          filter?.labels || filter?.keyword ? getFilteredWorkflows(workflows, filter) : workflows;
+
+        const workflowsWithId = filteredWorkflows.map((w) => ({
           ...w,
           id: w.name,
         }));
         return {
-          ...connectionFromArray(workflowsWithId, args),
-          totalCount: workflows.length,
+          ...connectionFromArray(workflowsWithId, paginationArgs),
+          totalCount: filteredWorkflows.length,
         };
       },
     });

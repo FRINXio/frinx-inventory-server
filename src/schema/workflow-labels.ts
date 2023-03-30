@@ -1,20 +1,9 @@
 import { extendType, list, nonNull } from 'nexus';
 import config from '../config';
+import { jsonParse } from '../helpers/workflow.helpers';
 import { Workflow } from './source-types';
 
 type DescriptionJSON = { labels?: string[]; description: string };
-
-const jsonParse = <T = { description: string }>(json?: string | null): T | null => {
-  if (json == null) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(json);
-  } catch (e) {
-    return null;
-  }
-};
 
 const getLabels = (workflows: Omit<Workflow, 'id'>[]): string[] => {
   const labelsSet = new Set<string>();

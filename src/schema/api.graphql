@@ -388,6 +388,11 @@ input FilterTopologyInput {
   labels: [String!]
 }
 
+input FilterWorkflowsInput {
+  keyword: String
+  labels: [String!]
+}
+
 type GraphEdge {
   id: ID!
   source: EdgeSourceTarget!
@@ -571,7 +576,7 @@ type Query {
   transactions: [Transaction!]!
   uniconfigShellSession: String
   workflowLabels: [String!]!
-  workflows(after: String, before: String, first: Int, last: Int): WorkflowConnection!
+  workflows(after: String, before: String, filter: FilterWorkflowsInput, first: Int, last: Int): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
