@@ -1811,7 +1811,7 @@ export interface NexusGenArgTypes {
     };
     removeWorkflow: {
       // args
-      archiveWorkflow?: boolean | null; // Boolean
+      shouldArchiveWorkflow?: boolean | null; // Boolean
       workflowId: string; // String!
     };
     resetConfig: {
@@ -1821,7 +1821,7 @@ export interface NexusGenArgTypes {
     };
     restartWorkflow: {
       // args
-      useLatestDefinitions?: boolean | null; // Boolean
+      shouldUseLatestDefinitions?: boolean | null; // Boolean
       workflowId: string; // String!
     };
     resumeWorkflow: {
@@ -1830,7 +1830,7 @@ export interface NexusGenArgTypes {
     };
     retryWorkflow: {
       // args
-      resumeSubworkflowTasks?: boolean | null; // Boolean
+      shouldResumeSubworkflowTasks?: boolean | null; // Boolean
       workflowId: string; // String!
     };
     revertChanges: {

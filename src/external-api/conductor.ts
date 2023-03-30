@@ -87,17 +87,20 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
 async function retryWorkflow(
   baseURL: string,
   workflowId: string,
-  resumeSubworkflowTasks: boolean | null = true,
+  shouldResumeSubworkflowTasks: boolean | null = true,
 ): Promise<void> {
-  await sendPostRequest([baseURL, `workflow/${workflowId}/retry?resumeSubworkflowTasks=${resumeSubworkflowTasks}`]);
+  await sendPostRequest([
+    baseURL,
+    `workflow/${workflowId}/retry?resumeSubworkflowTasks=${shouldResumeSubworkflowTasks}`,
+  ]);
 }
 
 async function restartWorkflow(
   baseURL: string,
   workflowId: string,
-  useLatestDefinitions: boolean | null = true,
+  shouldUseLatestDefinitions: boolean | null = true,
 ): Promise<void> {
-  await sendPostRequest([baseURL, `workflow/${workflowId}/restart?useLatestDefinitions=${useLatestDefinitions}`]);
+  await sendPostRequest([baseURL, `workflow/${workflowId}/restart?useLatestDefinitions=${shouldUseLatestDefinitions}`]);
 }
 
 async function terminateWorkflow(baseURL: string, workflowId: string, reason?: string | null): Promise<void> {
@@ -111,9 +114,9 @@ async function terminateWorkflow(baseURL: string, workflowId: string, reason?: s
 async function removeWorkflow(
   baseURL: string,
   workflowId: string,
-  archiveWorkflow: boolean | null = true,
+  shouldArchiveWorkflow: boolean | null = true,
 ): Promise<void> {
-  await sendDeleteRequest([baseURL, `workflow/${workflowId}/remove?archiveWorkflow=${archiveWorkflow}`]);
+  await sendDeleteRequest([baseURL, `workflow/${workflowId}/remove?archiveWorkflow=${shouldArchiveWorkflow}`]);
 }
 
 async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {

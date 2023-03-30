@@ -579,10 +579,10 @@ export const RetryWorkflowMutation = mutationField('retryWorkflow', {
   type: IsOkResponse,
   args: {
     workflowId: nonNull(stringArg()),
-    resumeSubworkflowTasks: booleanArg(),
+    shouldResumeSubworkflowTasks: booleanArg({ description: 'Default value is true' }),
   },
-  resolve: async (_, { workflowId, resumeSubworkflowTasks }, { conductorAPI }) => {
-    await conductorAPI.retryWorkflow(config.conductorApiURL, workflowId, resumeSubworkflowTasks);
+  resolve: async (_, { workflowId, shouldResumeSubworkflowTasks }, { conductorAPI }) => {
+    await conductorAPI.retryWorkflow(config.conductorApiURL, workflowId, shouldResumeSubworkflowTasks);
 
     return { isOk: true };
   },
@@ -592,10 +592,10 @@ export const RestartWorkflowMutation = mutationField('restartWorkflow', {
   type: IsOkResponse,
   args: {
     workflowId: nonNull(stringArg()),
-    useLatestDefinitions: booleanArg(),
+    shouldUseLatestDefinitions: booleanArg({ description: 'Default value is true' }),
   },
-  resolve: async (_, { workflowId, useLatestDefinitions }, { conductorAPI }) => {
-    await conductorAPI.restartWorkflow(config.conductorApiURL, workflowId, useLatestDefinitions);
+  resolve: async (_, { workflowId, shouldUseLatestDefinitions }, { conductorAPI }) => {
+    await conductorAPI.restartWorkflow(config.conductorApiURL, workflowId, shouldUseLatestDefinitions);
 
     return { isOk: true };
   },
@@ -618,10 +618,10 @@ export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
   type: IsOkResponse,
   args: {
     workflowId: nonNull(stringArg()),
-    archiveWorkflow: booleanArg(),
+    shouldArchiveWorkflow: booleanArg({ description: 'Default value is true' }),
   },
-  resolve: async (_, { workflowId, archiveWorkflow }, { conductorAPI }) => {
-    await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, archiveWorkflow);
+  resolve: async (_, { workflowId, shouldArchiveWorkflow }, { conductorAPI }) => {
+    await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, shouldArchiveWorkflow);
 
     return { isOk: true };
   },

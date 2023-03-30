@@ -519,11 +519,29 @@ type Mutation {
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   pauseWorkflow(workflowId: String!): IsOkResponse
-  removeWorkflow(archiveWorkflow: Boolean, workflowId: String!): IsOkResponse
+  removeWorkflow(
+    """
+    Default value is true
+    """
+    shouldArchiveWorkflow: Boolean
+    workflowId: String!
+  ): IsOkResponse
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
-  restartWorkflow(useLatestDefinitions: Boolean, workflowId: String!): IsOkResponse
+  restartWorkflow(
+    """
+    Default value is true
+    """
+    shouldUseLatestDefinitions: Boolean
+    workflowId: String!
+  ): IsOkResponse
   resumeWorkflow(workflowId: String!): IsOkResponse
-  retryWorkflow(resumeSubworkflowTasks: Boolean, workflowId: String!): IsOkResponse
+  retryWorkflow(
+    """
+    Default value is true
+    """
+    shouldResumeSubworkflowTasks: Boolean
+    workflowId: String!
+  ): IsOkResponse
   revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   terminateWorkflow(reason: String, workflowId: String!): IsOkResponse
