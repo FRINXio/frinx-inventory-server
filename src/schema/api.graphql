@@ -738,6 +738,7 @@ type Workflow implements Node {
   description: String
   hasSchedule: Boolean
   id: ID!
+  inputParameters: [String!]
   name: String!
   tasks: String
   updatedAt: String
