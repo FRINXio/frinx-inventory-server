@@ -2,6 +2,7 @@ import { connectionFromArray } from 'graphql-relay';
 import { v4 as uuid } from 'uuid';
 import {
   arg,
+  booleanArg,
   enumType,
   extendType,
   inputObjectType,
@@ -591,5 +592,57 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
       bulkSuccessfulResults: data.bulkSuccessfulResults,
     };
+  },
+});
+
+export const RetryWorkflowMutation = mutationField('retryWorkflow', {
+  type: IsOkResponse,
+  args: {
+    workflowId: nonNull(stringArg()),
+    shouldResumeSubworkflowTasks: booleanArg({ description: 'Default value is true' }),
+  },
+  resolve: async (_, { workflowId, shouldResumeSubworkflowTasks }, { conductorAPI }) => {
+    await conductorAPI.retryWorkflow(config.conductorApiURL, workflowId, shouldResumeSubworkflowTasks);
+
+    return { isOk: true };
+  },
+});
+
+export const RestartWorkflowMutation = mutationField('restartWorkflow', {
+  type: IsOkResponse,
+  args: {
+    workflowId: nonNull(stringArg()),
+    shouldUseLatestDefinitions: booleanArg({ description: 'Default value is true' }),
+  },
+  resolve: async (_, { workflowId, shouldUseLatestDefinitions }, { conductorAPI }) => {
+    await conductorAPI.restartWorkflow(config.conductorApiURL, workflowId, shouldUseLatestDefinitions);
+
+    return { isOk: true };
+  },
+});
+
+export const TerminateWorkflowMutation = mutationField('terminateWorkflow', {
+  type: IsOkResponse,
+  args: {
+    workflowId: nonNull(stringArg()),
+    reason: stringArg(),
+  },
+  resolve: async (_, { workflowId, reason }, { conductorAPI }) => {
+    await conductorAPI.terminateWorkflow(config.conductorApiURL, workflowId, reason);
+
+    return { isOk: true };
+  },
+});
+
+export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
+  type: IsOkResponse,
+  args: {
+    workflowId: nonNull(stringArg()),
+    shouldArchiveWorkflow: booleanArg({ description: 'Default value is true' }),
+  },
+  resolve: async (_, { workflowId, shouldArchiveWorkflow }, { conductorAPI }) => {
+    await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, shouldArchiveWorkflow);
+
+    return { isOk: true };
   },
 });

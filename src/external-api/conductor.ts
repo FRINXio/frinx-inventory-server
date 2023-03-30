@@ -1,4 +1,3 @@
-import getLogger from '../get-logger';
 import { makeStringQueryFromSearchQueryObject } from '../helpers/conductor.helpers';
 import { PaginationArgs, SearchQuery, StartWorkflowInput } from '../types/conductor.types';
 import {
@@ -17,8 +16,6 @@ import {
   WorkflowEditOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
-
-export const log = getLogger('frinx-graphql-conductor');
 
 async function getWorkflowMetadata(baseURL: string): Promise<WorkflowMetadataOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/workflow']);
@@ -87,6 +84,41 @@ async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): P
   return data;
 }
 
+async function retryWorkflow(
+  baseURL: string,
+  workflowId: string,
+  shouldResumeSubworkflowTasks: boolean | null = true,
+): Promise<void> {
+  await sendPostRequest([
+    baseURL,
+    `workflow/${workflowId}/retry?resumeSubworkflowTasks=${shouldResumeSubworkflowTasks}`,
+  ]);
+}
+
+async function restartWorkflow(
+  baseURL: string,
+  workflowId: string,
+  shouldUseLatestDefinitions: boolean | null = true,
+): Promise<void> {
+  await sendPostRequest([baseURL, `workflow/${workflowId}/restart?useLatestDefinitions=${shouldUseLatestDefinitions}`]);
+}
+
+async function terminateWorkflow(baseURL: string, workflowId: string, reason?: string | null): Promise<void> {
+  if (reason) {
+    await sendDeleteRequest([baseURL, `workflow/${workflowId}?reason=${reason}`]);
+  } else {
+    await sendDeleteRequest([baseURL, `workflow/${workflowId}`]);
+  }
+}
+
+async function removeWorkflow(
+  baseURL: string,
+  workflowId: string,
+  shouldArchiveWorkflow: boolean | null = true,
+): Promise<void> {
+  await sendDeleteRequest([baseURL, `workflow/${workflowId}/remove?archiveWorkflow=${shouldArchiveWorkflow}`]);
+}
+
 async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {
   const executedWorkflowId = await sendPostRequest([baseURL, 'workflow'], input);
 
@@ -133,6 +165,10 @@ const conductorAPI = {
   bulkPauseWorkflow,
   getExecutedWorkflows,
   getExecutedWorkflowDetail,
+  retryWorkflow,
+  restartWorkflow,
+  terminateWorkflow,
+  removeWorkflow,
   executeNewWorkflow,
   executeWorkflowByName,
 };

@@ -999,10 +999,14 @@ export interface NexusGenFieldTypes {
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     pauseWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
+    removeWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
+    restartWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     resumeWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
+    retryWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
+    terminateWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
@@ -1520,10 +1524,14 @@ export interface NexusGenFieldTypeNames {
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     pauseWorkflow: 'IsOkResponse';
+    removeWorkflow: 'IsOkResponse';
     resetConfig: 'ResetConfigPayload';
+    restartWorkflow: 'IsOkResponse';
     resumeWorkflow: 'IsOkResponse';
+    retryWorkflow: 'IsOkResponse';
     revertChanges: 'RevertChangesPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
+    terminateWorkflow: 'IsOkResponse';
     uninstallDevice: 'UninstallDevicePayload';
     updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
@@ -1808,13 +1816,28 @@ export interface NexusGenArgTypes {
       // args
       workflowId: string; // String!
     };
+    removeWorkflow: {
+      // args
+      shouldArchiveWorkflow?: boolean | null; // Boolean
+      workflowId: string; // String!
+    };
     resetConfig: {
       // args
       deviceId: string; // String!
       transactionId: string; // String!
     };
+    restartWorkflow: {
+      // args
+      shouldUseLatestDefinitions?: boolean | null; // Boolean
+      workflowId: string; // String!
+    };
     resumeWorkflow: {
       // args
+      workflowId: string; // String!
+    };
+    retryWorkflow: {
+      // args
+      shouldResumeSubworkflowTasks?: boolean | null; // Boolean
       workflowId: string; // String!
     };
     revertChanges: {
@@ -1825,6 +1848,11 @@ export interface NexusGenArgTypes {
       // args
       deviceId: string; // String!
       transactionId: string; // String!
+    };
+    terminateWorkflow: {
+      // args
+      reason?: string | null; // String
+      workflowId: string; // String!
     };
     uninstallDevice: {
       // args
