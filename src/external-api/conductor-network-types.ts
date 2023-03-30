@@ -20,9 +20,9 @@ export function extractResult<A>(result: Either<t.Errors, A>): A {
 export const ApiBaseTask = t.type({
   name: t.string,
   taskReferenceName: t.string,
-  // description: optional(t.string),
-  // inputParameters: optional(t.record(t.string, t.any)),
-  // type: optional(t.string),
+  description: optional(t.string),
+  inputParameters: optional(t.record(t.string, t.any)),
+  type: optional(t.string),
   // dynamicTaskNameParam: optional(t.string),
   // scriptExpression: optional(t.string),
   // dynamicForkTasksParam: optional(t.string),

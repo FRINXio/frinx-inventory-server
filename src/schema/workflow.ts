@@ -42,6 +42,7 @@ export const Workflow = objectType({
       resolve: (workflow) => (workflow.updateTime ? new Date(workflow.updateTime).toISOString() : null),
     });
     t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
+    t.list.nonNull.string('inputParameters', { resolve: (w) => w.inputParameters ?? null });
     t.boolean('hasSchedule', {
       resolve: async (workflow, _, { schedulerAPI }) => {
         try {
