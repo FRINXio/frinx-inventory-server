@@ -88,44 +88,23 @@ async function retryWorkflow(
   baseURL: string,
   workflowId: string,
   resumeSubworkflowTasks: boolean | null = true,
-): Promise<string> {
-  try {
-    await sendPostRequest([baseURL, `workflow/${workflowId}/retry?resumeSubworkflowTasks=${resumeSubworkflowTasks}`]);
-
-    return 'Workflow successfully retried';
-  } catch (error) {
-    throw new Error("Workflow couldn't be retried");
-  }
+): Promise<void> {
+  await sendPostRequest([baseURL, `workflow/${workflowId}/retry?resumeSubworkflowTasks=${resumeSubworkflowTasks}`]);
 }
 
 async function restartWorkflow(
   baseURL: string,
   workflowId: string,
   useLatestDefinitions: boolean | null = true,
-): Promise<string> {
-  try {
-    const json = await sendPostRequest([
-      baseURL,
-      `workflow/${workflowId}/restart?useLatestDefinitions=${useLatestDefinitions}`,
-    ]);
-
-    return String(json);
-  } catch (error) {
-    throw new Error("Workflow couldn't be restarted");
-  }
+): Promise<void> {
+  await sendPostRequest([baseURL, `workflow/${workflowId}/restart?useLatestDefinitions=${useLatestDefinitions}`]);
 }
 
-async function terminateWorkflow(baseURL: string, workflowId: string, reason?: string | null): Promise<string> {
-  try {
-    if (reason) {
-      await sendDeleteRequest([baseURL, `workflow/${workflowId}?reason=${reason}`]);
-    } else {
-      await sendDeleteRequest([baseURL, `workflow/${workflowId}`]);
-    }
-
-    return 'Workflow successfully terminated';
-  } catch (error) {
-    throw new Error("Workflow couldn't be terminated");
+async function terminateWorkflow(baseURL: string, workflowId: string, reason?: string | null): Promise<void> {
+  if (reason) {
+    await sendDeleteRequest([baseURL, `workflow/${workflowId}?reason=${reason}`]);
+  } else {
+    await sendDeleteRequest([baseURL, `workflow/${workflowId}`]);
   }
 }
 
@@ -133,14 +112,8 @@ async function removeWorkflow(
   baseURL: string,
   workflowId: string,
   archiveWorkflow: boolean | null = true,
-): Promise<string> {
-  try {
-    await sendDeleteRequest([baseURL, `workflow/${workflowId}/remove?archiveWorkflow=${archiveWorkflow}`]);
-
-    return 'Workflow successfully removed';
-  } catch (error) {
-    throw new Error("Workflow couldn't be removed");
-  }
+): Promise<void> {
+  await sendDeleteRequest([baseURL, `workflow/${workflowId}/remove?archiveWorkflow=${archiveWorkflow}`]);
 }
 
 async function executeNewWorkflow(baseURL: string, input: StartWorkflowInput): Promise<string> {
