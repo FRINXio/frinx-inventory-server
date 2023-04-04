@@ -549,6 +549,7 @@ export interface NexusGenObjects {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
+  TaskDefinition: SourceTypes.TaskDefinition;
   Topology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1032,6 +1033,7 @@ export interface NexusGenFieldTypes {
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
+    taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
@@ -1062,6 +1064,16 @@ export interface NexusGenFieldTypes {
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  TaskDefinition: {
+    // field return type
+    createTime: number | null; // Int
+    createdBy: string | null; // String
+    description: string | null; // String
+    name: string; // String!
+    timeoutSeconds: number; // Int!
+    updateTime: number | null; // Int
+    updatedBy: string | null; // String
   };
   Topology: {
     // field return type
@@ -1557,6 +1569,7 @@ export interface NexusGenFieldTypeNames {
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     node: 'Node';
+    taskDefinitions: 'TaskDefinition';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
@@ -1587,6 +1600,16 @@ export interface NexusGenFieldTypeNames {
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  TaskDefinition: {
+    // field return type name
+    createTime: 'Int';
+    createdBy: 'String';
+    description: 'String';
+    name: 'String';
+    timeoutSeconds: 'Int';
+    updateTime: 'Int';
+    updatedBy: 'String';
   };
   Topology: {
     // field return type name

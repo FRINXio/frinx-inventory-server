@@ -14,6 +14,8 @@ import {
   ExecutedWorkflowsOutput,
   WorkflowDetailOutput,
   WorkflowEditOutput,
+  TaskDefinitionsOutput,
+  decodeTaskDefinitionsOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -153,6 +155,12 @@ async function executeWorkflowByName(
   }
 }
 
+async function getTaskDefinitions(baseURL: string): Promise<TaskDefinitionsOutput> {
+  const json = await sendGetRequest([baseURL, 'metadata/taskdefs']);
+  const data = decodeTaskDefinitionsOutput(json);
+  return data;
+}
+
 const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
@@ -171,6 +179,7 @@ const conductorAPI = {
   removeWorkflow,
   executeNewWorkflow,
   executeWorkflowByName,
+  getTaskDefinitions,
 };
 
 export type ConductorAPI = typeof conductorAPI;

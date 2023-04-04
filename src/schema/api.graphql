@@ -591,6 +591,7 @@ type Query {
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   node(id: ID!): Node
+  taskDefinitions: [TaskDefinition!]!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
@@ -636,6 +637,16 @@ type Subscription {
 
 type SyncFromNetworkPayload {
   dataStore: DataStore
+}
+
+type TaskDefinition {
+  createTime: Int
+  createdBy: String
+  description: String
+  name: String!
+  timeoutSeconds: Int!
+  updateTime: Int
+  updatedBy: String
 }
 
 input TaskInput {
