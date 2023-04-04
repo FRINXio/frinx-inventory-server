@@ -1067,12 +1067,12 @@ export interface NexusGenFieldTypes {
   };
   TaskDefinition: {
     // field return type
-    createTime: number | null; // Int
+    createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
     name: string; // String!
     timeoutSeconds: number; // Int!
-    updateTime: number | null; // Int
+    updatedAt: string | null; // String
     updatedBy: string | null; // String
   };
   Topology: {
@@ -1603,12 +1603,12 @@ export interface NexusGenFieldTypeNames {
   };
   TaskDefinition: {
     // field return type name
-    createTime: 'Int';
+    createdAt: 'String';
     createdBy: 'String';
     description: 'String';
     name: 'String';
     timeoutSeconds: 'Int';
-    updateTime: 'Int';
+    updatedAt: 'String';
     updatedBy: 'String';
   };
   Topology: {

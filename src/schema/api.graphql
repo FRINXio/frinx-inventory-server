@@ -640,12 +640,12 @@ type SyncFromNetworkPayload {
 }
 
 type TaskDefinition {
-  createTime: Int
+  createdAt: String
   createdBy: String
   description: String
   name: String!
   timeoutSeconds: Int!
-  updateTime: Int
+  updatedAt: String
   updatedBy: String
 }
 
