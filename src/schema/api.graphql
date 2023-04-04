@@ -607,6 +607,12 @@ type ResetConfigPayload {
   dataStore: DataStore!
 }
 
+enum RetryLogic {
+  EXPONENTIAL_BACKOFF
+  FIXED
+  LINEAR_BACKOFF
+}
+
 type RevertChangesPayload {
   isOk: Boolean!
 }
@@ -640,10 +646,23 @@ type SyncFromNetworkPayload {
 }
 
 type TaskDefinition {
+  concurrentExecLimit: Int
   createdAt: String
   createdBy: String
   description: String
+  inputKeys: [String!]
+  inputTemplate: String
   name: String!
+  outputKeys: [String!]
+  ownerEmail: String
+  pollTimeoutSeconds: Int
+  rateLimitFrequencyInSeconds: Int
+  rateLimitPerFrequency: Int
+  responseTimeoutSeconds: Int
+  retryCount: Int
+  retryDelaySeconds: Int
+  retryLogic: RetryLogic
+  timeoutPolicy: TaskTimeoutPolicy
   timeoutSeconds: Int!
   updatedAt: String
   updatedBy: String
@@ -664,6 +683,12 @@ input TaskInput {
   taskReferenceName: String!
   type: String
   workflowTaskType: [WorkflowTaskType]
+}
+
+enum TaskTimeoutPolicy {
+  ALERT_ONLY
+  RETRY
+  TIME_OUT_WF
 }
 
 enum TimeoutPolicy {

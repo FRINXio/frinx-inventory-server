@@ -255,8 +255,10 @@ export interface NexusGenEnums {
     | 'SKIPPED'
     | 'TIMED_OUT';
   GraphEdgeStatus: 'ok' | 'unknown';
+  RetryLogic: 'EXPONENTIAL_BACKOFF' | 'FIXED' | 'LINEAR_BACKOFF';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
+  TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
   WorkflowTaskType:
     | 'DECISION'
@@ -1067,10 +1069,23 @@ export interface NexusGenFieldTypes {
   };
   TaskDefinition: {
     // field return type
+    concurrentExecLimit: number | null; // Int
     createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
+    inputKeys: string[] | null; // [String!]
+    inputTemplate: string | null; // String
     name: string; // String!
+    outputKeys: string[] | null; // [String!]
+    ownerEmail: string | null; // String
+    pollTimeoutSeconds: number | null; // Int
+    rateLimitFrequencyInSeconds: number | null; // Int
+    rateLimitPerFrequency: number | null; // Int
+    responseTimeoutSeconds: number | null; // Int
+    retryCount: number | null; // Int
+    retryDelaySeconds: number | null; // Int
+    retryLogic: NexusGenEnums['RetryLogic'] | null; // RetryLogic
+    timeoutPolicy: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
     timeoutSeconds: number; // Int!
     updatedAt: string | null; // String
     updatedBy: string | null; // String
@@ -1603,10 +1618,23 @@ export interface NexusGenFieldTypeNames {
   };
   TaskDefinition: {
     // field return type name
+    concurrentExecLimit: 'Int';
     createdAt: 'String';
     createdBy: 'String';
     description: 'String';
+    inputKeys: 'String';
+    inputTemplate: 'String';
     name: 'String';
+    outputKeys: 'String';
+    ownerEmail: 'String';
+    pollTimeoutSeconds: 'Int';
+    rateLimitFrequencyInSeconds: 'Int';
+    rateLimitPerFrequency: 'Int';
+    responseTimeoutSeconds: 'Int';
+    retryCount: 'Int';
+    retryDelaySeconds: 'Int';
+    retryLogic: 'RetryLogic';
+    timeoutPolicy: 'TaskTimeoutPolicy';
     timeoutSeconds: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
