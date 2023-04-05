@@ -190,12 +190,36 @@ const ExecutedWorkflowsValidator = t.type({
   results: t.array(ExecutedWorkflow),
 });
 
+const TaskDefinition = t.type({
+  name: t.string,
+  timeoutSeconds: t.number,
+  createTime: optional(t.number),
+  updateTime: optional(t.number),
+  createdBy: optional(t.string),
+  updatedBy: optional(t.string),
+  retryCount: optional(t.number),
+  pollTimeoutSeconds: optional(t.number),
+  inputKeys: optional(t.array(t.string)),
+  outputKeys: optional(t.array(t.string)),
+  inputTemplate: optional(t.record(t.string, t.string)),
+  timeoutPolicy: optional(t.union([t.literal('RETRY'), t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
+  retryLogic: optional(t.union([t.literal('FIXED'), t.literal('EXPONENTIAL_BACKOFF'), t.literal('LINEAR_BACKOFF')])),
+  retryDelaySeconds: optional(t.number),
+  responseTimeoutSeconds: optional(t.number),
+  concurrentExecLimit: optional(t.number),
+  rateLimitFrequencyInSeconds: optional(t.number),
+  rateLimitPerFrequency: optional(t.number),
+  ownerEmail: optional(t.string),
+});
+const TaskDefinitionsValidator = t.array(TaskDefinition);
+
 export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowsValidator>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type WorkflowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 export type ApiExecutedWorkflow = t.TypeOf<typeof ExecutedWorkflow>;
 export type ApiExecutedWorkflowTask = t.TypeOf<typeof ExecutedWorkflowTask>;
+export type ApiTaskDefinition = t.TypeOf<typeof TaskDefinition>;
 
 export function decodeWorkflowMetadataOutput(value: unknown): WorkflowMetadataOutput {
   return extractResult(WorkflowMetadataValidator.decode(value));
@@ -230,4 +254,10 @@ export function decodeExecutedWorkflowsOutput(value: unknown): ExecutedWorkflows
 
 export function decodeExecutedWorkflowDetailOutput(value: unknown): ApiExecutedWorkflow {
   return extractResult(ExecutedWorkflow.decode(value));
+}
+
+export type TaskDefinitionsOutput = t.TypeOf<typeof TaskDefinitionsValidator>;
+
+export function decodeTaskDefinitionsOutput(value: unknown): TaskDefinitionsOutput {
+  return extractResult(TaskDefinitionsValidator.decode(value));
 }

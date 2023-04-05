@@ -4,6 +4,7 @@ import {
   ApiExecutedWorkflowTask,
   ApiWorkflow,
   NestedTask,
+  ApiTaskDefinition,
 } from '../external-api/conductor-network-types';
 
 export type Label = label;
@@ -25,3 +26,4 @@ export type Workflow = ApiWorkflow & { id: string };
 export type ExecutedWorkflow = ApiExecutedWorkflow & { id: string };
 export type ExecutedWorkflowTask = ApiExecutedWorkflowTask & { id: string };
 export type WorkflowTask = NestedTask;
+export type TaskDefinition = ApiTaskDefinition;

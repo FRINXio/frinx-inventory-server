@@ -255,8 +255,10 @@ export interface NexusGenEnums {
     | 'SKIPPED'
     | 'TIMED_OUT';
   GraphEdgeStatus: 'ok' | 'unknown';
+  RetryLogic: 'EXPONENTIAL_BACKOFF' | 'FIXED' | 'LINEAR_BACKOFF';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
+  TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
   WorkflowTaskType:
     | 'DECISION'
@@ -549,6 +551,7 @@ export interface NexusGenObjects {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
+  TaskDefinition: SourceTypes.TaskDefinition;
   Topology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1032,6 +1035,7 @@ export interface NexusGenFieldTypes {
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     node: NexusGenRootTypes['Node'] | null; // Node
+    taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
@@ -1062,6 +1066,29 @@ export interface NexusGenFieldTypes {
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  TaskDefinition: {
+    // field return type
+    concurrentExecLimit: number | null; // Int
+    createdAt: string | null; // String
+    createdBy: string | null; // String
+    description: string | null; // String
+    inputKeys: string[] | null; // [String!]
+    inputTemplate: string | null; // String
+    name: string; // String!
+    outputKeys: string[] | null; // [String!]
+    ownerEmail: string | null; // String
+    pollTimeoutSeconds: number | null; // Int
+    rateLimitFrequencyInSeconds: number | null; // Int
+    rateLimitPerFrequency: number | null; // Int
+    responseTimeoutSeconds: number | null; // Int
+    retryCount: number | null; // Int
+    retryDelaySeconds: number | null; // Int
+    retryLogic: NexusGenEnums['RetryLogic'] | null; // RetryLogic
+    timeoutPolicy: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
+    timeoutSeconds: number; // Int!
+    updatedAt: string | null; // String
+    updatedBy: string | null; // String
   };
   Topology: {
     // field return type
@@ -1557,6 +1584,7 @@ export interface NexusGenFieldTypeNames {
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     node: 'Node';
+    taskDefinitions: 'TaskDefinition';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
@@ -1587,6 +1615,29 @@ export interface NexusGenFieldTypeNames {
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  TaskDefinition: {
+    // field return type name
+    concurrentExecLimit: 'Int';
+    createdAt: 'String';
+    createdBy: 'String';
+    description: 'String';
+    inputKeys: 'String';
+    inputTemplate: 'String';
+    name: 'String';
+    outputKeys: 'String';
+    ownerEmail: 'String';
+    pollTimeoutSeconds: 'Int';
+    rateLimitFrequencyInSeconds: 'Int';
+    rateLimitPerFrequency: 'Int';
+    responseTimeoutSeconds: 'Int';
+    retryCount: 'Int';
+    retryDelaySeconds: 'Int';
+    retryLogic: 'RetryLogic';
+    timeoutPolicy: 'TaskTimeoutPolicy';
+    timeoutSeconds: 'Int';
+    updatedAt: 'String';
+    updatedBy: 'String';
   };
   Topology: {
     // field return type name
