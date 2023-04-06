@@ -986,7 +986,10 @@ export interface NexusGenFieldTypes {
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     bulkPauseWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkRestartWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     bulkResumeWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkRetryWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkTerminateWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
@@ -1535,7 +1538,10 @@ export interface NexusGenFieldTypeNames {
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     bulkPauseWorkflow: 'BulkOperationResponse';
+    bulkRestartWorkflow: 'BulkOperationResponse';
     bulkResumeWorkflow: 'BulkOperationResponse';
+    bulkRetryWorkflow: 'BulkOperationResponse';
+    bulkTerminateWorkflow: 'BulkOperationResponse';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
@@ -1796,7 +1802,19 @@ export interface NexusGenArgTypes {
       // args
       workflowIds: string[]; // [String!]!
     };
+    bulkRestartWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
     bulkResumeWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
+    bulkRetryWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
+    bulkTerminateWorkflow: {
       // args
       workflowIds: string[]; // [String!]!
     };
