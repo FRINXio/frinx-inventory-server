@@ -2,12 +2,18 @@ import { sendGetRequest, sendPatchRequest, sendPostRequest } from './helpers';
 import {
   decodeHasAndInterfacesOutput,
   decodeLinksAndDevicesOutput,
+  decodeNetAdvertisesAndNetworks,
+  decodeNetHasAndInterfacesOutput,
+  decodeNetLinksAndDevicesOutput,
   decodeTopologyCommonNodesOutput,
   decodeTopologyDiffOutput,
   decodeUpdateCoordinatesOutput,
   decodeVersionsOutput,
   HasAndInterfacesOutput,
   LinksAndDevicesOutput,
+  NetAdvertisesAndNetworksOutput,
+  NetHasAndInterfacesOutput,
+  NetLinksAndDevicesOutput,
   TopologyCommonNodesOutput,
   TopologyDiffOutput,
   UpdateCoordinatesOutput,
@@ -65,7 +71,26 @@ async function updateCoordinates(
   nodeCoordinates: NodeCoordinatesBody[],
 ): Promise<UpdateCoordinatesOutput> {
   const json = await sendPatchRequest([baseURL, '/coordinates'], nodeCoordinates);
+  console.log(json);
   const data = decodeUpdateCoordinatesOutput(json);
+  return data;
+}
+
+async function getNetHasAndInterfaces(baseURL: string): Promise<NetHasAndInterfacesOutput> {
+  const json = await sendGetRequest([baseURL, '/net-has-and-interfaces']);
+  const data = decodeNetHasAndInterfacesOutput(json);
+  return data;
+}
+
+async function getNetLinksAndDevices(baseURL: string): Promise<NetLinksAndDevicesOutput> {
+  const json = await sendGetRequest([baseURL, '/net-links-and-devices']);
+  const data = decodeNetLinksAndDevicesOutput(json);
+  return data;
+}
+
+async function getNetAdvertisesAndNetworks(baseURL: string): Promise<NetAdvertisesAndNetworksOutput> {
+  const json = await sendGetRequest([baseURL, '/net-advertises-and-networks']);
+  const data = decodeNetAdvertisesAndNetworks(json);
   return data;
 }
 
@@ -76,6 +101,9 @@ const topologyDiscoveryAPI = {
   getLinksAndDevices,
   getHasAndInterfaces,
   updateCoordinates,
+  getNetHasAndInterfaces,
+  getNetLinksAndDevices,
+  getNetAdvertisesAndNetworks,
 };
 
 export type TopologyDiscoveryAPI = typeof topologyDiscoveryAPI;
