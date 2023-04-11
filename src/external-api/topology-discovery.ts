@@ -71,7 +71,6 @@ async function updateCoordinates(
   nodeCoordinates: NodeCoordinatesBody[],
 ): Promise<UpdateCoordinatesOutput> {
   const json = await sendPatchRequest([baseURL, '/coordinates'], nodeCoordinates);
-  console.log(json);
   const data = decodeUpdateCoordinatesOutput(json);
   return data;
 }
