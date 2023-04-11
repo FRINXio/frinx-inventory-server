@@ -3,7 +3,6 @@ import {
   ArangoEdge,
   ArangoEdgeWithStatus,
   EdgeWithStatus,
-  InterfaceWithStatus,
   Status,
   TopologyDiffOutput,
 } from '../external-api/topology-network-types';
@@ -90,7 +89,7 @@ export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: 
   return oldConnected;
 }
 
-export function makeInterfaceDeviceMap(edges: EdgeWithStatus[]): Record<string, string> {
+export function makeInterfaceDeviceMap<T extends { _to: string; _from: string }>(edges: T[]): Record<string, string> {
   return edges.reduce((acc, curr, _, arr) => {
     const device = unwrap(arr.find((intfc) => intfc._to === curr._to)?._from);
     return {
@@ -100,11 +99,14 @@ export function makeInterfaceDeviceMap(edges: EdgeWithStatus[]): Record<string, 
   }, {});
 }
 
-export function makeInterfaceNameMap(interfaces: InterfaceWithStatus[]): Record<string, string> {
+export function makeInterfaceNameMap<T extends { _id: string }>(
+  interfaces: T[],
+  getName: (value: T) => string,
+): Record<string, string> {
   return interfaces.reduce(
     (acc, curr) => ({
       ...acc,
-      [curr._id]: curr.name,
+      [curr._id]: getName(curr),
     }),
     {},
   );
@@ -122,11 +124,29 @@ export function makeInterfaceMap(edges: EdgeWithStatus[], interfaceNameMap: Reco
   }, {} as InterfaceMap);
 }
 
-export function makeNodesMap(nodes: ArangoDevice[]): Record<string, string> {
+export type NetInterfaceMap = Record<string, { id: string; name: string }[]>;
+
+export function makeNetInterfaceMap<T extends { _from: string; _to: string }>(
+  edges: T[],
+  interfaceNameMap: Record<string, string>,
+): NetInterfaceMap {
+  return edges.reduce((acc, curr) => {
+    const item = { id: curr._to, name: interfaceNameMap[curr._to] };
+    return {
+      ...acc,
+      [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], item] : [item],
+    };
+  }, {} as NetInterfaceMap);
+}
+
+export function makeNodesMap<T extends { _id: string }>(
+  nodes: T[],
+  getName: (value: T) => string,
+): Record<string, string> {
   return nodes.reduce(
     (acc, curr) => ({
       ...acc,
-      [curr._id]: curr.name,
+      [curr._id]: getName(curr),
     }),
     {} as Record<string, string>,
   );

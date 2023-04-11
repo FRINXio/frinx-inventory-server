@@ -360,6 +360,30 @@ export interface NexusGenObjects {
     node: NexusGenRootTypes['Location']; // Location!
   };
   Mutation: {};
+  NetInterface: {
+    // root type
+    id: string; // String!
+    name: string; // String!
+  };
+  NetNetwork: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // String!
+    subnet: string; // String!
+  };
+  NetNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
+    name: string; // String!
+    networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+  };
+  NetTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
   PageInfo: {
     // root type
     endCursor?: string | null; // String
@@ -747,6 +771,30 @@ export interface NexusGenFieldTypes {
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
   };
+  NetInterface: {
+    // field return type
+    id: string; // String!
+    name: string; // String!
+  };
+  NetNetwork: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // String!
+    subnet: string; // String!
+  };
+  NetNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
+    name: string; // String!
+    networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+  };
+  NetTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -763,6 +811,7 @@ export interface NexusGenFieldTypes {
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
+    netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -1155,6 +1204,30 @@ export interface NexusGenFieldTypeNames {
     updateDevice: 'UpdateDevicePayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
   };
+  NetInterface: {
+    // field return type name
+    id: 'String';
+    name: 'String';
+  };
+  NetNetwork: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'String';
+    subnet: 'String';
+  };
+  NetNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'ID';
+    interfaces: 'NetInterface';
+    name: 'String';
+    networks: 'NetNetwork';
+  };
+  NetTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'NetNode';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1171,6 +1244,7 @@ export interface NexusGenFieldTypeNames {
     devices: 'DeviceConnection';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
+    netTopology: 'NetTopology';
     node: 'Node';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
