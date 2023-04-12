@@ -90,10 +90,10 @@ export type ArangoEdge = t.TypeOf<typeof Edge>;
 export type ArangoEdgeWithStatus = t.TypeOf<typeof EdgeWithStatusValidator>;
 
 const Diff = t.type({
-  phy_device: t.array(DeviceValidator),
-  phy_has: t.array(EdgeWithStatusValidator),
-  phy_interface: t.array(InterfaceWithStatusValidator),
-  phy_link: t.array(Edge),
+  PhyDevice: t.array(DeviceValidator),
+  PhyHas: t.array(EdgeWithStatusValidator),
+  PhyInterface: t.array(InterfaceWithStatusValidator),
+  PhyLink: t.array(Edge),
 });
 
 const ChangedDevice = t.type({
@@ -115,10 +115,10 @@ const ChangedEdgeWithStatusValidator = t.type({
 });
 
 const ChangeDiff = t.type({
-  phy_device: t.array(ChangedDevice),
-  phy_has: t.array(ChangedEdgeWithStatusValidator),
-  phy_interface: t.array(ChangedInterface),
-  phy_link: t.array(ChangedEdge),
+  PhyDevice: t.array(ChangedDevice),
+  PhyHas: t.array(ChangedEdgeWithStatusValidator),
+  PhyInterface: t.array(ChangedInterface),
+  PhyLink: t.array(ChangedEdge),
 });
 
 const TopologyDiffOutputValidator = t.type({
