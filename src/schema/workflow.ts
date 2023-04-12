@@ -16,14 +16,19 @@ import {
 } from 'nexus';
 import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
-import { toGraphId } from '../helpers/id-helper';
-import { validateTasks } from '../helpers/workflow-helpers';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import getLogger from '../get-logger';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
-import { getFilteredWorkflows, makePaginationFromArgs, makeSearchQueryFromArgs } from '../helpers/workflow.helpers';
+import {
+  getFilteredWorkflows,
+  getSubworkflows,
+  makePaginationFromArgs,
+  makeSearchQueryFromArgs,
+  validateTasks,
+} from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
-import { parseJson } from '../helpers/utils.helpers';
+import { parseJson, unwrap } from '../helpers/utils.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
@@ -197,7 +202,7 @@ export const ExecutedWorkflow = objectType({
     t.int('workflowVersion');
     t.string('workflowName');
     t.string('workflowId');
-    t.list.field('tasks', {
+    t.list.nonNull.field('tasks', {
       type: ExecutedWorkflowTask,
     });
   },
@@ -292,6 +297,61 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
         startCursor: executedWorkflowsWithId[0]?.id,
       },
       totalCount: executedWorkflows.length,
+    };
+  },
+});
+
+const SubWorkflow = objectType({
+  name: 'SubWorkflow',
+  definition: (t) => {
+    t.nonNull.string('taskReferenceName');
+    t.list.nonNull.field('workflowDetail', { type: Workflow });
+    t.list.nonNull.field('executedWorkflowDetail', { type: Workflow });
+  },
+});
+
+const WorkflowInstanceDetail = objectType({
+  name: 'WorkflowInstanceDetail',
+  definition: (t) => {
+    t.nonNull.field('result', { type: ExecutedWorkflow });
+    t.field('meta', { type: Workflow });
+    t.field('subworkflows', { type: list(nonNull(SubWorkflow)) });
+  },
+});
+
+export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
+  type: WorkflowInstanceDetail,
+  args: {
+    id: nonNull(stringArg()),
+    shouldIncludeTasks: booleanArg(),
+  },
+  resolve: async (_, args, { conductorAPI }) => {
+    const { id, shouldIncludeTasks } = args;
+    const workflowId = fromGraphId('ExecutedWorkflow', id);
+
+    const result = await conductorAPI.getExecutedWorkflowDetail(
+      config.conductorApiURL,
+      workflowId,
+      shouldIncludeTasks ?? false,
+    );
+
+    const meta = result.workflowDefinition
+      ? null
+      : await conductorAPI.getWorkflowDetail(
+          config.conductorApiURL,
+          unwrap(result.workflowName || null),
+          result.workflowVersion || undefined,
+        );
+
+    const subWorkflows = getSubworkflows({
+      ...result,
+      id: toGraphId('ExecutedWorkflow', unwrap(result.workflowName || null)),
+    });
+
+    return {
+      result: { ...result, id: toGraphId('ExecutedWorkflow', unwrap(result.workflowName || null)) },
+      meta: meta ? { ...meta, id: toGraphId('Workflow', meta.name) } : null,
+      subWorkflows,
     };
   },
 });

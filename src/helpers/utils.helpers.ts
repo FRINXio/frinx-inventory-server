@@ -1,4 +1,4 @@
-export function unwrap<T>(value: T | null | undefined): T {
+export function unwrap<T>(value: T | null | undefined | void): T {
   if (value == null) {
     throw new Error(`value is of type ${typeof value}`);
   }

@@ -117,6 +117,7 @@ const ExecutedWorkflowStatus = t.union([
 const ExecutedWorkflowTask = t.type({
   taskType: optional(t.string),
   status: optional(ExecutedWorkflowTaskStatus),
+  inputData: optional(t.record(t.string, t.unknown)),
   referenceTaskName: optional(t.string),
   retryCount: optional(t.number),
   seq: optional(t.number),
@@ -165,7 +166,7 @@ const ExecutedWorkflow = t.type({
   workflowId: optional(t.string),
   parentWorkflowId: optional(t.string),
   parentWorkflowTaskId: optional(t.string),
-  tasks: t.array(optional(ExecutedWorkflowTask)),
+  tasks: optional(t.array(ExecutedWorkflowTask)),
   input: optional(t.UnknownRecord),
   output: optional(t.UnknownRecord),
   correlationId: optional(t.string),

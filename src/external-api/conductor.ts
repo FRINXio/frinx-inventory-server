@@ -25,8 +25,22 @@ async function getWorkflowMetadata(baseURL: string): Promise<WorkflowMetadataOut
   return data;
 }
 
-async function getWorkflowDetail(baseURL: string, workflowName: string): Promise<WorkflowDetailOutput> {
-  const json = await sendGetRequest([baseURL, `metadata/workflow/${workflowName}`]);
+// this type is annotated based on real request data (it is no annotated in swagger)
+export type SubWorkflowInputData = {
+  subWorkflowDefinition: WorkflowDetailOutput | null;
+  workflowInput: Record<string, unknown>;
+  subWorkflowTaskToDomain: unknown | null;
+  subWorkflowName: string;
+  subWorkflowVersion: number;
+};
+
+async function getWorkflowDetail(
+  baseURL: string,
+  workflowName: string,
+  version?: number,
+): Promise<WorkflowDetailOutput> {
+  const query = version ? `?version=${version}` : null;
+  const json = await sendGetRequest([baseURL, `metadata/workflow/${workflowName}${query}`]);
   const data = decodeWorkflowDetailOutput(json);
   return data;
 }
@@ -79,8 +93,13 @@ async function getExecutedWorkflows(
   return data;
 }
 
-async function getExecutedWorkflowDetail(baseURL: string, workflowId: string): Promise<ApiExecutedWorkflow> {
-  const json = await sendGetRequest([baseURL, `workflow/${workflowId}`]);
+async function getExecutedWorkflowDetail(
+  baseURL: string,
+  workflowId: string,
+  shouldIncludeTasks?: boolean,
+): Promise<ApiExecutedWorkflow> {
+  const query = shouldIncludeTasks === false ? '?includeTasks=false' : '';
+  const json = await sendGetRequest([baseURL, `workflow/${workflowId}${query}`]);
   const data = decodeExecutedWorkflowDetailOutput(json);
 
   return data;
