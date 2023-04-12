@@ -257,10 +257,10 @@ export const TopologyVersionDataQuery = extendType({
         const interfaceNameMap = makeInterfaceNameMap(
           [
             ...interfaces,
-            ...result.deleted.phy_interface,
-            ...result.added.phy_interface,
-            ...result.changed.phy_interface.map((i) => i.new),
-            ...result.changed.phy_interface.map((i) => i.old),
+            ...result.deleted.PhyInterface,
+            ...result.added.PhyInterface,
+            ...result.changed.PhyInterface.map((i) => i.new),
+            ...result.changed.PhyInterface.map((i) => i.old),
           ],
           (i) => i.name,
         );
