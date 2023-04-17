@@ -570,6 +570,12 @@ export interface NexusGenObjects {
     createdAt: string; // String!
     name: string; // String!
   };
+  SubWorkflow: {
+    // root type
+    executedWorkflowDetail?: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+    taskReferenceName: string; // String!
+    workflowDetail?: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+  };
   Subscription: {};
   SyncFromNetworkPayload: {
     // root type
@@ -646,6 +652,12 @@ export interface NexusGenObjects {
     // root type
     cursor: string; // String!
     node: NexusGenRootTypes['Workflow']; // Workflow!
+  };
+  WorkflowInstanceDetail: {
+    // root type
+    meta?: NexusGenRootTypes['Workflow'] | null; // Workflow
+    result: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
+    subworkflows?: NexusGenRootTypes['SubWorkflow'][] | null; // [SubWorkflow!]
   };
   Zone: SourceTypes.Zone;
   ZoneEdge: {
@@ -875,7 +887,7 @@ export interface NexusGenFieldTypes {
     reasonForIncompletion: string | null; // String
     startTime: string | null; // String
     status: NexusGenEnums['ExecutedWorkflowStatus'] | null; // ExecutedWorkflowStatus
-    tasks: Array<NexusGenRootTypes['ExecutedWorkflowTask'] | null> | null; // [ExecutedWorkflowTask]
+    tasks: NexusGenRootTypes['ExecutedWorkflowTask'][] | null; // [ExecutedWorkflowTask!]
     updatedAt: string | null; // String
     updatedBy: string | null; // String
     variables: string | null; // String
@@ -1094,6 +1106,7 @@ export interface NexusGenFieldTypes {
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
+    workflowInstanceDetail: NexusGenRootTypes['WorkflowInstanceDetail'] | null; // WorkflowInstanceDetail
     workflowLabels: string[]; // [String!]!
     workflows: NexusGenRootTypes['WorkflowConnection']; // WorkflowConnection!
     zones: NexusGenRootTypes['ZonesConnection']; // ZonesConnection!
@@ -1110,6 +1123,12 @@ export interface NexusGenFieldTypes {
     // field return type
     createdAt: string; // String!
     name: string; // String!
+  };
+  SubWorkflow: {
+    // field return type
+    executedWorkflowDetail: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+    taskReferenceName: string; // String!
+    workflowDetail: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
   };
   Subscription: {
     // field return type
@@ -1225,6 +1244,12 @@ export interface NexusGenFieldTypes {
     // field return type
     cursor: string; // String!
     node: NexusGenRootTypes['Workflow']; // Workflow!
+  };
+  WorkflowInstanceDetail: {
+    // field return type
+    meta: NexusGenRootTypes['Workflow'] | null; // Workflow
+    result: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
+    subworkflows: NexusGenRootTypes['SubWorkflow'][] | null; // [SubWorkflow!]
   };
   Zone: {
     // field return type
@@ -1671,6 +1696,7 @@ export interface NexusGenFieldTypeNames {
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
+    workflowInstanceDetail: 'WorkflowInstanceDetail';
     workflowLabels: 'String';
     workflows: 'WorkflowConnection';
     zones: 'ZonesConnection';
@@ -1687,6 +1713,12 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     createdAt: 'String';
     name: 'String';
+  };
+  SubWorkflow: {
+    // field return type name
+    executedWorkflowDetail: 'Workflow';
+    taskReferenceName: 'String';
+    workflowDetail: 'Workflow';
   };
   Subscription: {
     // field return type name
@@ -1802,6 +1834,12 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     cursor: 'String';
     node: 'Workflow';
+  };
+  WorkflowInstanceDetail: {
+    // field return type name
+    meta: 'Workflow';
+    result: 'ExecutedWorkflow';
+    subworkflows: 'SubWorkflow';
   };
   Zone: {
     // field return type name
@@ -2095,6 +2133,11 @@ export interface NexusGenArgTypes {
     topologyVersionData: {
       // args
       version: string; // String!
+    };
+    workflowInstanceDetail: {
+      // args
+      id: string; // String!
+      shouldIncludeTasks?: boolean | null; // Boolean
     };
     workflows: {
       // args
