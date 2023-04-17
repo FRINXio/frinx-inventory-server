@@ -9,9 +9,11 @@ import {
   makeInterfaceDeviceMap,
   makeInterfaceMap,
   makeInterfaceNameMap,
+  makeNetInterfaceMap,
   makeNodesMap,
 } from '../helpers/topology.helpers';
 import { unwrap, omitNullValue } from '../helpers/utils.helpers';
+import { NetNetwork as NetNetworkType } from '../external-api/topology-network-types';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',
@@ -138,7 +140,7 @@ export const TopologyQuery = extendType({
           unwrap(config.topologyDiscoveryURL),
         );
         const interfaceDeviceMap = makeInterfaceDeviceMap(interfaceEdges);
-        const interfaceNameMap = makeInterfaceNameMap(interfaces);
+        const interfaceNameMap = makeInterfaceNameMap(interfaces, (i) => i.name);
         const interfaceMap = makeInterfaceMap(interfaceEdges, interfaceNameMap);
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
@@ -147,7 +149,7 @@ export const TopologyQuery = extendType({
         const dbDevices = await prisma.device.findMany({ where: { tenantId, ...filterQuery } });
         const linksAndDevices = await topologyDiscoveryAPI.getLinksAndDevices(unwrap(config.topologyDiscoveryURL));
         const { nodes, edges } = linksAndDevices;
-        const nodesMap = makeNodesMap(nodes);
+        const nodesMap = makeNodesMap(nodes, (n) => n.name);
         return {
           nodes: dbDevices
             .map((device) => {
@@ -251,15 +253,18 @@ export const TopologyVersionDataQuery = extendType({
         );
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
         const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
-        const interfaceNameMap = makeInterfaceNameMap([
-          ...interfaces,
-          ...result.deleted.phy_interface,
-          ...result.added.phy_interface,
-          ...result.changed.phy_interface.map((i) => i.new),
-          ...result.changed.phy_interface.map((i) => i.old),
-        ]);
+        const interfaceNameMap = makeInterfaceNameMap(
+          [
+            ...interfaces,
+            ...result.deleted.PhyInterface,
+            ...result.added.PhyInterface,
+            ...result.changed.PhyInterface.map((i) => i.new),
+            ...result.changed.PhyInterface.map((i) => i.old),
+          ],
+          (i) => i.name,
+        );
         const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);
-        const nodesMap = makeNodesMap(oldDevices);
+        const nodesMap = makeNodesMap(oldDevices, (d) => d.name);
 
         const oldEdges = getOldTopologyConnectedEdges(edges, result)
           .map((e) => ({
@@ -322,7 +327,104 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
         const { input } = args;
         const apiParams = input.map((i) => ({ device: i.deviceName, x: i.x, y: i.y }));
         const response = await topologyDiscoveryAPI.updateCoordinates(unwrap(config.topologyDiscoveryURL), apiParams);
-        return { deviceNames: response.updated_devices };
+        return { deviceNames: response.updated };
+      },
+    });
+  },
+});
+
+export const NetInterface = objectType({
+  name: 'NetInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
+  },
+});
+
+export const NetNetwork = objectType({
+  name: 'NetNetwork',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('subnet');
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+  },
+});
+
+export const NetNode = objectType({
+  name: 'NetNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.string('name');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(NetInterface) });
+    t.nonNull.list.nonNull.field('networks', { type: nonNull(NetNetwork) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+  },
+});
+
+export const NetTopology = objectType({
+  name: 'NetTopology',
+  definition: (t) => {
+    t.nonNull.list.field('edges', { type: nonNull(GraphEdge) });
+    t.nonNull.list.field('nodes', { type: nonNull(NetNode) });
+  },
+});
+
+export const NetTopologyQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.field('netTopology', {
+      type: NetTopology,
+      resolve: async (root, _, { topologyDiscoveryAPI }) => {
+        if (!config.topologyEnabled) {
+          return null;
+        }
+        const topologyDiscoveryURL = unwrap(config.topologyDiscoveryURL);
+
+        const { has: interfaceEdges, interfaces } = await topologyDiscoveryAPI.getNetHasAndInterfaces(
+          topologyDiscoveryURL,
+        );
+        const interfaceDeviceMap = makeInterfaceDeviceMap(interfaceEdges);
+        const interfaceNameMap = makeInterfaceNameMap(interfaces, (i) => i.ip_address);
+        const interfaceMap = makeNetInterfaceMap(interfaceEdges, interfaceNameMap);
+        const linksAndDevices = await topologyDiscoveryAPI.getNetLinksAndDevices(topologyDiscoveryURL);
+        const { nodes, edges } = linksAndDevices;
+        const nodesMap = makeNodesMap(nodes, (n) => n.router_id);
+        const { advertises, networks } = await topologyDiscoveryAPI.getNetAdvertisesAndNetworks(topologyDiscoveryURL);
+
+        const networkMap: Record<string, NetNetworkType[]> = advertises.reduce((acc, curr) => {
+          const network = unwrap(networks.find((n) => n._id === curr._to));
+          return {
+            ...acc,
+            [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], network] : [network],
+          };
+        }, {} as Record<string, NetNetworkType[]>);
+
+        return {
+          nodes: nodes.map((n) => ({
+            id: toGraphId('GraphNode', n._key),
+            name: n.router_id,
+            interfaces: interfaceMap[n._id] ?? [],
+            coordinates: n.coordinates,
+            networks: (networkMap[n._id] ?? []).map((ntw) => {
+              const { _id, ...rest } = ntw;
+              return {
+                id: _id,
+                ...rest,
+              };
+            }),
+          })),
+          edges: edges.map((e) => ({
+            id: e._id,
+            source: {
+              interface: e._from,
+              nodeId: nodesMap[interfaceDeviceMap[e._from]],
+            },
+            target: {
+              interface: e._to,
+              nodeId: nodesMap[interfaceDeviceMap[e._to]],
+            },
+          })),
+        };
       },
     });
   },

@@ -558,6 +558,30 @@ type Mutation {
   updateWorkflow(id: String!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
 }
 
+type NetInterface {
+  id: String!
+  name: String!
+}
+
+type NetNetwork {
+  coordinates: GraphNodeCoordinates!
+  id: String!
+  subnet: String!
+}
+
+type NetNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [NetInterface!]!
+  name: String!
+  networks: [NetNetwork!]!
+}
+
+type NetTopology {
+  edges: [GraphEdge!]!
+  nodes: [NetNode!]!
+}
+
 interface Node {
   id: ID!
 }
@@ -590,6 +614,7 @@ type Query {
   executedWorkflows(pagination: PaginationArgs, searchQuery: ExecutedWorkflowSearchInput): ExecutedWorkflowConnection
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  netTopology: NetTopology
   node(id: ID!): Node
   taskDefinitions: [TaskDefinition!]!
   topology(filter: FilterTopologyInput): Topology
