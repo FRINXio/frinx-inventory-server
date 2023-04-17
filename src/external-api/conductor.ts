@@ -7,15 +7,14 @@ import {
   decodeExecutedWorkflowDetailOutput,
   decodeExecutedWorkflowsOutput,
   decodeWorkflowDetailOutput,
-  decodeWorkflowEditOutput,
   decodeWorkflowMetadataOutput,
   WorkflowMetadataOutput,
   WorkflowDetailInput,
   ExecutedWorkflowsOutput,
   WorkflowDetailOutput,
-  WorkflowEditOutput,
   TaskDefinitionsOutput,
   decodeTaskDefinitionsOutput,
+  decodeBulkTerminateOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -49,9 +48,9 @@ async function createWorkflow(baseURL: string, workflow: WorkflowDetailInput): P
   await sendPostRequest([baseURL, 'metadata/workflow'], workflow);
 }
 
-async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Promise<WorkflowEditOutput> {
+async function editWorkflow(baseURL: string, workflow: WorkflowDetailInput): Promise<BulkOperationOutput> {
   const json = await sendPutRequest([baseURL, 'metadata/workflow'], [workflow]);
-  const data = decodeWorkflowEditOutput(json);
+  const data = decodeBulkOperationOutput(json);
   return data;
 }
 
@@ -78,6 +77,24 @@ async function bulkPauseWorkflow(baseURL: string, workflowIds: string[]): Promis
   const json = await sendPutRequest([baseURL, `workflow/bulk/pause`], workflowIds);
   const data = decodeBulkOperationOutput(json);
 
+  return data;
+}
+
+async function bulkTerminateWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
+  const json = await sendPostRequest([baseURL, `workflow/bulk/terminate`], workflowIds);
+  const data = decodeBulkTerminateOutput(json);
+  return data;
+}
+
+async function bulkRetryWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
+  const json = await sendPostRequest([baseURL, `workflow/bulk/retry`], workflowIds);
+  const data = decodeBulkTerminateOutput(json);
+  return data;
+}
+
+async function bulkRestartWorkflow(baseURL: string, workflowIds: string[]): Promise<BulkOperationOutput> {
+  const json = await sendPostRequest([baseURL, `workflow/bulk/restart`], workflowIds);
+  const data = decodeBulkTerminateOutput(json);
   return data;
 }
 
@@ -190,6 +207,9 @@ const conductorAPI = {
   resumeWorkflow,
   bulkResumeWorkflow,
   bulkPauseWorkflow,
+  bulkTerminateWorkflow,
+  bulkRetryWorkflow,
+  bulkRestartWorkflow,
   getExecutedWorkflows,
   getExecutedWorkflowDetail,
   retryWorkflow,

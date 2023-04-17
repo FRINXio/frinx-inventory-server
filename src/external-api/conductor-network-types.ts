@@ -233,16 +233,6 @@ export function decodeWorkflowDetailOutput(value: unknown): WorkflowDetailOutput
   return extractResult(WorkflowMetadata.decode(value));
 }
 
-const WorkflowEditValidator = t.type({
-  bulkErrorResults: t.record(t.string, t.string),
-  bulkSuccessfulResults: t.array(t.string),
-});
-
-export type WorkflowEditOutput = t.TypeOf<typeof WorkflowEditValidator>;
-
-export function decodeWorkflowEditOutput(value: unknown): WorkflowEditOutput {
-  return extractResult(WorkflowEditValidator.decode(value));
-}
 export type BulkOperationOutput = t.TypeOf<typeof BulkOperation>;
 
 export function decodeBulkOperationOutput(value: unknown): BulkOperationOutput {
@@ -261,4 +251,16 @@ export type TaskDefinitionsOutput = t.TypeOf<typeof TaskDefinitionsValidator>;
 
 export function decodeTaskDefinitionsOutput(value: unknown): TaskDefinitionsOutput {
   return extractResult(TaskDefinitionsValidator.decode(value));
+}
+
+export function decodeBulkTerminateOutput(value: unknown): BulkOperationOutput {
+  return extractResult(BulkOperation.decode(value));
+}
+
+export function decodeBulkRetryOutput(value: unknown): BulkOperationOutput {
+  return extractResult(BulkOperation.decode(value));
+}
+
+export function decodeBulkRestartOutput(value: unknown): BulkOperationOutput {
+  return extractResult(BulkOperation.decode(value));
 }

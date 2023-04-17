@@ -525,6 +525,30 @@ export interface NexusGenObjects {
     node: NexusGenRootTypes['Location']; // Location!
   };
   Mutation: {};
+  NetInterface: {
+    // root type
+    id: string; // String!
+    name: string; // String!
+  };
+  NetNetwork: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // String!
+    subnet: string; // String!
+  };
+  NetNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
+    name: string; // String!
+    networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+  };
+  NetTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
   PageInfo: {
     // root type
     endCursor?: string | null; // String
@@ -998,7 +1022,10 @@ export interface NexusGenFieldTypes {
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     bulkPauseWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkRestartWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     bulkResumeWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkRetryWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkTerminateWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
@@ -1029,6 +1056,30 @@ export interface NexusGenFieldTypes {
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
     updateWorkflow: NexusGenRootTypes['UpdateWorkflowPayload']; // UpdateWorkflowPayload!
   };
+  NetInterface: {
+    // field return type
+    id: string; // String!
+    name: string; // String!
+  };
+  NetNetwork: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // String!
+    subnet: string; // String!
+  };
+  NetNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
+    name: string; // String!
+    networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+  };
+  NetTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -1046,6 +1097,7 @@ export interface NexusGenFieldTypes {
     executedWorkflows: NexusGenRootTypes['ExecutedWorkflowConnection'] | null; // ExecutedWorkflowConnection
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
+    netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
     taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
@@ -1560,7 +1612,10 @@ export interface NexusGenFieldTypeNames {
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     bulkPauseWorkflow: 'BulkOperationResponse';
+    bulkRestartWorkflow: 'BulkOperationResponse';
     bulkResumeWorkflow: 'BulkOperationResponse';
+    bulkRetryWorkflow: 'BulkOperationResponse';
+    bulkTerminateWorkflow: 'BulkOperationResponse';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
@@ -1591,6 +1646,30 @@ export interface NexusGenFieldTypeNames {
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
     updateWorkflow: 'UpdateWorkflowPayload';
   };
+  NetInterface: {
+    // field return type name
+    id: 'String';
+    name: 'String';
+  };
+  NetNetwork: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'String';
+    subnet: 'String';
+  };
+  NetNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'ID';
+    interfaces: 'NetInterface';
+    name: 'String';
+    networks: 'NetNetwork';
+  };
+  NetTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'NetNode';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1608,6 +1687,7 @@ export interface NexusGenFieldTypeNames {
     executedWorkflows: 'ExecutedWorkflowConnection';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
+    netTopology: 'NetTopology';
     node: 'Node';
     taskDefinitions: 'TaskDefinition';
     topology: 'Topology';
@@ -1834,7 +1914,19 @@ export interface NexusGenArgTypes {
       // args
       workflowIds: string[]; // [String!]!
     };
+    bulkRestartWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
     bulkResumeWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
+    bulkRetryWorkflow: {
+      // args
+      workflowIds: string[]; // [String!]!
+    };
+    bulkTerminateWorkflow: {
       // args
       workflowIds: string[]; // [String!]!
     };

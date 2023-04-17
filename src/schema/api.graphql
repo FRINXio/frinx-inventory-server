@@ -498,7 +498,10 @@ type Mutation {
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
   bulkPauseWorkflow(workflowIds: [String!]!): BulkOperationResponse
+  bulkRestartWorkflow(workflowIds: [String!]!): BulkOperationResponse
   bulkResumeWorkflow(workflowIds: [String!]!): BulkOperationResponse
+  bulkRetryWorkflow(workflowIds: [String!]!): BulkOperationResponse
+  bulkTerminateWorkflow(workflowIds: [String!]!): BulkOperationResponse
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
@@ -558,6 +561,30 @@ type Mutation {
   updateWorkflow(id: String!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
 }
 
+type NetInterface {
+  id: String!
+  name: String!
+}
+
+type NetNetwork {
+  coordinates: GraphNodeCoordinates!
+  id: String!
+  subnet: String!
+}
+
+type NetNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [NetInterface!]!
+  name: String!
+  networks: [NetNetwork!]!
+}
+
+type NetTopology {
+  edges: [GraphEdge!]!
+  nodes: [NetNode!]!
+}
+
 interface Node {
   id: ID!
 }
@@ -590,6 +617,7 @@ type Query {
   executedWorkflows(pagination: PaginationArgs, searchQuery: ExecutedWorkflowSearchInput): ExecutedWorkflowConnection
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  netTopology: NetTopology
   node(id: ID!): Node
   taskDefinitions: [TaskDefinition!]!
   topology(filter: FilterTopologyInput): Topology
