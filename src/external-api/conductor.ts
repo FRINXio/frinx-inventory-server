@@ -38,7 +38,7 @@ async function getWorkflowDetail(
   workflowName: string,
   version?: number,
 ): Promise<WorkflowDetailOutput> {
-  const query = version ? `?version=${version}` : null;
+  const query = version ? `?version=${version}` : '';
   const json = await sendGetRequest([baseURL, `metadata/workflow/${workflowName}${query}`]);
   const data = decodeWorkflowDetailOutput(json);
   return data;

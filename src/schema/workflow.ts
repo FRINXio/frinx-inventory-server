@@ -305,8 +305,8 @@ const SubWorkflow = objectType({
   name: 'SubWorkflow',
   definition: (t) => {
     t.nonNull.string('taskReferenceName');
-    t.list.nonNull.field('workflowDetail', { type: Workflow });
-    t.list.nonNull.field('executedWorkflowDetail', { type: Workflow });
+    t.nonNull.field('workflowDetail', { type: Workflow });
+    t.nonNull.field('executedWorkflowDetail', { type: ExecutedWorkflow });
   },
 });
 
@@ -343,7 +343,7 @@ export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
           result.workflowVersion || undefined,
         );
 
-    const subWorkflows = getSubworkflows({
+    const subworkflows = await getSubworkflows({
       ...result,
       id: toGraphId('ExecutedWorkflow', unwrap(result.workflowName || null)),
     });
@@ -351,7 +351,7 @@ export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
     return {
       result: { ...result, id: toGraphId('ExecutedWorkflow', unwrap(result.workflowName || null)) },
       meta: meta ? { ...meta, id: toGraphId('Workflow', meta.name) } : null,
-      subWorkflows,
+      subworkflows,
     };
   },
 });

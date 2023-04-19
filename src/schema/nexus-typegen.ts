@@ -572,9 +572,9 @@ export interface NexusGenObjects {
   };
   SubWorkflow: {
     // root type
-    executedWorkflowDetail?: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+    executedWorkflowDetail: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
     taskReferenceName: string; // String!
-    workflowDetail?: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+    workflowDetail: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Subscription: {};
   SyncFromNetworkPayload: {
@@ -1126,9 +1126,9 @@ export interface NexusGenFieldTypes {
   };
   SubWorkflow: {
     // field return type
-    executedWorkflowDetail: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+    executedWorkflowDetail: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
     taskReferenceName: string; // String!
-    workflowDetail: NexusGenRootTypes['Workflow'][] | null; // [Workflow!]
+    workflowDetail: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Subscription: {
     // field return type
@@ -1716,7 +1716,7 @@ export interface NexusGenFieldTypeNames {
   };
   SubWorkflow: {
     // field return type name
-    executedWorkflowDetail: 'Workflow';
+    executedWorkflowDetail: 'ExecutedWorkflow';
     taskReferenceName: 'String';
     workflowDetail: 'Workflow';
   };
