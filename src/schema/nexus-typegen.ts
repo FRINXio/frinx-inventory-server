@@ -1912,11 +1912,11 @@ export interface NexusGenArgTypes {
     };
     bulkPauseWorkflow: {
       // args
-      workflowIds: string[]; // [String!]!
+      executedWorkflowIds: string[]; // [String!]!
     };
     bulkRestartWorkflow: {
       // args
-      workflowIds: string[]; // [String!]!
+      executedWorkflowIds: string[]; // [String!]!
     };
     bulkResumeWorkflow: {
       // args
@@ -1924,11 +1924,11 @@ export interface NexusGenArgTypes {
     };
     bulkRetryWorkflow: {
       // args
-      workflowIds: string[]; // [String!]!
+      executedWorkflowIds: string[]; // [String!]!
     };
     bulkTerminateWorkflow: {
       // args
-      workflowIds: string[]; // [String!]!
+      executedWorkflowIds: string[]; // [String!]!
     };
     closeTransaction: {
       // args
