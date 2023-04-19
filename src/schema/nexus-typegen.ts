@@ -1920,7 +1920,7 @@ export interface NexusGenArgTypes {
     };
     bulkResumeWorkflow: {
       // args
-      workflowIds: string[]; // [String!]!
+      executedWorkflowIds: string[]; // [String!]!
     };
     bulkRetryWorkflow: {
       // args

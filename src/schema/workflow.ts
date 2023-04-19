@@ -606,10 +606,11 @@ export const BulkOperationResponse = objectType({
 export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
   type: BulkOperationResponse,
   args: {
-    workflowIds: nonNull(list(nonNull(stringArg()))),
+    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
   },
-  resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
+  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
+    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),

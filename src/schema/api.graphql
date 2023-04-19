@@ -499,7 +499,7 @@ type Mutation {
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
   bulkPauseWorkflow(executedWorkflowIds: [String!]!): BulkOperationResponse
   bulkRestartWorkflow(executedWorkflowIds: [String!]!): BulkOperationResponse
-  bulkResumeWorkflow(workflowIds: [String!]!): BulkOperationResponse
+  bulkResumeWorkflow(executedWorkflowIds: [String!]!): BulkOperationResponse
   bulkRetryWorkflow(executedWorkflowIds: [String!]!): BulkOperationResponse
   bulkTerminateWorkflow(executedWorkflowIds: [String!]!): BulkOperationResponse
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
