@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import { ExecutedWorkflow, ExecutedWorkflowTask, Workflow } from '../schema/source-types';
 import { SearchQuery, PaginationArgs } from '../types/conductor.types';
 import { NestedTask, decodeWorkflowTaskInput } from '../external-api/conductor-network-types';
@@ -91,6 +92,7 @@ type SubWorkflow = {
   name: string;
   version: number;
   referenceTaskName: string;
+  subWorkflowId: string;
 };
 
 function extractSubworkflowsFromTasks(task: ExecutedWorkflowTask): SubWorkflow | null {
@@ -102,28 +104,50 @@ function extractSubworkflowsFromTasks(task: ExecutedWorkflowTask): SubWorkflow |
         name: subWorkflowName,
         version: subWorkflowVersion,
         referenceTaskName: unwrap(task.referenceTaskName),
+        subWorkflowId: unwrap(task.subWorkflowId),
       };
     }
   }
   return null;
 }
 
-async function getSubworklowsDetail(subWorkflow: SubWorkflow) {
-  const { name, version, referenceTaskName } = subWorkflow;
+type SubworkflowDetail = {
+  taskReferenceName: string;
+  workflowDetail: Workflow;
+  executedWorkflowDetail: ExecutedWorkflow;
+};
+
+async function getSubworklowsDetail(subWorkflow: SubWorkflow): Promise<SubworkflowDetail> {
+  const { name, version, referenceTaskName, subWorkflowId } = subWorkflow;
   const workflowDetailPromise = conductorAPI.getWorkflowDetail(config.conductorApiURL, name, version);
-  const executedWorkflowDetailPromise = conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, name);
+  const executedWorkflowDetailPromise = conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, subWorkflowId);
   const [workflowDetail, executedWorkflowDetail] = await Promise.all([
     workflowDetailPromise,
     executedWorkflowDetailPromise,
   ]);
 
-  return { referenceTaskName, workflowDetail, executedWorkflowDetail };
+  const workflowDetailWithId = {
+    ...workflowDetail,
+    id: uuid(),
+  };
+
+  const executedWorkflowDetailWithId = {
+    ...executedWorkflowDetail,
+    id: uuid(),
+  };
+
+  return {
+    taskReferenceName: referenceTaskName,
+    workflowDetail: workflowDetailWithId,
+    executedWorkflowDetail: executedWorkflowDetailWithId,
+  };
 }
 
 export async function getSubworkflows(workflow: ExecutedWorkflow) {
   if (!workflow.tasks) {
     return [];
   }
+
   const promises = workflow.tasks
     .map((t) => ({ ...t, id: toGraphId('ExecutedWorkflowTask', unwrap(t.taskId || null)) }))
     .map(extractSubworkflowsFromTasks)

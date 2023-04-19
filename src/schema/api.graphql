@@ -667,9 +667,9 @@ input StartWorkflowRequestInput {
 }
 
 type SubWorkflow {
-  executedWorkflowDetail: [Workflow!]
+  executedWorkflowDetail: ExecutedWorkflow!
   taskReferenceName: String!
-  workflowDetail: [Workflow!]
+  workflowDetail: Workflow!
 }
 
 type Subscription {
