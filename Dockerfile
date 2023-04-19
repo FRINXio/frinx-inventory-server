@@ -1,4 +1,4 @@
-FROM node:18-slim as build
+FROM node:19-slim as build
 
 RUN apt-get update
 RUN apt-get install -y openssl
@@ -15,7 +15,7 @@ ENV NODE_ENV production
 RUN yarn run prisma:generate
 RUN yarn run build
 
-FROM node:18-slim
+FROM node:19-slim
 
 RUN apt-get update
 RUN apt-get install -y openssl wget
