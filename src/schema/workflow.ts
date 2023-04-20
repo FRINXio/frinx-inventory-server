@@ -606,10 +606,11 @@ export const BulkOperationResponse = objectType({
 export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
   type: BulkOperationResponse,
   args: {
-    workflowIds: nonNull(list(nonNull(stringArg()))),
+    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
   },
-  resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, workflowIds);
+  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
+    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -643,10 +644,11 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
 export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
   type: BulkOperationResponse,
   args: {
-    workflowIds: nonNull(list(nonNull(stringArg()))),
+    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
   },
-  resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, workflowIds);
+  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
+    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+    const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -658,10 +660,10 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
 export const BulkTerminateWorkflow = mutationField('bulkTerminateWorkflow', {
   type: BulkOperationResponse,
   args: {
-    workflowIds: nonNull(list(nonNull(stringArg()))),
+    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
   },
-  resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = workflowIds.map((id) => fromGraphId('Workflow', id));
+  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
+    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkTerminateWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -674,10 +676,10 @@ export const BulkTerminateWorkflow = mutationField('bulkTerminateWorkflow', {
 export const BulkRetryWorkflow = mutationField('bulkRetryWorkflow', {
   type: BulkOperationResponse,
   args: {
-    workflowIds: nonNull(list(nonNull(stringArg()))),
+    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
   },
-  resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = workflowIds.map((id) => fromGraphId('Workflow', id));
+  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
+    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkRetryWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -690,10 +692,10 @@ export const BulkRetryWorkflow = mutationField('bulkRetryWorkflow', {
 export const BulkRestartWorkflow = mutationField('bulkRestartWorkflow', {
   type: BulkOperationResponse,
   args: {
-    workflowIds: nonNull(list(nonNull(stringArg()))),
+    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
   },
-  resolve: async (_, { workflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = workflowIds.map((id) => fromGraphId('Workflow', id));
+  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
+    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkRestartWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
