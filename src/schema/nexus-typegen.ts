@@ -726,6 +726,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     template: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   BlueprintConnection: {
     // field return type
@@ -782,6 +783,7 @@ export interface NexusGenFieldTypes {
     code: string; // String!
     id: string; // ID!
     name: string; // String!
+    version: number | null; // Int
   };
   CountryConnection: {
     // field return type
@@ -849,6 +851,7 @@ export interface NexusGenFieldTypes {
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
     vendor: string | null; // String
+    version: number | null; // Int
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
   DeviceConnection: {
@@ -891,6 +894,7 @@ export interface NexusGenFieldTypes {
     updatedAt: string | null; // String
     updatedBy: string | null; // String
     variables: string | null; // String
+    version: number | null; // Int
     workflowDefinition: NexusGenRootTypes['Workflow'] | null; // Workflow
     workflowId: string | null; // String
     workflowName: string | null; // String
@@ -925,6 +929,7 @@ export interface NexusGenFieldTypes {
     taskReferenceName: string | null; // String
     taskType: string | null; // String
     updateTime: string | null; // String
+    version: number | null; // Int
     workflowType: string | null; // String
   };
   GraphEdge: {
@@ -982,6 +987,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     name: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   LabelConnection: {
     // field return type
@@ -1001,6 +1007,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     name: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   LocationConnection: {
     // field return type
@@ -1229,7 +1236,10 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     inputParameters: string[] | null; // [String!]
     name: string; // String!
+    restartable: boolean | null; // Boolean
     tasks: string | null; // String
+    timeoutPolicy: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
+    timeoutSeconds: number; // Int!
     updatedAt: string | null; // String
     updatedBy: string | null; // String
     version: number | null; // Int
@@ -1257,6 +1267,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     name: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   ZoneEdge: {
     // field return type
@@ -1280,6 +1291,7 @@ export interface NexusGenFieldTypes {
   Node: {
     // field return type
     id: string; // ID!
+    version: number | null; // Int
   };
 }
 
@@ -1316,6 +1328,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     template: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   BlueprintConnection: {
     // field return type name
@@ -1372,6 +1385,7 @@ export interface NexusGenFieldTypeNames {
     code: 'String';
     id: 'ID';
     name: 'String';
+    version: 'Int';
   };
   CountryConnection: {
     // field return type name
@@ -1439,6 +1453,7 @@ export interface NexusGenFieldTypeNames {
     source: 'DeviceSource';
     updatedAt: 'String';
     vendor: 'String';
+    version: 'Int';
     zone: 'Zone';
   };
   DeviceConnection: {
@@ -1481,6 +1496,7 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'String';
     updatedBy: 'String';
     variables: 'String';
+    version: 'Int';
     workflowDefinition: 'Workflow';
     workflowId: 'String';
     workflowName: 'String';
@@ -1515,6 +1531,7 @@ export interface NexusGenFieldTypeNames {
     taskReferenceName: 'String';
     taskType: 'String';
     updateTime: 'String';
+    version: 'Int';
     workflowType: 'String';
   };
   GraphEdge: {
@@ -1572,6 +1589,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     name: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   LabelConnection: {
     // field return type name
@@ -1591,6 +1609,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     name: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   LocationConnection: {
     // field return type name
@@ -1819,7 +1838,10 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     inputParameters: 'String';
     name: 'String';
+    restartable: 'Boolean';
     tasks: 'String';
+    timeoutPolicy: 'TimeoutPolicy';
+    timeoutSeconds: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
     version: 'Int';
@@ -1847,6 +1869,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     name: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   ZoneEdge: {
     // field return type name
@@ -1870,6 +1893,7 @@ export interface NexusGenFieldTypeNames {
   Node: {
     // field return type name
     id: 'ID';
+    version: 'Int';
   };
 }
 
@@ -2121,6 +2145,7 @@ export interface NexusGenArgTypes {
     node: {
       // args
       id: string; // ID!
+      version?: number | null; // Int
     };
     topology: {
       // args

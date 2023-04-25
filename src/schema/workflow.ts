@@ -39,6 +39,7 @@ export const Workflow = objectType({
     t.nonNull.id('id', {
       resolve: (workflow) => toGraphId('Workflow', workflow.name),
     });
+    t.nonNull.int('timeoutSeconds');
     t.nonNull.string('name');
     t.string('description');
     t.int('version');
@@ -63,6 +64,8 @@ export const Workflow = objectType({
         }
       },
     });
+    t.boolean('restartable');
+    t.field('timeoutPolicy', { type: TimeoutPolicy });
   },
 });
 
