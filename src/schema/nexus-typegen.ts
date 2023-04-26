@@ -149,6 +149,11 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
+  OutputParameterInput: {
+    // input type
+    key: string; // String!
+    value: string; // String!
+  };
   PaginationArgs: {
     // input type
     size: number; // Int!
@@ -233,6 +238,8 @@ export interface NexusGenInputs {
     // input type
     description?: string | null; // String
     name: string; // String!
+    outputParameters?: NexusGenInputs['OutputParameterInput'][] | null; // [OutputParameterInput!]
+    restartable?: boolean | null; // Boolean
     tasks: string; // String!
     timeoutSeconds: number; // Int!
     version?: number | null; // Int

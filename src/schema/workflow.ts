@@ -21,6 +21,7 @@ import getLogger from '../get-logger';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import {
+  convertToApiOutputParameters,
   getFilteredWorkflows,
   getSubworkflows,
   makePaginationFromArgs,
@@ -409,6 +410,14 @@ export const CreateWorkflowPayload = objectType({
   },
 });
 
+const OutputParameterInput = inputObjectType({
+  name: 'OutputParameterInput',
+  definition: (t) => {
+    t.nonNull.string('key');
+    t.nonNull.string('value');
+  },
+});
+
 const WorkflowInput = inputObjectType({
   name: 'WorkflowInput',
   definition: (t) => {
@@ -417,6 +426,8 @@ const WorkflowInput = inputObjectType({
     t.nonNull.string('tasks');
     t.string('description');
     t.int('version');
+    t.boolean('restartable');
+    t.list.nonNull.field({ name: 'outputParameters', type: OutputParameterInput });
   },
 });
 
@@ -533,6 +544,7 @@ export const UpdateWorkflowMutation = extendType({
         const { workflow } = input;
 
         const parsedTasks = validateTasks(workflow.tasks);
+        const outputParameters = convertToApiOutputParameters(workflow.outputParameters);
 
         const apiWorkflow: WorkflowDetailInput = {
           name: workflow.name,
@@ -540,6 +552,8 @@ export const UpdateWorkflowMutation = extendType({
           tasks: parsedTasks,
           version: workflow.version || undefined,
           description: workflow.description || undefined,
+          restartable: workflow.restartable || undefined,
+          outputParameters: outputParameters || undefined,
         };
 
         const result = await conductorAPI.editWorkflow(config.conductorApiURL, apiWorkflow);
