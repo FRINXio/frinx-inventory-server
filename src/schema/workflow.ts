@@ -32,6 +32,19 @@ import { parseJson, unwrap } from '../helpers/utils.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
+const OutputParameter = objectType({
+  name: 'OutputParameter',
+  definition: (t) => {
+    t.nonNull.string('key');
+    t.nonNull.string('value');
+  },
+});
+
+export const TimeoutPolicy = enumType({
+  name: 'TimeoutPolicy',
+  members: ['TIME_OUT_WF', 'ALERT_ONLY'],
+});
+
 export const Workflow = objectType({
   name: 'Workflow',
   definition: (t) => {
@@ -53,6 +66,16 @@ export const Workflow = objectType({
     });
     t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
     t.list.nonNull.string('inputParameters', { resolve: (w) => w.inputParameters ?? null });
+    t.list.nonNull.field('outputParameters', {
+      type: OutputParameter,
+      resolve: (w) =>
+        w.outputParameters
+          ? Object.entries(w.outputParameters).map((e) => ({
+              key: e[0],
+              value: e[1],
+            }))
+          : null,
+    });
     t.boolean('hasSchedule', {
       resolve: async (workflow, _, { schedulerAPI }) => {
         try {
@@ -127,11 +150,6 @@ export const WorkflowsQuery = extendType({
       },
     });
   },
-});
-
-export const TimeoutPolicy = enumType({
-  name: 'TimeoutPolicy',
-  members: ['TIME_OUT_WF', 'ALERT_ONLY'],
 });
 
 export const WorkflowDefinitionInput = inputObjectType({

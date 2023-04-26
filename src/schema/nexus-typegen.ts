@@ -549,6 +549,11 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  OutputParameter: {
+    // root type
+    key: string; // String!
+    value: string; // String!
+  };
   PageInfo: {
     // root type
     endCursor?: string | null; // String
@@ -1087,6 +1092,11 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  OutputParameter: {
+    // field return type
+    key: string; // String!
+    value: string; // String!
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -1236,6 +1246,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     inputParameters: string[] | null; // [String!]
     name: string; // String!
+    outputParameters: NexusGenRootTypes['OutputParameter'][] | null; // [OutputParameter!]
     restartable: boolean | null; // Boolean
     tasks: string | null; // String
     timeoutPolicy: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
@@ -1689,6 +1700,11 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphEdge';
     nodes: 'NetNode';
   };
+  OutputParameter: {
+    // field return type name
+    key: 'String';
+    value: 'String';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1838,6 +1854,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     inputParameters: 'String';
     name: 'String';
+    outputParameters: 'OutputParameter';
     restartable: 'Boolean';
     tasks: 'String';
     timeoutPolicy: 'TimeoutPolicy';
