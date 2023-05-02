@@ -159,5 +159,3 @@ function fromCodePoint(code: number): string {
   }
   return String.fromCodePoint(code);
 }
-
-/* eslint no-bitwise: 2 */
