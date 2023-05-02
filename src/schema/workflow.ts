@@ -428,6 +428,8 @@ const WorkflowInput = inputObjectType({
     t.int('version');
     t.boolean('restartable');
     t.list.nonNull.field({ name: 'outputParameters', type: OutputParameterInput });
+    t.string('createdAt');
+    t.string('updatedAt');
   },
 });
 
@@ -554,6 +556,8 @@ export const UpdateWorkflowMutation = extendType({
           description: workflow.description || undefined,
           restartable: workflow.restartable || undefined,
           outputParameters: outputParameters || undefined,
+          createTime: workflow.createdAt ? Date.parse(workflow.createdAt) : undefined,
+          updateTime: workflow.updatedAt ? Date.parse(workflow.updatedAt) : undefined,
         };
 
         const result = await conductorAPI.editWorkflow(config.conductorApiURL, apiWorkflow);

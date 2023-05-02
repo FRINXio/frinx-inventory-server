@@ -236,12 +236,14 @@ export interface NexusGenInputs {
   };
   WorkflowInput: {
     // input type
+    createdAt?: string | null; // String
     description?: string | null; // String
     name: string; // String!
     outputParameters?: NexusGenInputs['OutputParameterInput'][] | null; // [OutputParameterInput!]
     restartable?: boolean | null; // Boolean
     tasks: string; // String!
     timeoutSeconds: number; // Int!
+    updatedAt?: string | null; // String
     version?: number | null; // Int
   };
 }
