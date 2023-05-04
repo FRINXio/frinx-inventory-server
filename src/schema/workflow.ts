@@ -21,6 +21,7 @@ import getLogger from '../get-logger';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import {
+  convertToApiOutputParameters,
   getFilteredWorkflows,
   getSubworkflows,
   makePaginationFromArgs,
@@ -40,6 +41,19 @@ export const ScheduleFilterInput = inputObjectType({
   },
 });
 
+const OutputParameter = objectType({
+  name: 'OutputParameter',
+  definition: (t) => {
+    t.nonNull.string('key');
+    t.nonNull.string('value');
+  },
+});
+
+export const TimeoutPolicy = enumType({
+  name: 'TimeoutPolicy',
+  members: ['TIME_OUT_WF', 'ALERT_ONLY'],
+});
+
 export const Workflow = objectType({
   name: 'Workflow',
   definition: (t) => {
@@ -47,6 +61,7 @@ export const Workflow = objectType({
     t.nonNull.id('id', {
       resolve: (workflow) => toGraphId('Workflow', workflow.name),
     });
+    t.nonNull.int('timeoutSeconds');
     t.nonNull.string('name');
     t.string('description');
     t.int('version');
@@ -60,6 +75,16 @@ export const Workflow = objectType({
     });
     t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
     t.list.nonNull.string('inputParameters', { resolve: (w) => w.inputParameters ?? null });
+    t.list.nonNull.field('outputParameters', {
+      type: OutputParameter,
+      resolve: (w) =>
+        w.outputParameters
+          ? Object.entries(w.outputParameters).map((e) => ({
+              key: e[0],
+              value: e[1],
+            }))
+          : null,
+    });
     t.boolean('hasSchedule', {
       resolve: async (workflow, _, { schedulerAPI }) => {
         try {
@@ -82,6 +107,8 @@ export const Workflow = objectType({
         }
       },
     });
+    t.boolean('restartable');
+    t.field('timeoutPolicy', { type: TimeoutPolicy });
   },
 });
 
@@ -143,11 +170,6 @@ export const WorkflowsQuery = extendType({
       },
     });
   },
-});
-
-export const TimeoutPolicy = enumType({
-  name: 'TimeoutPolicy',
-  members: ['TIME_OUT_WF', 'ALERT_ONLY'],
 });
 
 export const WorkflowDefinitionInput = inputObjectType({
@@ -407,6 +429,14 @@ export const CreateWorkflowPayload = objectType({
   },
 });
 
+const OutputParameterInput = inputObjectType({
+  name: 'OutputParameterInput',
+  definition: (t) => {
+    t.nonNull.string('key');
+    t.nonNull.string('value');
+  },
+});
+
 const WorkflowInput = inputObjectType({
   name: 'WorkflowInput',
   definition: (t) => {
@@ -415,6 +445,10 @@ const WorkflowInput = inputObjectType({
     t.nonNull.string('tasks');
     t.string('description');
     t.int('version');
+    t.boolean('restartable');
+    t.list.nonNull.field({ name: 'outputParameters', type: OutputParameterInput });
+    t.string('createdAt');
+    t.string('updatedAt');
   },
 });
 
@@ -531,6 +565,7 @@ export const UpdateWorkflowMutation = extendType({
         const { workflow } = input;
 
         const parsedTasks = validateTasks(workflow.tasks);
+        const outputParameters = convertToApiOutputParameters(workflow.outputParameters);
 
         const apiWorkflow: WorkflowDetailInput = {
           name: workflow.name,
@@ -538,6 +573,10 @@ export const UpdateWorkflowMutation = extendType({
           tasks: parsedTasks,
           version: workflow.version || undefined,
           description: workflow.description || undefined,
+          restartable: workflow.restartable || undefined,
+          outputParameters: outputParameters || undefined,
+          createTime: workflow.createdAt ? Date.parse(workflow.createdAt) : undefined,
+          updateTime: workflow.updatedAt ? Date.parse(workflow.updatedAt) : undefined,
         };
 
         const result = await conductorAPI.editWorkflow(config.conductorApiURL, apiWorkflow);

@@ -1,5 +1,4 @@
 import { v4 as uuid } from 'uuid';
-import { connectionFromArray } from 'graphql-relay';
 import { ExecutedWorkflow, ExecutedWorkflowTask, Workflow } from '../schema/source-types';
 import { SearchQuery, PaginationArgs } from '../types/conductor.types';
 import { NestedTask, decodeWorkflowTaskInput } from '../external-api/conductor-network-types';
@@ -7,7 +6,6 @@ import conductorAPI, { SubWorkflowInputData } from '../external-api/conductor';
 import { omitNullValue, unwrap } from './utils.helpers';
 import config from '../config';
 import { toGraphId } from './id-helper';
-import { ScheduleListOutput } from '../external-api/scheduler-network-types';
 
 type GraphQLSearchQuery = {
   isRootWorkflow?: boolean | null;
@@ -20,13 +18,6 @@ type GraphQLSearchQuery = {
     workflowId?: string[] | null;
     workflowType?: string[] | null;
   } | null;
-};
-
-type ScheduleListPaginationArgs = {
-  first?: number | null;
-  after?: string | null;
-  last?: number | null;
-  before?: string | null;
 };
 
 export function makeSearchQueryFromArgs(searchQuery?: GraphQLSearchQuery | null): SearchQuery {
@@ -167,21 +158,23 @@ export async function getSubworkflows(workflow: ExecutedWorkflow) {
   return subWorkflows;
 }
 
-export function makeConnectionFromScheduleList(schedules: ScheduleListOutput, args: ScheduleListPaginationArgs) {
-  return {
-    ...connectionFromArray(
-      schedules.map((schedule) => ({
-        ...schedule,
-        workflowContext: JSON.stringify(schedule.workflowContext),
-        taskToDomain: JSON.stringify(schedule.taskToDomain),
-        enabled: schedule.enabled || null,
-        fromDate: schedule.fromDate || null,
-        toDate: schedule.toDate || null,
-        parallelRuns: schedule.parallelRuns || null,
-        correlationId: schedule.correlationId || null,
-      })),
-      args,
-    ),
-    totalCount: schedules.length,
-  };
+type OutputParameter = {
+  key: string;
+  value: string;
+};
+
+export function convertToApiOutputParameters(
+  outputParameters?: OutputParameter[] | null,
+): Record<string, string> | null {
+  if (outputParameters == null) {
+    return null;
+  }
+
+  return outputParameters.reduce((acc, next) => {
+    const { key, value } = next;
+    return {
+      ...acc,
+      [key]: value,
+    };
+  }, {});
 }
