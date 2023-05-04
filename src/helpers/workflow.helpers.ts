@@ -157,3 +157,24 @@ export async function getSubworkflows(workflow: ExecutedWorkflow) {
   const subWorkflows = await Promise.all(promises);
   return subWorkflows;
 }
+
+type OutputParameter = {
+  key: string;
+  value: string;
+};
+
+export function convertToApiOutputParameters(
+  outputParameters?: OutputParameter[] | null,
+): Record<string, string> | null {
+  if (outputParameters == null) {
+    return null;
+  }
+
+  return outputParameters.reduce((acc, next) => {
+    const { key, value } = next;
+    return {
+      ...acc,
+      [key]: value,
+    };
+  }, {});
+}
