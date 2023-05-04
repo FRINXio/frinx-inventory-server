@@ -61,13 +61,15 @@ export const Workflow = objectType({
     t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
     t.list.nonNull.string('inputParameters', { resolve: (w) => w.inputParameters ?? null });
     t.boolean('hasSchedule', {
-      args: {
-        ...PaginationConnectionArgs,
-        filter: arg({ type: ScheduleFilterInput }),
-      },
-      resolve: async (workflow, { filter, ...args }, { schedulerAPI }) => {
+      resolve: async (workflow, _, { schedulerAPI }) => {
         try {
-          const { schedules } = await schedulerAPI.getSchedules(args, filter);
+          const { schedules } = await schedulerAPI.getSchedules(
+            {},
+            {
+              workflowName: workflow.name,
+              workflowVersion: workflow.version?.toString() ?? '1',
+            },
+          );
 
           if (schedules == null) {
             return false;

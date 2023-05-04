@@ -2300,16 +2300,6 @@ export interface NexusGenArgTypes {
       trigger?: number | null; // Int
     };
   };
-  Workflow: {
-    hasSchedule: {
-      // args
-      after?: string | null; // String
-      before?: string | null; // String
-      filter?: NexusGenInputs['ScheduleFilterInput'] | null; // ScheduleFilterInput
-      first?: number | null; // Int
-      last?: number | null; // Int
-    };
-  };
 }
 
 export interface NexusGenAbstractTypeMembers {

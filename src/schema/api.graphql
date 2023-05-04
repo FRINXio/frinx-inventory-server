@@ -890,7 +890,7 @@ type Workflow implements Node {
   createdAt: String
   createdBy: String
   description: String
-  hasSchedule(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): Boolean
+  hasSchedule: Boolean
   id: ID!
   inputParameters: [String!]
   name: String!
