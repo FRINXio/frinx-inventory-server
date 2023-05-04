@@ -32,6 +32,14 @@ import { parseJson, unwrap } from '../helpers/utils.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
+export const ScheduleFilterInput = inputObjectType({
+  name: 'ScheduleFilterInput',
+  definition: (t) => {
+    t.nonNull.string('workflowName');
+    t.nonNull.string('workflowVersion');
+  },
+});
+
 export const Workflow = objectType({
   name: 'Workflow',
   definition: (t) => {
@@ -53,10 +61,19 @@ export const Workflow = objectType({
     t.string('tasks', { resolve: (workflow) => JSON.stringify(workflow.tasks) });
     t.list.nonNull.string('inputParameters', { resolve: (w) => w.inputParameters ?? null });
     t.boolean('hasSchedule', {
-      resolve: async (workflow, _, { schedulerAPI }) => {
+      args: {
+        ...PaginationConnectionArgs,
+        filter: arg({ type: ScheduleFilterInput }),
+      },
+      resolve: async (workflow, { filter, ...args }, { schedulerAPI }) => {
         try {
-          await schedulerAPI.getSchedule(config.schedulerApiURL, workflow.name, workflow.version ?? 1);
-          return true;
+          const { schedules } = await schedulerAPI.getSchedules(args, filter);
+
+          if (schedules == null) {
+            return false;
+          }
+
+          return schedules.edges.length > 0;
         } catch (e) {
           log.info(`cannot get schedule info for workflow ${workflow.name}: ${e}`);
           return false;
@@ -754,5 +771,142 @@ export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
     await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, shouldArchiveWorkflow);
 
     return { isOk: true };
+  },
+});
+
+export const CreateScheduleInput = inputObjectType({
+  name: 'CreateScheduleInput',
+  definition(t) {
+    t.nonNull.id('name');
+    t.nonNull.string('workflowName');
+    t.nonNull.string('workflowVersion');
+    t.nonNull.string('cronString');
+    t.nonNull.string('workflowContext');
+    t.nonNull.boolean('enabled');
+    t.nonNull.string('fromDate');
+    t.nonNull.string('toDate');
+    t.nonNull.boolean('parallelRuns');
+    t.nonNull.string('correlationId');
+    t.nonNull.string('taskToDomain');
+  },
+});
+
+export const Schedule = objectType({
+  name: 'Schedule',
+  definition: (t) => {
+    t.nonNull.id('name');
+    t.nonNull.string('workflowName');
+    t.nonNull.string('workflowVersion');
+    t.nonNull.string('cronString');
+    t.nonNull.string('workflowContext');
+    t.nonNull.boolean('enabled');
+    t.nonNull.string('fromDate');
+    t.nonNull.string('toDate');
+    t.nonNull.boolean('parallelRuns');
+  },
+});
+
+export const ScheduleWorkflow = mutationField('scheduleWorkflow', {
+  type: Schedule,
+  args: {
+    input: nonNull(arg({ type: CreateScheduleInput })),
+  },
+  resolve: async (_, { input }, { schedulerAPI }) => (await schedulerAPI.createWorkflowSchedule(input)).createSchedule,
+});
+
+export const EditWorkflowScheduleInput = inputObjectType({
+  name: 'EditWorkflowScheduleInput',
+  definition(t) {
+    t.string('name');
+    t.string('workflowName');
+    t.string('workflowVersion');
+    t.nonNull.string('cronString');
+    t.string('workflowContext');
+    t.nonNull.boolean('enabled');
+    t.string('fromDate');
+    t.string('toDate');
+    t.boolean('parallelRuns');
+    t.string('correlationId');
+    t.string('taskToDomain');
+  },
+});
+
+export const EditWorkflowSchedule = mutationField('editWorkflowSchedule', {
+  type: Schedule,
+  args: {
+    input: nonNull(arg({ type: EditWorkflowScheduleInput })),
+    name: nonNull(stringArg()),
+  },
+  resolve: async (_, { input, name }, { schedulerAPI }) =>
+    (await schedulerAPI.editWorkflowSchedule(name, input)).updateSchedule,
+});
+
+export const ScheduleEdge = objectType({
+  name: 'ScheduleEdge',
+  definition: (t) => {
+    t.nonNull.field('node', {
+      type: Schedule,
+    });
+    t.nonNull.string('cursor');
+  },
+});
+
+export const ScheduleConnection = objectType({
+  name: 'ScheduleConnection',
+  definition: (t) => {
+    t.nonNull.list.field('edges', {
+      type: ScheduleEdge,
+    });
+    t.nonNull.field('pageInfo', {
+      type: PageInfo,
+    });
+    t.nonNull.int('totalCount');
+  },
+});
+
+export const WorkflowSchedules = queryField('schedules', {
+  type: nonNull(ScheduleConnection),
+  args: {
+    ...PaginationConnectionArgs,
+    filter: arg({
+      type: ScheduleFilterInput,
+    }),
+  },
+  resolve: async (_, { filter, ...args }, { schedulerAPI }) => {
+    const { schedules } = await schedulerAPI.getSchedules(args, filter);
+
+    if (!schedules) {
+      throw new Error('No schedules found');
+    }
+
+    return schedules;
+  },
+});
+
+export const DeleteSchedule = mutationField('deleteSchedule', {
+  type: 'Boolean',
+  args: {
+    name: nonNull(stringArg()),
+  },
+  resolve: async (_, { name }, { schedulerAPI }) => {
+    try {
+      await schedulerAPI.deleteSchedule(name);
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+});
+
+export const ScheduleDetail = queryField('schedule', {
+  type: Schedule,
+  args: {
+    name: nonNull(stringArg()),
+  },
+  resolve: async (_, { name }, { schedulerAPI }) => {
+    const { schedule: data } = await schedulerAPI.getSchedule(name);
+
+    return data;
   },
 });
