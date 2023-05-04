@@ -1,6 +1,5 @@
-import { Client, cacheExchange, fetchExchange, gql } from '@urql/core';
 import { PaginationArgs } from 'nexus/dist/plugins/connectionPlugin';
-import config from '../config';
+import { GraphQLClient, gql } from 'graphql-request';
 import {
   CreateScheduleInput,
   CreateScheduleMutation,
@@ -16,6 +15,9 @@ import {
   UpdateScheduleMutation,
   UpdateScheduleMutationVariables,
 } from '../__generated__/graphql';
+import config from '../config';
+
+const client = new GraphQLClient(config.schedulerApiURL, { headers: {} });
 
 const DELETE_SCHEDULE_MUTATION = gql`
   mutation DeleteSchedule($scheduleName: String!) {
@@ -103,94 +105,54 @@ const GET_SCHEDULES_QUERY = gql`
   }
 `;
 
-const client = new Client({
-  url: config.schedulerApiURL,
-  exchanges: [cacheExchange, fetchExchange],
-});
-
 async function getSchedules(
   paginationArgs: PaginationArgs,
   filter: SchedulesFilterInput | null | undefined,
 ): Promise<GetSchedulesQuery> {
-  const response = await client
-    .query<GetSchedulesQuery, GetSchedulesQueryVariables>(GET_SCHEDULES_QUERY, {
-      ...paginationArgs,
-      filter,
-    })
-    .toPromise();
+  const response = await client.request<GetSchedulesQuery, GetSchedulesQueryVariables>(GET_SCHEDULES_QUERY, {
+    ...paginationArgs,
+    filter,
+  });
 
-  if (response.error) {
-    throw new Error(response.error.message);
-  }
-
-  if (response.data == null) {
-    throw new Error('Could not get schedules');
-  }
-
-  return response.data;
+  return response;
 }
 
 async function getSchedule(scheduleName: string): Promise<GetScheduleQuery> {
-  const response = await client
-    .query<GetScheduleQuery, GetScheduleQueryVariables>(GET_SCHEDULE_QUERY, { scheduleName })
-    .toPromise();
+  const response = await client.request<GetScheduleQuery, GetScheduleQueryVariables>(GET_SCHEDULE_QUERY, {
+    scheduleName,
+  });
 
-  if (response.error) {
-    throw new Error(response.error.message);
-  }
-
-  if (response.data == null) {
-    throw new Error(`Schedule ${scheduleName} not found`);
-  }
-
-  return response.data;
+  return response;
 }
 
 async function createWorkflowSchedule(input: CreateScheduleInput): Promise<Omit<CreateScheduleMutation, '__typename'>> {
-  const response = await client
-    .query<CreateScheduleMutation, CreateScheduleMutationVariables>(CREATE_SCHEDULE_MUTATION, { input })
-    .toPromise();
+  const response = await client.request<CreateScheduleMutation, CreateScheduleMutationVariables>(
+    CREATE_SCHEDULE_MUTATION,
+    { input },
+  );
 
-  if (response.error) {
-    throw new Error(response.error.message);
-  }
-
-  if (response.data == null) {
-    throw new Error(`Creation of schedule ${input.name} failed`);
-  }
-
-  return response.data;
+  return response;
 }
 
 async function editWorkflowSchedule(name: string, input: UpdateScheduleInput): Promise<UpdateScheduleMutation> {
-  const response = await client
-    .query<UpdateScheduleMutation, UpdateScheduleMutationVariables>(UPDATE_SCHEDULE_MUTATION, {
+  const response = await client.request<UpdateScheduleMutation, UpdateScheduleMutationVariables>(
+    UPDATE_SCHEDULE_MUTATION,
+    {
       input,
       scheduleName: name,
-    })
-    .toPromise();
+    },
+  );
 
-  if (response.error) {
-    throw new Error(response.error.message);
-  }
-
-  if (response.data == null) {
-    throw new Error(`Update of schedule ${name} failed`);
-  }
-
-  return response.data;
+  return response;
 }
 
 async function deleteSchedule(scheduleName: string): Promise<boolean> {
-  const response = await client
-    .query<DeleteScheduleMutation, DeleteScheduleMutationVariables>(DELETE_SCHEDULE_MUTATION, { scheduleName })
-    .toPromise();
+  const response = await client.request<DeleteScheduleMutation, DeleteScheduleMutationVariables>(
+    DELETE_SCHEDULE_MUTATION,
+    { scheduleName },
+  );
 
-  if (response.error) {
-    throw new Error(response.error.message);
-  }
-
-  return response.data?.deleteSchedule || false;
+  return response.deleteSchedule;
 }
 
 const schedulerAPI = {
