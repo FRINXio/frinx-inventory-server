@@ -29,7 +29,7 @@ import {
   validateTasks,
 } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
-import { parseJson, unwrap } from '../helpers/utils.helpers';
+import { omitNullValue, parseJson, unwrap } from '../helpers/utils.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
@@ -822,13 +822,11 @@ export const CreateScheduleInput = inputObjectType({
     t.nonNull.string('workflowName');
     t.nonNull.string('workflowVersion');
     t.nonNull.string('cronString');
-    t.nonNull.string('workflowContext');
-    t.nonNull.boolean('enabled');
-    t.nonNull.string('fromDate');
-    t.nonNull.string('toDate');
-    t.nonNull.boolean('parallelRuns');
-    t.nonNull.string('correlationId');
-    t.nonNull.string('taskToDomain');
+    t.string('workflowContext');
+    t.boolean('isEnabled');
+    t.string('performFromDate');
+    t.string('performTillDate');
+    t.boolean('parallelRuns');
   },
 });
 
@@ -840,9 +838,9 @@ export const Schedule = objectType({
     t.nonNull.string('workflowVersion');
     t.nonNull.string('cronString');
     t.nonNull.string('workflowContext');
-    t.nonNull.boolean('enabled');
-    t.nonNull.string('fromDate');
-    t.nonNull.string('toDate');
+    t.nonNull.boolean('isEnabled');
+    t.nonNull.string('performFromDate');
+    t.nonNull.string('performTillDate');
     t.nonNull.boolean('parallelRuns');
   },
 });
@@ -852,7 +850,16 @@ export const ScheduleWorkflow = mutationField('scheduleWorkflow', {
   args: {
     input: nonNull(arg({ type: CreateScheduleInput })),
   },
-  resolve: async (_, { input }, { schedulerAPI }) => (await schedulerAPI.createWorkflowSchedule(input)).createSchedule,
+  resolve: async (_, { input }, { schedulerAPI }) => {
+    const response = await schedulerAPI.createWorkflowSchedule(input);
+
+    return {
+      ...response,
+      performFromDate: response.fromDate,
+      performTillDate: response.toDate,
+      isEnabled: response.enabled,
+    };
+  },
 });
 
 export const EditWorkflowScheduleInput = inputObjectType({
@@ -861,14 +868,12 @@ export const EditWorkflowScheduleInput = inputObjectType({
     t.string('name');
     t.string('workflowName');
     t.string('workflowVersion');
-    t.nonNull.string('cronString');
+    t.string('cronString');
     t.string('workflowContext');
-    t.nonNull.boolean('enabled');
-    t.string('fromDate');
-    t.string('toDate');
+    t.boolean('isEnabled');
+    t.string('performFromDate');
+    t.string('performTillDate');
     t.boolean('parallelRuns');
-    t.string('correlationId');
-    t.string('taskToDomain');
   },
 });
 
@@ -878,8 +883,16 @@ export const EditWorkflowSchedule = mutationField('editWorkflowSchedule', {
     input: nonNull(arg({ type: EditWorkflowScheduleInput })),
     name: nonNull(stringArg()),
   },
-  resolve: async (_, { input, name }, { schedulerAPI }) =>
-    (await schedulerAPI.editWorkflowSchedule(name, input)).updateSchedule,
+  resolve: async (_, { input, name }, { schedulerAPI }) => {
+    const response = await schedulerAPI.editWorkflowSchedule(name, input);
+
+    return {
+      ...response,
+      performFromDate: response.fromDate,
+      performTillDate: response.toDate,
+      isEnabled: response.enabled,
+    };
+  },
 });
 
 export const ScheduleEdge = objectType({
@@ -916,11 +929,22 @@ export const WorkflowSchedules = queryField('schedules', {
   resolve: async (_, { filter, ...args }, { schedulerAPI }) => {
     const { schedules } = await schedulerAPI.getSchedules(args, filter);
 
-    if (!schedules) {
+    if (schedules == null) {
       throw new Error('No schedules found');
     }
 
-    return schedules;
+    return {
+      ...schedules,
+      edges: schedules.edges.filter(omitNullValue).map((edge) => ({
+        cursor: edge.cursor,
+        node: {
+          ...edge.node,
+          performFromDate: edge.node.fromDate,
+          performTillDate: edge.node.toDate,
+          isEnabled: edge.node.enabled,
+        },
+      })),
+    };
   },
 });
 
@@ -946,8 +970,17 @@ export const ScheduleDetail = queryField('schedule', {
     name: nonNull(stringArg()),
   },
   resolve: async (_, { name }, { schedulerAPI }) => {
-    const { schedule: data } = await schedulerAPI.getSchedule(name);
+    const schedule = await schedulerAPI.getSchedule(name);
 
-    return data;
+    if (schedule == null) {
+      throw new Error('No schedule found');
+    }
+
+    return {
+      ...schedule,
+      performFromDate: schedule.fromDate,
+      performTillDate: schedule.toDate,
+      isEnabled: schedule.enabled,
+    };
   },
 });

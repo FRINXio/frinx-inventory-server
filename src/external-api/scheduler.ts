@@ -117,24 +117,29 @@ async function getSchedules(
   return response;
 }
 
-async function getSchedule(scheduleName: string): Promise<GetScheduleQuery> {
+async function getSchedule(scheduleName: string): Promise<GetScheduleQuery['schedule']> {
   const response = await client.request<GetScheduleQuery, GetScheduleQueryVariables>(GET_SCHEDULE_QUERY, {
     scheduleName,
   });
 
-  return response;
+  return response.schedule;
 }
 
-async function createWorkflowSchedule(input: CreateScheduleInput): Promise<Omit<CreateScheduleMutation, '__typename'>> {
+async function createWorkflowSchedule(
+  input: CreateScheduleInput,
+): Promise<Omit<CreateScheduleMutation, '__typename'>['createSchedule']> {
   const response = await client.request<CreateScheduleMutation, CreateScheduleMutationVariables>(
     CREATE_SCHEDULE_MUTATION,
     { input },
   );
 
-  return response;
+  return response.createSchedule;
 }
 
-async function editWorkflowSchedule(name: string, input: UpdateScheduleInput): Promise<UpdateScheduleMutation> {
+async function editWorkflowSchedule(
+  name: string,
+  input: UpdateScheduleInput,
+): Promise<UpdateScheduleMutation['updateSchedule']> {
   const response = await client.request<UpdateScheduleMutation, UpdateScheduleMutationVariables>(
     UPDATE_SCHEDULE_MUTATION,
     {
@@ -143,7 +148,7 @@ async function editWorkflowSchedule(name: string, input: UpdateScheduleInput): P
     },
   );
 
-  return response;
+  return response.updateSchedule;
 }
 
 async function deleteSchedule(scheduleName: string): Promise<boolean> {

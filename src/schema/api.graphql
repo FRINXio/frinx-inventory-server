@@ -172,15 +172,13 @@ type CreateLabelPayload {
 }
 
 input CreateScheduleInput {
-  correlationId: String!
   cronString: String!
-  enabled: Boolean!
-  fromDate: String!
+  isEnabled: Boolean
   name: ID!
-  parallelRuns: Boolean!
-  taskToDomain: String!
-  toDate: String!
-  workflowContext: String!
+  parallelRuns: Boolean
+  performFromDate: String
+  performTillDate: String
+  workflowContext: String
   workflowName: String!
   workflowVersion: String!
 }
@@ -294,14 +292,12 @@ type EdgeSourceTarget {
 }
 
 input EditWorkflowScheduleInput {
-  correlationId: String
-  cronString: String!
-  enabled: Boolean!
-  fromDate: String
+  cronString: String
+  isEnabled: Boolean
   name: String
   parallelRuns: Boolean
-  taskToDomain: String
-  toDate: String
+  performFromDate: String
+  performTillDate: String
   workflowContext: String
   workflowName: String
   workflowVersion: String
@@ -699,11 +695,11 @@ type RevertChangesPayload {
 
 type Schedule {
   cronString: String!
-  enabled: Boolean!
-  fromDate: String!
+  isEnabled: Boolean!
   name: ID!
   parallelRuns: Boolean!
-  toDate: String!
+  performFromDate: String!
+  performTillDate: String!
   workflowContext: String!
   workflowName: String!
   workflowVersion: String!

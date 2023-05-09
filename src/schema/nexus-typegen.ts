@@ -89,15 +89,13 @@ export interface NexusGenInputs {
   };
   CreateScheduleInput: {
     // input type
-    correlationId: string; // String!
     cronString: string; // String!
-    enabled: boolean; // Boolean!
-    fromDate: string; // String!
+    isEnabled?: boolean | null; // Boolean
     name: string; // ID!
-    parallelRuns: boolean; // Boolean!
-    taskToDomain: string; // String!
-    toDate: string; // String!
-    workflowContext: string; // String!
+    parallelRuns?: boolean | null; // Boolean
+    performFromDate?: string | null; // String
+    performTillDate?: string | null; // String
+    workflowContext?: string | null; // String
     workflowName: string; // String!
     workflowVersion: string; // String!
   };
@@ -118,14 +116,12 @@ export interface NexusGenInputs {
   };
   EditWorkflowScheduleInput: {
     // input type
-    correlationId?: string | null; // String
-    cronString: string; // String!
-    enabled: boolean; // Boolean!
-    fromDate?: string | null; // String
+    cronString?: string | null; // String
+    isEnabled?: boolean | null; // Boolean
     name?: string | null; // String
     parallelRuns?: boolean | null; // Boolean
-    taskToDomain?: string | null; // String
-    toDate?: string | null; // String
+    performFromDate?: string | null; // String
+    performTillDate?: string | null; // String
     workflowContext?: string | null; // String
     workflowName?: string | null; // String
     workflowVersion?: string | null; // String
@@ -615,11 +611,11 @@ export interface NexusGenObjects {
   Schedule: {
     // root type
     cronString: string; // String!
-    enabled: boolean; // Boolean!
-    fromDate: string; // String!
+    isEnabled: boolean; // Boolean!
     name: string; // ID!
     parallelRuns: boolean; // Boolean!
-    toDate: string; // String!
+    performFromDate: string; // String!
+    performTillDate: string; // String!
     workflowContext: string; // String!
     workflowName: string; // String!
     workflowVersion: string; // String!
@@ -1209,11 +1205,11 @@ export interface NexusGenFieldTypes {
   Schedule: {
     // field return type
     cronString: string; // String!
-    enabled: boolean; // Boolean!
-    fromDate: string; // String!
+    isEnabled: boolean; // Boolean!
     name: string; // ID!
     parallelRuns: boolean; // Boolean!
-    toDate: string; // String!
+    performFromDate: string; // String!
+    performTillDate: string; // String!
     workflowContext: string; // String!
     workflowName: string; // String!
     workflowVersion: string; // String!
@@ -1845,11 +1841,11 @@ export interface NexusGenFieldTypeNames {
   Schedule: {
     // field return type name
     cronString: 'String';
-    enabled: 'Boolean';
-    fromDate: 'String';
+    isEnabled: 'Boolean';
     name: 'ID';
     parallelRuns: 'Boolean';
-    toDate: 'String';
+    performFromDate: 'String';
+    performTillDate: 'String';
     workflowContext: 'String';
     workflowName: 'String';
     workflowVersion: 'String';
