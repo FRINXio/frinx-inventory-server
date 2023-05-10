@@ -29,9 +29,17 @@ import {
   validateTasks,
 } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
-import { parseJson, unwrap } from '../helpers/utils.helpers';
+import { omitNullValue, parseJson, unwrap } from '../helpers/utils.helpers';
 
 const log = getLogger('frinx-inventory-server');
+
+export const ScheduleFilterInput = inputObjectType({
+  name: 'ScheduleFilterInput',
+  definition: (t) => {
+    t.nonNull.string('workflowName');
+    t.nonNull.string('workflowVersion');
+  },
+});
 
 const OutputParameter = objectType({
   name: 'OutputParameter',
@@ -80,8 +88,19 @@ export const Workflow = objectType({
     t.boolean('hasSchedule', {
       resolve: async (workflow, _, { schedulerAPI }) => {
         try {
-          await schedulerAPI.getSchedule(config.schedulerApiURL, workflow.name, workflow.version ?? 1);
-          return true;
+          const { schedules } = await schedulerAPI.getSchedules(
+            {},
+            {
+              workflowName: workflow.name,
+              workflowVersion: workflow.version?.toString() ?? '1',
+            },
+          );
+
+          if (schedules == null) {
+            return false;
+          }
+
+          return schedules.edges.length > 0;
         } catch (e) {
           log.info(`cannot get schedule info for workflow ${workflow.name}: ${e}`);
           return false;
@@ -793,5 +812,181 @@ export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
     await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, shouldArchiveWorkflow);
 
     return { isOk: true };
+  },
+});
+
+export const CreateScheduleInput = inputObjectType({
+  name: 'CreateScheduleInput',
+  definition(t) {
+    t.nonNull.string('name');
+    t.nonNull.string('workflowName');
+    t.nonNull.string('workflowVersion');
+    t.nonNull.string('cronString');
+    t.string('workflowContext');
+    t.boolean('isEnabled');
+    t.string('performFromDate');
+    t.string('performTillDate');
+    t.boolean('parallelRuns');
+  },
+});
+
+export const Schedule = objectType({
+  name: 'Schedule',
+  definition: (t) => {
+    t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Schedule', root.name),
+    });
+    t.nonNull.string('name');
+    t.nonNull.string('workflowName');
+    t.nonNull.string('workflowVersion');
+    t.nonNull.string('cronString');
+    t.nonNull.string('workflowContext');
+    t.nonNull.boolean('isEnabled', {
+      resolve: (root) => root.enabled,
+    });
+    t.nonNull.string('performFromDate', {
+      resolve: (root) => root.fromDate,
+    });
+    t.nonNull.string('performTillDate', {
+      resolve: (root) => root.toDate,
+    });
+    t.nonNull.boolean('parallelRuns');
+  },
+});
+
+export const ScheduleWorkflow = mutationField('scheduleWorkflow', {
+  type: Schedule,
+  args: {
+    input: nonNull(arg({ type: CreateScheduleInput })),
+  },
+  resolve: async (_, { input }, { schedulerAPI }) => {
+    const response = await schedulerAPI.createWorkflowSchedule({
+      fromDate: input.performFromDate,
+      toDate: input.performTillDate,
+      enabled: input.isEnabled,
+      cronString: input.cronString,
+      name: input.name,
+      workflowName: input.workflowName,
+      workflowVersion: input.workflowVersion,
+      workflowContext: input.workflowContext,
+      parallelRuns: input.parallelRuns,
+    });
+
+    return {
+      ...response,
+      id: toGraphId('Schedule', response.name),
+    };
+  },
+});
+
+export const EditWorkflowScheduleInput = inputObjectType({
+  name: 'EditWorkflowScheduleInput',
+  definition(t) {
+    t.string('workflowName');
+    t.string('workflowVersion');
+    t.string('cronString');
+    t.string('workflowContext');
+    t.boolean('isEnabled');
+    t.string('performFromDate');
+    t.string('performTillDate');
+    t.boolean('parallelRuns');
+  },
+});
+
+export const EditWorkflowSchedule = mutationField('editWorkflowSchedule', {
+  type: Schedule,
+  args: {
+    input: nonNull(arg({ type: EditWorkflowScheduleInput })),
+    name: nonNull(stringArg()),
+  },
+  resolve: async (_, { input, name }, { schedulerAPI }) => {
+    const response = await schedulerAPI.editWorkflowSchedule(name, {
+      fromDate: input.performFromDate,
+      toDate: input.performTillDate,
+      enabled: input.isEnabled,
+      cronString: input.cronString,
+      workflowName: input.workflowName,
+      workflowVersion: input.workflowVersion,
+      workflowContext: input.workflowContext,
+      parallelRuns: input.parallelRuns,
+    });
+
+    return {
+      ...response,
+      id: toGraphId('Schedule', response.name),
+    };
+  },
+});
+
+export const ScheduleEdge = objectType({
+  name: 'ScheduleEdge',
+  definition: (t) => {
+    t.nonNull.field('node', {
+      type: Schedule,
+    });
+    t.nonNull.string('cursor');
+  },
+});
+
+export const ScheduleConnection = objectType({
+  name: 'ScheduleConnection',
+  definition: (t) => {
+    t.nonNull.list.field('edges', {
+      type: ScheduleEdge,
+    });
+    t.nonNull.field('pageInfo', {
+      type: PageInfo,
+    });
+    t.nonNull.int('totalCount');
+  },
+});
+
+export const WorkflowSchedules = queryField('schedules', {
+  type: nonNull(ScheduleConnection),
+  args: {
+    ...PaginationConnectionArgs,
+    filter: arg({
+      type: ScheduleFilterInput,
+    }),
+  },
+  resolve: async (_, { filter, ...args }, { schedulerAPI }) => {
+    const { schedules } = await schedulerAPI.getSchedules(args, filter);
+
+    if (schedules == null || schedules.edges == null) {
+      throw new Error('No schedules found');
+    }
+
+    return {
+      totalCount: schedules.totalCount,
+      edges: schedules.edges.filter(omitNullValue).map((schedule) => ({
+        ...schedule,
+        node: {
+          ...schedule.node,
+          id: toGraphId('Schedule', schedule.node.name),
+        },
+      })),
+      pageInfo: schedules.pageInfo,
+    };
+  },
+});
+
+export const DeleteSchedule = mutationField('deleteSchedule', {
+  type: IsOkResponse,
+  args: {
+    name: nonNull(stringArg()),
+  },
+  resolve: async (_, { name }, { schedulerAPI }) => {
+    try {
+      await schedulerAPI.deleteSchedule(name);
+
+      return {
+        isOk: true,
+      };
+    } catch (error) {
+      return {
+        isOk: false,
+      };
+    }
   },
 });

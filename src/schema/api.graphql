@@ -171,6 +171,18 @@ type CreateLabelPayload {
   label: Label
 }
 
+input CreateScheduleInput {
+  cronString: String!
+  isEnabled: Boolean
+  name: String!
+  parallelRuns: Boolean
+  performFromDate: String
+  performTillDate: String
+  workflowContext: String
+  workflowName: String!
+  workflowVersion: String!
+}
+
 type CreateTransactionPayload {
   transactionId: String
 }
@@ -277,6 +289,17 @@ type DiffData {
 type EdgeSourceTarget {
   interface: String!
   nodeId: String!
+}
+
+input EditWorkflowScheduleInput {
+  cronString: String
+  isEnabled: Boolean
+  parallelRuns: Boolean
+  performFromDate: String
+  performTillDate: String
+  workflowContext: String
+  workflowName: String
+  workflowVersion: String
 }
 
 input ExecuteNewWorkflowInput {
@@ -517,8 +540,10 @@ type Mutation {
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
+  deleteSchedule(name: String!): IsOkResponse
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   deleteWorkflow(name: String!, version: Int!): DeleteWorkflowPayload!
+  editWorkflowSchedule(input: EditWorkflowScheduleInput!, name: String!): Schedule
   executeNewWorkflow(input: StartWorkflowRequestInput!): String
   executeWorkflowByName(
     correlationId: String
@@ -558,6 +583,7 @@ type Mutation {
     workflowId: String!
   ): IsOkResponse
   revertChanges(transactionId: String!): RevertChangesPayload!
+  scheduleWorkflow(input: CreateScheduleInput!): Schedule
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
   terminateWorkflow(reason: String, workflowId: String!): IsOkResponse
   uninstallDevice(id: String!): UninstallDevicePayload!
@@ -637,6 +663,7 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!, version: Int): Node
+  schedules(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): ScheduleConnection!
   taskDefinitions: [TaskDefinition!]!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
@@ -662,6 +689,36 @@ enum RetryLogic {
 
 type RevertChangesPayload {
   isOk: Boolean!
+}
+
+type Schedule implements Node {
+  cronString: String!
+  id: ID!
+  isEnabled: Boolean!
+  name: String!
+  parallelRuns: Boolean!
+  performFromDate: String!
+  performTillDate: String!
+  version: Int
+  workflowContext: String!
+  workflowName: String!
+  workflowVersion: String!
+}
+
+type ScheduleConnection {
+  edges: [ScheduleEdge]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ScheduleEdge {
+  cursor: String!
+  node: Schedule!
+}
+
+input ScheduleFilterInput {
+  workflowName: String!
+  workflowVersion: String!
 }
 
 type Snapshot {
