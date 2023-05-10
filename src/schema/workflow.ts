@@ -1,4 +1,3 @@
-import { connectionFromArray } from 'graphql-relay';
 import { v4 as uuid } from 'uuid';
 import {
   arg,
@@ -30,6 +29,7 @@ import {
 } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
 import { omitNullValue, parseJson, unwrap } from '../helpers/utils.helpers';
+import { connectionFromArray } from '../helpers/connection.helpers';
 
 const log = getLogger('frinx-inventory-server');
 

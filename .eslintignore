@@ -6,3 +6,5 @@ nexus-typegen.ts
 jest.config.js
 seed.ts
 init.ts
+src/helpers/base64.helpers.ts
+src/helpers/connection.helpers.ts
