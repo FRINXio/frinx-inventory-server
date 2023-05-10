@@ -3,11 +3,13 @@ import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringAr
 import config from '../config';
 import conductorAPI from '../external-api/conductor';
 import { fromGraphId, getType } from '../helpers/id-helper';
+import schedulerAPI from '../external-api/scheduler';
 
 export const Node = interfaceType({
   name: 'Node',
   definition: (t) => {
     t.nonNull.id('id');
+    t.int('version'); // this is only used for Workflow, because it has composite id (name/version)
   },
 });
 export const PageInfo = objectType({
@@ -32,6 +34,7 @@ export const NodeQuery = extendType({
       type: Node,
       args: {
         id: nonNull(idArg()),
+        version: intArg(),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         /* eslint-disable @typescript-eslint/naming-convention */
@@ -99,7 +102,11 @@ export const NodeQuery = extendType({
           }
           case 'Workflow': {
             const id = fromGraphId('Workflow', args.id);
-            const workflow = await conductorAPI.getWorkflowDetail(config.conductorApiURL, id);
+            const workflow = await conductorAPI.getWorkflowDetail(
+              config.conductorApiURL,
+              id,
+              args.version ?? undefined,
+            );
             if (workflow == null) {
               return null;
             }
@@ -112,6 +119,16 @@ export const NodeQuery = extendType({
               return null;
             }
             return { ...workflow, id: args.id, __typename: 'ExecutedWorkflow' };
+          }
+          case 'Schedule': {
+            const id = fromGraphId('Schedule', args.id);
+            const schedule = await schedulerAPI.getSchedule(id);
+
+            if (schedule == null) {
+              return null;
+            }
+
+            return { ...schedule, id: args.id, __typename: 'Schedule' };
           }
           /* eslint-enable */
           default:

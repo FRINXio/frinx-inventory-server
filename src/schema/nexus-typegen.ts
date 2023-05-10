@@ -87,6 +87,18 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  CreateScheduleInput: {
+    // input type
+    cronString: string; // String!
+    isEnabled?: boolean | null; // Boolean
+    name: string; // String!
+    parallelRuns?: boolean | null; // Boolean
+    performFromDate?: string | null; // String
+    performTillDate?: string | null; // String
+    workflowContext?: string | null; // String
+    workflowName: string; // String!
+    workflowVersion: string; // String!
+  };
   CreateWorkflowInput: {
     // input type
     workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
@@ -101,6 +113,17 @@ export interface NexusGenInputs {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
+  };
+  EditWorkflowScheduleInput: {
+    // input type
+    cronString?: string | null; // String
+    isEnabled?: boolean | null; // Boolean
+    parallelRuns?: boolean | null; // Boolean
+    performFromDate?: string | null; // String
+    performTillDate?: string | null; // String
+    workflowContext?: string | null; // String
+    workflowName?: string | null; // String
+    workflowVersion?: string | null; // String
   };
   ExecuteNewWorkflowInput: {
     // input type
@@ -149,10 +172,20 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
+  OutputParameterInput: {
+    // input type
+    key: string; // String!
+    value: string; // String!
+  };
   PaginationArgs: {
     // input type
     size: number; // Int!
     start: number; // Int!
+  };
+  ScheduleFilterInput: {
+    // input type
+    workflowName: string; // String!
+    workflowVersion: string; // String!
   };
   StartWorkflowRequestInput: {
     // input type
@@ -231,10 +264,14 @@ export interface NexusGenInputs {
   };
   WorkflowInput: {
     // input type
+    createdAt?: string | null; // String
     description?: string | null; // String
     name: string; // String!
+    outputParameters?: NexusGenInputs['OutputParameterInput'][] | null; // [OutputParameterInput!]
+    restartable?: boolean | null; // Boolean
     tasks: string; // String!
     timeoutSeconds: number; // Int!
+    updatedAt?: string | null; // String
     version?: number | null; // Int
   };
 }
@@ -549,6 +586,11 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  OutputParameter: {
+    // root type
+    key: string; // String!
+    value: string; // String!
+  };
   PageInfo: {
     // root type
     endCursor?: string | null; // String
@@ -564,6 +606,18 @@ export interface NexusGenObjects {
   RevertChangesPayload: {
     // root type
     isOk: boolean; // Boolean!
+  };
+  Schedule: SourceTypes.Schedule;
+  ScheduleConnection: {
+    // root type
+    edges: Array<NexusGenRootTypes['ScheduleEdge'] | null>; // [ScheduleEdge]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  ScheduleEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Schedule']; // Schedule!
   };
   Snapshot: {
     // root type
@@ -683,6 +737,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'ExecutedWorkflowTask', 'required'>
     | core.Discriminate<'Label', 'required'>
     | core.Discriminate<'Location', 'required'>
+    | core.Discriminate<'Schedule', 'required'>
     | core.Discriminate<'Workflow', 'required'>
     | core.Discriminate<'Zone', 'required'>;
 }
@@ -726,6 +781,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     template: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   BlueprintConnection: {
     // field return type
@@ -782,6 +838,7 @@ export interface NexusGenFieldTypes {
     code: string; // String!
     id: string; // ID!
     name: string; // String!
+    version: number | null; // Int
   };
   CountryConnection: {
     // field return type
@@ -849,6 +906,7 @@ export interface NexusGenFieldTypes {
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
     vendor: string | null; // String
+    version: number | null; // Int
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
   DeviceConnection: {
@@ -891,6 +949,7 @@ export interface NexusGenFieldTypes {
     updatedAt: string | null; // String
     updatedBy: string | null; // String
     variables: string | null; // String
+    version: number | null; // Int
     workflowDefinition: NexusGenRootTypes['Workflow'] | null; // Workflow
     workflowId: string | null; // String
     workflowName: string | null; // String
@@ -925,6 +984,7 @@ export interface NexusGenFieldTypes {
     taskReferenceName: string | null; // String
     taskType: string | null; // String
     updateTime: string | null; // String
+    version: number | null; // Int
     workflowType: string | null; // String
   };
   GraphEdge: {
@@ -982,6 +1042,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     name: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   LabelConnection: {
     // field return type
@@ -1001,6 +1062,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     name: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   LocationConnection: {
     // field return type
@@ -1034,8 +1096,10 @@ export interface NexusGenFieldTypes {
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
+    deleteSchedule: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     deleteWorkflow: NexusGenRootTypes['DeleteWorkflowPayload']; // DeleteWorkflowPayload!
+    editWorkflowSchedule: NexusGenRootTypes['Schedule'] | null; // Schedule
     executeNewWorkflow: string | null; // String
     executeWorkflowByName: string | null; // String
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
@@ -1047,6 +1111,7 @@ export interface NexusGenFieldTypes {
     resumeWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     retryWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
+    scheduleWorkflow: NexusGenRootTypes['Schedule'] | null; // Schedule
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
     terminateWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     uninstallDevice: NexusGenRootTypes['UninstallDevicePayload']; // UninstallDevicePayload!
@@ -1080,6 +1145,11 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  OutputParameter: {
+    // field return type
+    key: string; // String!
+    value: string; // String!
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -1099,6 +1169,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
     taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -1118,6 +1189,31 @@ export interface NexusGenFieldTypes {
   RevertChangesPayload: {
     // field return type
     isOk: boolean; // Boolean!
+  };
+  Schedule: {
+    // field return type
+    cronString: string; // String!
+    id: string; // ID!
+    isEnabled: boolean; // Boolean!
+    name: string; // String!
+    parallelRuns: boolean; // Boolean!
+    performFromDate: string; // String!
+    performTillDate: string; // String!
+    version: number | null; // Int
+    workflowContext: string; // String!
+    workflowName: string; // String!
+    workflowVersion: string; // String!
+  };
+  ScheduleConnection: {
+    // field return type
+    edges: Array<NexusGenRootTypes['ScheduleEdge'] | null>; // [ScheduleEdge]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  ScheduleEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Schedule']; // Schedule!
   };
   Snapshot: {
     // field return type
@@ -1229,7 +1325,11 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     inputParameters: string[] | null; // [String!]
     name: string; // String!
+    outputParameters: NexusGenRootTypes['OutputParameter'][] | null; // [OutputParameter!]
+    restartable: boolean | null; // Boolean
     tasks: string | null; // String
+    timeoutPolicy: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
+    timeoutSeconds: number; // Int!
     updatedAt: string | null; // String
     updatedBy: string | null; // String
     version: number | null; // Int
@@ -1257,6 +1357,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     name: string; // String!
     updatedAt: string; // String!
+    version: number | null; // Int
   };
   ZoneEdge: {
     // field return type
@@ -1280,6 +1381,7 @@ export interface NexusGenFieldTypes {
   Node: {
     // field return type
     id: string; // ID!
+    version: number | null; // Int
   };
 }
 
@@ -1316,6 +1418,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     template: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   BlueprintConnection: {
     // field return type name
@@ -1372,6 +1475,7 @@ export interface NexusGenFieldTypeNames {
     code: 'String';
     id: 'ID';
     name: 'String';
+    version: 'Int';
   };
   CountryConnection: {
     // field return type name
@@ -1439,6 +1543,7 @@ export interface NexusGenFieldTypeNames {
     source: 'DeviceSource';
     updatedAt: 'String';
     vendor: 'String';
+    version: 'Int';
     zone: 'Zone';
   };
   DeviceConnection: {
@@ -1481,6 +1586,7 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'String';
     updatedBy: 'String';
     variables: 'String';
+    version: 'Int';
     workflowDefinition: 'Workflow';
     workflowId: 'String';
     workflowName: 'String';
@@ -1515,6 +1621,7 @@ export interface NexusGenFieldTypeNames {
     taskReferenceName: 'String';
     taskType: 'String';
     updateTime: 'String';
+    version: 'Int';
     workflowType: 'String';
   };
   GraphEdge: {
@@ -1572,6 +1679,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     name: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   LabelConnection: {
     // field return type name
@@ -1591,6 +1699,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     name: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   LocationConnection: {
     // field return type name
@@ -1624,8 +1733,10 @@ export interface NexusGenFieldTypeNames {
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
+    deleteSchedule: 'IsOkResponse';
     deleteSnapshot: 'DeleteSnapshotPayload';
     deleteWorkflow: 'DeleteWorkflowPayload';
+    editWorkflowSchedule: 'Schedule';
     executeNewWorkflow: 'String';
     executeWorkflowByName: 'String';
     importCSV: 'CSVImport';
@@ -1637,6 +1748,7 @@ export interface NexusGenFieldTypeNames {
     resumeWorkflow: 'IsOkResponse';
     retryWorkflow: 'IsOkResponse';
     revertChanges: 'RevertChangesPayload';
+    scheduleWorkflow: 'Schedule';
     syncFromNetwork: 'SyncFromNetworkPayload';
     terminateWorkflow: 'IsOkResponse';
     uninstallDevice: 'UninstallDevicePayload';
@@ -1670,6 +1782,11 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphEdge';
     nodes: 'NetNode';
   };
+  OutputParameter: {
+    // field return type name
+    key: 'String';
+    value: 'String';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1689,6 +1806,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    schedules: 'ScheduleConnection';
     taskDefinitions: 'TaskDefinition';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
@@ -1708,6 +1826,31 @@ export interface NexusGenFieldTypeNames {
   RevertChangesPayload: {
     // field return type name
     isOk: 'Boolean';
+  };
+  Schedule: {
+    // field return type name
+    cronString: 'String';
+    id: 'ID';
+    isEnabled: 'Boolean';
+    name: 'String';
+    parallelRuns: 'Boolean';
+    performFromDate: 'String';
+    performTillDate: 'String';
+    version: 'Int';
+    workflowContext: 'String';
+    workflowName: 'String';
+    workflowVersion: 'String';
+  };
+  ScheduleConnection: {
+    // field return type name
+    edges: 'ScheduleEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  ScheduleEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'Schedule';
   };
   Snapshot: {
     // field return type name
@@ -1819,7 +1962,11 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     inputParameters: 'String';
     name: 'String';
+    outputParameters: 'OutputParameter';
+    restartable: 'Boolean';
     tasks: 'String';
+    timeoutPolicy: 'TimeoutPolicy';
+    timeoutSeconds: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
     version: 'Int';
@@ -1847,6 +1994,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     name: 'String';
     updatedAt: 'String';
+    version: 'Int';
   };
   ZoneEdge: {
     // field return type name
@@ -1870,6 +2018,7 @@ export interface NexusGenFieldTypeNames {
   Node: {
     // field return type name
     id: 'ID';
+    version: 'Int';
   };
 }
 
@@ -1964,6 +2113,10 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
     };
+    deleteSchedule: {
+      // args
+      name: string; // String!
+    };
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
@@ -1972,6 +2125,11 @@ export interface NexusGenArgTypes {
       // args
       name: string; // String!
       version: number; // Int!
+    };
+    editWorkflowSchedule: {
+      // args
+      input: NexusGenInputs['EditWorkflowScheduleInput']; // EditWorkflowScheduleInput!
+      name: string; // String!
     };
     executeNewWorkflow: {
       // args
@@ -2024,6 +2182,10 @@ export interface NexusGenArgTypes {
     revertChanges: {
       // args
       transactionId: string; // String!
+    };
+    scheduleWorkflow: {
+      // args
+      input: NexusGenInputs['CreateScheduleInput']; // CreateScheduleInput!
     };
     syncFromNetwork: {
       // args
@@ -2121,6 +2283,15 @@ export interface NexusGenArgTypes {
     node: {
       // args
       id: string; // ID!
+      version?: number | null; // Int
+    };
+    schedules: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      filter?: NexusGenInputs['ScheduleFilterInput'] | null; // ScheduleFilterInput
+      first?: number | null; // Int
+      last?: number | null; // Int
     };
     topology: {
       // args
@@ -2175,6 +2346,7 @@ export interface NexusGenAbstractTypeMembers {
     | 'ExecutedWorkflowTask'
     | 'Label'
     | 'Location'
+    | 'Schedule'
     | 'Workflow'
     | 'Zone';
 }
@@ -2189,6 +2361,7 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
+  Schedule: 'Node';
   Workflow: 'Node';
   Zone: 'Node';
 }
