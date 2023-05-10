@@ -6,6 +6,7 @@ import {
   NestedTask,
   ApiTaskDefinition,
 } from '../external-api/conductor-network-types';
+import { GetScheduleQuery } from '../__generated__/graphql';
 
 export type Label = label;
 export type Device = device;
@@ -27,3 +28,4 @@ export type ExecutedWorkflow = ApiExecutedWorkflow & { id: string };
 export type ExecutedWorkflowTask = ApiExecutedWorkflowTask & { id: string };
 export type WorkflowTask = NestedTask;
 export type TaskDefinition = ApiTaskDefinition;
+export type Schedule = GetScheduleQuery['schedule'] & { id: string };

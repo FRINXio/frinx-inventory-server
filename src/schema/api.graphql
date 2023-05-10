@@ -174,7 +174,7 @@ type CreateLabelPayload {
 input CreateScheduleInput {
   cronString: String!
   isEnabled: Boolean
-  name: ID!
+  name: String!
   parallelRuns: Boolean
   performFromDate: String
   performTillDate: String
@@ -294,7 +294,6 @@ type EdgeSourceTarget {
 input EditWorkflowScheduleInput {
   cronString: String
   isEnabled: Boolean
-  name: String
   parallelRuns: Boolean
   performFromDate: String
   performTillDate: String
@@ -541,7 +540,7 @@ type Mutation {
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
-  deleteSchedule(name: String!): Boolean
+  deleteSchedule(name: String!): IsOkResponse
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   deleteWorkflow(name: String!, version: Int!): DeleteWorkflowPayload!
   editWorkflowSchedule(input: EditWorkflowScheduleInput!, name: String!): Schedule
@@ -664,7 +663,6 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!, version: Int): Node
-  schedule(name: String!): Schedule
   schedules(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): ScheduleConnection!
   taskDefinitions: [TaskDefinition!]!
   topology(filter: FilterTopologyInput): Topology
@@ -693,13 +691,15 @@ type RevertChangesPayload {
   isOk: Boolean!
 }
 
-type Schedule {
+type Schedule implements Node {
   cronString: String!
+  id: ID!
   isEnabled: Boolean!
-  name: ID!
+  name: String!
   parallelRuns: Boolean!
   performFromDate: String!
   performTillDate: String!
+  version: Int
   workflowContext: String!
   workflowName: String!
   workflowVersion: String!

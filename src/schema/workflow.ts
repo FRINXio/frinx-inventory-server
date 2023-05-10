@@ -818,7 +818,7 @@ export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
 export const CreateScheduleInput = inputObjectType({
   name: 'CreateScheduleInput',
   definition(t) {
-    t.nonNull.id('name');
+    t.nonNull.string('name');
     t.nonNull.string('workflowName');
     t.nonNull.string('workflowVersion');
     t.nonNull.string('cronString');
@@ -833,14 +833,24 @@ export const CreateScheduleInput = inputObjectType({
 export const Schedule = objectType({
   name: 'Schedule',
   definition: (t) => {
-    t.nonNull.id('name');
+    t.implements(Node);
+    t.nonNull.id('id', {
+      resolve: (root) => toGraphId('Schedule', root.name),
+    });
+    t.nonNull.string('name');
     t.nonNull.string('workflowName');
     t.nonNull.string('workflowVersion');
     t.nonNull.string('cronString');
     t.nonNull.string('workflowContext');
-    t.nonNull.boolean('isEnabled');
-    t.nonNull.string('performFromDate');
-    t.nonNull.string('performTillDate');
+    t.nonNull.boolean('isEnabled', {
+      resolve: (root) => root.enabled,
+    });
+    t.nonNull.string('performFromDate', {
+      resolve: (root) => root.fromDate,
+    });
+    t.nonNull.string('performTillDate', {
+      resolve: (root) => root.toDate,
+    });
     t.nonNull.boolean('parallelRuns');
   },
 });
@@ -851,13 +861,21 @@ export const ScheduleWorkflow = mutationField('scheduleWorkflow', {
     input: nonNull(arg({ type: CreateScheduleInput })),
   },
   resolve: async (_, { input }, { schedulerAPI }) => {
-    const response = await schedulerAPI.createWorkflowSchedule(input);
+    const response = await schedulerAPI.createWorkflowSchedule({
+      fromDate: input.performFromDate,
+      toDate: input.performTillDate,
+      enabled: input.isEnabled,
+      cronString: input.cronString,
+      name: input.name,
+      workflowName: input.workflowName,
+      workflowVersion: input.workflowVersion,
+      workflowContext: input.workflowContext,
+      parallelRuns: input.parallelRuns,
+    });
 
     return {
       ...response,
-      performFromDate: response.fromDate,
-      performTillDate: response.toDate,
-      isEnabled: response.enabled,
+      id: toGraphId('Schedule', response.name),
     };
   },
 });
@@ -865,7 +883,6 @@ export const ScheduleWorkflow = mutationField('scheduleWorkflow', {
 export const EditWorkflowScheduleInput = inputObjectType({
   name: 'EditWorkflowScheduleInput',
   definition(t) {
-    t.string('name');
     t.string('workflowName');
     t.string('workflowVersion');
     t.string('cronString');
@@ -884,13 +901,20 @@ export const EditWorkflowSchedule = mutationField('editWorkflowSchedule', {
     name: nonNull(stringArg()),
   },
   resolve: async (_, { input, name }, { schedulerAPI }) => {
-    const response = await schedulerAPI.editWorkflowSchedule(name, input);
+    const response = await schedulerAPI.editWorkflowSchedule(name, {
+      fromDate: input.performFromDate,
+      toDate: input.performTillDate,
+      enabled: input.isEnabled,
+      cronString: input.cronString,
+      workflowName: input.workflowName,
+      workflowVersion: input.workflowVersion,
+      workflowContext: input.workflowContext,
+      parallelRuns: input.parallelRuns,
+    });
 
     return {
       ...response,
-      performFromDate: response.fromDate,
-      performTillDate: response.toDate,
-      isEnabled: response.enabled,
+      id: toGraphId('Schedule', response.name),
     };
   },
 });
@@ -929,27 +953,26 @@ export const WorkflowSchedules = queryField('schedules', {
   resolve: async (_, { filter, ...args }, { schedulerAPI }) => {
     const { schedules } = await schedulerAPI.getSchedules(args, filter);
 
-    if (schedules == null) {
+    if (schedules == null || schedules.edges == null) {
       throw new Error('No schedules found');
     }
 
     return {
-      ...schedules,
-      edges: schedules.edges.filter(omitNullValue).map((edge) => ({
-        cursor: edge.cursor,
+      totalCount: schedules.totalCount,
+      edges: schedules.edges.filter(omitNullValue).map((schedule) => ({
+        ...schedule,
         node: {
-          ...edge.node,
-          performFromDate: edge.node.fromDate,
-          performTillDate: edge.node.toDate,
-          isEnabled: edge.node.enabled,
+          ...schedule.node,
+          id: toGraphId('Schedule', schedule.node.name),
         },
       })),
+      pageInfo: schedules.pageInfo,
     };
   },
 });
 
 export const DeleteSchedule = mutationField('deleteSchedule', {
-  type: 'Boolean',
+  type: IsOkResponse,
   args: {
     name: nonNull(stringArg()),
   },
@@ -957,30 +980,13 @@ export const DeleteSchedule = mutationField('deleteSchedule', {
     try {
       await schedulerAPI.deleteSchedule(name);
 
-      return true;
+      return {
+        isOk: true,
+      };
     } catch (error) {
-      return false;
+      return {
+        isOk: false,
+      };
     }
-  },
-});
-
-export const ScheduleDetail = queryField('schedule', {
-  type: Schedule,
-  args: {
-    name: nonNull(stringArg()),
-  },
-  resolve: async (_, { name }, { schedulerAPI }) => {
-    const schedule = await schedulerAPI.getSchedule(name);
-
-    if (schedule == null) {
-      throw new Error('No schedule found');
-    }
-
-    return {
-      ...schedule,
-      performFromDate: schedule.fromDate,
-      performTillDate: schedule.toDate,
-      isEnabled: schedule.enabled,
-    };
   },
 });

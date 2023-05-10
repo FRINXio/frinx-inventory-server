@@ -3,6 +3,7 @@ import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringAr
 import config from '../config';
 import conductorAPI from '../external-api/conductor';
 import { fromGraphId, getType } from '../helpers/id-helper';
+import schedulerAPI from '../external-api/scheduler';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -118,6 +119,16 @@ export const NodeQuery = extendType({
               return null;
             }
             return { ...workflow, id: args.id, __typename: 'ExecutedWorkflow' };
+          }
+          case 'Schedule': {
+            const id = fromGraphId('Schedule', args.id);
+            const schedule = await schedulerAPI.getSchedule(id);
+
+            if (schedule == null) {
+              return null;
+            }
+
+            return { ...schedule, id: args.id, __typename: 'Schedule' };
           }
           /* eslint-enable */
           default:
