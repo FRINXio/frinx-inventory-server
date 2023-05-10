@@ -5,7 +5,6 @@ import {
   enumType,
   extendType,
   inputObjectType,
-  intArg,
   list,
   mutationField,
   nonNull,
@@ -605,19 +604,26 @@ const DeleteWorkflowPayload = objectType({
   },
 });
 
+const DeleteWorkflowInput = inputObjectType({
+  name: 'DeleteWorkflowInput',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.nonNull.int('version');
+  },
+});
+
 export const DeleteWorkflowMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
     t.nonNull.field('deleteWorkflow', {
       type: DeleteWorkflowPayload,
       args: {
-        name: nonNull(stringArg()),
-        version: nonNull(intArg()),
+        input: nonNull(arg({ type: DeleteWorkflowInput })),
       },
       resolve: async (_, args, { conductorAPI }) => {
-        const { name, version } = args;
-        const workflowToDelete = await conductorAPI.getWorkflowDetail(config.conductorApiURL, name);
-        await conductorAPI.deleteWorkflow(config.conductorApiURL, name, version);
+        const { input } = args;
+        const workflowToDelete = await conductorAPI.getWorkflowDetail(config.conductorApiURL, input.name);
+        await conductorAPI.deleteWorkflow(config.conductorApiURL, input.name, input.version);
         return {
           workflow: {
             ...workflowToDelete,
@@ -632,10 +638,10 @@ export const DeleteWorkflowMutation = extendType({
 export const PauseWorkflowMutation = mutationField('pauseWorkflow', {
   type: IsOkResponse,
   args: {
-    workflowId: nonNull(stringArg()),
+    id: nonNull(stringArg()),
   },
-  resolve: async (_, { workflowId }, { conductorAPI }) => {
-    await conductorAPI.pauseWorkflow(config.conductorApiURL, workflowId);
+  resolve: async (_, { id }, { conductorAPI }) => {
+    await conductorAPI.pauseWorkflow(config.conductorApiURL, id);
 
     return { isOk: true };
   },
@@ -644,10 +650,10 @@ export const PauseWorkflowMutation = mutationField('pauseWorkflow', {
 export const ResumeWorkflowMutation = mutationField('resumeWorkflow', {
   type: IsOkResponse,
   args: {
-    workflowId: nonNull(stringArg()),
+    id: nonNull(stringArg()),
   },
-  resolve: async (_, { workflowId }, { conductorAPI }) => {
-    await conductorAPI.resumeWorkflow(config.conductorApiURL, workflowId);
+  resolve: async (_, { id }, { conductorAPI }) => {
+    await conductorAPI.resumeWorkflow(config.conductorApiURL, id);
 
     return { isOk: true };
   },
@@ -661,13 +667,20 @@ export const BulkOperationResponse = objectType({
   },
 });
 
+const BulkOperationInput = inputObjectType({
+  name: 'BulkOperationInput',
+  definition: (t) => {
+    t.nonNull.list.nonNull.string('executedWorkflowIds');
+  },
+});
+
 export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
   type: BulkOperationResponse,
   args: {
-    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
+    input: nonNull(arg({ type: BulkOperationInput })),
   },
-  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+  resolve: async (_, { input }, { conductorAPI }) => {
+    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -677,16 +690,27 @@ export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
   },
 });
 
+const ExecuteWorkflowByNameInput = inputObjectType({
+  name: 'ExecuteWorkflowByName',
+  definition: (t) => {
+    t.nonNull.string('inputParameters', { description: 'JSON string of input parameters' });
+    t.nonNull.string('workflowName');
+    t.int('workflowVersion');
+    t.string('correlationId');
+    t.int('priority');
+  },
+});
+
 export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
   type: 'String',
   args: {
-    inputParameters: nonNull(stringArg({ description: 'JSON string of input parameters' })),
-    workflowName: nonNull(stringArg()),
-    workflowVersion: intArg(),
-    correlationId: stringArg(),
-    priority: intArg(),
+    input: nonNull(arg({ type: ExecuteWorkflowByNameInput })),
   },
-  resolve: async (_, { inputParameters, workflowName, workflowVersion, correlationId, priority }, { conductorAPI }) => {
+  resolve: async (
+    _,
+    { input: { inputParameters, workflowName, workflowVersion, correlationId, priority } },
+    { conductorAPI },
+  ) => {
     const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
       inputParameters: parseJson(inputParameters),
       name: workflowName,
@@ -702,10 +726,10 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
 export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
   type: BulkOperationResponse,
   args: {
-    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
+    input: nonNull(arg({ type: BulkOperationInput })),
   },
-  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+  resolve: async (_, { input }, { conductorAPI }) => {
+    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -718,10 +742,10 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
 export const BulkTerminateWorkflow = mutationField('bulkTerminateWorkflow', {
   type: BulkOperationResponse,
   args: {
-    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
+    input: nonNull(arg({ type: BulkOperationInput })),
   },
-  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+  resolve: async (_, { input }, { conductorAPI }) => {
+    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkTerminateWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -734,10 +758,10 @@ export const BulkTerminateWorkflow = mutationField('bulkTerminateWorkflow', {
 export const BulkRetryWorkflow = mutationField('bulkRetryWorkflow', {
   type: BulkOperationResponse,
   args: {
-    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
+    input: nonNull(arg({ type: BulkOperationInput })),
   },
-  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+  resolve: async (_, { input }, { conductorAPI }) => {
+    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkRetryWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -750,10 +774,10 @@ export const BulkRetryWorkflow = mutationField('bulkRetryWorkflow', {
 export const BulkRestartWorkflow = mutationField('bulkRestartWorkflow', {
   type: BulkOperationResponse,
   args: {
-    executedWorkflowIds: nonNull(list(nonNull(stringArg()))),
+    input: nonNull(arg({ type: BulkOperationInput })),
   },
-  resolve: async (_, { executedWorkflowIds }, { conductorAPI }) => {
-    const nativeWorkflowIds = executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
+  resolve: async (_, { input }, { conductorAPI }) => {
+    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
     const data = await conductorAPI.bulkRestartWorkflow(config.conductorApiURL, nativeWorkflowIds);
 
     return {
@@ -763,53 +787,81 @@ export const BulkRestartWorkflow = mutationField('bulkRestartWorkflow', {
   },
 });
 
+const RetryWorkflowInput = inputObjectType({
+  name: 'RetryWorkflowInput',
+  definition: (t) => {
+    t.boolean('shouldResumeSubworkflowTasks', { description: 'Default value is true' });
+  },
+});
+
 export const RetryWorkflowMutation = mutationField('retryWorkflow', {
   type: IsOkResponse,
   args: {
-    workflowId: nonNull(stringArg()),
-    shouldResumeSubworkflowTasks: booleanArg({ description: 'Default value is true' }),
+    id: nonNull(stringArg()),
+    input: arg({ type: RetryWorkflowInput }),
   },
-  resolve: async (_, { workflowId, shouldResumeSubworkflowTasks }, { conductorAPI }) => {
-    await conductorAPI.retryWorkflow(config.conductorApiURL, workflowId, shouldResumeSubworkflowTasks);
+  resolve: async (_, { id, input }, { conductorAPI }) => {
+    await conductorAPI.retryWorkflow(config.conductorApiURL, id, input?.shouldResumeSubworkflowTasks);
 
     return { isOk: true };
+  },
+});
+
+const RestartWorkflowInput = inputObjectType({
+  name: 'RestartWorkflowInput',
+  definition: (t) => {
+    t.boolean('shouldUseLatestDefinitions', { description: 'Default value is true' });
   },
 });
 
 export const RestartWorkflowMutation = mutationField('restartWorkflow', {
   type: IsOkResponse,
   args: {
-    workflowId: nonNull(stringArg()),
-    shouldUseLatestDefinitions: booleanArg({ description: 'Default value is true' }),
+    id: nonNull(stringArg()),
+    input: arg({ type: RestartWorkflowInput }),
   },
-  resolve: async (_, { workflowId, shouldUseLatestDefinitions }, { conductorAPI }) => {
-    await conductorAPI.restartWorkflow(config.conductorApiURL, workflowId, shouldUseLatestDefinitions);
+  resolve: async (_, { id, input }, { conductorAPI }) => {
+    await conductorAPI.restartWorkflow(config.conductorApiURL, id, input?.shouldUseLatestDefinitions);
 
     return { isOk: true };
+  },
+});
+
+const TerminateWorkflowInput = inputObjectType({
+  name: 'TerminateWorkflowInput',
+  definition: (t) => {
+    t.string('reason');
   },
 });
 
 export const TerminateWorkflowMutation = mutationField('terminateWorkflow', {
   type: IsOkResponse,
   args: {
-    workflowId: nonNull(stringArg()),
-    reason: stringArg(),
+    id: nonNull(stringArg()),
+    input: arg({ type: TerminateWorkflowInput }),
   },
-  resolve: async (_, { workflowId, reason }, { conductorAPI }) => {
-    await conductorAPI.terminateWorkflow(config.conductorApiURL, workflowId, reason);
+  resolve: async (_, { id, input }, { conductorAPI }) => {
+    await conductorAPI.terminateWorkflow(config.conductorApiURL, id, input?.reason);
 
     return { isOk: true };
+  },
+});
+
+const RemoveWorkflowInput = inputObjectType({
+  name: 'RemoveWorkflowInput',
+  definition: (t) => {
+    t.boolean('shouldArchiveWorkflow', { description: 'Default value is true' });
   },
 });
 
 export const RemoveWorkflowMutation = mutationField('removeWorkflow', {
   type: IsOkResponse,
   args: {
-    workflowId: nonNull(stringArg()),
-    shouldArchiveWorkflow: booleanArg({ description: 'Default value is true' }),
+    id: nonNull(stringArg()),
+    input: arg({ type: RemoveWorkflowInput }),
   },
-  resolve: async (_, { workflowId, shouldArchiveWorkflow }, { conductorAPI }) => {
-    await conductorAPI.removeWorkflow(config.conductorApiURL, workflowId, shouldArchiveWorkflow);
+  resolve: async (_, { id, input }, { conductorAPI }) => {
+    await conductorAPI.removeWorkflow(config.conductorApiURL, id, input?.shouldArchiveWorkflow);
 
     return { isOk: true };
   },
@@ -898,9 +950,10 @@ export const EditWorkflowSchedule = mutationField('editWorkflowSchedule', {
   type: Schedule,
   args: {
     input: nonNull(arg({ type: EditWorkflowScheduleInput })),
-    name: nonNull(stringArg()),
+    id: nonNull(stringArg()),
   },
-  resolve: async (_, { input, name }, { schedulerAPI }) => {
+  resolve: async (_, { input, id }, { schedulerAPI }) => {
+    const name = fromGraphId('Schedule', id);
     const response = await schedulerAPI.editWorkflowSchedule(name, {
       fromDate: input.performFromDate,
       toDate: input.performTillDate,
@@ -974,10 +1027,11 @@ export const WorkflowSchedules = queryField('schedules', {
 export const DeleteSchedule = mutationField('deleteSchedule', {
   type: IsOkResponse,
   args: {
-    name: nonNull(stringArg()),
+    id: nonNull(stringArg()),
   },
-  resolve: async (_, { name }, { schedulerAPI }) => {
+  resolve: async (_, { id }, { schedulerAPI }) => {
     try {
+      const name = fromGraphId('Schedule', id);
       await schedulerAPI.deleteSchedule(name);
 
       return {

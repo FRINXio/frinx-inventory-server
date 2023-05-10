@@ -73,6 +73,10 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     name: string; // String!
   };
+  BulkOperationInput: {
+    // input type
+    executedWorkflowIds: string[]; // [String!]!
+  };
   CSVImportInput: {
     // input type
     file: NexusGenScalars['Upload']; // Upload!
@@ -109,6 +113,11 @@ export interface NexusGenInputs {
     name: string; // String!
     transactionId: string; // String!
   };
+  DeleteWorkflowInput: {
+    // input type
+    name: string; // String!
+    version: number; // Int!
+  };
   DeviceOrderByInput: {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
@@ -134,6 +143,14 @@ export interface NexusGenInputs {
     priority?: number | null; // Int
     taskToDomain?: string | null; // String
     version?: number | null; // Int
+  };
+  ExecuteWorkflowByName: {
+    // input type
+    correlationId?: string | null; // String
+    inputParameters: string; // String!
+    priority?: number | null; // Int
+    workflowName: string; // String!
+    workflowVersion?: number | null; // Int
   };
   ExecutedWorkflowFilterInput: {
     // input type
@@ -182,6 +199,18 @@ export interface NexusGenInputs {
     size: number; // Int!
     start: number; // Int!
   };
+  RemoveWorkflowInput: {
+    // input type
+    shouldArchiveWorkflow?: boolean | null; // Boolean
+  };
+  RestartWorkflowInput: {
+    // input type
+    shouldUseLatestDefinitions?: boolean | null; // Boolean
+  };
+  RetryWorkflowInput: {
+    // input type
+    shouldResumeSubworkflowTasks?: boolean | null; // Boolean
+  };
   ScheduleFilterInput: {
     // input type
     workflowName: string; // String!
@@ -208,6 +237,10 @@ export interface NexusGenInputs {
     taskReferenceName: string; // String!
     type?: string | null; // String
     workflowTaskType?: Array<NexusGenEnums['WorkflowTaskType'] | null> | null; // [WorkflowTaskType]
+  };
+  TerminateWorkflowInput: {
+    // input type
+    reason?: string | null; // String
   };
   UpdateBlueprintInput: {
     // input type
@@ -2061,23 +2094,23 @@ export interface NexusGenArgTypes {
     };
     bulkPauseWorkflow: {
       // args
-      executedWorkflowIds: string[]; // [String!]!
+      input: NexusGenInputs['BulkOperationInput']; // BulkOperationInput!
     };
     bulkRestartWorkflow: {
       // args
-      executedWorkflowIds: string[]; // [String!]!
+      input: NexusGenInputs['BulkOperationInput']; // BulkOperationInput!
     };
     bulkResumeWorkflow: {
       // args
-      executedWorkflowIds: string[]; // [String!]!
+      input: NexusGenInputs['BulkOperationInput']; // BulkOperationInput!
     };
     bulkRetryWorkflow: {
       // args
-      executedWorkflowIds: string[]; // [String!]!
+      input: NexusGenInputs['BulkOperationInput']; // BulkOperationInput!
     };
     bulkTerminateWorkflow: {
       // args
-      executedWorkflowIds: string[]; // [String!]!
+      input: NexusGenInputs['BulkOperationInput']; // BulkOperationInput!
     };
     closeTransaction: {
       // args
@@ -2115,7 +2148,7 @@ export interface NexusGenArgTypes {
     };
     deleteSchedule: {
       // args
-      name: string; // String!
+      id: string; // String!
     };
     deleteSnapshot: {
       // args
@@ -2123,13 +2156,12 @@ export interface NexusGenArgTypes {
     };
     deleteWorkflow: {
       // args
-      name: string; // String!
-      version: number; // Int!
+      input: NexusGenInputs['DeleteWorkflowInput']; // DeleteWorkflowInput!
     };
     editWorkflowSchedule: {
       // args
+      id: string; // String!
       input: NexusGenInputs['EditWorkflowScheduleInput']; // EditWorkflowScheduleInput!
-      name: string; // String!
     };
     executeNewWorkflow: {
       // args
@@ -2137,11 +2169,7 @@ export interface NexusGenArgTypes {
     };
     executeWorkflowByName: {
       // args
-      correlationId?: string | null; // String
-      inputParameters: string; // String!
-      priority?: number | null; // Int
-      workflowName: string; // String!
-      workflowVersion?: number | null; // Int
+      input: NexusGenInputs['ExecuteWorkflowByName']; // ExecuteWorkflowByName!
     };
     importCSV: {
       // args
@@ -2153,12 +2181,12 @@ export interface NexusGenArgTypes {
     };
     pauseWorkflow: {
       // args
-      workflowId: string; // String!
+      id: string; // String!
     };
     removeWorkflow: {
       // args
-      shouldArchiveWorkflow?: boolean | null; // Boolean
-      workflowId: string; // String!
+      id: string; // String!
+      input?: NexusGenInputs['RemoveWorkflowInput'] | null; // RemoveWorkflowInput
     };
     resetConfig: {
       // args
@@ -2167,17 +2195,17 @@ export interface NexusGenArgTypes {
     };
     restartWorkflow: {
       // args
-      shouldUseLatestDefinitions?: boolean | null; // Boolean
-      workflowId: string; // String!
+      id: string; // String!
+      input?: NexusGenInputs['RestartWorkflowInput'] | null; // RestartWorkflowInput
     };
     resumeWorkflow: {
       // args
-      workflowId: string; // String!
+      id: string; // String!
     };
     retryWorkflow: {
       // args
-      shouldResumeSubworkflowTasks?: boolean | null; // Boolean
-      workflowId: string; // String!
+      id: string; // String!
+      input?: NexusGenInputs['RetryWorkflowInput'] | null; // RetryWorkflowInput
     };
     revertChanges: {
       // args
@@ -2194,8 +2222,8 @@ export interface NexusGenArgTypes {
     };
     terminateWorkflow: {
       // args
-      reason?: string | null; // String
-      workflowId: string; // String!
+      id: string; // String!
+      input?: NexusGenInputs['TerminateWorkflowInput'] | null; // TerminateWorkflowInput
     };
     uninstallDevice: {
       // args
