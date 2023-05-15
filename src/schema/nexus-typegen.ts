@@ -326,6 +326,7 @@ export interface NexusGenEnums {
     | 'TIMED_OUT';
   GraphEdgeStatus: 'ok' | 'unknown';
   RetryLogic: 'EXPONENTIAL_BACKOFF' | 'FIXED' | 'LINEAR_BACKOFF';
+  ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
@@ -1232,6 +1233,7 @@ export interface NexusGenFieldTypes {
     parallelRuns: boolean; // Boolean!
     performFromDate: string; // String!
     performTillDate: string; // String!
+    status: NexusGenEnums['ScheduleStatus']; // ScheduleStatus!
     version: number | null; // Int
     workflowContext: string; // String!
     workflowName: string; // String!
@@ -1869,6 +1871,7 @@ export interface NexusGenFieldTypeNames {
     parallelRuns: 'Boolean';
     performFromDate: 'String';
     performTillDate: 'String';
+    status: 'ScheduleStatus';
     version: 'Int';
     workflowContext: 'String';
     workflowName: 'String';

@@ -882,6 +882,11 @@ export const CreateScheduleInput = inputObjectType({
   },
 });
 
+export const ScheduleStatus = enumType({
+  name: 'ScheduleStatus',
+  members: ['UNKNOWN', 'COMPLETED', 'FAILED', 'PAUSED', 'RUNNING', 'TERMINATED', 'TIMED_OUT'],
+});
+
 export const Schedule = objectType({
   name: 'Schedule',
   definition: (t) => {
@@ -904,6 +909,10 @@ export const Schedule = objectType({
       resolve: (root) => root.toDate,
     });
     t.nonNull.boolean('parallelRuns');
+    t.nonNull.field('status', {
+      type: ScheduleStatus,
+      resolve: (root) => root.status,
+    });
   },
 });
 
