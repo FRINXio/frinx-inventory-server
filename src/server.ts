@@ -8,7 +8,7 @@ import https from 'https';
 import http, { Server } from 'http';
 import path from 'path';
 import { WebSocketServer } from 'ws';
-import createContext from './context';
+import createContext, { createDynamicContext } from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
 import getLogger from './get-logger';
 import isDev from './is-dev';
@@ -46,7 +46,13 @@ const wsServer = new WebSocketServer({
   server,
   path: '/graphql',
 });
-const serverCleanup = useServer({ schema }, wsServer);
+const serverCleanup = useServer(
+  {
+    schema,
+    context: createDynamicContext,
+  },
+  wsServer,
+);
 
 const apolloServer = new ApolloServer({
   csrfPrevention: true,

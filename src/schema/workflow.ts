@@ -11,6 +11,7 @@ import {
   objectType,
   queryField,
   stringArg,
+  subscriptionField,
 } from 'nexus';
 import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
@@ -29,6 +30,7 @@ import {
 import { StartWorkflowInput } from '../types/conductor.types';
 import { omitNullValue, parseJson, unwrap } from '../helpers/utils.helpers';
 import { connectionFromArray } from '../helpers/connection.helpers';
+import { asyncGenerator } from '../helpers/conductor.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
@@ -1051,5 +1053,28 @@ export const DeleteSchedule = mutationField('deleteSchedule', {
         isOk: false,
       };
     }
+  },
+});
+
+export const ExecutedWorkflowSubscription = subscriptionField('controlExecutedWorkflow', {
+  type: ExecutedWorkflow,
+  args: {
+    id: nonNull(stringArg()),
+  },
+  subscribe: async (_, { id }, { conductorAPI }) =>
+    asyncGenerator({
+      repeatTill: (workflow) => workflow?.status === 'RUNNING' || workflow?.status === 'PAUSED',
+      fn: () =>
+        conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, fromGraphId('ExecutedWorkflow', id), false),
+    }),
+  resolve: (workflow) => {
+    if (workflow == null) {
+      return null;
+    }
+
+    return {
+      ...workflow,
+      id: toGraphId('ExecutedWorkflow', workflow.workflowId || uuid()),
+    };
   },
 });

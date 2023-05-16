@@ -773,6 +773,7 @@ type SubWorkflow {
 }
 
 type Subscription {
+  controlExecutedWorkflow(id: String!): ExecutedWorkflow
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 
