@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import {
   arg,
   booleanArg,
@@ -213,7 +212,7 @@ export const ExecutedWorkflow = objectType({
   definition(t) {
     t.implements(Node);
     t.nonNull.id('id', {
-      resolve: (executedWorkflow) => toGraphId('ExecutedWorkflow', executedWorkflow.workflowId ?? uuid()),
+      resolve: (executedWorkflow) => toGraphId('ExecutedWorkflow', unwrap(executedWorkflow.workflowId)),
     });
     t.string('createdBy', { resolve: (executedWorkflow) => executedWorkflow.createdBy ?? null });
     t.string('updatedBy', { resolve: (workflow) => workflow.updatedBy ?? null });
@@ -323,7 +322,7 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
     const executedWorkflowsWithId = executedWorkflows
       .map((w) => ({
         ...w,
-        id: toGraphId('ExecutedWorkflow', w.workflowId || uuid()),
+        id: toGraphId('ExecutedWorkflow', unwrap(w.workflowId || null)),
       }))
       .slice(0, args.pagination?.size ?? 0 - 1);
 
@@ -1074,7 +1073,7 @@ export const ExecutedWorkflowSubscription = subscriptionField('controlExecutedWo
 
     return {
       ...workflow,
-      id: toGraphId('ExecutedWorkflow', workflow.workflowId || uuid()),
+      id: toGraphId('ExecutedWorkflow', unwrap(workflow.workflowId || null)),
     };
   },
 });

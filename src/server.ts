@@ -8,7 +8,7 @@ import https from 'https';
 import http, { Server } from 'http';
 import path from 'path';
 import { WebSocketServer } from 'ws';
-import createContext, { createDynamicContext } from './context';
+import createContext, { createSubscriptionContext } from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
 import getLogger from './get-logger';
 import isDev from './is-dev';
@@ -49,7 +49,7 @@ const wsServer = new WebSocketServer({
 const serverCleanup = useServer(
   {
     schema,
-    context: createDynamicContext,
+    context: createSubscriptionContext,
   },
   wsServer,
 );
