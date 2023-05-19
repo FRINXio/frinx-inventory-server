@@ -2340,8 +2340,8 @@ export interface NexusGenArgTypes {
     };
     workflowInstanceDetail: {
       // args
-      id: string; // String!
       shouldIncludeTasks?: boolean | null; // Boolean
+      workflowId: string; // String!
     };
     workflows: {
       // args
