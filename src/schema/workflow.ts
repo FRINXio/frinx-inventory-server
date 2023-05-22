@@ -11,6 +11,7 @@ import {
   objectType,
   queryField,
   stringArg,
+  subscriptionField,
 } from 'nexus';
 import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
@@ -27,8 +28,9 @@ import {
   validateTasks,
 } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
-import { omitNullValue, parseJson, unwrap } from '../helpers/utils.helpers';
+import { omitNullValue, parseJson } from '../helpers/utils.helpers';
 import { connectionFromArray } from '../helpers/connection.helpers';
+import { asyncGenerator } from '../helpers/conductor.helpers';
 
 const log = getLogger('frinx-inventory-server');
 
@@ -211,7 +213,7 @@ export const ExecutedWorkflow = objectType({
   definition(t) {
     t.implements(Node);
     t.nonNull.id('id', {
-      resolve: (executedWorkflow) => toGraphId('ExecutedWorkflow', executedWorkflow.workflowId ?? uuid()),
+      resolve: () => toGraphId('ExecutedWorkflow', uuid()),
     });
     t.string('createdBy', { resolve: (executedWorkflow) => executedWorkflow.createdBy ?? null });
     t.string('updatedBy', { resolve: (workflow) => workflow.updatedBy ?? null });
@@ -321,7 +323,7 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
     const executedWorkflowsWithId = executedWorkflows
       .map((w) => ({
         ...w,
-        id: toGraphId('ExecutedWorkflow', w.workflowId || uuid()),
+        id: toGraphId('ExecutedWorkflow', uuid()),
       }))
       .slice(0, args.pagination?.size ?? 0 - 1);
 
@@ -362,12 +364,11 @@ const WorkflowInstanceDetail = objectType({
 export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
   type: WorkflowInstanceDetail,
   args: {
-    id: nonNull(stringArg()),
+    workflowId: nonNull(stringArg()),
     shouldIncludeTasks: booleanArg(),
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { id, shouldIncludeTasks } = args;
-    const workflowId = fromGraphId('ExecutedWorkflow', id);
+    const { workflowId, shouldIncludeTasks } = args;
 
     const result = await conductorAPI.getExecutedWorkflowDetail(
       config.conductorApiURL,
@@ -375,21 +376,25 @@ export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
       shouldIncludeTasks ?? false,
     );
 
+    if (result.workflowName == null) {
+      throw new Error(`Workflow not found`);
+    }
+
     const meta = result.workflowDefinition
       ? null
       : await conductorAPI.getWorkflowDetail(
           config.conductorApiURL,
-          unwrap(result.workflowName || null),
+          result.workflowName,
           result.workflowVersion || undefined,
         );
 
     const subworkflows = await getSubworkflows({
       ...result,
-      id: toGraphId('ExecutedWorkflow', unwrap(result.workflowName || null)),
+      id: toGraphId('ExecutedWorkflow', uuid()),
     });
 
     return {
-      result: { ...result, id: toGraphId('ExecutedWorkflow', unwrap(result.workflowName || null)) },
+      result: { ...result, id: toGraphId('ExecutedWorkflow', uuid()) },
       meta: meta ? { ...meta, id: toGraphId('Workflow', meta.name) } : null,
       subworkflows,
     };
@@ -680,8 +685,7 @@ export const BulkResumeWorkflowMutation = mutationField('bulkResumeWorkflow', {
     input: nonNull(arg({ type: BulkOperationInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
-    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, nativeWorkflowIds);
+    const data = await conductorAPI.bulkResumeWorkflow(config.conductorApiURL, input.executedWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -729,8 +733,7 @@ export const BulkPauseWorkflowMutation = mutationField('bulkPauseWorkflow', {
     input: nonNull(arg({ type: BulkOperationInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
-    const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, nativeWorkflowIds);
+    const data = await conductorAPI.bulkPauseWorkflow(config.conductorApiURL, input.executedWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -745,8 +748,7 @@ export const BulkTerminateWorkflow = mutationField('bulkTerminateWorkflow', {
     input: nonNull(arg({ type: BulkOperationInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
-    const data = await conductorAPI.bulkTerminateWorkflow(config.conductorApiURL, nativeWorkflowIds);
+    const data = await conductorAPI.bulkTerminateWorkflow(config.conductorApiURL, input.executedWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -761,8 +763,7 @@ export const BulkRetryWorkflow = mutationField('bulkRetryWorkflow', {
     input: nonNull(arg({ type: BulkOperationInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
-    const data = await conductorAPI.bulkRetryWorkflow(config.conductorApiURL, nativeWorkflowIds);
+    const data = await conductorAPI.bulkRetryWorkflow(config.conductorApiURL, input.executedWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -777,8 +778,7 @@ export const BulkRestartWorkflow = mutationField('bulkRestartWorkflow', {
     input: nonNull(arg({ type: BulkOperationInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    const nativeWorkflowIds = input.executedWorkflowIds.map((id) => fromGraphId('ExecutedWorkflow', id));
-    const data = await conductorAPI.bulkRestartWorkflow(config.conductorApiURL, nativeWorkflowIds);
+    const data = await conductorAPI.bulkRestartWorkflow(config.conductorApiURL, input.executedWorkflowIds);
 
     return {
       bulkErrorResults: JSON.stringify(data.bulkErrorResults),
@@ -1053,3 +1053,28 @@ export const DeleteSchedule = mutationField('deleteSchedule', {
     }
   },
 });
+
+export const ExecutedWorkflowSubscription = subscriptionField('controlExecutedWorkflow', {
+  type: ExecutedWorkflow,
+  args: {
+    id: nonNull(stringArg()),
+  },
+  subscribe: async (_, { id }, { conductorAPI }) =>
+    asyncGenerator({
+      repeatTill: (workflow) => workflow?.status === 'RUNNING' || workflow?.status === 'PAUSED',
+      fn: () => conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, id, false),
+    }),
+  resolve: (workflow) => {
+    if (workflow == null) {
+      return null;
+    }
+
+    return {
+      ...workflow,
+      id: toGraphId('ExecutedWorkflow', uuid()),
+    };
+  },
+});
+
+// id generujem podla nasej hodnoty nejakej
+// ked budem chciet query alebo presmerovat niekam pouzijem workflowId a ak bude null vratim error ze neexistuje workflow s tymto id

@@ -28,3 +28,11 @@ export default function createContext(context: ExpressContext): Context {
 
   return { prisma: prismaClient, tenantId, uniconfigAPI, topologyDiscoveryAPI, conductorAPI, schedulerAPI };
 }
+
+export function createSubscriptionContext() {
+  return {
+    conductorAPI,
+    schedulerAPI,
+    prisma: prismaClient,
+  };
+}
