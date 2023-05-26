@@ -118,6 +118,7 @@ const ExecutedWorkflowTask = t.type({
   taskType: optional(t.string),
   status: optional(ExecutedWorkflowTaskStatus),
   inputData: optional(t.record(t.string, t.unknown)),
+  outputData: optional(t.record(t.string, t.unknown)),
   referenceTaskName: optional(t.string),
   retryCount: optional(t.number),
   seq: optional(t.number),
@@ -163,7 +164,7 @@ const ExecutedWorkflow = t.type({
   updatedBy: optional(t.string),
   status: ExecutedWorkflowStatus,
   endTime: optional(t.number),
-  workflowId: optional(t.string),
+  workflowId: t.string,
   parentWorkflowId: optional(t.string),
   parentWorkflowTaskId: optional(t.string),
   tasks: optional(t.array(ExecutedWorkflowTask)),
@@ -263,4 +264,8 @@ export function decodeBulkRetryOutput(value: unknown): BulkOperationOutput {
 
 export function decodeBulkRestartOutput(value: unknown): BulkOperationOutput {
   return extractResult(BulkOperation.decode(value));
+}
+
+export function decodeExecutedWorkflowTaskDetailOutput(value: unknown): ApiExecutedWorkflowTask {
+  return extractResult(ExecutedWorkflowTask.decode(value));
 }

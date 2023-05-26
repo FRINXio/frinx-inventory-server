@@ -150,7 +150,7 @@ export interface NexusGenInputs {
     inputParameters: string; // String!
     priority?: number | null; // Int
     workflowName: string; // String!
-    workflowVersion?: number | null; // Int
+    workflowVersion?: string | null; // String
   };
   ExecutedWorkflowFilterInput: {
     // input type
@@ -966,6 +966,7 @@ export interface NexusGenFieldTypes {
   };
   ExecutedWorkflow: {
     // field return type
+    correlationId: string | null; // String
     createdAt: string | null; // String
     createdBy: string | null; // String
     endTime: string | null; // String
@@ -985,7 +986,7 @@ export interface NexusGenFieldTypes {
     variables: string | null; // String
     version: number | null; // Int
     workflowDefinition: NexusGenRootTypes['Workflow'] | null; // Workflow
-    workflowId: string | null; // String
+    workflowId: string; // String!
     workflowName: string | null; // String
     workflowVersion: number | null; // Int
   };
@@ -1002,13 +1003,20 @@ export interface NexusGenFieldTypes {
   };
   ExecutedWorkflowTask: {
     // field return type
+    callbackAfterSeconds: number | null; // Int
     endTime: string | null; // String
     executed: boolean | null; // Boolean
+    externalInputPayloadStoragePath: string | null; // String
+    externalOutputPayloadStoragePath: string | null; // String
     id: string; // ID!
+    inputData: string | null; // String
+    outputData: string | null; // String
+    pollCount: number | null; // Int
     reasonForIncompletion: string | null; // String
     retried: boolean | null; // Boolean
     retryCount: number | null; // Int
     scheduledTime: string | null; // String
+    seq: number | null; // Int
     startTime: string | null; // String
     status: NexusGenEnums['ExecutedWorkflowTaskStatus'] | null; // ExecutedWorkflowTaskStatus
     subWorkflowId: string | null; // String
@@ -1605,6 +1613,7 @@ export interface NexusGenFieldTypeNames {
   };
   ExecutedWorkflow: {
     // field return type name
+    correlationId: 'String';
     createdAt: 'String';
     createdBy: 'String';
     endTime: 'String';
@@ -1641,13 +1650,20 @@ export interface NexusGenFieldTypeNames {
   };
   ExecutedWorkflowTask: {
     // field return type name
+    callbackAfterSeconds: 'Int';
     endTime: 'String';
     executed: 'Boolean';
+    externalInputPayloadStoragePath: 'String';
+    externalOutputPayloadStoragePath: 'String';
     id: 'ID';
+    inputData: 'String';
+    outputData: 'String';
+    pollCount: 'Int';
     reasonForIncompletion: 'String';
     retried: 'Boolean';
     retryCount: 'Int';
     scheduledTime: 'String';
+    seq: 'Int';
     startTime: 'String';
     status: 'ExecutedWorkflowTaskStatus';
     subWorkflowId: 'String';

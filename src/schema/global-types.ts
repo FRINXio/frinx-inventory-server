@@ -130,6 +130,15 @@ export const NodeQuery = extendType({
 
             return { ...schedule, id: args.id, __typename: 'Schedule' };
           }
+          case 'ExecutedWorkflowTask': {
+            const id = fromGraphId('ExecutedWorkflowTask', args.id);
+            const task = await conductorAPI.getExecutedWorkflowTaskDetail(config.conductorApiURL, id);
+            if (task == null) {
+              return null;
+            }
+
+            return { ...task, id: args.id, __typename: 'ExecutedWorkflowTask' };
+          }
           /* eslint-enable */
           default:
             return null;
