@@ -121,8 +121,6 @@ async function getExecutedWorkflowDetail(
   const json = await sendGetRequest([baseURL, `workflow/${workflowId}${query}`]);
   const data = decodeExecutedWorkflowDetailOutput(json);
 
-  console.log(data.tasks);
-
   return data;
 }
 
@@ -183,24 +181,20 @@ async function executeWorkflowByName(
   baseURL: string,
   { name, inputParameters, correlationId, version, priority }: ExecuteWorkflowByNameInput,
 ): Promise<string> {
-  try {
-    const executedWorkflowId = await sendPostRequest(
-      [
-        baseURL,
-        `workflow/${name}?${version == null ? '' : `version=${version}`}${
-          correlationId == null ? '' : `&correlationId=${correlationId}`
-        }&priority=${priority}`,
-      ],
-      inputParameters,
-    );
+  const executedWorkflowId = await sendPostRequest(
+    [
+      baseURL,
+      `workflow/${name}?${version == null ? '' : `version=${version}`}${
+        correlationId == null ? '' : `&correlationId=${correlationId}`
+      }&priority=${priority}`,
+    ],
+    inputParameters,
+  );
 
-    if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
-      return executedWorkflowId;
-    } else {
-      throw new Error('We could not execute the workflow');
-    }
-  } catch (err: any) {
-    throw new Error(err);
+  if (executedWorkflowId != null && typeof executedWorkflowId === 'string') {
+    return executedWorkflowId;
+  } else {
+    throw new Error('We could not execute the workflow');
   }
 }
 
