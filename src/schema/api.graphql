@@ -330,7 +330,7 @@ input ExecuteWorkflowByName {
   inputParameters: String!
   priority: Int
   workflowName: String!
-  workflowVersion: String
+  workflowVersion: Int
 }
 
 type ExecutedWorkflow implements Node {
@@ -407,6 +407,7 @@ type ExecutedWorkflowTask implements Node {
   outputData: String
   pollCount: Int
   reasonForIncompletion: String
+  referenceTaskName: String
   retried: Boolean
   retryCount: Int
   scheduledTime: String
@@ -417,7 +418,6 @@ type ExecutedWorkflowTask implements Node {
   taskDefName: String
   taskDefinition: String
   taskId: String
-  taskReferenceName: String
   taskType: String
   updateTime: String
   version: Int
@@ -776,7 +776,7 @@ input StartWorkflowRequestInput {
 
 type SubWorkflow {
   executedWorkflowDetail: ExecutedWorkflow!
-  taskReferenceName: String!
+  referenceTaskName: String!
   workflowDetail: Workflow!
 }
 

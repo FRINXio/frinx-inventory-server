@@ -150,7 +150,7 @@ export interface NexusGenInputs {
     inputParameters: string; // String!
     priority?: number | null; // Int
     workflowName: string; // String!
-    workflowVersion?: string | null; // String
+    workflowVersion?: number | null; // Int
   };
   ExecutedWorkflowFilterInput: {
     // input type
@@ -661,7 +661,7 @@ export interface NexusGenObjects {
   SubWorkflow: {
     // root type
     executedWorkflowDetail: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
-    taskReferenceName: string; // String!
+    referenceTaskName: string; // String!
     workflowDetail: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Subscription: {};
@@ -1013,6 +1013,7 @@ export interface NexusGenFieldTypes {
     outputData: string | null; // String
     pollCount: number | null; // Int
     reasonForIncompletion: string | null; // String
+    referenceTaskName: string | null; // String
     retried: boolean | null; // Boolean
     retryCount: number | null; // Int
     scheduledTime: string | null; // String
@@ -1023,7 +1024,6 @@ export interface NexusGenFieldTypes {
     taskDefName: string | null; // String
     taskDefinition: string | null; // String
     taskId: string | null; // String
-    taskReferenceName: string | null; // String
     taskType: string | null; // String
     updateTime: string | null; // String
     version: number | null; // Int
@@ -1266,7 +1266,7 @@ export interface NexusGenFieldTypes {
   SubWorkflow: {
     // field return type
     executedWorkflowDetail: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
-    taskReferenceName: string; // String!
+    referenceTaskName: string; // String!
     workflowDetail: NexusGenRootTypes['Workflow']; // Workflow!
   };
   Subscription: {
@@ -1660,6 +1660,7 @@ export interface NexusGenFieldTypeNames {
     outputData: 'String';
     pollCount: 'Int';
     reasonForIncompletion: 'String';
+    referenceTaskName: 'String';
     retried: 'Boolean';
     retryCount: 'Int';
     scheduledTime: 'String';
@@ -1670,7 +1671,6 @@ export interface NexusGenFieldTypeNames {
     taskDefName: 'String';
     taskDefinition: 'String';
     taskId: 'String';
-    taskReferenceName: 'String';
     taskType: 'String';
     updateTime: 'String';
     version: 'Int';
@@ -1913,7 +1913,7 @@ export interface NexusGenFieldTypeNames {
   SubWorkflow: {
     // field return type name
     executedWorkflowDetail: 'ExecutedWorkflow';
-    taskReferenceName: 'String';
+    referenceTaskName: 'String';
     workflowDetail: 'Workflow';
   };
   Subscription: {

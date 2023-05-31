@@ -89,10 +89,13 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
     return response;
   }
 
-  const json = JSON.parse(text);
-  logResponse(requestId, json);
-
-  return json;
+  try {
+    const json = JSON.parse(text);
+    return json;
+  } catch (e) {
+    logResponse(requestId, text);
+    return text;
+  }
 }
 
 export async function sendGetRequest(path: APIPath, cookie?: string): Promise<unknown> {

@@ -347,7 +347,7 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
 const SubWorkflow = objectType({
   name: 'SubWorkflow',
   definition: (t) => {
-    t.nonNull.string('taskReferenceName');
+    t.nonNull.string('referenceTaskName');
     t.nonNull.field('workflowDetail', { type: Workflow });
     t.nonNull.field('executedWorkflowDetail', { type: ExecutedWorkflow });
   },
@@ -701,7 +701,7 @@ const ExecuteWorkflowByNameInput = inputObjectType({
   definition: (t) => {
     t.nonNull.string('inputParameters', { description: 'JSON string of input parameters' });
     t.nonNull.string('workflowName');
-    t.string('workflowVersion');
+    t.int('workflowVersion');
     t.string('correlationId');
     t.int('priority');
   },
@@ -717,10 +717,16 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
     { input: { inputParameters, workflowName, workflowVersion, correlationId, priority } },
     { conductorAPI },
   ) => {
+    const json = parseJson<Record<string, unknown>>(inputParameters);
+
+    if (json == null) {
+      throw new Error('inputParameters must be a valid JSON string');
+    }
+
     const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
-      inputParameters: parseJson(inputParameters),
+      inputParameters: json,
       name: workflowName,
-      version: workflowVersion,
+      version: String(workflowVersion),
       correlationId,
       priority,
     });
@@ -1077,11 +1083,11 @@ export const ExecutedWorkflowSubscription = subscriptionField('controlExecutedWo
   args: {
     id: nonNull(stringArg()),
   },
-  subscribe: async (_, { id }, { conductorAPI }) =>
+  subscribe: (_, { id }, { conductorAPI }) =>
     asyncGenerator({
       repeatTill: (workflow) => workflow?.status === 'RUNNING' || workflow?.status === 'PAUSED',
       fn: () =>
-        conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, fromGraphId('ExecutedWorkflow', id), false),
+        conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, fromGraphId('ExecutedWorkflow', id), true),
     }),
   resolve: (workflow) => {
     if (workflow == null) {

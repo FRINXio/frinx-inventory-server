@@ -53,7 +53,7 @@ export const ExecutedWorkflowTask = objectType({
       resolve: (executedWorkflowTask) => toGraphId('ExecutedWorkflowTask', executedWorkflowTask.taskId ?? uuid()),
     });
     t.string('taskType');
-    t.string('taskReferenceName');
+    t.string('referenceTaskName');
     t.field('status', { type: ExecutedWorkflowTaskStatus });
     t.int('retryCount');
     t.string('startTime', {

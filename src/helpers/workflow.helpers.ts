@@ -112,7 +112,7 @@ function extractSubworkflowsFromTasks(task: ExecutedWorkflowTask): SubWorkflow |
 }
 
 type SubworkflowDetail = {
-  taskReferenceName: string;
+  referenceTaskName: string;
   workflowDetail: Workflow;
   executedWorkflowDetail: ExecutedWorkflow;
 };
@@ -137,7 +137,7 @@ async function getSubworklowsDetail(subWorkflow: SubWorkflow): Promise<Subworkfl
   };
 
   return {
-    taskReferenceName: referenceTaskName,
+    referenceTaskName,
     workflowDetail: workflowDetailWithId,
     executedWorkflowDetail: executedWorkflowDetailWithId,
   };
