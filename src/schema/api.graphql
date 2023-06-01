@@ -781,7 +781,7 @@ type SubWorkflow {
 }
 
 type Subscription {
-  controlExecutedWorkflow(id: String!): ExecutedWorkflow
+  controlExecutedWorkflow(id: String!, shouldIncludeTasks: Boolean): WorkflowInstanceDetail
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 

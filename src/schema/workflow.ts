@@ -21,6 +21,7 @@ import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import {
   convertToApiOutputParameters,
+  getExecutedWorkflowDetail,
   getFilteredWorkflows,
   getSubworkflows,
   makePaginationFromArgs,
@@ -368,37 +369,11 @@ export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
     workflowId: nonNull(stringArg()),
     shouldIncludeTasks: booleanArg(),
   },
-  resolve: async (_, args, { conductorAPI }) => {
+  resolve: async (_, args) => {
     const { workflowId, shouldIncludeTasks } = args;
 
-    const result = await conductorAPI.getExecutedWorkflowDetail(
-      config.conductorApiURL,
-      fromGraphId('ExecutedWorkflow', workflowId),
-      shouldIncludeTasks ?? false,
-    );
-
-    if (result.workflowName == null) {
-      throw new Error(`Workflow not found`);
-    }
-
-    const meta = result.workflowDefinition
-      ? null
-      : await conductorAPI.getWorkflowDetail(
-          config.conductorApiURL,
-          result.workflowName,
-          result.workflowVersion || undefined,
-        );
-
-    const subworkflows = await getSubworkflows({
-      ...result,
-      id: toGraphId('ExecutedWorkflow', result.workflowId),
-    });
-
-    return {
-      result: { ...result, id: toGraphId('ExecutedWorkflow', uuid()) },
-      meta: meta ? { ...meta, id: toGraphId('Workflow', meta.name) } : null,
-      subworkflows,
-    };
+    const detail = getExecutedWorkflowDetail(workflowId, shouldIncludeTasks ?? false);
+    return detail;
   },
 });
 
@@ -1073,24 +1048,26 @@ export const DeleteSchedule = mutationField('deleteSchedule', {
 });
 
 export const ExecutedWorkflowSubscription = subscriptionField('controlExecutedWorkflow', {
-  type: ExecutedWorkflow,
+  type: WorkflowInstanceDetail,
   args: {
     id: nonNull(stringArg()),
+    shouldIncludeTasks: booleanArg(),
   },
-  subscribe: async (_, { id }, { conductorAPI }) =>
+  subscribe: async (_, { id: workflowId, shouldIncludeTasks }, { conductorAPI }) =>
     asyncGenerator({
-      repeatTill: (workflow) => workflow?.status === 'RUNNING' || workflow?.status === 'PAUSED',
-      fn: () =>
-        conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, fromGraphId('ExecutedWorkflow', id), false),
+      repeatTill: (workflow) => workflow?.result.status === 'RUNNING' || workflow?.result.status === 'PAUSED',
+      fn: async () => {
+        const detail = await getExecutedWorkflowDetail(workflowId, shouldIncludeTasks ?? false);
+        return detail;
+      },
     }),
-  resolve: (workflow) => {
-    if (workflow == null) {
+  resolve: (workflowData) => {
+    if (workflowData?.result == null) {
       return null;
     }
 
     return {
-      ...workflow,
-      id: toGraphId('ExecutedWorkflow', workflow.workflowId),
+      ...workflowData,
     };
   },
 });

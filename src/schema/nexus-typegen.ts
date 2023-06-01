@@ -1271,7 +1271,7 @@ export interface NexusGenFieldTypes {
   };
   Subscription: {
     // field return type
-    controlExecutedWorkflow: NexusGenRootTypes['ExecutedWorkflow'] | null; // ExecutedWorkflow
+    controlExecutedWorkflow: NexusGenRootTypes['WorkflowInstanceDetail'] | null; // WorkflowInstanceDetail
     uniconfigShell: string | null; // String
   };
   SyncFromNetworkPayload: {
@@ -1918,7 +1918,7 @@ export interface NexusGenFieldTypeNames {
   };
   Subscription: {
     // field return type name
-    controlExecutedWorkflow: 'ExecutedWorkflow';
+    controlExecutedWorkflow: 'WorkflowInstanceDetail';
     uniconfigShell: 'String';
   };
   SyncFromNetworkPayload: {
@@ -2379,6 +2379,7 @@ export interface NexusGenArgTypes {
     controlExecutedWorkflow: {
       // args
       id: string; // String!
+      shouldIncludeTasks?: boolean | null; // Boolean
     };
     uniconfigShell: {
       // args

@@ -5,7 +5,7 @@ import { NestedTask, decodeWorkflowTaskInput } from '../external-api/conductor-n
 import conductorAPI, { SubWorkflowInputData } from '../external-api/conductor';
 import { omitNullValue, unwrap } from './utils.helpers';
 import config from '../config';
-import { toGraphId } from './id-helper';
+import { fromGraphId, toGraphId } from './id-helper';
 
 type GraphQLSearchQuery = {
   isRootWorkflow?: boolean | null;
@@ -177,4 +177,34 @@ export function convertToApiOutputParameters(
       [key]: value,
     };
   }, {});
+}
+export async function getExecutedWorkflowDetail(workflowId: string, shouldIncludeTasks: boolean = false) {
+  const result = await conductorAPI.getExecutedWorkflowDetail(
+    config.conductorApiURL,
+    fromGraphId('ExecutedWorkflow', workflowId),
+    shouldIncludeTasks,
+  );
+
+  if (result.workflowName == null) {
+    throw new Error(`Workflow not found`);
+  }
+
+  const meta =
+    result.workflowDefinition ??
+    (await conductorAPI.getWorkflowDetail(
+      config.conductorApiURL,
+      result.workflowName,
+      result.workflowVersion || undefined,
+    ));
+
+  const subworkflows = await getSubworkflows({
+    ...result,
+    id: toGraphId('ExecutedWorkflow', result.workflowId),
+  });
+
+  return {
+    result: { ...result, id: toGraphId('ExecutedWorkflow', uuid()) },
+    meta: meta ? { ...meta, id: toGraphId('Workflow', meta.name) } : null,
+    subworkflows,
+  };
 }
