@@ -726,7 +726,7 @@ export const ExecuteWorkflowByName = mutationField('executeWorkflowByName', {
     const workflowId = await conductorAPI.executeWorkflowByName(config.conductorApiURL, {
       inputParameters: json,
       name: workflowName,
-      version: String(workflowVersion),
+      version: workflowVersion,
       correlationId,
       priority,
     });

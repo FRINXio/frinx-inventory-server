@@ -173,7 +173,7 @@ type ExecuteWorkflowByNameInput = {
   name: string;
   inputParameters: Record<string, unknown>;
   correlationId?: string | null;
-  version?: string | null;
+  version?: number | null;
   priority?: number | null;
 };
 
