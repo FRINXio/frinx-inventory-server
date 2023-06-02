@@ -186,7 +186,7 @@ async function executeWorkflowByName(
       baseURL,
       `workflow/${name}?${version == null ? '' : `version=${version}`}${
         correlationId == null ? '' : `&correlationId=${correlationId}`
-      }&priority=${priority}`,
+      }&priority=${priority == null ? 0 : priority}`,
     ],
     inputParameters,
   );
