@@ -64,6 +64,7 @@ export const Device = objectType({
     });
     t.string('model');
     t.string('vendor');
+    t.int('port');
     t.string('address', {
       resolve: async (root) => root.managementIp,
     });
