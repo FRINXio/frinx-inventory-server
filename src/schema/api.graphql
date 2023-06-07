@@ -334,6 +334,7 @@ input ExecuteWorkflowByName {
 }
 
 type ExecutedWorkflow implements Node {
+  correlationId: String
   createdAt: String
   createdBy: String
   endTime: String
@@ -353,7 +354,7 @@ type ExecutedWorkflow implements Node {
   variables: String
   version: Int
   workflowDefinition: Workflow
-  workflowId: String
+  workflowId: String!
   workflowName: String
   workflowVersion: Int
 }
@@ -396,20 +397,27 @@ enum ExecutedWorkflowStatus {
 }
 
 type ExecutedWorkflowTask implements Node {
+  callbackAfterSeconds: Int
   endTime: String
   executed: Boolean
+  externalInputPayloadStoragePath: String
+  externalOutputPayloadStoragePath: String
   id: ID!
+  inputData: String
+  outputData: String
+  pollCount: Int
   reasonForIncompletion: String
+  referenceTaskName: String
   retried: Boolean
   retryCount: Int
   scheduledTime: String
+  seq: Int
   startTime: String
   status: ExecutedWorkflowTaskStatus
   subWorkflowId: String
   taskDefName: String
   taskDefinition: String
   taskId: String
-  taskReferenceName: String
   taskType: String
   updateTime: String
   version: Int
@@ -768,7 +776,7 @@ input StartWorkflowRequestInput {
 
 type SubWorkflow {
   executedWorkflowDetail: ExecutedWorkflow!
-  taskReferenceName: String!
+  referenceTaskName: String!
   workflowDetail: Workflow!
 }
 

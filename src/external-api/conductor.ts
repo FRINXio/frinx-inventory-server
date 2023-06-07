@@ -15,6 +15,8 @@ import {
   TaskDefinitionsOutput,
   decodeTaskDefinitionsOutput,
   decodeBulkTerminateOutput,
+  decodeExecutedWorkflowTaskDetailOutput,
+  ApiExecutedWorkflowTask,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -180,7 +182,12 @@ async function executeWorkflowByName(
   { name, inputParameters, correlationId, version, priority }: ExecuteWorkflowByNameInput,
 ): Promise<string> {
   const executedWorkflowId = await sendPostRequest(
-    [baseURL, `workflow/${name}?version=${version}&correlationId=${correlationId}&priority=${priority}`],
+    [
+      baseURL,
+      `workflow/${name}?${version == null ? '' : `version=${version}`}${
+        correlationId == null ? '' : `&correlationId=${correlationId}`
+      }&priority=${priority == null ? 0 : priority}`,
+    ],
     inputParameters,
   );
 
@@ -194,6 +201,12 @@ async function executeWorkflowByName(
 async function getTaskDefinitions(baseURL: string): Promise<TaskDefinitionsOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/taskdefs']);
   const data = decodeTaskDefinitionsOutput(json);
+  return data;
+}
+
+async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): Promise<ApiExecutedWorkflowTask> {
+  const json = await sendGetRequest([baseURL, `/tasks/${taskId}`]);
+  const data = decodeExecutedWorkflowTaskDetailOutput(json);
   return data;
 }
 
@@ -219,6 +232,7 @@ const conductorAPI = {
   executeNewWorkflow,
   executeWorkflowByName,
   getTaskDefinitions,
+  getExecutedWorkflowTaskDetail,
 };
 
 export type ConductorAPI = typeof conductorAPI;

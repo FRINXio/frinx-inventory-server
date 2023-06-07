@@ -53,7 +53,7 @@ export const ExecutedWorkflowTask = objectType({
       resolve: (executedWorkflowTask) => toGraphId('ExecutedWorkflowTask', executedWorkflowTask.taskId ?? uuid()),
     });
     t.string('taskType');
-    t.string('taskReferenceName');
+    t.string('referenceTaskName');
     t.field('status', { type: ExecutedWorkflowTaskStatus });
     t.int('retryCount');
     t.string('startTime', {
@@ -76,6 +76,13 @@ export const ExecutedWorkflowTask = objectType({
     t.string('reasonForIncompletion');
     t.string('taskDefinition', { resolve: (task) => JSON.stringify(task.taskDefinition) });
     t.string('subWorkflowId');
+    t.string('inputData', { resolve: (task) => JSON.stringify(task.inputData) });
+    t.string('outputData', { resolve: (task) => JSON.stringify(task.outputData) });
+    t.string('externalOutputPayloadStoragePath');
+    t.string('externalInputPayloadStoragePath');
+    t.int('callbackAfterSeconds');
+    t.int('seq');
+    t.int('pollCount');
   },
 });
 
