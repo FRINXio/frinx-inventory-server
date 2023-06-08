@@ -936,6 +936,7 @@ export interface NexusGenFieldTypes {
     model: string | null; // String
     mountParameters: string | null; // String
     name: string; // String!
+    port: number | null; // Int
     serviceState: NexusGenEnums['DeviceServiceState']; // DeviceServiceState!
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
@@ -1583,6 +1584,7 @@ export interface NexusGenFieldTypeNames {
     model: 'String';
     mountParameters: 'String';
     name: 'String';
+    port: 'Int';
     serviceState: 'DeviceServiceState';
     source: 'DeviceSource';
     updatedAt: 'String';

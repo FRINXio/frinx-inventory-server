@@ -248,6 +248,7 @@ type Device implements Node {
   model: String
   mountParameters: String
   name: String!
+  port: Int
   serviceState: DeviceServiceState!
   source: DeviceSource!
   updatedAt: String!

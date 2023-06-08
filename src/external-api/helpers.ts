@@ -39,8 +39,8 @@ function logRequest(requestId: string, url: string, options: RequestInit) {
   log.info(`request(${requestId}): ${url}: ${bigObjectToSmallString(options)}`);
 }
 
-function logError(requestId: string, code: number) {
-  log.info(`request(${requestId}) failed with http-code: ${code}`);
+function logError(requestId: string, code: number, data?: unknown) {
+  log.error(`request(${requestId}) failed with http-code ${code}, message: ${data ?? 'no data'}`);
 }
 
 function logResponse(requestId: string, data: unknown) {
@@ -70,7 +70,8 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
   const response = await fetch(url, makeOptions(url, options));
 
   if (!response.ok) {
-    logError(requestId, response.status);
+    const message = await response.text();
+    logError(requestId, response.status, message);
     throw new ExternalApiError(response.status);
   }
 
