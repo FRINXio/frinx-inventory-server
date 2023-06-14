@@ -3404,6 +3404,11 @@ graphql-tag@^2.11.0:
   dependencies:
     tslib "^2.1.0"
 
+graphql-transform-federation@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/graphql-transform-federation/-/graphql-transform-federation-2.2.0.tgz#b7939ec978bace6f7e7c8be5f6900b3096820bd7"
+  integrity sha512-BYyh5teDshQvh3mE/7xUSr9GnO8G8qC47MxXE5ELoA3htfkBGo8I1rXks8bowu644NMcIINJFJrIgn4tJVZ/uQ==
+
 graphql-upload@15.0.2:
   version "15.0.2"
   resolved "https://registry.yarnpkg.com/graphql-upload/-/graphql-upload-15.0.2.tgz#851667589439ee617238e2d90253000a2601ac04"

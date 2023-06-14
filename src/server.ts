@@ -14,6 +14,8 @@ import getLogger from './get-logger';
 import isDev from './is-dev';
 import schema from './schema';
 import syncZones from './sync-zones';
+import { transformSchemaFederation } from 'graphql-transform-federation';
+import { OperationTypeNode } from 'graphql';
 
 export const log = getLogger('frinx-inventory-server');
 
@@ -48,11 +50,38 @@ const wsServer = new WebSocketServer({
 });
 const serverCleanup = useServer({ schema }, wsServer);
 
+const federatedSchema = transformSchemaFederation(schema, {
+  Query: {
+    extend: true,
+  },
+  Device: {
+    extend: true,
+    keyFields: ['name'],
+    fields: {
+      name: {
+        external: true,
+      },
+    },
+    // resolveReference: (args, ctx, info) => {
+    //   console.log('device resolver: ', args);
+
+    //   return {
+    //     id: args,
+    //   };
+    // },
+  },
+});
+
+console.log('===');
+console.log(schema);
+console.log('===');
+console.log(federatedSchema);
+
 const apolloServer = new ApolloServer({
   csrfPrevention: true,
   cache: 'bounded',
   context: createContext,
-  schema,
+  schema: federatedSchema,
   introspection: true,
   dataSources: () => ({}),
   logger: log,
@@ -76,6 +105,7 @@ const apolloServer = new ApolloServer({
 });
 
 apolloServer.start().then(() => {
+  // printTransformedSchema(apolloServer);
   apolloServer.applyMiddleware({
     app,
     path: '/graphql',

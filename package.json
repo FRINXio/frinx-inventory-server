@@ -71,6 +71,7 @@
     "fp-ts": "2.15.0",
     "graphql": "16.6.0",
     "graphql-relay": "0.10.0",
+    "graphql-transform-federation": "^2.2.0",
     "graphql-upload": "15.0.2",
     "graphql-ws": "^5.11.2",
     "i18n-iso-countries": "7.5.0",
