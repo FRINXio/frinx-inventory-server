@@ -4,6 +4,8 @@ import config from '../config';
 import conductorAPI from '../external-api/conductor';
 import { fromGraphId, getType } from '../helpers/id-helper';
 import schedulerAPI from '../external-api/scheduler';
+import resourceManagerAPI from '../external-api/resource-manager';
+import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -119,6 +121,18 @@ export const NodeQuery = extendType({
               return null;
             }
             return { ...workflow, id: args.id, __typename: 'ExecutedWorkflow' };
+          }
+          case 'Pool': {
+            const id = fromGraphId('Pool', args.id);
+            const apiPool = await resourceManagerAPI.getPool(id);
+
+            if (apiPool == null) {
+              return null;
+            }
+
+            const pool = apiPoolEdgeToGraphqlPoolEdge(apiPool);
+
+            return { ...pool, id: args.id, __typename: 'Pool' };
           }
           case 'Schedule': {
             const id = fromGraphId('Schedule', args.id);

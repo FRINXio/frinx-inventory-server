@@ -69,6 +69,7 @@ const config = {
   uniconfigListURL: envString('UNICONFIG_LIST_URL'),
   conductorApiURL: envString('CONDUCTOR_API_URL'),
   schedulerApiURL: envString('SCHEDULER_API_URL'),
+  resourceManagerApiURL: envString('RESOURCE_MANAGER_API_URL'),
   defaultTenantId: envString('X_TENANT_ID'),
   shellHost: envString('SHELL_HOST'),
   ...getTopologyConfig(),

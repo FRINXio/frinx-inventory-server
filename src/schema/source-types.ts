@@ -6,7 +6,8 @@ import {
   NestedTask,
   ApiTaskDefinition,
 } from '../external-api/conductor-network-types';
-import { GetScheduleQuery } from '../__generated__/graphql';
+import { GetScheduleQuery } from '../__generated__/scheduler.graphql';
+import { PoolFragmentFragment } from '../__generated__/resource-manager.graphql';
 
 export type Label = label;
 export type Device = device;
@@ -29,3 +30,4 @@ export type ExecutedWorkflowTask = ApiExecutedWorkflowTask & { id: string };
 export type WorkflowTask = NestedTask;
 export type TaskDefinition = ApiTaskDefinition;
 export type Schedule = GetScheduleQuery['schedule'] & { id: string };
+export type ResourcePool = PoolFragmentFragment;
