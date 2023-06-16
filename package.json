@@ -21,7 +21,9 @@
     "test:generate": "cross-env NODE_ENV=testing ts-node --transpile-only -r dotenv/config src/schema/index.ts",
     "jest": "cross-env NODE_ENV=testing jest --verbose",
     "test": "run-s test:generate jest",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen:scheduler": "graphql-codegen --config codegen-scheduler.yml",
+    "codegen:resource-manager": "graphql-codegen --config codegen-resource-manager.yml",
+    "codegen": "yarn codegen:scheduler && yarn codegen:resource-manager"
   },
   "devDependencies": {
     "@frinx/eslint-config-typescript-base": "15.0.0-build.1",

@@ -12,7 +12,8 @@ export type DataType =
   | 'Blueprint'
   | 'GraphNode'
   | 'GraphEdge'
-  | 'Schedule';
+  | 'Schedule'
+  | 'Pool';
 
 function isDataType(value: string): value is DataType {
   return (
@@ -27,7 +28,8 @@ function isDataType(value: string): value is DataType {
     value === 'Blueprint' ||
     value === 'GraphNode' ||
     value === 'GraphEdge' ||
-    value === 'Schedule'
+    value === 'Schedule' ||
+    value === 'Pool'
   );
 }
 

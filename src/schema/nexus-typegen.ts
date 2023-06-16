@@ -174,6 +174,10 @@ export interface NexusGenInputs {
     deviceName?: string | null; // String
     labels?: string[] | null; // [String!]
   };
+  FilterPoolsInput: {
+    // input type
+    poolName?: string | null; // String
+  };
   FilterTopologyInput: {
     // input type
     labels?: string[] | null; // [String!]
@@ -202,6 +206,10 @@ export interface NexusGenInputs {
   RemoveWorkflowInput: {
     // input type
     shouldArchiveWorkflow?: boolean | null; // Boolean
+  };
+  ResourceTypeInput: {
+    // input type
+    resourceTypeId?: string | null; // String
   };
   RestartWorkflowInput: {
     // input type
@@ -325,6 +333,7 @@ export interface NexusGenEnums {
     | 'SKIPPED'
     | 'TIMED_OUT';
   GraphEdgeStatus: 'ok' | 'unknown';
+  PoolType: 'allocating' | 'set' | 'singleton';
   RetryLogic: 'EXPONENTIAL_BACKOFF' | 'FIXED' | 'LINEAR_BACKOFF';
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
@@ -632,10 +641,35 @@ export interface NexusGenObjects {
     hasPreviousPage: boolean; // Boolean!
     startCursor?: string | null; // String
   };
+  Pool: {
+    // root type
+    id: string; // ID!
+    name: string; // String!
+    poolType: NexusGenEnums['PoolType']; // PoolType!
+    resourceType: NexusGenRootTypes['ResourceType']; // ResourceType!
+    tags: Array<NexusGenRootTypes['Tag'] | null>; // [Tag]!
+    version?: number | null; // Int
+  };
+  PoolConnection: {
+    // root type
+    edges: NexusGenRootTypes['PoolEdge'][]; // [PoolEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  PoolEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Pool']; // Pool!
+  };
   Query: {};
   ResetConfigPayload: {
     // root type
     dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  ResourceType: {
+    // root type
+    id: string; // ID!
+    name: string; // String!
   };
   RevertChangesPayload: {
     // root type
@@ -668,6 +702,11 @@ export interface NexusGenObjects {
   SyncFromNetworkPayload: {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  Tag: {
+    // root type
+    id: string; // ID!
+    tag: string; // String!
   };
   TaskDefinition: SourceTypes.TaskDefinition;
   Topology: {
@@ -771,6 +810,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'ExecutedWorkflowTask', 'required'>
     | core.Discriminate<'Label', 'required'>
     | core.Discriminate<'Location', 'required'>
+    | core.Discriminate<'Pool', 'required'>
     | core.Discriminate<'Schedule', 'required'>
     | core.Discriminate<'Workflow', 'required'>
     | core.Discriminate<'Zone', 'required'>;
@@ -1200,6 +1240,26 @@ export interface NexusGenFieldTypes {
     hasPreviousPage: boolean; // Boolean!
     startCursor: string | null; // String
   };
+  Pool: {
+    // field return type
+    id: string; // ID!
+    name: string; // String!
+    poolType: NexusGenEnums['PoolType']; // PoolType!
+    resourceType: NexusGenRootTypes['ResourceType']; // ResourceType!
+    tags: Array<NexusGenRootTypes['Tag'] | null>; // [Tag]!
+    version: number | null; // Int
+  };
+  PoolConnection: {
+    // field return type
+    edges: NexusGenRootTypes['PoolEdge'][]; // [PoolEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  PoolEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Pool']; // Pool!
+  };
   Query: {
     // field return type
     blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
@@ -1212,6 +1272,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
     taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
@@ -1228,6 +1289,11 @@ export interface NexusGenFieldTypes {
   ResetConfigPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore']; // DataStore!
+  };
+  ResourceType: {
+    // field return type
+    id: string; // ID!
+    name: string; // String!
   };
   RevertChangesPayload: {
     // field return type
@@ -1278,6 +1344,11 @@ export interface NexusGenFieldTypes {
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  Tag: {
+    // field return type
+    id: string; // ID!
+    tag: string; // String!
   };
   TaskDefinition: {
     // field return type
@@ -1848,6 +1919,26 @@ export interface NexusGenFieldTypeNames {
     hasPreviousPage: 'Boolean';
     startCursor: 'String';
   };
+  Pool: {
+    // field return type name
+    id: 'ID';
+    name: 'String';
+    poolType: 'PoolType';
+    resourceType: 'ResourceType';
+    tags: 'Tag';
+    version: 'Int';
+  };
+  PoolConnection: {
+    // field return type name
+    edges: 'PoolEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  PoolEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'Pool';
+  };
   Query: {
     // field return type name
     blueprints: 'BlueprintConnection';
@@ -1860,6 +1951,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
     taskDefinitions: 'TaskDefinition';
     topology: 'Topology';
@@ -1876,6 +1968,11 @@ export interface NexusGenFieldTypeNames {
   ResetConfigPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  ResourceType: {
+    // field return type name
+    id: 'ID';
+    name: 'String';
   };
   RevertChangesPayload: {
     // field return type name
@@ -1926,6 +2023,11 @@ export interface NexusGenFieldTypeNames {
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  Tag: {
+    // field return type name
+    id: 'ID';
+    tag: 'String';
   };
   TaskDefinition: {
     // field return type name
@@ -2336,6 +2438,15 @@ export interface NexusGenArgTypes {
       id: string; // ID!
       version?: number | null; // Int
     };
+    pools: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      filter?: NexusGenInputs['FilterPoolsInput'] | null; // FilterPoolsInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+      resourceTypeId?: string | null; // String
+    };
     schedules: {
       // args
       after?: string | null; // String
@@ -2401,6 +2512,7 @@ export interface NexusGenAbstractTypeMembers {
     | 'ExecutedWorkflowTask'
     | 'Label'
     | 'Location'
+    | 'Pool'
     | 'Schedule'
     | 'Workflow'
     | 'Zone';
@@ -2416,6 +2528,7 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
+  Pool: 'Node';
   Schedule: 'Node';
   Workflow: 'Node';
   Zone: 'Node';

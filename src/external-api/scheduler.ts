@@ -14,7 +14,7 @@ import {
   UpdateScheduleInput,
   UpdateScheduleMutation,
   UpdateScheduleMutationVariables,
-} from '../__generated__/graphql';
+} from '../__generated__/scheduler.graphql';
 import config from '../config';
 
 const client = new GraphQLClient(config.schedulerApiURL, { headers: {} });

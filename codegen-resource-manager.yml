@@ -1,9 +1,9 @@
 schema:
-  - 'http://10.19.0.7:3001/query'
+  - 'http://10.19.0.7/api/resource'
 documents:
-  - './src/**/*.ts'
+  - './src/external-api/resource-manager.ts'
 generates:
-  src/__generated__/graphql.ts:
+  src/__generated__/resource-manager.graphql.ts:
     plugins:
       - 'typescript'
       - 'typescript-operations'
