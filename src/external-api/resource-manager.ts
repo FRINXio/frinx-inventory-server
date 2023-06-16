@@ -13,6 +13,7 @@ const client = new GraphQLClient(config.resourceManagerApiURL);
 
 const POOL_FRAGMENT = gql`
   fragment PoolFragment on ResourcePool {
+    __typename
     id
     Name
     PoolType
