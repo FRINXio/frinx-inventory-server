@@ -25,6 +25,9 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/frinx"
 UNICONFIG_API_PROTOCOL=http
 UNICONFIG_API_PORT=8181
 UNICONFIG_LIST_URL=http://10.19.0.7/static/list/uniconfig
+CONDUCTOR_API_URL="http:/10.19.0.7:8080/api"
+SCHEDULER_API_URL="http://10.19.0.7:3001/query"
+RESOURCE_MANAGER_API_URL="http://10.19.0.7/api/resource"
 X_TENANT_ID="frinx"
 ```
 
