@@ -13,6 +13,7 @@ import * as workflow from './workflow';
 import * as executedWorkflowTask from './task';
 import * as workflowLabels from './workflow-labels';
 import * as taskDefintions from './task-definitons';
+import * as pool from './pool';
 
 export default makeSchema({
   features: {
@@ -44,6 +45,7 @@ export default makeSchema({
     workflowLabels,
     executedWorkflowTask,
     taskDefintions,
+    pool,
   ],
   sourceTypes: {
     modules: [

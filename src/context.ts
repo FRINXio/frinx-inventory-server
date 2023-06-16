@@ -4,6 +4,7 @@ import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topol
 import conductorAPI, { ConductorAPI } from './external-api/conductor';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import schedulerAPI, { SchedulerAPI } from './external-api/scheduler';
+import resourceManagerAPI, { ResourceManagerAPI } from './external-api/resource-manager';
 import prismaClient from './prisma-client';
 
 export type Context = {
@@ -13,6 +14,7 @@ export type Context = {
   topologyDiscoveryAPI: TopologyDiscoveryAPI;
   conductorAPI: ConductorAPI;
   schedulerAPI: SchedulerAPI;
+  resourceManagerAPI: ResourceManagerAPI;
 };
 
 export default function createContext(context: ExpressContext): Context {
@@ -26,7 +28,15 @@ export default function createContext(context: ExpressContext): Context {
     tenantId = headers['x-tenant-id'] as string;
   }
 
-  return { prisma: prismaClient, tenantId, uniconfigAPI, topologyDiscoveryAPI, conductorAPI, schedulerAPI };
+  return {
+    prisma: prismaClient,
+    tenantId,
+    uniconfigAPI,
+    topologyDiscoveryAPI,
+    conductorAPI,
+    schedulerAPI,
+    resourceManagerAPI,
+  };
 }
 
 export function createSubscriptionContext() {
