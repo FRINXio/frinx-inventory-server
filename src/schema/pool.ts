@@ -1,6 +1,24 @@
-import { enumType, extendType, inputObjectType, objectType, stringArg } from 'nexus';
+import {
+  arg,
+  enumType,
+  extendType,
+  inputObjectType,
+  mutationField,
+  nonNull,
+  objectType,
+  scalarType,
+  stringArg,
+} from 'nexus';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { apiPoolsToGraphqlPools } from '../helpers/resource-manager.helpers';
+
+export const GraphQLRecord = scalarType({
+  name: 'Record',
+  description: 'Graphql custom scalar record type',
+  asNexusMethod: 'record',
+  parseValue: (serializedValue) => JSON.parse(serializedValue as string),
+  serialize: (value) => JSON.stringify(value),
+});
 
 export const PoolType = enumType({
   name: 'PoolType',
@@ -30,7 +48,7 @@ export const Pool = objectType({
     t.nonNull.id('id');
     t.nonNull.string('name');
     t.nonNull.field('poolType', { type: PoolType });
-    t.nonNull.list.field('tags', { type: Tag });
+    t.nonNull.list.nonNull.field('tags', { type: Tag });
     t.nonNull.field('resourceType', { type: ResourceType });
   },
 });
@@ -89,5 +107,27 @@ export const PoolQuery = extendType({
         return result;
       },
     });
+  },
+});
+
+export const FreeResourceInput = inputObjectType({
+  name: 'FreeResourceInput',
+  definition: (t) => {
+    t.nonNull.string('poolId');
+    t.nonNull.field('resource', {
+      type: GraphQLRecord,
+    });
+  },
+});
+
+export const FreeResource = mutationField('freeResource', {
+  type: 'String',
+  args: {
+    input: nonNull(arg({ type: FreeResourceInput })),
+  },
+  resolve: async (_, { input }, { resourceManagerAPI }) => {
+    const { poolId, resource } = input;
+    const result = await resourceManagerAPI.freeResource(poolId, resource);
+    return result;
   },
 });

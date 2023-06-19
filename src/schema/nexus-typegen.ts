@@ -15,6 +15,13 @@ declare global {
       fieldName: FieldName,
       opts?: core.CommonInputFieldConfig<TypeName, FieldName>,
     ): void; // "Upload";
+    /**
+     * Graphql custom scalar record type
+     */
+    record<FieldName extends string>(
+      fieldName: FieldName,
+      opts?: core.CommonInputFieldConfig<TypeName, FieldName>,
+    ): void; // "Record";
   }
 }
 declare global {
@@ -23,6 +30,10 @@ declare global {
      * The `Upload` scalar type represents a file upload.
      */
     upload<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void; // "Upload";
+    /**
+     * Graphql custom scalar record type
+     */
+    record<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void; // "Record";
   }
 }
 
@@ -186,6 +197,11 @@ export interface NexusGenInputs {
     // input type
     keyword?: string | null; // String
     labels?: string[] | null; // [String!]
+  };
+  FreeResourceInput: {
+    // input type
+    poolId: string; // String!
+    resource: NexusGenScalars['Record']; // Record!
   };
   GraphNodeCoordinatesInput: {
     // input type
@@ -371,6 +387,7 @@ export interface NexusGenScalars {
   Float: number;
   Boolean: boolean;
   ID: string;
+  Record: any;
   Upload: any;
 }
 
@@ -647,7 +664,7 @@ export interface NexusGenObjects {
     name: string; // String!
     poolType: NexusGenEnums['PoolType']; // PoolType!
     resourceType: NexusGenRootTypes['ResourceType']; // ResourceType!
-    tags: Array<NexusGenRootTypes['Tag'] | null>; // [Tag]!
+    tags: NexusGenRootTypes['Tag'][]; // [Tag!]!
     version?: number | null; // Int
   };
   PoolConnection: {
@@ -1185,6 +1202,7 @@ export interface NexusGenFieldTypes {
     editWorkflowSchedule: NexusGenRootTypes['Schedule'] | null; // Schedule
     executeNewWorkflow: string | null; // String
     executeWorkflowByName: string | null; // String
+    freeResource: string | null; // String
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     pauseWorkflow: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
@@ -1246,7 +1264,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     poolType: NexusGenEnums['PoolType']; // PoolType!
     resourceType: NexusGenRootTypes['ResourceType']; // ResourceType!
-    tags: Array<NexusGenRootTypes['Tag'] | null>; // [Tag]!
+    tags: NexusGenRootTypes['Tag'][]; // [Tag!]!
     version: number | null; // Int
   };
   PoolConnection: {
@@ -1864,6 +1882,7 @@ export interface NexusGenFieldTypeNames {
     editWorkflowSchedule: 'Schedule';
     executeNewWorkflow: 'String';
     executeWorkflowByName: 'String';
+    freeResource: 'String';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     pauseWorkflow: 'IsOkResponse';
@@ -2295,6 +2314,10 @@ export interface NexusGenArgTypes {
     executeWorkflowByName: {
       // args
       input: NexusGenInputs['ExecuteWorkflowByName']; // ExecuteWorkflowByName!
+    };
+    freeResource: {
+      // args
+      input: NexusGenInputs['FreeResourceInput']; // FreeResourceInput!
     };
     importCSV: {
       // args

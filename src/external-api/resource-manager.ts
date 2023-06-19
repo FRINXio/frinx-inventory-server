@@ -2,6 +2,8 @@ import { PaginationArgs } from 'nexus/dist/plugins/connectionPlugin';
 import { GraphQLClient, gql } from 'graphql-request';
 import config from '../config';
 import {
+  FreeResourceMutation,
+  FreeResourceMutationVariables,
   GetPoolQuery,
   GetPoolQueryVariables,
   GetPoolsQuery,
@@ -81,6 +83,12 @@ const GET_POOLS_QUERY = gql`
   ${POOL_FRAGMENT}
 `;
 
+const FREE_RESOURCE_MUTATION = gql`
+  mutation FreeResource($poolId: ID!, $input: Map!) {
+    FreeResource(poolId: $poolId, input: $input)
+  }
+`;
+
 async function getPool(nodeId: string): Promise<PoolFragmentFragment | null> {
   const response = await client.request<GetPoolQuery, GetPoolQueryVariables>(GET_POOL_QUERY, {
     nodeId,
@@ -107,9 +115,19 @@ async function getPools(
   return response;
 }
 
+async function freeResource(poolId: string, input: Record<string, unknown>) {
+  const response = await client.request<FreeResourceMutation, FreeResourceMutationVariables>(FREE_RESOURCE_MUTATION, {
+    poolId,
+    input,
+  });
+
+  return response.FreeResource;
+}
+
 const resourceManagerAPI = {
   getPool,
   getPools,
+  freeResource,
 };
 
 export type ResourceManagerAPI = typeof resourceManagerAPI;
