@@ -455,6 +455,11 @@ input FilterWorkflowsInput {
   labels: [String!]
 }
 
+input FreeResourceInput {
+  poolId: String!
+  resource: Record!
+}
+
 type GraphEdge {
   id: ID!
   source: EdgeSourceTarget!
@@ -580,6 +585,7 @@ type Mutation {
   editWorkflowSchedule(id: String!, input: EditWorkflowScheduleInput!): Schedule
   executeNewWorkflow(input: StartWorkflowRequestInput!): String
   executeWorkflowByName(input: ExecuteWorkflowByName!): String
+  freeResource(input: FreeResourceInput!): String
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   pauseWorkflow(id: String!): IsOkResponse
@@ -656,7 +662,7 @@ type Pool implements Node {
   name: String!
   poolType: PoolType!
   resourceType: ResourceType!
-  tags: [Tag]!
+  tags: [Tag!]!
   version: Int
 }
 
@@ -716,6 +722,11 @@ type Query {
   workflows(after: String, before: String, filter: FilterWorkflowsInput, first: Int, last: Int): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
+
+"""
+Graphql custom scalar record type
+"""
+scalar Record
 
 input RemoveWorkflowInput {
   """
