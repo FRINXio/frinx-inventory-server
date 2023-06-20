@@ -25,9 +25,7 @@ export type AllocationStrategy = Node & {
 };
 
 /** Supported languages for allocation strategy scripts */
-export type AllocationStrategyLang =
-  | 'js'
-  | 'py';
+export type AllocationStrategyLang = 'js' | 'py';
 
 /** Input parameters for creating an allocation pool */
 export type CreateAllocatingPoolInput = {
@@ -241,13 +239,11 @@ export type Mutation = {
   UpdateTag: UpdateTagPayload;
 };
 
-
 export type MutationClaimResourceArgs = {
   description?: InputMaybe<Scalars['String']>;
   poolId: Scalars['ID'];
   userInput: Scalars['Map'];
 };
-
 
 export type MutationClaimResourceWithAltIdArgs = {
   alternativeId: Scalars['Map'];
@@ -256,82 +252,66 @@ export type MutationClaimResourceWithAltIdArgs = {
   userInput: Scalars['Map'];
 };
 
-
 export type MutationCreateAllocatingPoolArgs = {
   input?: InputMaybe<CreateAllocatingPoolInput>;
 };
-
 
 export type MutationCreateAllocationStrategyArgs = {
   input?: InputMaybe<CreateAllocationStrategyInput>;
 };
 
-
 export type MutationCreateNestedAllocatingPoolArgs = {
   input: CreateNestedAllocatingPoolInput;
 };
-
 
 export type MutationCreateNestedSetPoolArgs = {
   input: CreateNestedSetPoolInput;
 };
 
-
 export type MutationCreateNestedSingletonPoolArgs = {
   input: CreateNestedSingletonPoolInput;
 };
-
 
 export type MutationCreateResourceTypeArgs = {
   input: CreateResourceTypeInput;
 };
 
-
 export type MutationCreateSetPoolArgs = {
   input: CreateSetPoolInput;
 };
-
 
 export type MutationCreateSingletonPoolArgs = {
   input?: InputMaybe<CreateSingletonPoolInput>;
 };
 
-
 export type MutationCreateTagArgs = {
   input: CreateTagInput;
 };
-
 
 export type MutationDeleteAllocationStrategyArgs = {
   input?: InputMaybe<DeleteAllocationStrategyInput>;
 };
 
-
 export type MutationDeleteResourcePoolArgs = {
   input: DeleteResourcePoolInput;
 };
-
 
 export type MutationDeleteResourceTypeArgs = {
   input: DeleteResourceTypeInput;
 };
 
-
 export type MutationDeleteTagArgs = {
   input: DeleteTagInput;
 };
-
 
 export type MutationFreeResourceArgs = {
   input: Scalars['Map'];
   poolId: Scalars['ID'];
 };
 
-
 export type MutationTagPoolArgs = {
   input: TagPoolInput;
 };
-
 
 export type MutationTestAllocationStrategyArgs = {
   allocationStrategyId: Scalars['ID'];
@@ -340,11 +320,9 @@ export type MutationTestAllocationStrategyArgs = {
   userInput: Scalars['Map'];
 };
 
-
 export type MutationUntagPoolArgs = {
   input: UntagPoolInput;
 };
-
 
 export type MutationUpdateResourceAltIdArgs = {
   alternativeId: Scalars['Map'];
@@ -352,11 +330,9 @@ export type MutationUpdateResourceAltIdArgs = {
   poolId: Scalars['ID'];
 };
 
-
 export type MutationUpdateResourceTypeNameArgs = {
   input: UpdateResourceTypeNameInput;
 };
-
 
 export type MutationUpdateTagArgs = {
   input: UpdateTagInput;
@@ -391,10 +367,7 @@ export type PoolCapacityPayload = {
 };
 
 /** Defines the type of pool */
-export type PoolType =
-  | 'allocating'
-  | 'set'
-  | 'singleton';
+export type PoolType = 'allocating' | 'set' | 'singleton';
 
 /** Defines the type of the property */
 export type PropertyType = Node & {
@@ -431,16 +404,13 @@ export type Query = {
   node: Maybe<Node>;
 };
 
-
 export type QueryQueryAllocationStrategiesArgs = {
   byName?: InputMaybe<Scalars['String']>;
 };
 
-
 export type QueryQueryAllocationStrategyArgs = {
   allocationStrategyId: Scalars['ID'];
 };
-
 
 export type QueryQueryEmptyResourcePoolsArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
@@ -449,7 +419,6 @@ export type QueryQueryEmptyResourcePoolsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   resourceTypeId?: InputMaybe<Scalars['ID']>;
 };
-
 
 export type QueryQueryLeafResourcePoolsArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
@@ -461,11 +430,9 @@ export type QueryQueryLeafResourcePoolsArgs = {
   tags?: InputMaybe<TagOr>;
 };
 
-
 export type QueryQueryPoolCapacityArgs = {
   poolId: Scalars['ID'];
 };
-
 
 export type QueryQueryRecentlyActiveResourcesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -476,27 +443,22 @@ export type QueryQueryRecentlyActiveResourcesArgs = {
   toDatetime?: InputMaybe<Scalars['String']>;
 };
 
-
 export type QueryQueryRequiredPoolPropertiesArgs = {
   allocationStrategyName: Scalars['String'];
 };
-
 
 export type QueryQueryResourceArgs = {
   input: Scalars['Map'];
   poolId: Scalars['ID'];
 };
 
-
 export type QueryQueryResourcePoolArgs = {
   poolId: Scalars['ID'];
 };
 
-
 export type QueryQueryResourcePoolHierarchyPathArgs = {
   poolId: Scalars['ID'];
 };
-
 
 export type QueryQueryResourcePoolsArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
@@ -508,11 +470,9 @@ export type QueryQueryResourcePoolsArgs = {
   tags?: InputMaybe<TagOr>;
 };
 
-
 export type QueryQueryResourceTypesArgs = {
   byName?: InputMaybe<Scalars['String']>;
 };
-
 
 export type QueryQueryResourcesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -522,7 +482,6 @@ export type QueryQueryResourcesArgs = {
   poolId: Scalars['ID'];
 };
 
-
 export type QueryQueryResourcesByAltIdArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
@@ -531,7 +490,6 @@ export type QueryQueryResourcesByAltIdArgs = {
   last?: InputMaybe<Scalars['Int']>;
   poolId?: InputMaybe<Scalars['ID']>;
 };
-
 
 export type QueryQueryRootResourcePoolsArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
@@ -543,7 +501,6 @@ export type QueryQueryRootResourcePoolsArgs = {
   tags?: InputMaybe<TagOr>;
 };
 
-
 export type QuerySearchPoolsByTagsArgs = {
   after?: InputMaybe<Scalars['Cursor']>;
   before?: InputMaybe<Scalars['Cursor']>;
@@ -551,7 +508,6 @@ export type QuerySearchPoolsByTagsArgs = {
   last?: InputMaybe<Scalars['Int']>;
   tags?: InputMaybe<TagOr>;
 };
-
 
 export type QueryNodeArgs = {
   id: Scalars['ID'];
@@ -605,7 +561,6 @@ export type ResourcePool = Node & {
   allocatedResources: Maybe<ResourceConnection>;
   id: Scalars['ID'];
 };
-
 
 /** A pool is an entity that contains allocated and free resources */
 export type ResourcePoolAllocatedResourcesArgs = {
@@ -710,14 +665,39 @@ export type UpdateTagPayload = {
   tag: Maybe<Tag>;
 };
 
-export type PoolFragmentFragment = { __typename: 'ResourcePool', id: string, Name: string, PoolType: PoolType, PoolProperties: any, Tags: Array<{ __typename?: 'Tag', id: string, Tag: string }>, ResourceType: { __typename?: 'ResourceType', id: string, Name: string } };
+export type PoolFragmentFragment = {
+  __typename: 'ResourcePool';
+  id: string;
+  Name: string;
+  PoolType: PoolType;
+  PoolProperties: any;
+  Tags: Array<{ __typename?: 'Tag'; id: string; Tag: string }>;
+  ResourceType: { __typename?: 'ResourceType'; id: string; Name: string };
+};
 
 export type GetPoolQueryVariables = Exact<{
   nodeId: Scalars['ID'];
 }>;
 
-
-export type GetPoolQuery = { __typename?: 'Query', node: { __typename?: 'AllocationStrategy' } | { __typename?: 'PropertyType' } | { __typename?: 'Resource' } | { __typename: 'ResourcePool', id: string, Name: string, PoolType: PoolType, PoolProperties: any, Tags: Array<{ __typename?: 'Tag', id: string, Tag: string }>, ResourceType: { __typename?: 'ResourceType', id: string, Name: string } } | { __typename?: 'ResourceType' } | { __typename?: 'Tag' } | null };
+export type GetPoolQuery = {
+  __typename?: 'Query';
+  node:
+    | { __typename?: 'AllocationStrategy' }
+    | { __typename?: 'PropertyType' }
+    | { __typename?: 'Resource' }
+    | {
+        __typename: 'ResourcePool';
+        id: string;
+        Name: string;
+        PoolType: PoolType;
+        PoolProperties: any;
+        Tags: Array<{ __typename?: 'Tag'; id: string; Tag: string }>;
+        ResourceType: { __typename?: 'ResourceType'; id: string; Name: string };
+      }
+    | { __typename?: 'ResourceType' }
+    | { __typename?: 'Tag' }
+    | null;
+};
 
 export type GetPoolsQueryVariables = Exact<{
   resourceTypeId?: InputMaybe<Scalars['ID']>;
@@ -728,13 +708,37 @@ export type GetPoolsQueryVariables = Exact<{
   filterByResources?: InputMaybe<Scalars['Map']>;
 }>;
 
-
-export type GetPoolsQuery = { __typename?: 'Query', QueryRootResourcePools: { __typename?: 'ResourcePoolConnection', totalCount: number, edges: Array<{ __typename?: 'ResourcePoolEdge', node: { __typename: 'ResourcePool', id: string, Name: string, PoolType: PoolType, PoolProperties: any, Tags: Array<{ __typename?: 'Tag', id: string, Tag: string }>, ResourceType: { __typename?: 'ResourceType', id: string, Name: string } }, cursor: { __typename?: 'OutputCursor', ID: string } } | null>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: { __typename?: 'OutputCursor', ID: string } | null, endCursor: { __typename?: 'OutputCursor', ID: string } | null } } };
+export type GetPoolsQuery = {
+  __typename?: 'Query';
+  QueryRootResourcePools: {
+    __typename?: 'ResourcePoolConnection';
+    totalCount: number;
+    edges: Array<{
+      __typename?: 'ResourcePoolEdge';
+      node: {
+        __typename: 'ResourcePool';
+        id: string;
+        Name: string;
+        PoolType: PoolType;
+        PoolProperties: any;
+        Tags: Array<{ __typename?: 'Tag'; id: string; Tag: string }>;
+        ResourceType: { __typename?: 'ResourceType'; id: string; Name: string };
+      };
+      cursor: { __typename?: 'OutputCursor'; ID: string };
+    } | null>;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      startCursor: { __typename?: 'OutputCursor'; ID: string } | null;
+      endCursor: { __typename?: 'OutputCursor'; ID: string } | null;
+    };
+  };
+};
 
 export type FreeResourceMutationVariables = Exact<{
   poolId: Scalars['ID'];
   input: Scalars['Map'];
 }>;
 
-
-export type FreeResourceMutation = { __typename?: 'Mutation', FreeResource: string };
+export type FreeResourceMutation = { __typename?: 'Mutation'; FreeResource: string };
