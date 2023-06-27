@@ -260,6 +260,7 @@ export const AddDeviceMutation = extendType({
         }
         const labelIds = input.labelIds ? [...new Set(input.labelIds)] : null;
         try {
+          const nativeBlueprintId = input.blueprintId != null ? fromGraphId('Blueprint', input.blueprintId) : undefined;
           const device = await prisma.device.create({
             data: {
               name: input.name,
@@ -276,7 +277,7 @@ export const AddDeviceMutation = extendType({
               mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
               source: 'MANUAL',
               serviceState: input.serviceState ?? undefined,
-              blueprintId: input.blueprintId ?? undefined,
+              blueprintId: nativeBlueprintId,
               label: labelIds
                 ? { createMany: { data: labelIds.map((id) => ({ labelId: fromGraphId('Label', id) })) } }
                 : undefined,
