@@ -192,32 +192,38 @@ const ExecutedWorkflowsValidator = t.type({
   results: t.array(ExecutedWorkflow),
 });
 
-const TaskDefinitionOptional = t.partial({
-  createTime: optional(t.string),
-  updateTime: optional(t.string),
+const CreateTaskDefinitionInputRequired = t.type({
+  name: t.string,
+  timeoutSeconds: t.number,
+});
+
+const CreateTaskDefinitionInputOptional = t.partial({
+  ownerApp: optional(t.string),
+  createTime: optional(t.number),
+  updateTime: optional(t.number),
   createdBy: optional(t.string),
   updatedBy: optional(t.string),
+  accessPolicy: optional(t.UnknownRecord),
+  description: optional(t.string),
   retryCount: optional(t.number),
-  pollTimeoutSeconds: optional(t.number),
   inputKeys: optional(t.array(t.string)),
   outputKeys: optional(t.array(t.string)),
-  inputTemplate: optional(t.record(t.string, t.string)),
   timeoutPolicy: optional(t.union([t.literal('RETRY'), t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
   retryLogic: optional(t.union([t.literal('FIXED'), t.literal('EXPONENTIAL_BACKOFF'), t.literal('LINEAR_BACKOFF')])),
   retryDelaySeconds: optional(t.number),
   responseTimeoutSeconds: optional(t.number),
   concurrentExecLimit: optional(t.number),
-  rateLimitFrequencyInSeconds: optional(t.number),
+  inputTemplate: optional(t.UnknownRecord),
   rateLimitPerFrequency: optional(t.number),
+  rateLimitFrequencyInSeconds: optional(t.number),
+  isolationGroupId: optional(t.string),
+  executionNameSpace: optional(t.string),
   ownerEmail: optional(t.string),
+  pollTimeoutSeconds: optional(t.number),
+  backoffScaleFactor: optional(t.number),
 });
 
-const TaskDefinitionRequired = t.type({
-  name: t.string,
-  timeoutSeconds: t.number,
-});
-
-const TaskDefinitionMetadata = t.intersection([TaskDefinitionRequired, TaskDefinitionOptional]);
+const TaskDefinitionInput = t.intersection([CreateTaskDefinitionInputRequired, CreateTaskDefinitionInputOptional]);
 
 const TaskDefinition = t.type({
   name: t.string,
@@ -278,7 +284,7 @@ export function decodeExecutedWorkflowDetailOutput(value: unknown): ApiExecutedW
 export type TaskDefinitionsOutput = t.TypeOf<typeof TaskDefinitionsValidator>;
 export type TaskDefinitionOutput = t.TypeOf<typeof TaskDefinition>;
 
-export type TaskDefinitionDetailInput = t.TypeOf<typeof TaskDefinitionMetadata>;
+export type TaskDefinitionDetailInput = t.TypeOf<typeof TaskDefinitionInput>;
 
 export function decodeTaskDefinitionsOutput(value: unknown): TaskDefinitionsOutput {
   return extractResult(TaskDefinitionsValidator.decode(value));

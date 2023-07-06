@@ -1,4 +1,3 @@
-import { log } from 'console';
 import { makeStringQueryFromSearchQueryObject } from '../helpers/conductor.helpers';
 import { PaginationArgs, SearchQuery, StartWorkflowInput } from '../types/conductor.types';
 import {
@@ -217,8 +216,8 @@ async function deleteTaskDefinition(baseURL: string, name: string): Promise<void
   await sendDeleteRequest([baseURL, `metadata/taskdefs/${name}`]);
 }
 
-async function createTaskDefinition(baseURL: string, Task: TaskDefinitionDetailInput): Promise<void> {
-  await sendPostRequest([baseURL, `metadata/taskdefs`], Task);
+async function createTaskDefinition(baseURL: string, taskDefinitionInput: TaskDefinitionDetailInput): Promise<void> {
+  await sendPostRequest([baseURL, `metadata/taskdefs`], [taskDefinitionInput]);
 }
 
 async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): Promise<ApiExecutedWorkflowTask> {

@@ -2,6 +2,7 @@ import { arg, enumType, extendType, inputObjectType, list, mutationField, nonNul
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { TaskDefinitionDetailInput } from '../external-api/conductor-network-types';
+import { makeNullablePropertiesToUndefined } from '../helpers/utils.helpers';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -16,6 +17,10 @@ const RetryLogic = enumType({
 export const TaskDefinition = objectType({
   name: 'TaskDefinition',
   definition: (t) => {
+    t.implements('Node');
+    t.nonNull.id('id', {
+      resolve: (taskDefinition) => toGraphId('TaskDefinition', taskDefinition.name),
+    });
     t.nonNull.string('name');
     t.nonNull.int('timeoutSeconds');
     t.string('createTime', {
@@ -99,80 +104,57 @@ export const DeleteTaskDefinitionMutation = mutationField('deleteTaskDefinition'
   },
 });
 
-export const CreateTaskDefinitionPayload = objectType({
-  name: 'CreateTaskDefinitionPayload',
+const CreateTaskDefinitionInput = inputObjectType({
+  name: 'CreateTaskDefinitionInput',
   definition: (t) => {
-    t.nonNull.field('taskDefinition', { type: TaskDefinition });
-  },
-});
-
-const TaskDefinitionInput = inputObjectType({
-  name: 'TaskDefinitionInput',
-  definition: (t) => {
+    t.string('ownerApp');
+    t.string('createdBy');
+    t.string('updatedBy');
+    t.string('accessPolicy');
     t.nonNull.string('name');
     t.string('description');
     t.int('retryCount');
     t.nonNull.int('timeoutSeconds');
-    t.int('pollTimeoutSeconds');
     t.list.nonNull.string('inputKeys');
     t.list.nonNull.string('outputKeys');
-    t.record('inputTemplate');
     t.field('timeoutPolicy', { type: TaskTimeoutPolicy });
     t.field('retryLogic', { type: RetryLogic });
     t.int('retryDelaySeconds');
     t.int('responseTimeoutSeconds');
     t.int('concurrentExecLimit');
-    t.int('rateLimitFrequencyInSeconds');
+    t.string('inputTemplate');
     t.int('rateLimitPerFrequency');
+    t.int('rateLimitFrequencyInSeconds');
+    t.string('isolationGroupId');
+    t.string('executionNameSpace');
     t.string('ownerEmail');
-    t.string('createTime');
-    t.string('updateTime');
-  },
-});
-
-export const CreateTaskDefinitionInput = inputObjectType({
-  name: 'CreateTaskDefinitionInput',
-  definition: (t) => {
-    t.nonNull.field('taskDefinition', {
-      type: TaskDefinitionInput,
-    });
+    t.int('pollTimeoutSeconds');
+    t.int('backoffScaleFactor');
   },
 });
 
 export const CreateTaskDefinitionMutation = mutationField('createTaskDefinition', {
-  type: CreateTaskDefinitionPayload,
+  type: TaskDefinition,
   args: {
     input: nonNull(arg({ type: CreateTaskDefinitionInput })),
   },
-  resolve: async (_, args, { conductorAPI }) => {
-    const { input } = args;
-    const { taskDefinition } = input;
-    const timeoutPolicy = taskDefinition.timeoutPolicy !== null ? taskDefinition.timeoutPolicy : 'RETRY';
-    const retryLogic = taskDefinition.retryLogic !== null ? taskDefinition.retryLogic : 'FIXED';
-
-    const task: TaskDefinitionDetailInput = {
-      ...taskDefinition,
-      pollTimeoutSeconds: taskDefinition.pollTimeoutSeconds || 0,
-      inputKeys: taskDefinition.inputKeys || [],
-      outputKeys: taskDefinition.outputKeys || [],
-      inputTemplate: taskDefinition.inputTemplate || '',
-      retryDelaySeconds: taskDefinition.retryDelaySeconds || 0,
-      responseTimeoutSeconds: taskDefinition.responseTimeoutSeconds || 0,
-      concurrentExecLimit: taskDefinition.concurrentExecLimit || 0,
-      rateLimitFrequencyInSeconds: taskDefinition.rateLimitFrequencyInSeconds || 0,
-      rateLimitPerFrequency: taskDefinition.rateLimitPerFrequency || 0,
-      ownerEmail: taskDefinition.ownerEmail || '',
-      timeoutPolicy,
-      retryLogic,
-      retryCount: taskDefinition.retryCount || 0,
+  resolve: async (_, { input }, { conductorAPI }) => {
+    const taskDefinitionInput: TaskDefinitionDetailInput = {
+      ...makeNullablePropertiesToUndefined(input),
+      name: input.name,
+      timeoutSeconds: input.timeoutSeconds,
+      inputTemplate: input.inputTemplate != null ? JSON.parse(input.inputTemplate) : undefined,
+      accessPolicy: input.accessPolicy != null ? JSON.parse(input.accessPolicy) : undefined,
+      createTime: Date.now(),
+      updateTime: Date.now(),
     };
 
-    await conductorAPI.createTaskDefinition(config.conductorApiURL, task);
+    await conductorAPI.createTaskDefinition(config.conductorApiURL, taskDefinitionInput);
+    const taskDefinition = await conductorAPI.getTaskDetail(config.conductorApiURL, input.name);
+
     return {
-      taskDefinition: {
-        id: toGraphId('TaskDefinition', task.name),
-        ...task,
-      },
+      ...taskDefinition,
+      id: toGraphId('TaskDefinition', input.name),
     };
   },
 });

@@ -116,7 +116,29 @@ export interface NexusGenInputs {
   };
   CreateTaskDefinitionInput: {
     // input type
-    taskDefinition: NexusGenInputs['TaskDefinitionInput']; // TaskDefinitionInput!
+    accessPolicy?: string | null; // String
+    backoffScaleFactor?: number | null; // Int
+    concurrentExecLimit?: number | null; // Int
+    createdBy?: string | null; // String
+    description?: string | null; // String
+    executionNameSpace?: string | null; // String
+    inputKeys?: string[] | null; // [String!]
+    inputTemplate?: string | null; // String
+    isolationGroupId?: string | null; // String
+    name: string; // String!
+    outputKeys?: string[] | null; // [String!]
+    ownerApp?: string | null; // String
+    ownerEmail?: string | null; // String
+    pollTimeoutSeconds?: number | null; // Int
+    rateLimitFrequencyInSeconds?: number | null; // Int
+    rateLimitPerFrequency?: number | null; // Int
+    responseTimeoutSeconds?: number | null; // Int
+    retryCount?: number | null; // Int
+    retryDelaySeconds?: number | null; // Int
+    retryLogic?: NexusGenEnums['RetryLogic'] | null; // RetryLogic
+    timeoutPolicy?: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
+    timeoutSeconds: number; // Int!
+    updatedBy?: string | null; // String
   };
   CreateWorkflowInput: {
     // input type
@@ -252,27 +274,6 @@ export interface NexusGenInputs {
     // input type
     workflow: NexusGenInputs['ExecuteNewWorkflowInput']; // ExecuteNewWorkflowInput!
     workflowDefinition?: NexusGenInputs['WorkflowDefinitionInput'] | null; // WorkflowDefinitionInput
-  };
-  TaskDefinitionInput: {
-    // input type
-    concurrentExecLimit?: number | null; // Int
-    createTime?: string | null; // String
-    description?: string | null; // String
-    inputKeys?: string[] | null; // [String!]
-    inputTemplate?: NexusGenScalars['Record'] | null; // Record
-    name: string; // String!
-    outputKeys?: string[] | null; // [String!]
-    ownerEmail?: string | null; // String
-    pollTimeoutSeconds?: number | null; // Int
-    rateLimitFrequencyInSeconds?: number | null; // Int
-    rateLimitPerFrequency?: number | null; // Int
-    responseTimeoutSeconds?: number | null; // Int
-    retryCount?: number | null; // Int
-    retryDelaySeconds?: number | null; // Int
-    retryLogic?: NexusGenEnums['RetryLogic'] | null; // RetryLogic
-    timeoutPolicy?: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
-    timeoutSeconds: number; // Int!
-    updateTime?: string | null; // String
   };
   TaskInput: {
     // input type
@@ -512,10 +513,6 @@ export interface NexusGenObjects {
   CreateLabelPayload: {
     // root type
     label?: NexusGenRootTypes['Label'] | null; // Label
-  };
-  CreateTaskDefinitionPayload: {
-    // root type
-    taskDefinition: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
   };
   CreateTransactionPayload: {
     // root type
@@ -866,6 +863,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Location', 'required'>
     | core.Discriminate<'Pool', 'required'>
     | core.Discriminate<'Schedule', 'required'>
+    | core.Discriminate<'TaskDefinition', 'required'>
     | core.Discriminate<'Workflow', 'required'>
     | core.Discriminate<'Zone', 'required'>;
 }
@@ -982,10 +980,6 @@ export interface NexusGenFieldTypes {
   CreateLabelPayload: {
     // field return type
     label: NexusGenRootTypes['Label'] | null; // Label
-  };
-  CreateTaskDefinitionPayload: {
-    // field return type
-    taskDefinition: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
   };
   CreateTransactionPayload: {
     // field return type
@@ -1236,7 +1230,7 @@ export interface NexusGenFieldTypes {
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
-    createTaskDefinition: NexusGenRootTypes['CreateTaskDefinitionPayload'] | null; // CreateTaskDefinitionPayload
+    createTaskDefinition: NexusGenRootTypes['TaskDefinition'] | null; // TaskDefinition
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
     createWorkflow: NexusGenRootTypes['CreateWorkflowPayload']; // CreateWorkflowPayload!
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
@@ -1421,6 +1415,7 @@ export interface NexusGenFieldTypes {
     createTime: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
+    id: string; // ID!
     inputKeys: string[] | null; // [String!]
     inputTemplate: string | null; // String
     name: string; // String!
@@ -1437,6 +1432,7 @@ export interface NexusGenFieldTypes {
     timeoutSeconds: number; // Int!
     updateTime: string | null; // String
     updatedBy: string | null; // String
+    version: number | null; // Int
   };
   Topology: {
     // field return type
@@ -1672,10 +1668,6 @@ export interface NexusGenFieldTypeNames {
   CreateLabelPayload: {
     // field return type name
     label: 'Label';
-  };
-  CreateTaskDefinitionPayload: {
-    // field return type name
-    taskDefinition: 'TaskDefinition';
   };
   CreateTransactionPayload: {
     // field return type name
@@ -1926,7 +1918,7 @@ export interface NexusGenFieldTypeNames {
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
-    createTaskDefinition: 'CreateTaskDefinitionPayload';
+    createTaskDefinition: 'TaskDefinition';
     createTransaction: 'CreateTransactionPayload';
     createWorkflow: 'CreateWorkflowPayload';
     deleteBlueprint: 'DeleteBlueprintPayload';
@@ -2111,6 +2103,7 @@ export interface NexusGenFieldTypeNames {
     createTime: 'String';
     createdBy: 'String';
     description: 'String';
+    id: 'ID';
     inputKeys: 'String';
     inputTemplate: 'String';
     name: 'String';
@@ -2127,6 +2120,7 @@ export interface NexusGenFieldTypeNames {
     timeoutSeconds: 'Int';
     updateTime: 'String';
     updatedBy: 'String';
+    version: 'Int';
   };
   Topology: {
     // field return type name
@@ -2602,6 +2596,7 @@ export interface NexusGenAbstractTypeMembers {
     | 'Location'
     | 'Pool'
     | 'Schedule'
+    | 'TaskDefinition'
     | 'Workflow'
     | 'Zone';
 }
@@ -2618,6 +2613,7 @@ export interface NexusGenTypeInterfaces {
   Location: 'Node';
   Pool: 'Node';
   Schedule: 'Node';
+  TaskDefinition: 'Node';
   Workflow: 'Node';
   Zone: 'Node';
 }

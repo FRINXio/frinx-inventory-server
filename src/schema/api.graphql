@@ -188,11 +188,29 @@ input CreateScheduleInput {
 }
 
 input CreateTaskDefinitionInput {
-  taskDefinition: TaskDefinitionInput!
-}
-
-type CreateTaskDefinitionPayload {
-  taskDefinition: TaskDefinition!
+  accessPolicy: String
+  backoffScaleFactor: Int
+  concurrentExecLimit: Int
+  createdBy: String
+  description: String
+  executionNameSpace: String
+  inputKeys: [String!]
+  inputTemplate: String
+  isolationGroupId: String
+  name: String!
+  outputKeys: [String!]
+  ownerApp: String
+  ownerEmail: String
+  pollTimeoutSeconds: Int
+  rateLimitFrequencyInSeconds: Int
+  rateLimitPerFrequency: Int
+  responseTimeoutSeconds: Int
+  retryCount: Int
+  retryDelaySeconds: Int
+  retryLogic: RetryLogic
+  timeoutPolicy: TaskTimeoutPolicy
+  timeoutSeconds: Int!
+  updatedBy: String
 }
 
 type CreateTransactionPayload {
@@ -590,7 +608,7 @@ type Mutation {
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
-  createTaskDefinition(input: CreateTaskDefinitionInput!): CreateTaskDefinitionPayload
+  createTaskDefinition(input: CreateTaskDefinitionInput!): TaskDefinition
   createTransaction(deviceId: String!): CreateTransactionPayload!
   createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
@@ -871,11 +889,12 @@ type Tag {
   tag: String!
 }
 
-type TaskDefinition {
+type TaskDefinition implements Node {
   concurrentExecLimit: Int
   createTime: String
   createdBy: String
   description: String
+  id: ID!
   inputKeys: [String!]
   inputTemplate: String
   name: String!
@@ -892,27 +911,7 @@ type TaskDefinition {
   timeoutSeconds: Int!
   updateTime: String
   updatedBy: String
-}
-
-input TaskDefinitionInput {
-  concurrentExecLimit: Int
-  createTime: String
-  description: String
-  inputKeys: [String!]
-  inputTemplate: Record
-  name: String!
-  outputKeys: [String!]
-  ownerEmail: String
-  pollTimeoutSeconds: Int
-  rateLimitFrequencyInSeconds: Int
-  rateLimitPerFrequency: Int
-  responseTimeoutSeconds: Int
-  retryCount: Int
-  retryDelaySeconds: Int
-  retryLogic: RetryLogic
-  timeoutPolicy: TaskTimeoutPolicy
-  timeoutSeconds: Int!
-  updateTime: String
+  version: Int
 }
 
 input TaskInput {
