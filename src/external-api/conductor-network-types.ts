@@ -192,6 +192,33 @@ const ExecutedWorkflowsValidator = t.type({
   results: t.array(ExecutedWorkflow),
 });
 
+const TaskDefinitionOptional = t.partial({
+  createTime: optional(t.string),
+  updateTime: optional(t.string),
+  createdBy: optional(t.string),
+  updatedBy: optional(t.string),
+  retryCount: optional(t.number),
+  pollTimeoutSeconds: optional(t.number),
+  inputKeys: optional(t.array(t.string)),
+  outputKeys: optional(t.array(t.string)),
+  inputTemplate: optional(t.record(t.string, t.string)),
+  timeoutPolicy: optional(t.union([t.literal('RETRY'), t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
+  retryLogic: optional(t.union([t.literal('FIXED'), t.literal('EXPONENTIAL_BACKOFF'), t.literal('LINEAR_BACKOFF')])),
+  retryDelaySeconds: optional(t.number),
+  responseTimeoutSeconds: optional(t.number),
+  concurrentExecLimit: optional(t.number),
+  rateLimitFrequencyInSeconds: optional(t.number),
+  rateLimitPerFrequency: optional(t.number),
+  ownerEmail: optional(t.string),
+});
+
+const TaskDefinitionRequired = t.type({
+  name: t.string,
+  timeoutSeconds: t.number,
+});
+
+const TaskDefinitionMetadata = t.intersection([TaskDefinitionRequired, TaskDefinitionOptional]);
+
 const TaskDefinition = t.type({
   name: t.string,
   timeoutSeconds: t.number,
@@ -249,9 +276,16 @@ export function decodeExecutedWorkflowDetailOutput(value: unknown): ApiExecutedW
 }
 
 export type TaskDefinitionsOutput = t.TypeOf<typeof TaskDefinitionsValidator>;
+export type TaskDefinitionOutput = t.TypeOf<typeof TaskDefinition>;
+
+export type TaskDefinitionDetailInput = t.TypeOf<typeof TaskDefinitionMetadata>;
 
 export function decodeTaskDefinitionsOutput(value: unknown): TaskDefinitionsOutput {
   return extractResult(TaskDefinitionsValidator.decode(value));
+}
+
+export function decodeTaskDefinitionOutput(value: unknown): TaskDefinitionOutput {
+  return extractResult(TaskDefinition.decode(value));
 }
 
 export function decodeBulkTerminateOutput(value: unknown): BulkOperationOutput {

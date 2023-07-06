@@ -187,6 +187,14 @@ input CreateScheduleInput {
   workflowVersion: String!
 }
 
+input CreateTaskDefinitionInput {
+  taskDefinition: TaskDefinitionInput!
+}
+
+type CreateTaskDefinitionPayload {
+  taskDefinition: TaskDefinition!
+}
+
 type CreateTransactionPayload {
   transactionId: String
 }
@@ -225,6 +233,14 @@ input DeleteSnapshotInput {
 
 type DeleteSnapshotPayload {
   snapshot: Snapshot
+}
+
+input DeleteTaskDefinitionInput {
+  name: String!
+}
+
+type DeleteTaskDefinitionPayload {
+  taskDefinition: TaskDefinition!
 }
 
 input DeleteWorkflowInput {
@@ -574,6 +590,7 @@ type Mutation {
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
+  createTaskDefinition(input: CreateTaskDefinitionInput!): CreateTaskDefinitionPayload
   createTransaction(deviceId: String!): CreateTransactionPayload!
   createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
@@ -581,6 +598,7 @@ type Mutation {
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSchedule(id: String!): IsOkResponse
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  deleteTaskDefinition(input: DeleteTaskDefinitionInput!): DeleteTaskDefinitionPayload
   deleteWorkflow(input: DeleteWorkflowInput!): DeleteWorkflowPayload!
   editWorkflowSchedule(id: String!, input: EditWorkflowScheduleInput!): Schedule
   executeNewWorkflow(input: StartWorkflowRequestInput!): String
@@ -855,7 +873,7 @@ type Tag {
 
 type TaskDefinition {
   concurrentExecLimit: Int
-  createdAt: String
+  createTime: String
   createdBy: String
   description: String
   inputKeys: [String!]
@@ -872,8 +890,29 @@ type TaskDefinition {
   retryLogic: RetryLogic
   timeoutPolicy: TaskTimeoutPolicy
   timeoutSeconds: Int!
-  updatedAt: String
+  updateTime: String
   updatedBy: String
+}
+
+input TaskDefinitionInput {
+  concurrentExecLimit: Int
+  createTime: String
+  description: String
+  inputKeys: [String!]
+  inputTemplate: Record
+  name: String!
+  outputKeys: [String!]
+  ownerEmail: String
+  pollTimeoutSeconds: Int
+  rateLimitFrequencyInSeconds: Int
+  rateLimitPerFrequency: Int
+  responseTimeoutSeconds: Int
+  retryCount: Int
+  retryDelaySeconds: Int
+  retryLogic: RetryLogic
+  timeoutPolicy: TaskTimeoutPolicy
+  timeoutSeconds: Int!
+  updateTime: String
 }
 
 input TaskInput {
