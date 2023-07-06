@@ -1,8 +1,6 @@
 import { arg, enumType, extendType, inputObjectType, list, mutationField, nonNull, objectType } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
-import { TaskDefinitionDetailInput } from '../external-api/conductor-network-types';
-import { makeNullablePropertiesToUndefined } from '../helpers/utils.helpers';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -43,7 +41,7 @@ export const TaskDefinition = objectType({
     t.list.nonNull.string('inputKeys');
     t.list.nonNull.string('outputKeys');
     t.string('inputTemplate', {
-      resolve: (taskDefinition) => JSON.stringify(taskDefinition.inputTemplate) ?? null,
+      resolve: (taskDefinition) => (taskDefinition.inputTemplate ? JSON.stringify(taskDefinition.inputTemplate) : null),
     });
     t.field('timeoutPolicy', { type: TaskTimeoutPolicy });
     t.field('retryLogic', { type: RetryLogic });
@@ -139,21 +137,37 @@ export const CreateTaskDefinitionMutation = mutationField('createTaskDefinition'
     input: nonNull(arg({ type: CreateTaskDefinitionInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    const taskDefinitionInput: TaskDefinitionDetailInput = {
-      ...makeNullablePropertiesToUndefined(input),
-      name: input.name,
-      timeoutSeconds: input.timeoutSeconds,
-      inputTemplate: input.inputTemplate != null ? JSON.parse(input.inputTemplate) : undefined,
-      accessPolicy: input.accessPolicy != null ? JSON.parse(input.accessPolicy) : undefined,
+    const taskDefinitionInput = {
+      ...input,
+      createdBy: input.createdBy ?? undefined,
+      updatedBy: input.updatedBy ?? undefined,
+      retryCount: input.retryCount ?? undefined,
+      pollTimeoutSeconds: input.pollTimeoutSeconds ?? undefined,
+      inputKeys: input.inputKeys ?? undefined,
+      outputKeys: input.outputKeys ?? undefined,
+      inputTemplate: input.inputTemplate ? JSON.parse(input.inputTemplate) : undefined,
+      timeoutPolicy: input.timeoutPolicy ?? undefined,
+      retryLogic: input.retryLogic ?? undefined,
+      retryDelaySeconds: input.retryDelaySeconds ?? undefined,
+      responseTimeoutSeconds: input.responseTimeoutSeconds ?? undefined,
+      concurrentExecLimit: input.concurrentExecLimit ?? undefined,
+      rateLimitFrequencyInSeconds: input.rateLimitFrequencyInSeconds ?? undefined,
+      rateLimitPerFrequency: input.rateLimitPerFrequency ?? undefined,
+      ownerEmail: input.ownerEmail ?? undefined,
+      accessPolicy: input.accessPolicy ? JSON.parse(input.accessPolicy) : undefined,
+      ownerApp: input.ownerApp ?? undefined,
+      description: input.description ?? undefined,
+      isolationGroupId: input.isolationGroupId ?? undefined,
+      executionNameSpace: input.executionNameSpace ?? undefined,
+      backoffScaleFactor: input.backoffScaleFactor ?? undefined,
       createTime: Date.now(),
       updateTime: Date.now(),
     };
 
     await conductorAPI.createTaskDefinition(config.conductorApiURL, taskDefinitionInput);
-    const taskDefinition = await conductorAPI.getTaskDetail(config.conductorApiURL, input.name);
 
     return {
-      ...taskDefinition,
+      ...taskDefinitionInput,
       id: toGraphId('TaskDefinition', input.name),
     };
   },
