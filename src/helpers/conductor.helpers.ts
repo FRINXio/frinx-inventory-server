@@ -1,6 +1,5 @@
 import { ConductorQuerySearchTime, ConductorQuery, PaginationArgs, SearchQuery } from '../types/conductor.types';
 import { isValidType } from './utils.helpers';
-import { TaskDefinitionDetailInput } from '../external-api/conductor-network-types';
 
 export function makeStringQueryFromSearchTime(searchTime: ConductorQuerySearchTime): string {
   const { from, to } = searchTime;
