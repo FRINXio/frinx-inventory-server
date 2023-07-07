@@ -1,6 +1,8 @@
-import { arg, enumType, extendType, inputObjectType, list, mutationField, nonNull, objectType } from 'nexus';
+import { arg, enumType, extendType, inputObjectType, list, mutationField, nonNull, objectType, stringArg } from 'nexus';
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
+import { getTaskDefinitionInput } from '../helpers/task-definition.helpers';
+import { IsOkResponse } from './global-types';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -68,37 +70,22 @@ export const TaskDefinitionsQuery = extendType({
   },
 });
 
-const DeleteTaskDefinitionPayload = objectType({
-  name: 'DeleteTaskDefinitionPayload',
-  definition: (t) => {
-    t.nonNull.field('taskDefinition', {
-      type: TaskDefinition,
-    });
-  },
-});
-
-const DeleteTaskDefinitionInput = inputObjectType({
-  name: 'DeleteTaskDefinitionInput',
-  definition: (t) => {
-    t.nonNull.string('name');
-  },
-});
-
-export const DeleteTaskDefinitionMutation = mutationField('deleteTaskDefinition', {
-  type: DeleteTaskDefinitionPayload,
+export const DeleteTaskDefinitionMutation = mutationField('deleteTask', {
+  type: IsOkResponse,
   args: {
-    input: nonNull(arg({ type: DeleteTaskDefinitionInput })),
+    name: nonNull(stringArg()),
   },
-  resolve: async (_, args, { conductorAPI }) => {
-    const { input } = args;
-    const taskDefinitionToDelete = await conductorAPI.getTaskDetail(config.conductorApiURL, input.name);
-    await conductorAPI.deleteTaskDefinition(config.conductorApiURL, input.name);
-    return {
-      taskDefinition: {
-        id: toGraphId('TaskDefinition', taskDefinitionToDelete.name),
-        ...taskDefinitionToDelete,
-      },
-    };
+  resolve: async (_, { name }, { conductorAPI }) => {
+    try {
+      await conductorAPI.deleteTaskDefinition(config.conductorApiURL, name);
+      return {
+        isOk: true,
+      };
+    } catch (error) {
+      return {
+        isOk: false,
+      };
+    }
   },
 });
 
@@ -138,35 +125,12 @@ export const CreateTaskDefinitionMutation = mutationField('createTaskDefinition'
   },
   resolve: async (_, { input }, { conductorAPI }) => {
     if (input.responseTimeoutSeconds == null || input.responseTimeoutSeconds > input.timeoutSeconds) {
-        throw new Error('Response timeout cannot be greater than task timeout. Default value for responseTimeoutSeconds is 3600');
+      throw new Error(
+        'Response timeout cannot be greater than task timeout. Default value for responseTimeoutSeconds is 3600',
+      );
     }
 
-    const taskDefinitionInput = {
-      ...input,
-      createdBy: input.createdBy ?? undefined,
-      updatedBy: input.updatedBy ?? undefined,
-      retryCount: input.retryCount ?? undefined,
-      pollTimeoutSeconds: input.pollTimeoutSeconds ?? undefined,
-      inputKeys: input.inputKeys ?? undefined,
-      outputKeys: input.outputKeys ?? undefined,
-      inputTemplate: input.inputTemplate ? JSON.parse(input.inputTemplate) : undefined,
-      timeoutPolicy: input.timeoutPolicy ?? undefined,
-      retryLogic: input.retryLogic ?? undefined,
-      retryDelaySeconds: input.retryDelaySeconds ?? undefined,
-      responseTimeoutSeconds: input.responseTimeoutSeconds ?? undefined,
-      concurrentExecLimit: input.concurrentExecLimit ?? undefined,
-      rateLimitFrequencyInSeconds: input.rateLimitFrequencyInSeconds ?? undefined,
-      rateLimitPerFrequency: input.rateLimitPerFrequency ?? undefined,
-      ownerEmail: input.ownerEmail ?? undefined,
-      accessPolicy: input.accessPolicy ? JSON.parse(input.accessPolicy) : undefined,
-      ownerApp: input.ownerApp ?? undefined,
-      description: input.description ?? undefined,
-      isolationGroupId: input.isolationGroupId ?? undefined,
-      executionNameSpace: input.executionNameSpace ?? undefined,
-      backoffScaleFactor: input.backoffScaleFactor ?? undefined,
-      createTime: Date.now(),
-      updateTime: Date.now(),
-    };
+    const taskDefinitionInput = getTaskDefinitionInput(input);
 
     await conductorAPI.createTaskDefinition(config.conductorApiURL, taskDefinitionInput);
 

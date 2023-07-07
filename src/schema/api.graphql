@@ -253,14 +253,6 @@ type DeleteSnapshotPayload {
   snapshot: Snapshot
 }
 
-input DeleteTaskDefinitionInput {
-  name: String!
-}
-
-type DeleteTaskDefinitionPayload {
-  taskDefinition: TaskDefinition!
-}
-
 input DeleteWorkflowInput {
   name: String!
   version: Int!
@@ -616,7 +608,7 @@ type Mutation {
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSchedule(id: String!): IsOkResponse
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
-  deleteTaskDefinition(input: DeleteTaskDefinitionInput!): DeleteTaskDefinitionPayload
+  deleteTask(name: String!): IsOkResponse
   deleteWorkflow(input: DeleteWorkflowInput!): DeleteWorkflowPayload!
   editWorkflowSchedule(id: String!, input: EditWorkflowScheduleInput!): Schedule
   executeNewWorkflow(input: StartWorkflowRequestInput!): String

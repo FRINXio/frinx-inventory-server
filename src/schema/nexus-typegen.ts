@@ -150,10 +150,6 @@ export interface NexusGenInputs {
     name: string; // String!
     transactionId: string; // String!
   };
-  DeleteTaskDefinitionInput: {
-    // input type
-    name: string; // String!
-  };
   DeleteWorkflowInput: {
     // input type
     name: string; // String!
@@ -538,10 +534,6 @@ export interface NexusGenObjects {
   DeleteSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
-  };
-  DeleteTaskDefinitionPayload: {
-    // root type
-    taskDefinition: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
   };
   DeleteWorkflowPayload: {
     // root type
@@ -1011,10 +1003,6 @@ export interface NexusGenFieldTypes {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
   };
-  DeleteTaskDefinitionPayload: {
-    // field return type
-    taskDefinition: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
-  };
   DeleteWorkflowPayload: {
     // field return type
     workflow: NexusGenRootTypes['Workflow']; // Workflow!
@@ -1238,7 +1226,7 @@ export interface NexusGenFieldTypes {
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSchedule: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
-    deleteTaskDefinition: NexusGenRootTypes['DeleteTaskDefinitionPayload'] | null; // DeleteTaskDefinitionPayload
+    deleteTask: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteWorkflow: NexusGenRootTypes['DeleteWorkflowPayload']; // DeleteWorkflowPayload!
     editWorkflowSchedule: NexusGenRootTypes['Schedule'] | null; // Schedule
     executeNewWorkflow: string | null; // String
@@ -1699,10 +1687,6 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     snapshot: 'Snapshot';
   };
-  DeleteTaskDefinitionPayload: {
-    // field return type name
-    taskDefinition: 'TaskDefinition';
-  };
   DeleteWorkflowPayload: {
     // field return type name
     workflow: 'Workflow';
@@ -1926,7 +1910,7 @@ export interface NexusGenFieldTypeNames {
     deleteLabel: 'DeleteLabelPayload';
     deleteSchedule: 'IsOkResponse';
     deleteSnapshot: 'DeleteSnapshotPayload';
-    deleteTaskDefinition: 'DeleteTaskDefinitionPayload';
+    deleteTask: 'IsOkResponse';
     deleteWorkflow: 'DeleteWorkflowPayload';
     editWorkflowSchedule: 'Schedule';
     executeNewWorkflow: 'String';
@@ -2353,9 +2337,9 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
     };
-    deleteTaskDefinition: {
+    deleteTask: {
       // args
-      input: NexusGenInputs['DeleteTaskDefinitionInput']; // DeleteTaskDefinitionInput!
+      name: string; // String!
     };
     deleteWorkflow: {
       // args
