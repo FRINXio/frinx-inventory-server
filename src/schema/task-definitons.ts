@@ -137,8 +137,8 @@ export const CreateTaskDefinitionMutation = mutationField('createTaskDefinition'
     input: nonNull(arg({ type: CreateTaskDefinitionInput })),
   },
   resolve: async (_, { input }, { conductorAPI }) => {
-    if (input.responseTimeoutSeconds && input.responseTimeoutSeconds > input.timeoutSeconds) {
-        throw new Error('Response timeout cannot be greater than task timeout');
+    if (input.responseTimeoutSeconds == null || input.responseTimeoutSeconds > input.timeoutSeconds) {
+        throw new Error('Response timeout cannot be greater than task timeout. Default value for responseTimeoutSeconds is 3600');
     }
 
     const taskDefinitionInput = {
