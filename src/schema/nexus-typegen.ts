@@ -42,6 +42,28 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  ActionCompleteTaskInput: {
+    // input type
+    output?: string | null; // String
+    taskId?: string | null; // String
+    taskRefName?: string | null; // String
+    workflowId?: string | null; // String
+  };
+  ActionFailTaskInput: {
+    // input type
+    output?: string | null; // String
+    taskId?: string | null; // String
+    taskRefName?: string | null; // String
+    workflowId?: string | null; // String
+  };
+  ActionStartWorkflowInput: {
+    // input type
+    correlationId?: string | null; // String
+    input?: string | null; // String
+    name?: string | null; // String
+    taskToDomain?: string | null; // String
+    version?: number | null; // Int
+  };
   AddBlueprintInput: {
     // input type
     name: string; // String!
@@ -144,6 +166,23 @@ export interface NexusGenInputs {
     workflowContext?: string | null; // String
     workflowName?: string | null; // String
     workflowVersion?: string | null; // String
+  };
+  EventHandlerActionInput: {
+    // input type
+    action?: NexusGenEnums['EventHandlerActionEnum'] | null; // EventHandlerActionEnum
+    completeTask?: NexusGenInputs['ActionCompleteTaskInput'] | null; // ActionCompleteTaskInput
+    expandInlineJSON?: boolean | null; // Boolean
+    failTask?: NexusGenInputs['ActionFailTaskInput'] | null; // ActionFailTaskInput
+    startWorkflow?: NexusGenInputs['ActionStartWorkflowInput'] | null; // ActionStartWorkflowInput
+  };
+  EventHandlerInput: {
+    // input type
+    actions: NexusGenInputs['EventHandlerActionInput'][]; // [EventHandlerActionInput!]!
+    condition?: string | null; // String
+    evaluatorType?: string | null; // String
+    event: string; // String!
+    isActive?: boolean | null; // Boolean
+    name: string; // String!
   };
   ExecuteNewWorkflowInput: {
     // input type
@@ -343,6 +382,7 @@ export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
+  EventHandlerActionEnum: 'complete_task' | 'fail_task' | 'start_workflow';
   ExecutedWorkflowStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT';
   ExecutedWorkflowTaskStatus:
     | 'CANCELED'
@@ -565,7 +605,7 @@ export interface NexusGenObjects {
   };
   EventHandler: {
     // root type
-    actions: Array<NexusGenRootTypes['EventHandlerAction'] | null>; // [EventHandlerAction]!
+    actions: NexusGenRootTypes['EventHandlerAction'][]; // [EventHandlerAction!]!
     condition?: string | null; // String
     evaluatorType?: string | null; // String
     event: string; // String!
@@ -576,7 +616,7 @@ export interface NexusGenObjects {
   };
   EventHandlerAction: {
     // root type
-    action?: string | null; // String
+    action?: NexusGenEnums['EventHandlerActionEnum'] | null; // EventHandlerActionEnum
     completeTask?: NexusGenRootTypes['ActionCompleteTask'] | null; // ActionCompleteTask
     expandInlineJSON?: boolean | null; // Boolean
     failTask?: NexusGenRootTypes['ActionFailTask'] | null; // ActionFailTask
@@ -1104,7 +1144,7 @@ export interface NexusGenFieldTypes {
   };
   EventHandler: {
     // field return type
-    actions: Array<NexusGenRootTypes['EventHandlerAction'] | null>; // [EventHandlerAction]!
+    actions: NexusGenRootTypes['EventHandlerAction'][]; // [EventHandlerAction!]!
     condition: string | null; // String
     evaluatorType: string | null; // String
     event: string; // String!
@@ -1115,7 +1155,7 @@ export interface NexusGenFieldTypes {
   };
   EventHandlerAction: {
     // field return type
-    action: string | null; // String
+    action: NexusGenEnums['EventHandlerActionEnum'] | null; // EventHandlerActionEnum
     completeTask: NexusGenRootTypes['ActionCompleteTask'] | null; // ActionCompleteTask
     expandInlineJSON: boolean | null; // Boolean
     failTask: NexusGenRootTypes['ActionFailTask'] | null; // ActionFailTask
@@ -1299,11 +1339,13 @@ export interface NexusGenFieldTypes {
     bulkTerminateWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
+    createEventHandler: NexusGenRootTypes['EventHandler'] | null; // EventHandler
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
     createWorkflow: NexusGenRootTypes['CreateWorkflowPayload']; // CreateWorkflowPayload!
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
+    deleteEventHandler: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSchedule: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
@@ -1328,6 +1370,7 @@ export interface NexusGenFieldTypes {
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
+    updateEventHandler: NexusGenRootTypes['EventHandler'] | null; // EventHandler
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
     updateWorkflow: NexusGenRootTypes['UpdateWorkflowPayload']; // UpdateWorkflowPayload!
   };
@@ -1847,7 +1890,7 @@ export interface NexusGenFieldTypeNames {
   };
   EventHandlerAction: {
     // field return type name
-    action: 'String';
+    action: 'EventHandlerActionEnum';
     completeTask: 'ActionCompleteTask';
     expandInlineJSON: 'Boolean';
     failTask: 'ActionFailTask';
@@ -2031,11 +2074,13 @@ export interface NexusGenFieldTypeNames {
     bulkTerminateWorkflow: 'BulkOperationResponse';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
+    createEventHandler: 'EventHandler';
     createLabel: 'CreateLabelPayload';
     createTransaction: 'CreateTransactionPayload';
     createWorkflow: 'CreateWorkflowPayload';
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
+    deleteEventHandler: 'IsOkResponse';
     deleteLabel: 'DeleteLabelPayload';
     deleteSchedule: 'IsOkResponse';
     deleteSnapshot: 'DeleteSnapshotPayload';
@@ -2060,6 +2105,7 @@ export interface NexusGenFieldTypeNames {
     updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
+    updateEventHandler: 'EventHandler';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
     updateWorkflow: 'UpdateWorkflowPayload';
   };
@@ -2428,6 +2474,10 @@ export interface NexusGenArgTypes {
       input: NexusGenInputs['CommitConfigInput']; // CommitConfigInput!
       transactionId: string; // String!
     };
+    createEventHandler: {
+      // args
+      input: NexusGenInputs['EventHandlerInput']; // EventHandlerInput!
+    };
     createLabel: {
       // args
       input: NexusGenInputs['CreateLabelInput']; // CreateLabelInput!
@@ -2445,6 +2495,10 @@ export interface NexusGenArgTypes {
       id: string; // String!
     };
     deleteDevice: {
+      // args
+      id: string; // String!
+    };
+    deleteEventHandler: {
       // args
       id: string; // String!
     };
@@ -2554,6 +2608,10 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
       input: NexusGenInputs['UpdateDeviceInput']; // UpdateDeviceInput!
+    };
+    updateEventHandler: {
+      // args
+      input: NexusGenInputs['EventHandlerInput']; // EventHandlerInput!
     };
     updateGraphNodeCoordinates: {
       // args

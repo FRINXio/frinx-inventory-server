@@ -217,7 +217,7 @@ async function getEventHandlers(baseURL: string): Promise<ApiEventHandlersOutput
 }
 
 async function updateEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
-  await sendPutRequest([baseURL, '/event'], eventHandler);
+  await sendPutRequest([baseURL, `/event`], eventHandler);
 }
 
 async function deleteEventHandler(baseURL: string, eventHandlerName: string): Promise<void> {
