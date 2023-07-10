@@ -244,6 +244,7 @@ const EventHandlerAction = t.type({
     failTask: optional(ActionFailTask),
     expandInlineJSON: optional(t.boolean),
 });
+export type ApiEventHandlerAction = t.TypeOf<typeof EventHandlerAction>;
 
 const EventHandler = t.type({
   name: t.string,

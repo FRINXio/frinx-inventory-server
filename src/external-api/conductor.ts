@@ -257,6 +257,11 @@ const conductorAPI = {
   executeWorkflowByName,
   getTaskDefinitions,
   getExecutedWorkflowTaskDetail,
+  getEventHandlers,
+  updateEventHandler,
+  deleteEventHandler,
+  createEventHandler,
+  getEventHandler,
 };
 
 export type ConductorAPI = typeof conductorAPI;
