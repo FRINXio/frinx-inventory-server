@@ -82,7 +82,7 @@ export const Workflow = objectType({
         w.outputParameters
           ? Object.entries(w.outputParameters).map((e) => ({
               key: e[0],
-              value: e[1],
+              value: JSON.stringify(e[1]),
             }))
           : null,
     });
