@@ -442,6 +442,14 @@ input FilterDevicesInput {
   labels: [String!]
 }
 
+input FilterPollDataInput {
+  afterLastPollTime: Int
+  beforeLastPollTime: Int
+  domain: String
+  queueName: String
+  workerId: String
+}
+
 input FilterPoolsInput {
   poolName: String
 }
@@ -657,6 +665,24 @@ input PaginationArgs {
   start: Int!
 }
 
+type PollData {
+  domain: String
+  lastPollTime: String
+  queueName: String
+  workerId: String
+}
+
+type PollDataConnection {
+  edges: [PollDataEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type PollDataEdge {
+  cursor: String
+  node: PollData
+}
+
 type Pool implements Node {
   id: ID!
   name: String!
@@ -701,6 +727,7 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!, version: Int): Node
+  pollData(after: String, before: String, filter: FilterPollDataInput, first: Int, last: Int): PollDataConnection
   pools(
     after: String
     before: String

@@ -17,6 +17,8 @@ import {
   decodeBulkTerminateOutput,
   decodeExecutedWorkflowTaskDetailOutput,
   ApiExecutedWorkflowTask,
+  decodePollDataOutput,
+  ApiPollDataArray,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -210,6 +212,12 @@ async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): P
   return data;
 }
 
+async function getPollData(baseURL: string): Promise<ApiPollDataArray> {
+    const json = await sendGetRequest([baseURL, '/tasks/queue/polldata/all']);
+    const data = decodePollDataOutput(json);
+    return data;
+}
+
 const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
@@ -233,6 +241,7 @@ const conductorAPI = {
   executeWorkflowByName,
   getTaskDefinitions,
   getExecutedWorkflowTaskDetail,
+  getPollData,
 };
 
 export type ConductorAPI = typeof conductorAPI;

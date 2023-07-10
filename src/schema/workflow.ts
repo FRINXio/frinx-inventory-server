@@ -17,7 +17,7 @@ import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import getLogger from '../get-logger';
-import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import {IsOkResponse, Node, PageInfo, PaginationConnectionArgs} from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import {
   convertToApiOutputParameters,

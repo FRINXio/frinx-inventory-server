@@ -215,6 +215,14 @@ const TaskDefinition = t.type({
 });
 const TaskDefinitionsValidator = t.array(TaskDefinition);
 
+const PollData = t.type({
+  queueName: optional(t.string),
+  domain: optional(t.string),
+  workerId: optional(t.string),
+  lastPollTime: optional(t.number),
+});
+const PollDataArray = t.array(PollData);
+
 export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowsValidator>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type WorkflowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
@@ -222,6 +230,8 @@ export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 export type ApiExecutedWorkflow = t.TypeOf<typeof ExecutedWorkflow>;
 export type ApiExecutedWorkflowTask = t.TypeOf<typeof ExecutedWorkflowTask>;
 export type ApiTaskDefinition = t.TypeOf<typeof TaskDefinition>;
+export type ApiPollData = t.TypeOf<typeof PollData>;
+export type ApiPollDataArray = t.TypeOf<typeof PollDataArray>;
 
 export function decodeWorkflowMetadataOutput(value: unknown): WorkflowMetadataOutput {
   return extractResult(WorkflowMetadataValidator.decode(value));
@@ -268,4 +278,8 @@ export function decodeBulkRestartOutput(value: unknown): BulkOperationOutput {
 
 export function decodeExecutedWorkflowTaskDetailOutput(value: unknown): ApiExecutedWorkflowTask {
   return extractResult(ExecutedWorkflowTask.decode(value));
+}
+
+export function decodePollDataOutput(value: unknown): ApiPollDataArray {
+  return extractResult(PollDataArray.decode(value));
 }
