@@ -215,6 +215,46 @@ const TaskDefinition = t.type({
 });
 const TaskDefinitionsValidator = t.array(TaskDefinition);
 
+const ActionStartWorkflow = t.type({
+    name: t.string,
+    version: t.number,
+    input: optional(t.UnknownRecord),
+    correlationId: optional(t.string),
+    taskToDomain: optional(t.record(t.string, t.string)),
+});
+
+const ActionCompleteTask = t.type({
+    workflowId: optional(t.string),
+    taskId: optional(t.string),
+    output: optional(t.UnknownRecord),
+    taskRefName: optional(t.string),
+});
+
+const ActionFailTask = t.type({
+    workflowId: optional(t.string),
+    taskId: optional(t.string),
+    output: optional(t.UnknownRecord),
+    taskRefName: optional(t.string),
+});
+
+const EventHandlerAction = t.type({
+    action: optional(t.string),
+    startWorkflow: optional(ActionStartWorkflow),
+    completeTask: optional(ActionCompleteTask),
+    failTask: optional(ActionFailTask),
+    expandInlineJSON: optional(t.boolean),
+});
+
+const EventHandler = t.type({
+  name: t.string,
+  event: t.string,
+  condition: optional(t.string),
+  actions: t.array(EventHandlerAction),
+  active: optional(t.boolean),
+  evaluatorType: optional(t.string),
+});
+const EventHandlersValidator = t.array(EventHandler);
+
 export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowsValidator>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type WorkflowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
@@ -222,6 +262,8 @@ export type ApiWorkflow = t.TypeOf<typeof WorkflowMetadata>;
 export type ApiExecutedWorkflow = t.TypeOf<typeof ExecutedWorkflow>;
 export type ApiExecutedWorkflowTask = t.TypeOf<typeof ExecutedWorkflowTask>;
 export type ApiTaskDefinition = t.TypeOf<typeof TaskDefinition>;
+export type ApiEventHandlersOutput = t.TypeOf<typeof EventHandlersValidator>;
+export type ApiEventHandler = t.TypeOf<typeof EventHandler>;
 
 export function decodeWorkflowMetadataOutput(value: unknown): WorkflowMetadataOutput {
   return extractResult(WorkflowMetadataValidator.decode(value));
@@ -268,4 +310,12 @@ export function decodeBulkRestartOutput(value: unknown): BulkOperationOutput {
 
 export function decodeExecutedWorkflowTaskDetailOutput(value: unknown): ApiExecutedWorkflowTask {
   return extractResult(ExecutedWorkflowTask.decode(value));
+}
+
+export function decodeEventHandlersOutput(value: unknown): ApiEventHandlersOutput {
+  return extractResult(EventHandlersValidator.decode(value));
+}
+
+export function decodeEventHandlerOutput(value: unknown): ApiEventHandler {
+  return extractResult(EventHandler.decode(value));
 }

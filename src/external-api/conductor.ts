@@ -16,7 +16,7 @@ import {
   decodeTaskDefinitionsOutput,
   decodeBulkTerminateOutput,
   decodeExecutedWorkflowTaskDetailOutput,
-  ApiExecutedWorkflowTask,
+  ApiExecutedWorkflowTask, ApiEventHandlersOutput, decodeEventHandlersOutput, ApiEventHandler, decodeEventHandlerOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -208,6 +208,30 @@ async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): P
   const json = await sendGetRequest([baseURL, `/tasks/${taskId}`]);
   const data = decodeExecutedWorkflowTaskDetailOutput(json);
   return data;
+}
+
+async function getEventHandlers(baseURL: string): Promise<ApiEventHandlersOutput> {
+  const json = await sendGetRequest([baseURL, '/event']);
+  const data = decodeEventHandlersOutput(json);
+  return data;
+}
+
+async function updateEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
+  await sendPutRequest([baseURL, '/event'], eventHandler);
+}
+
+async function deleteEventHandler(baseURL: string, eventHandlerName: string): Promise<void> {
+    await sendDeleteRequest([baseURL, `/event/${eventHandlerName}`]);
+}
+
+async function createEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
+  await sendPostRequest([baseURL, '/event'], eventHandler);
+}
+
+async function getEventHandler(baseURL: string, eventHandlerName: string): Promise<ApiEventHandler> {
+    const json = await sendGetRequest([baseURL, `/event/${eventHandlerName}`]);
+    const data = decodeEventHandlerOutput(json);
+    return data;
 }
 
 const conductorAPI = {
