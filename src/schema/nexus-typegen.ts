@@ -342,9 +342,7 @@ export interface NexusGenInputs {
     actions?: NexusGenInputs['EventHandlerActionInput'][] | null; // [EventHandlerActionInput!]
     condition?: string | null; // String
     evaluatorType?: string | null; // String
-    event: string; // String!
     isActive?: boolean | null; // Boolean
-    name: string; // String!
   };
   UpdateWorkflowInput: {
     // input type
@@ -2616,7 +2614,9 @@ export interface NexusGenArgTypes {
     };
     updateEventHandler: {
       // args
+      event: string; // String!
       input: NexusGenInputs['UpdateEventHandlerInput']; // UpdateEventHandlerInput!
+      name: string; // String!
     };
     updateGraphNodeCoordinates: {
       // args

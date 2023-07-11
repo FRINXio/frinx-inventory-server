@@ -181,8 +181,6 @@ export const CreateEventHandlerInput = inputObjectType({
 export const UpdateEventHandlerInput = inputObjectType({
   name: 'UpdateEventHandlerInput',
   definition(t) {
-    t.nonNull.string('name', { description: 'The name is immutable and cannot be changed. Also it must be unique.' });
-    t.nonNull.string('event', { description: 'The event is immutable and cannot be changed.' });
     t.string('condition');
     t.list.nonNull.field('actions', { type: EventHandlerActionInput });
     t.boolean('isActive');
@@ -208,11 +206,13 @@ export const CreateEventHandlerMutation = mutationField('createEventHandler', {
 export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
   type: EventHandler,
   args: {
+    event: nonNull(stringArg()),
+    name: nonNull(stringArg()),
     input: nonNull(arg({ type: UpdateEventHandlerInput })),
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { input } = args;
-    const oldEventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, input.event, input.name);
+    const { input, event, name } = args;
+    const oldEventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, event, name);
 
     if (input.actions == null || input.actions.length === 0) {
       await conductorAPI.updateEventHandler(config.conductorApiURL, {
@@ -220,6 +220,8 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
         ...makeFromGraphQLToApiEventHandler({
           ...input,
           actions: [],
+          name,
+          event,
         }),
         actions: oldEventHandler.actions,
       });
@@ -229,6 +231,8 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
         ...makeFromGraphQLToApiEventHandler({
           ...input,
           actions: input.actions,
+          name,
+          event,
         }),
       });
     }
@@ -236,7 +240,7 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
     const mappedEventHandler = makeFromApiToGraphQLEventHandler(oldEventHandler);
 
     return {
-      id: toGraphId('EventHandler', input.name),
+      id: toGraphId('EventHandler', name),
       ...mappedEventHandler,
       ...input,
       actions: input.actions == null ? mappedEventHandler.actions : input.actions,

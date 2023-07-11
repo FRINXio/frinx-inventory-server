@@ -721,7 +721,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
-  updateEventHandler(input: UpdateEventHandlerInput!): EventHandler
+  updateEventHandler(event: String!, input: UpdateEventHandlerInput!, name: String!): EventHandler
   updateGraphNodeCoordinates(input: [GraphNodeCoordinatesInput!]!): UpdateGraphNodeCoordinatesPayload!
   updateWorkflow(id: String!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
 }
@@ -1116,17 +1116,7 @@ input UpdateEventHandlerInput {
   actions: [EventHandlerActionInput!]
   condition: String
   evaluatorType: String
-
-  """
-  The event is immutable and cannot be changed.
-  """
-  event: String!
   isActive: Boolean
-
-  """
-  The name is immutable and cannot be changed. Also it must be unique.
-  """
-  name: String!
 }
 
 type UpdateGraphNodeCoordinatesPayload {
