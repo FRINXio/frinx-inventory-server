@@ -42,5 +42,5 @@ export function isBeforeDate(date: Date, other: Date): boolean {
 }
 
 export function isAfterDate(date: Date, other: Date): boolean {
-    return date.getTime() > other.getTime();
+  return date.getTime() > other.getTime();
 }

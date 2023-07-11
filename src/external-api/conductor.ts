@@ -213,9 +213,9 @@ async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): P
 }
 
 async function getPollData(baseURL: string): Promise<ApiPollDataArray> {
-    const json = await sendGetRequest([baseURL, '/tasks/queue/polldata/all']);
-    const data = decodePollDataOutput(json);
-    return data;
+  const json = await sendGetRequest([baseURL, '/tasks/queue/polldata/all']);
+  const data = decodePollDataOutput(json);
+  return data;
 }
 
 const conductorAPI = {

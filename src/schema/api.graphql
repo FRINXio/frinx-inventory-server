@@ -667,6 +667,7 @@ input PaginationArgs {
 
 type PollData {
   domain: String
+  id: ID!
   lastPollTime: String
   queueName: String
   workerId: String

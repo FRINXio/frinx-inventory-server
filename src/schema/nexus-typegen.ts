@@ -669,6 +669,7 @@ export interface NexusGenObjects {
   PollData: {
     // root type
     domain?: string | null; // String
+    id: string; // ID!
     lastPollTime?: string | null; // String
     queueName?: string | null; // String
     workerId?: string | null; // String
@@ -1287,6 +1288,7 @@ export interface NexusGenFieldTypes {
   PollData: {
     // field return type
     domain: string | null; // String
+    id: string; // ID!
     lastPollTime: string | null; // String
     queueName: string | null; // String
     workerId: string | null; // String
@@ -1986,6 +1988,7 @@ export interface NexusGenFieldTypeNames {
   PollData: {
     // field return type name
     domain: 'String';
+    id: 'ID';
     lastPollTime: 'String';
     queueName: 'String';
     workerId: 'String';
