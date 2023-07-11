@@ -120,6 +120,15 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     shouldDryRun?: boolean | null; // Boolean
   };
+  CreateEventHandlerInput: {
+    // input type
+    actions: NexusGenInputs['EventHandlerActionInput'][]; // [EventHandlerActionInput!]!
+    condition?: string | null; // String
+    evaluatorType?: string | null; // String
+    event: string; // String!
+    isActive?: boolean | null; // Boolean
+    name: string; // String!
+  };
   CreateLabelInput: {
     // input type
     name: string; // String!
@@ -174,15 +183,6 @@ export interface NexusGenInputs {
     expandInlineJSON?: boolean | null; // Boolean
     failTask?: NexusGenInputs['ActionFailTaskInput'] | null; // ActionFailTaskInput
     startWorkflow?: NexusGenInputs['ActionStartWorkflowInput'] | null; // ActionStartWorkflowInput
-  };
-  EventHandlerInput: {
-    // input type
-    actions: NexusGenInputs['EventHandlerActionInput'][]; // [EventHandlerActionInput!]!
-    condition?: string | null; // String
-    evaluatorType?: string | null; // String
-    event: string; // String!
-    isActive?: boolean | null; // Boolean
-    name: string; // String!
   };
   ExecuteNewWorkflowInput: {
     // input type
@@ -336,6 +336,15 @@ export interface NexusGenInputs {
     username?: string | null; // String
     vendor?: string | null; // String
     version?: string | null; // String
+  };
+  UpdateEventHandlerInput: {
+    // input type
+    actions?: NexusGenInputs['EventHandlerActionInput'][] | null; // [EventHandlerActionInput!]
+    condition?: string | null; // String
+    evaluatorType?: string | null; // String
+    event: string; // String!
+    isActive?: boolean | null; // Boolean
+    name: string; // String!
   };
   UpdateWorkflowInput: {
     // input type
@@ -612,7 +621,6 @@ export interface NexusGenObjects {
     id: string; // ID!
     isActive?: boolean | null; // Boolean
     name: string; // String!
-    version?: number | null; // Int
   };
   EventHandlerAction: {
     // root type
@@ -920,7 +928,6 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Blueprint', 'required'>
     | core.Discriminate<'Country', 'required'>
     | core.Discriminate<'Device', 'required'>
-    | core.Discriminate<'EventHandler', 'required'>
     | core.Discriminate<'ExecutedWorkflow', 'required'>
     | core.Discriminate<'ExecutedWorkflowTask', 'required'>
     | core.Discriminate<'Label', 'required'>
@@ -1151,7 +1158,6 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     isActive: boolean | null; // Boolean
     name: string; // String!
-    version: number | null; // Int
   };
   EventHandlerAction: {
     // field return type
@@ -1886,7 +1892,6 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     isActive: 'Boolean';
     name: 'String';
-    version: 'Int';
   };
   EventHandlerAction: {
     // field return type name
@@ -2476,7 +2481,7 @@ export interface NexusGenArgTypes {
     };
     createEventHandler: {
       // args
-      input: NexusGenInputs['EventHandlerInput']; // EventHandlerInput!
+      input: NexusGenInputs['CreateEventHandlerInput']; // CreateEventHandlerInput!
     };
     createLabel: {
       // args
@@ -2611,7 +2616,7 @@ export interface NexusGenArgTypes {
     };
     updateEventHandler: {
       // args
-      input: NexusGenInputs['EventHandlerInput']; // EventHandlerInput!
+      input: NexusGenInputs['UpdateEventHandlerInput']; // UpdateEventHandlerInput!
     };
     updateGraphNodeCoordinates: {
       // args
@@ -2759,7 +2764,6 @@ export interface NexusGenAbstractTypeMembers {
     | 'Blueprint'
     | 'Country'
     | 'Device'
-    | 'EventHandler'
     | 'ExecutedWorkflow'
     | 'ExecutedWorkflowTask'
     | 'Label'
@@ -2774,7 +2778,6 @@ export interface NexusGenTypeInterfaces {
   Blueprint: 'Node';
   Country: 'Node';
   Device: 'Node';
-  EventHandler: 'Node';
   ExecutedWorkflow: 'Node';
   ExecutedWorkflowTask: 'Node';
   GraphNode: 'BaseGraphNode';

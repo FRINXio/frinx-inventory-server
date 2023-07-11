@@ -79,7 +79,7 @@ function makeFromApiToGraphQLActionFailTask(actionFailTask: ApiEventHandlerActio
   };
 }
 
-function makeFromApiToGraphQLEventHandlerAction(eventHandlerAction: ApiEventHandlerAction) {
+export function makeFromApiToGraphQLEventHandlerAction(eventHandlerAction: ApiEventHandlerAction) {
   return {
     action: eventHandlerAction.action || undefined,
     startWorkflow: makeFromApiToGraphQLActionStartWorkflow(eventHandlerAction.startWorkflow) || undefined,
@@ -93,7 +93,7 @@ export function makeFromApiToGraphQLEventHandler(eventHandler: ApiEventHandler) 
   return {
     name: eventHandler.name,
     event: eventHandler.event,
-    isActive: eventHandler.active || undefined,
+    isActive: eventHandler.active || false,
     condition: eventHandler.condition || undefined,
     actions: eventHandler.actions.map(makeFromApiToGraphQLEventHandlerAction),
     evaluatorType: eventHandler.evaluatorType || undefined,

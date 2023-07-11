@@ -20,7 +20,6 @@ import {
   ApiEventHandlersOutput,
   decodeEventHandlersOutput,
   ApiEventHandler,
-  decodeEventHandlerOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -232,9 +231,25 @@ async function createEventHandler(baseURL: string, eventHandler: ApiEventHandler
   await sendPostRequest([baseURL, '/event'], eventHandler);
 }
 
-async function getEventHandler(baseURL: string, eventHandlerName: string): Promise<ApiEventHandler> {
-  const json = await sendGetRequest([baseURL, `/event/${eventHandlerName}`]);
-  const data = decodeEventHandlerOutput(json);
+async function getEventHandler(baseURL: string, event: string, eventName: string): Promise<ApiEventHandler> {
+  const json = await sendGetRequest([baseURL, `/event/${event}?activeOnly=false`]);
+  const data = decodeEventHandlersOutput(json);
+  const eventHandler = data.find((eh) => eh.name === eventName);
+
+  if (eventHandler == null) {
+    throw new Error(`Event handler ${eventName} not found`);
+  }
+
+  return eventHandler;
+}
+
+async function getEventHandlersByEvent(
+  baseURL: string,
+  event: string,
+  activeOnly: boolean,
+): Promise<ApiEventHandler[]> {
+  const json = await sendGetRequest([baseURL, `/event/${event}?activeOnly=${activeOnly}`]);
+  const data = decodeEventHandlersOutput(json);
   return data;
 }
 
@@ -266,6 +281,7 @@ const conductorAPI = {
   deleteEventHandler,
   createEventHandler,
   getEventHandler,
+  getEventHandlersByEvent,
 };
 
 export type ConductorAPI = typeof conductorAPI;

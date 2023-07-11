@@ -55,7 +55,6 @@ export const EventHandlerAction = objectType({
 export const EventHandler = objectType({
   name: 'EventHandler',
   definition(t) {
-    t.implements('Node');
     t.nonNull.id('id');
     t.nonNull.string('name', { description: 'The name is immutable and cannot be changed. Also it must be unique.' });
     t.nonNull.string('event', { description: 'The event is immutable and cannot be changed.' });
@@ -167,8 +166,8 @@ export const EventHandlerActionInput = inputObjectType({
   },
 });
 
-export const EventHandlerInput = inputObjectType({
-  name: 'EventHandlerInput',
+export const CreateEventHandlerInput = inputObjectType({
+  name: 'CreateEventHandlerInput',
   definition(t) {
     t.nonNull.string('name', { description: 'The name is immutable and cannot be changed. Also it must be unique.' });
     t.nonNull.string('event', { description: 'The event is immutable and cannot be changed.' });
@@ -179,10 +178,22 @@ export const EventHandlerInput = inputObjectType({
   },
 });
 
+export const UpdateEventHandlerInput = inputObjectType({
+  name: 'UpdateEventHandlerInput',
+  definition(t) {
+    t.nonNull.string('name', { description: 'The name is immutable and cannot be changed. Also it must be unique.' });
+    t.nonNull.string('event', { description: 'The event is immutable and cannot be changed.' });
+    t.string('condition');
+    t.list.nonNull.field('actions', { type: EventHandlerActionInput });
+    t.boolean('isActive');
+    t.string('evaluatorType');
+  },
+});
+
 export const CreateEventHandlerMutation = mutationField('createEventHandler', {
   type: EventHandler,
   args: {
-    input: nonNull(arg({ type: EventHandlerInput })),
+    input: nonNull(arg({ type: CreateEventHandlerInput })),
   },
   resolve: async (_, args, { conductorAPI }) => {
     const { input } = args;
@@ -197,14 +208,38 @@ export const CreateEventHandlerMutation = mutationField('createEventHandler', {
 export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
   type: EventHandler,
   args: {
-    input: nonNull(arg({ type: EventHandlerInput })),
+    input: nonNull(arg({ type: UpdateEventHandlerInput })),
   },
   resolve: async (_, args, { conductorAPI }) => {
     const { input } = args;
-    await conductorAPI.updateEventHandler(config.conductorApiURL, makeFromGraphQLToApiEventHandler(input));
+    const oldEventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, input.event, input.name);
+
+    if (input.actions == null || input.actions.length === 0) {
+      await conductorAPI.updateEventHandler(config.conductorApiURL, {
+        ...oldEventHandler,
+        ...makeFromGraphQLToApiEventHandler({
+          ...input,
+          actions: [],
+        }),
+        actions: oldEventHandler.actions,
+      });
+    } else {
+      await conductorAPI.updateEventHandler(config.conductorApiURL, {
+        ...oldEventHandler,
+        ...makeFromGraphQLToApiEventHandler({
+          ...input,
+          actions: input.actions,
+        }),
+      });
+    }
+
+    const mappedEventHandler = makeFromApiToGraphQLEventHandler(oldEventHandler);
+
     return {
       id: toGraphId('EventHandler', input.name),
+      ...mappedEventHandler,
       ...input,
+      actions: input.actions == null ? mappedEventHandler.actions : input.actions,
     };
   },
 });

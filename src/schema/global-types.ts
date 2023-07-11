@@ -154,15 +154,6 @@ export const NodeQuery = extendType({
 
             return { ...task, id: args.id, __typename: 'ExecutedWorkflowTask' };
           }
-          case 'EventHandler': {
-            const id = fromGraphId('EventHandler', args.id);
-            const eventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, id);
-            if (eventHandler == null) {
-              return null;
-            }
-
-            return { ...makeFromApiToGraphQLEventHandler(eventHandler), id: args.id, __typename: 'EventHandler' };
-          }
           /* eslint-enable */
           default:
             return null;

@@ -316,7 +316,3 @@ export function decodeExecutedWorkflowTaskDetailOutput(value: unknown): ApiExecu
 export function decodeEventHandlersOutput(value: unknown): ApiEventHandlersOutput {
   return extractResult(EventHandlersValidator.decode(value));
 }
-
-export function decodeEventHandlerOutput(value: unknown): ApiEventHandler {
-  return extractResult(EventHandler.decode(value));
-}

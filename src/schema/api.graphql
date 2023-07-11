@@ -211,6 +211,23 @@ type CountryEdge {
   node: Country!
 }
 
+input CreateEventHandlerInput {
+  actions: [EventHandlerActionInput!]!
+  condition: String
+  evaluatorType: String
+
+  """
+  The event is immutable and cannot be changed.
+  """
+  event: String!
+  isActive: Boolean
+
+  """
+  The name is immutable and cannot be changed. Also it must be unique.
+  """
+  name: String!
+}
+
 input CreateLabelInput {
   name: String!
 }
@@ -356,7 +373,7 @@ input EditWorkflowScheduleInput {
   workflowVersion: String
 }
 
-type EventHandler implements Node {
+type EventHandler {
   actions: [EventHandlerAction!]!
   condition: String
   evaluatorType: String
@@ -372,7 +389,6 @@ type EventHandler implements Node {
   The name is immutable and cannot be changed. Also it must be unique.
   """
   name: String!
-  version: Int
 }
 
 type EventHandlerAction {
@@ -405,23 +421,6 @@ type EventHandlerConnection {
 type EventHandlerEdge {
   cursor: String!
   node: EventHandler!
-}
-
-input EventHandlerInput {
-  actions: [EventHandlerActionInput!]!
-  condition: String
-  evaluatorType: String
-
-  """
-  The event is immutable and cannot be changed.
-  """
-  event: String!
-  isActive: Boolean
-
-  """
-  The name is immutable and cannot be changed. Also it must be unique.
-  """
-  name: String!
 }
 
 input ExecuteNewWorkflowInput {
@@ -691,7 +690,7 @@ type Mutation {
   bulkTerminateWorkflow(input: BulkOperationInput!): BulkOperationResponse
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
-  createEventHandler(input: EventHandlerInput!): EventHandler
+  createEventHandler(input: CreateEventHandlerInput!): EventHandler
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
   createTransaction(deviceId: String!): CreateTransactionPayload!
   createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
@@ -722,7 +721,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
-  updateEventHandler(input: EventHandlerInput!): EventHandler
+  updateEventHandler(input: UpdateEventHandlerInput!): EventHandler
   updateGraphNodeCoordinates(input: [GraphNodeCoordinatesInput!]!): UpdateGraphNodeCoordinatesPayload!
   updateWorkflow(id: String!, input: UpdateWorkflowInput!): UpdateWorkflowPayload!
 }
@@ -1111,6 +1110,23 @@ type UpdateDeviceMetadataPayload {
 
 type UpdateDevicePayload {
   device: Device
+}
+
+input UpdateEventHandlerInput {
+  actions: [EventHandlerActionInput!]
+  condition: String
+  evaluatorType: String
+
+  """
+  The event is immutable and cannot be changed.
+  """
+  event: String!
+  isActive: Boolean
+
+  """
+  The name is immutable and cannot be changed. Also it must be unique.
+  """
+  name: String!
 }
 
 type UpdateGraphNodeCoordinatesPayload {
