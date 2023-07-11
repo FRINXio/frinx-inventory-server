@@ -2,7 +2,9 @@ import { arg, enumType, extendType, inputObjectType, list, mutationField, nonNul
 import config from '../config';
 import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput } from '../helpers/task-definition.helpers';
-import { IsOkResponse } from './global-types';
+import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
+import {connectionFromArray} from '../helpers/connection.helpers'
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -17,7 +19,7 @@ const RetryLogic = enumType({
 export const TaskDefinition = objectType({
   name: 'TaskDefinition',
   definition: (t) => {
-    t.implements('Node');
+    t.implements(Node);
     t.nonNull.id('id', {
       resolve: (taskDefinition) => toGraphId('TaskDefinition', taskDefinition.name),
     });
@@ -56,19 +58,68 @@ export const TaskDefinition = objectType({
   },
 });
 
+export const TaskDefinitionEdge = objectType({
+  name: 'TaskDefinitionEdge',
+  definition: (t) => {
+    t.nonNull.field('node', {
+      type: TaskDefinition,
+    });
+    t.nonNull.string('cursor');
+  },
+});
+
+export const TaskDefinitionConnection = objectType({
+  name: 'TaskDefinitionConnection',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('edges', {
+      type: TaskDefinitionEdge,
+    });
+    t.nonNull.field('pageInfo', {
+      type: PageInfo,
+    });
+    t.nonNull.int('totalCount');
+  },
+});
+
+export const FilterTaskDefinitionsInput = inputObjectType({
+  name: 'FilterTaskDefinitionsInput',
+  definition: (t) => {
+    t.string('keyword');
+  },
+});
+
+
+
 export const TaskDefinitionsQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('taskDefinitions', {
-      type: list(nonNull(TaskDefinition)),
-      resolve: async (_, _args, { conductorAPI }) => {
+      type: TaskDefinitionConnection,
+      args: {
+        ...PaginationConnectionArgs,
+        filter: arg({ type: FilterTaskDefinitionsInput }),
+      },
+      resolve: async (_, args: { filter?: { keyword?: string } }, { conductorAPI }) => {
+        const { filter, ...paginationArgs } = args;
         const taskDefinitions = await conductorAPI.getTaskDefinitions(config.conductorApiURL);
+        const filteredTaskDefs = filter?.keyword
+          ? getFilteredTaskDefinitions(taskDefinitions, filter.keyword)
+          : taskDefinitions;
 
-        return taskDefinitions;
+          const tasksWithId = filteredTaskDefs.map((task) => ({
+            ...task,
+            id: task.name,
+          }));
+
+        return {
+          ...connectionFromArray(tasksWithId, paginationArgs),
+          totalCount: filteredTaskDefs.length,
+        };
       },
     });
   },
 });
+
 
 export const DeleteTaskDefinitionMutation = mutationField('deleteTask', {
   type: IsOkResponse,

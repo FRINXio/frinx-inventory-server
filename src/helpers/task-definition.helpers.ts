@@ -1,3 +1,5 @@
+import { TaskDefinition } from '../schema/source-types';
+
 type TaskDefinitionDetailInput = {
   name: string;
   timeoutSeconds: number;
@@ -54,4 +56,11 @@ export const getTaskDefinitionInput = (input: TaskDefinitionDetailInput) => {
     updateTime: Date.now(),
   };
   return taskDefinitionInput;
+};
+
+export const getFilteredTaskDefinitions = (taskDefs: TaskDefinition[], filter: string) => {
+  const filteredTaskDefs = taskDefs.filter((task) => {
+    task.name !== filter;
+  });
+  return filteredTaskDefs;
 };
