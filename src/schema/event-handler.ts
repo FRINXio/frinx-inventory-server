@@ -1,4 +1,14 @@
-import { arg, enumType, inputObjectType, mutationField, nonNull, objectType, queryField, stringArg } from 'nexus';
+import {
+  arg,
+  booleanArg,
+  enumType,
+  inputObjectType,
+  mutationField,
+  nonNull,
+  objectType,
+  queryField,
+  stringArg,
+} from 'nexus';
 import { connectionFromArray } from 'graphql-relay';
 import { IsOkResponse, PaginationConnectionArgs } from './global-types';
 import config from '../config';
@@ -261,5 +271,51 @@ export const DeleteEventHandlerMutation = mutationField('deleteEventHandler', {
     return {
       isOk: true,
     };
+  },
+});
+
+export const GetEventHandler = queryField('eventHandler', {
+  type: EventHandler,
+  args: {
+    event: nonNull(stringArg()),
+    name: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { conductorAPI }) => {
+    const { event, name } = args;
+    const eventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, event, name);
+
+    return {
+      id: toGraphId('EventHandler', name),
+      ...makeFromApiToGraphQLEventHandler(eventHandler),
+    };
+  },
+});
+
+export const GetEventHandlersByEvent = queryField('eventHandlersByEvent', {
+  type: 'EventHandlerConnection',
+  args: {
+    event: nonNull(stringArg()),
+    activeOnly: booleanArg(),
+    ...PaginationConnectionArgs,
+  },
+  resolve: async (_, args, { conductorAPI }) => {
+    const { event } = args;
+    const eventHandlers = await conductorAPI.getEventHandlersByEvent(
+      config.conductorApiURL,
+      event,
+      args.activeOnly || false,
+    );
+
+    const mappedEventHandlers = eventHandlers.map((eventHandler) => ({
+      id: toGraphId('EventHandler', eventHandler.name),
+      ...makeFromApiToGraphQLEventHandler(eventHandler),
+    }));
+
+    return connectionFromArray(mappedEventHandlers, {
+      first: args.first,
+      after: args.after,
+      last: args.last,
+      before: args.before,
+    });
   },
 });

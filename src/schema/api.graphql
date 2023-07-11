@@ -816,10 +816,19 @@ type Query {
     last: Int
     orderBy: DeviceOrderByInput
   ): DeviceConnection!
+  eventHandler(event: String!, name: String!): EventHandler
   eventHandlers(
     after: String
     before: String
     filter: FilterEventHandlerInput
+    first: Int
+    last: Int
+  ): EventHandlerConnection
+  eventHandlersByEvent(
+    activeOnly: Boolean
+    after: String
+    before: String
+    event: String!
     first: Int
     last: Int
   ): EventHandlerConnection

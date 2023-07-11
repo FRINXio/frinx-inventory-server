@@ -1441,7 +1441,9 @@ export interface NexusGenFieldTypes {
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
+    eventHandler: NexusGenRootTypes['EventHandler'] | null; // EventHandler
     eventHandlers: NexusGenRootTypes['EventHandlerConnection'] | null; // EventHandlerConnection
+    eventHandlersByEvent: NexusGenRootTypes['EventHandlerConnection'] | null; // EventHandlerConnection
     executedWorkflows: NexusGenRootTypes['ExecutedWorkflowConnection'] | null; // ExecutedWorkflowConnection
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
@@ -2175,7 +2177,9 @@ export interface NexusGenFieldTypeNames {
     countries: 'CountryConnection';
     dataStore: 'DataStore';
     devices: 'DeviceConnection';
+    eventHandler: 'EventHandler';
     eventHandlers: 'EventHandlerConnection';
+    eventHandlersByEvent: 'EventHandlerConnection';
     executedWorkflows: 'ExecutedWorkflowConnection';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
@@ -2662,11 +2666,25 @@ export interface NexusGenArgTypes {
       last?: number | null; // Int
       orderBy?: NexusGenInputs['DeviceOrderByInput'] | null; // DeviceOrderByInput
     };
+    eventHandler: {
+      // args
+      event: string; // String!
+      name: string; // String!
+    };
     eventHandlers: {
       // args
       after?: string | null; // String
       before?: string | null; // String
       filter?: NexusGenInputs['FilterEventHandlerInput'] | null; // FilterEventHandlerInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
+    eventHandlersByEvent: {
+      // args
+      activeOnly?: boolean | null; // Boolean
+      after?: string | null; // String
+      before?: string | null; // String
+      event: string; // String!
       first?: number | null; // Int
       last?: number | null; // Int
     };
