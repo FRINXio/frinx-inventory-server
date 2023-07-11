@@ -398,7 +398,7 @@ input EventHandlerActionInput {
 }
 
 type EventHandlerConnection {
-  edges: [EventHandlerEdge]!
+  edges: [EventHandlerEdge!]
   pageInfo: PageInfo!
 }
 

@@ -624,7 +624,7 @@ export interface NexusGenObjects {
   };
   EventHandlerConnection: {
     // root type
-    edges: Array<NexusGenRootTypes['EventHandlerEdge'] | null>; // [EventHandlerEdge]!
+    edges?: NexusGenRootTypes['EventHandlerEdge'][] | null; // [EventHandlerEdge!]
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
   };
   EventHandlerEdge: {
@@ -1163,7 +1163,7 @@ export interface NexusGenFieldTypes {
   };
   EventHandlerConnection: {
     // field return type
-    edges: Array<NexusGenRootTypes['EventHandlerEdge'] | null>; // [EventHandlerEdge]!
+    edges: NexusGenRootTypes['EventHandlerEdge'][] | null; // [EventHandlerEdge!]
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
   };
   EventHandlerEdge: {

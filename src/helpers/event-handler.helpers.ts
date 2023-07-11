@@ -1,50 +1,42 @@
 import { ApiEventHandler, ApiEventHandlerAction } from '../external-api/conductor-network-types';
 
-// ESLint does not support this enum, but this kind of enum is used also in Swagger docs
-// eslint-disable-next-line no-shadow
-enum EventHandlerActionType {
-  START_WORKFLOW = 'start_workflow',
-  COMPLETE_TASK = 'complete_task',
-  FAIL_TASK = 'fail_task',
-}
-
 type StartWorkflowGraphQL = {
-  name?: string;
-  version?: number;
-  input?: string;
-  correlationId?: string;
-  taskToDomain?: string;
+  name?: string | null;
+  version?: number | null;
+  input?: string | null;
+  correlationId?: string | null;
+  taskToDomain?: string | null;
 };
 
 type CompleteTaskGraphQL = {
-  workflowId?: string;
-  taskId?: string;
-  output?: string;
-  taskRefName?: string;
+  workflowId?: string | null;
+  taskId?: string | null;
+  output?: string | null;
+  taskRefName?: string | null;
 };
 
 type FailTaskGraphQL = {
-  workflowId?: string;
-  taskId?: string;
-  output?: string;
-  taskRefName?: string;
+  workflowId?: string | null;
+  taskId?: string | null;
+  output?: string | null;
+  taskRefName?: string | null;
 };
 
 type EventHandlerActionGraphQL = {
-  action?: EventHandlerActionType;
-  startWorkflow?: StartWorkflowGraphQL;
-  completeTask?: CompleteTaskGraphQL;
-  failTask?: FailTaskGraphQL;
-  expandInlineJSON?: boolean;
+  action?: 'start_workflow' | 'complete_task' | 'fail_task' | null;
+  startWorkflow?: StartWorkflowGraphQL | null;
+  completeTask?: CompleteTaskGraphQL | null;
+  failTask?: FailTaskGraphQL | null;
+  expandInlineJSON?: boolean | null;
 };
 
 type EventHandlerGraphQL = {
   name: string;
   event: string;
-  isActive?: boolean;
-  condition?: string;
+  isActive?: boolean | null;
+  condition?: string | null;
   actions: EventHandlerActionGraphQL[];
-  evaluatorType?: string;
+  evaluatorType?: string | null;
 };
 
 function makeFromApiToGraphQLActionStartWorkflow(actionStartWorkflow: ApiEventHandlerAction['startWorkflow']) {
@@ -87,22 +79,9 @@ function makeFromApiToGraphQLActionFailTask(actionFailTask: ApiEventHandlerActio
   };
 }
 
-function makeFromApiToGraphQLActionType(actionType: ApiEventHandlerAction['action']): EventHandlerActionType {
-  switch (actionType) {
-    case 'start_workflow':
-      return EventHandlerActionType.START_WORKFLOW;
-    case 'complete_task':
-      return EventHandlerActionType.COMPLETE_TASK;
-    case 'fail_task':
-      return EventHandlerActionType.FAIL_TASK;
-    default:
-      throw new Error(`Unknown action type: ${actionType}`);
-  }
-}
-
 function makeFromApiToGraphQLEventHandlerAction(eventHandlerAction: ApiEventHandlerAction) {
   return {
-    action: makeFromApiToGraphQLActionType(eventHandlerAction.action) || undefined,
+    action: eventHandlerAction.action || undefined,
     startWorkflow: makeFromApiToGraphQLActionStartWorkflow(eventHandlerAction.startWorkflow) || undefined,
     completeTask: makeFromApiToGraphQLActionCompleteTask(eventHandlerAction.completeTask) || undefined,
     failTask: makeFromApiToGraphQLActionFailTask(eventHandlerAction.failTask) || undefined,
@@ -124,7 +103,7 @@ export function makeFromApiToGraphQLEventHandler(eventHandler: ApiEventHandler) 
 // add function that will convert from GraphQL to API
 
 function makeFromGraphQLToApiActionStartWorkflow(
-  actionStartWorkflow?: StartWorkflowGraphQL,
+  actionStartWorkflow?: StartWorkflowGraphQL | null,
 ): ApiEventHandlerAction['startWorkflow'] {
   if (actionStartWorkflow == null) {
     return undefined;
@@ -140,7 +119,7 @@ function makeFromGraphQLToApiActionStartWorkflow(
 }
 
 function makeFromGraphQLToApiActionCompleteTask(
-  actionCompleteTask?: CompleteTaskGraphQL,
+  actionCompleteTask?: CompleteTaskGraphQL | null,
 ): ApiEventHandlerAction['completeTask'] {
   if (actionCompleteTask == null) {
     return undefined;
@@ -154,7 +133,9 @@ function makeFromGraphQLToApiActionCompleteTask(
   };
 }
 
-function makeFromGraphQLToApiActionFailTask(actionFailTask?: FailTaskGraphQL): ApiEventHandlerAction['failTask'] {
+function makeFromGraphQLToApiActionFailTask(
+  actionFailTask?: FailTaskGraphQL | null,
+): ApiEventHandlerAction['failTask'] {
   if (actionFailTask == null) {
     return undefined;
   }

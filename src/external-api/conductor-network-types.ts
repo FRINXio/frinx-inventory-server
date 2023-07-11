@@ -238,7 +238,7 @@ const ActionFailTask = t.type({
 });
 
 const EventHandlerAction = t.type({
-  action: optional(t.string),
+  action: optional(t.union([t.literal('start_workflow'), t.literal('complete_task'), t.literal('fail_task')])),
   startWorkflow: optional(ActionStartWorkflow),
   completeTask: optional(ActionCompleteTask),
   failTask: optional(ActionFailTask),

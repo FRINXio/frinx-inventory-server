@@ -77,7 +77,7 @@ export const EventHandlerEdge = objectType({
 export const EventHandlerConnection = objectType({
   name: 'EventHandlerConnection',
   definition(t) {
-    t.nonNull.list.field('edges', { type: EventHandlerEdge });
+    t.list.nonNull.field('edges', { type: EventHandlerEdge });
     t.nonNull.field('pageInfo', { type: 'PageInfo' });
   },
 });
