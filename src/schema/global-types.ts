@@ -6,7 +6,7 @@ import { fromGraphId, getType } from '../helpers/id-helper';
 import schedulerAPI from '../external-api/scheduler';
 import resourceManagerAPI from '../external-api/resource-manager';
 import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helpers';
-import {makeFromApiToGraphQLEventHandler} from "../helpers/event-handler.helpers";
+import { makeFromApiToGraphQLEventHandler } from '../helpers/event-handler.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -158,7 +158,7 @@ export const NodeQuery = extendType({
             const id = fromGraphId('EventHandler', args.id);
             const eventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, id);
             if (eventHandler == null) {
-                return null;
+              return null;
             }
 
             return { ...makeFromApiToGraphQLEventHandler(eventHandler), id: args.id, __typename: 'EventHandler' };

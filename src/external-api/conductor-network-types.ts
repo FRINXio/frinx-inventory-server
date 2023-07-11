@@ -216,33 +216,33 @@ const TaskDefinition = t.type({
 const TaskDefinitionsValidator = t.array(TaskDefinition);
 
 const ActionStartWorkflow = t.type({
-    name: t.string,
-    version: t.number,
-    input: optional(t.UnknownRecord),
-    correlationId: optional(t.string),
-    taskToDomain: optional(t.record(t.string, t.string)),
+  name: t.string,
+  version: t.number,
+  input: optional(t.UnknownRecord),
+  correlationId: optional(t.string),
+  taskToDomain: optional(t.record(t.string, t.string)),
 });
 
 const ActionCompleteTask = t.type({
-    workflowId: optional(t.string),
-    taskId: optional(t.string),
-    output: optional(t.UnknownRecord),
-    taskRefName: optional(t.string),
+  workflowId: optional(t.string),
+  taskId: optional(t.string),
+  output: optional(t.UnknownRecord),
+  taskRefName: optional(t.string),
 });
 
 const ActionFailTask = t.type({
-    workflowId: optional(t.string),
-    taskId: optional(t.string),
-    output: optional(t.UnknownRecord),
-    taskRefName: optional(t.string),
+  workflowId: optional(t.string),
+  taskId: optional(t.string),
+  output: optional(t.UnknownRecord),
+  taskRefName: optional(t.string),
 });
 
 const EventHandlerAction = t.type({
-    action: optional(t.string),
-    startWorkflow: optional(ActionStartWorkflow),
-    completeTask: optional(ActionCompleteTask),
-    failTask: optional(ActionFailTask),
-    expandInlineJSON: optional(t.boolean),
+  action: optional(t.string),
+  startWorkflow: optional(ActionStartWorkflow),
+  completeTask: optional(ActionCompleteTask),
+  failTask: optional(ActionFailTask),
+  expandInlineJSON: optional(t.boolean),
 });
 export type ApiEventHandlerAction = t.TypeOf<typeof EventHandlerAction>;
 

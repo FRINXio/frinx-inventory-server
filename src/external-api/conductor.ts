@@ -16,7 +16,11 @@ import {
   decodeTaskDefinitionsOutput,
   decodeBulkTerminateOutput,
   decodeExecutedWorkflowTaskDetailOutput,
-  ApiExecutedWorkflowTask, ApiEventHandlersOutput, decodeEventHandlersOutput, ApiEventHandler, decodeEventHandlerOutput,
+  ApiExecutedWorkflowTask,
+  ApiEventHandlersOutput,
+  decodeEventHandlersOutput,
+  ApiEventHandler,
+  decodeEventHandlerOutput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -221,7 +225,7 @@ async function updateEventHandler(baseURL: string, eventHandler: ApiEventHandler
 }
 
 async function deleteEventHandler(baseURL: string, eventHandlerName: string): Promise<void> {
-    await sendDeleteRequest([baseURL, `/event/${eventHandlerName}`]);
+  await sendDeleteRequest([baseURL, `/event/${eventHandlerName}`]);
 }
 
 async function createEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
@@ -229,9 +233,9 @@ async function createEventHandler(baseURL: string, eventHandler: ApiEventHandler
 }
 
 async function getEventHandler(baseURL: string, eventHandlerName: string): Promise<ApiEventHandler> {
-    const json = await sendGetRequest([baseURL, `/event/${eventHandlerName}`]);
-    const data = decodeEventHandlerOutput(json);
-    return data;
+  const json = await sendGetRequest([baseURL, `/event/${eventHandlerName}`]);
+  const data = decodeEventHandlerOutput(json);
+  return data;
 }
 
 const conductorAPI = {
