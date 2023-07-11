@@ -8,6 +8,45 @@ enum EventHandlerActionType {
   FAIL_TASK = 'fail_task',
 }
 
+type StartWorkflowGraphQL = {
+  name?: string;
+  version?: number;
+  input?: string;
+  correlationId?: string;
+  taskToDomain?: string;
+};
+
+type CompleteTaskGraphQL = {
+  workflowId?: string;
+  taskId?: string;
+  output?: string;
+  taskRefName?: string;
+};
+
+type FailTaskGraphQL = {
+  workflowId?: string;
+  taskId?: string;
+  output?: string;
+  taskRefName?: string;
+};
+
+type EventHandlerActionGraphQL = {
+  action?: EventHandlerActionType;
+  startWorkflow?: StartWorkflowGraphQL;
+  completeTask?: CompleteTaskGraphQL;
+  failTask?: FailTaskGraphQL;
+  expandInlineJSON?: boolean;
+};
+
+type EventHandlerGraphQL = {
+  name: string;
+  event: string;
+  isActive?: boolean;
+  condition?: string;
+  actions: EventHandlerActionGraphQL[];
+  evaluatorType?: string;
+};
+
 function makeFromApiToGraphQLActionStartWorkflow(actionStartWorkflow: ApiEventHandlerAction['startWorkflow']) {
   if (actionStartWorkflow == null) {
     return undefined;
@@ -84,7 +123,9 @@ export function makeFromApiToGraphQLEventHandler(eventHandler: ApiEventHandler) 
 
 // add function that will convert from GraphQL to API
 
-function makeFromGraphQLToApiActionStartWorkflow(actionStartWorkflow: any): ApiEventHandlerAction['startWorkflow'] {
+function makeFromGraphQLToApiActionStartWorkflow(
+  actionStartWorkflow?: StartWorkflowGraphQL,
+): ApiEventHandlerAction['startWorkflow'] {
   if (actionStartWorkflow == null) {
     return undefined;
   }
@@ -92,13 +133,15 @@ function makeFromGraphQLToApiActionStartWorkflow(actionStartWorkflow: any): ApiE
   return {
     name: actionStartWorkflow.name || undefined,
     version: actionStartWorkflow.version || undefined,
-    input: actionStartWorkflow != null ? JSON.parse(actionStartWorkflow.input) : undefined,
+    input: actionStartWorkflow.input != null ? JSON.parse(actionStartWorkflow.input) : undefined,
     correlationId: actionStartWorkflow.correlationId || undefined,
-    taskToDomain: actionStartWorkflow != null ? JSON.parse(actionStartWorkflow.taskToDomain) : undefined,
+    taskToDomain: actionStartWorkflow.taskToDomain != null ? JSON.parse(actionStartWorkflow.taskToDomain) : undefined,
   };
 }
 
-function makeFromGraphQLToApiActionCompleteTask(actionCompleteTask: any): ApiEventHandlerAction['completeTask'] {
+function makeFromGraphQLToApiActionCompleteTask(
+  actionCompleteTask?: CompleteTaskGraphQL,
+): ApiEventHandlerAction['completeTask'] {
   if (actionCompleteTask == null) {
     return undefined;
   }
@@ -106,12 +149,12 @@ function makeFromGraphQLToApiActionCompleteTask(actionCompleteTask: any): ApiEve
   return {
     workflowId: actionCompleteTask.workflowId || undefined,
     taskId: actionCompleteTask.taskId || undefined,
-    output: actionCompleteTask != null ? JSON.parse(actionCompleteTask.output) : undefined,
+    output: actionCompleteTask.output != null ? JSON.parse(actionCompleteTask.output) : undefined,
     taskRefName: actionCompleteTask.taskRefName || undefined,
   };
 }
 
-function makeFromGraphQLToApiActionFailTask(actionFailTask: any): ApiEventHandlerAction['failTask'] {
+function makeFromGraphQLToApiActionFailTask(actionFailTask?: FailTaskGraphQL): ApiEventHandlerAction['failTask'] {
   if (actionFailTask == null) {
     return undefined;
   }
@@ -119,12 +162,12 @@ function makeFromGraphQLToApiActionFailTask(actionFailTask: any): ApiEventHandle
   return {
     workflowId: actionFailTask.workflowId || undefined,
     taskId: actionFailTask.taskId || undefined,
-    output: actionFailTask != null ? JSON.parse(actionFailTask.output) : undefined,
+    output: actionFailTask.output != null ? JSON.parse(actionFailTask.output) : undefined,
     taskRefName: actionFailTask.taskRefName || undefined,
   };
 }
 
-function makeFromGraphQLToApiEventHandlerAction(eventHandlerAction: any): ApiEventHandlerAction {
+function makeFromGraphQLToApiEventHandlerAction(eventHandlerAction: EventHandlerActionGraphQL): ApiEventHandlerAction {
   return {
     action: eventHandlerAction.action || undefined,
     startWorkflow: makeFromGraphQLToApiActionStartWorkflow(eventHandlerAction.startWorkflow) || undefined,
@@ -134,7 +177,7 @@ function makeFromGraphQLToApiEventHandlerAction(eventHandlerAction: any): ApiEve
   };
 }
 
-export function makeFromGraphQLToApiEventHandler(eventHandler: any): ApiEventHandler {
+export function makeFromGraphQLToApiEventHandler(eventHandler: EventHandlerGraphQL): ApiEventHandler {
   return {
     name: eventHandler.name,
     event: eventHandler.event,

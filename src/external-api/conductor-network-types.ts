@@ -216,8 +216,8 @@ const TaskDefinition = t.type({
 const TaskDefinitionsValidator = t.array(TaskDefinition);
 
 const ActionStartWorkflow = t.type({
-  name: t.string,
-  version: t.number,
+  name: optional(t.string),
+  version: optional(t.number),
   input: optional(t.UnknownRecord),
   correlationId: optional(t.string),
   taskToDomain: optional(t.record(t.string, t.string)),
