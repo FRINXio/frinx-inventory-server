@@ -39,7 +39,7 @@ type EventHandlerGraphQL = {
   evaluatorType?: string | null;
 };
 
-function makeFromApiToGraphQLActionStartWorkflow(actionStartWorkflow: ApiEventHandlerAction['startWorkflow']) {
+function makeFromApiToGraphQLActionStartWorkflow(actionStartWorkflow: ApiEventHandlerAction['start_workflow']) {
   if (actionStartWorkflow == null) {
     return undefined;
   }
@@ -53,7 +53,7 @@ function makeFromApiToGraphQLActionStartWorkflow(actionStartWorkflow: ApiEventHa
   };
 }
 
-function makeFromApiToGraphQLActionCompleteTask(actionCompleteTask: ApiEventHandlerAction['completeTask']) {
+function makeFromApiToGraphQLActionCompleteTask(actionCompleteTask: ApiEventHandlerAction['complete_task']) {
   if (actionCompleteTask == null) {
     return undefined;
   }
@@ -66,7 +66,7 @@ function makeFromApiToGraphQLActionCompleteTask(actionCompleteTask: ApiEventHand
   };
 }
 
-function makeFromApiToGraphQLActionFailTask(actionFailTask: ApiEventHandlerAction['failTask']) {
+function makeFromApiToGraphQLActionFailTask(actionFailTask: ApiEventHandlerAction['fail_task']) {
   if (actionFailTask == null) {
     return undefined;
   }
@@ -82,9 +82,9 @@ function makeFromApiToGraphQLActionFailTask(actionFailTask: ApiEventHandlerActio
 export function makeFromApiToGraphQLEventHandlerAction(eventHandlerAction: ApiEventHandlerAction) {
   return {
     action: eventHandlerAction.action || undefined,
-    startWorkflow: makeFromApiToGraphQLActionStartWorkflow(eventHandlerAction.startWorkflow) || undefined,
-    completeTask: makeFromApiToGraphQLActionCompleteTask(eventHandlerAction.completeTask) || undefined,
-    failTask: makeFromApiToGraphQLActionFailTask(eventHandlerAction.failTask) || undefined,
+    startWorkflow: makeFromApiToGraphQLActionStartWorkflow(eventHandlerAction.start_workflow) || undefined,
+    completeTask: makeFromApiToGraphQLActionCompleteTask(eventHandlerAction.complete_task) || undefined,
+    failTask: makeFromApiToGraphQLActionFailTask(eventHandlerAction.fail_task) || undefined,
     expandInlineJSON: eventHandlerAction.expandInlineJSON || undefined,
   };
 }
@@ -104,7 +104,7 @@ export function makeFromApiToGraphQLEventHandler(eventHandler: ApiEventHandler) 
 
 function makeFromGraphQLToApiActionStartWorkflow(
   actionStartWorkflow?: StartWorkflowGraphQL | null,
-): ApiEventHandlerAction['startWorkflow'] {
+): ApiEventHandlerAction['start_workflow'] {
   if (actionStartWorkflow == null) {
     return undefined;
   }
@@ -120,7 +120,7 @@ function makeFromGraphQLToApiActionStartWorkflow(
 
 function makeFromGraphQLToApiActionCompleteTask(
   actionCompleteTask?: CompleteTaskGraphQL | null,
-): ApiEventHandlerAction['completeTask'] {
+): ApiEventHandlerAction['complete_task'] {
   if (actionCompleteTask == null) {
     return undefined;
   }
@@ -135,7 +135,7 @@ function makeFromGraphQLToApiActionCompleteTask(
 
 function makeFromGraphQLToApiActionFailTask(
   actionFailTask?: FailTaskGraphQL | null,
-): ApiEventHandlerAction['failTask'] {
+): ApiEventHandlerAction['fail_task'] {
   if (actionFailTask == null) {
     return undefined;
   }
@@ -151,9 +151,12 @@ function makeFromGraphQLToApiActionFailTask(
 function makeFromGraphQLToApiEventHandlerAction(eventHandlerAction: EventHandlerActionGraphQL): ApiEventHandlerAction {
   return {
     action: eventHandlerAction.action || undefined,
-    startWorkflow: makeFromGraphQLToApiActionStartWorkflow(eventHandlerAction.startWorkflow) || undefined,
-    completeTask: makeFromGraphQLToApiActionCompleteTask(eventHandlerAction.completeTask) || undefined,
-    failTask: makeFromGraphQLToApiActionFailTask(eventHandlerAction.failTask) || undefined,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    start_workflow: makeFromGraphQLToApiActionStartWorkflow(eventHandlerAction.startWorkflow) || undefined,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    complete_task: makeFromGraphQLToApiActionCompleteTask(eventHandlerAction.completeTask) || undefined,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    fail_task: makeFromGraphQLToApiActionFailTask(eventHandlerAction.failTask) || undefined,
     expandInlineJSON: eventHandlerAction.expandInlineJSON || undefined,
   };
 }

@@ -239,9 +239,9 @@ const ActionFailTask = t.type({
 
 const EventHandlerAction = t.type({
   action: optional(t.union([t.literal('start_workflow'), t.literal('complete_task'), t.literal('fail_task')])),
-  startWorkflow: optional(ActionStartWorkflow),
-  completeTask: optional(ActionCompleteTask),
-  failTask: optional(ActionFailTask),
+  start_workflow: optional(ActionStartWorkflow),
+  complete_task: optional(ActionCompleteTask),
+  fail_task: optional(ActionFailTask),
   expandInlineJSON: optional(t.boolean),
 });
 export type ApiEventHandlerAction = t.TypeOf<typeof EventHandlerAction>;
