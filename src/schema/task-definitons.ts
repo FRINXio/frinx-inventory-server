@@ -5,6 +5,7 @@ import { getTaskDefinitionInput } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
 import {connectionFromArray} from '../helpers/connection.helpers'
+import { log } from 'console';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -99,7 +100,7 @@ export const TaskDefinitionsQuery = extendType({
         ...PaginationConnectionArgs,
         filter: arg({ type: FilterTaskDefinitionsInput }),
       },
-      resolve: async (_, args: { filter?: { keyword?: string } }, { conductorAPI }) => {
+      resolve: async (_, args, { conductorAPI }) => {
         const { filter, ...paginationArgs } = args;
         const taskDefinitions = await conductorAPI.getTaskDefinitions(config.conductorApiURL);
         const filteredTaskDefs = filter?.keyword
@@ -110,7 +111,6 @@ export const TaskDefinitionsQuery = extendType({
             ...task,
             id: task.name,
           }));
-
         return {
           ...connectionFromArray(tasksWithId, paginationArgs),
           totalCount: filteredTaskDefs.length,

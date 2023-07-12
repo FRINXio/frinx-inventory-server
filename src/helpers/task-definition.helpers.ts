@@ -58,9 +58,6 @@ export const getTaskDefinitionInput = (input: TaskDefinitionDetailInput) => {
   return taskDefinitionInput;
 };
 
-export const getFilteredTaskDefinitions = (taskDefs: TaskDefinition[], filter: string) => {
-  const filteredTaskDefs = taskDefs.filter((task) => {
-    task.name !== filter;
-  });
-  return filteredTaskDefs;
+export const getFilteredTaskDefinitions = <T extends { name: string }>(defs: T[], searchTerm: string): T[] => {
+  return defs.filter((df) => df.name.toLowerCase().includes(searchTerm.toLowerCase()));
 };

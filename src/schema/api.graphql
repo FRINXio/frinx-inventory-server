@@ -472,6 +472,10 @@ input FilterPoolsInput {
   poolName: String
 }
 
+input FilterTaskDefinitionsInput {
+  keyword: String
+}
+
 input FilterTopologyInput {
   labels: [String!]
 }
@@ -738,7 +742,13 @@ type Query {
     resourceTypeId: String
   ): PoolConnection!
   schedules(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): ScheduleConnection!
-  taskDefinitions: [TaskDefinition!]!
+  taskDefinitions(
+    after: String
+    before: String
+    filter: FilterTaskDefinitionsInput
+    first: Int
+    last: Int
+  ): TaskDefinitionConnection!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
@@ -904,6 +914,17 @@ type TaskDefinition implements Node {
   updateTime: String
   updatedBy: String
   version: Int
+}
+
+type TaskDefinitionConnection {
+  edges: [TaskDefinitionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TaskDefinitionEdge {
+  cursor: String!
+  node: TaskDefinition!
 }
 
 input TaskInput {

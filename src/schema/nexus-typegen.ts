@@ -215,6 +215,10 @@ export interface NexusGenInputs {
     // input type
     poolName?: string | null; // String
   };
+  FilterTaskDefinitionsInput: {
+    // input type
+    keyword?: string | null; // String
+  };
   FilterTopologyInput: {
     // input type
     labels?: string[] | null; // [String!]
@@ -752,6 +756,17 @@ export interface NexusGenObjects {
     tag: string; // String!
   };
   TaskDefinition: SourceTypes.TaskDefinition;
+  TaskDefinitionConnection: {
+    // root type
+    edges: NexusGenRootTypes['TaskDefinitionEdge'][]; // [TaskDefinitionEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  TaskDefinitionEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
+  };
   Topology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1321,7 +1336,7 @@ export interface NexusGenFieldTypes {
     node: NexusGenRootTypes['Node'] | null; // Node
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
-    taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
+    taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
@@ -1421,6 +1436,17 @@ export interface NexusGenFieldTypes {
     updateTime: string | null; // String
     updatedBy: string | null; // String
     version: number | null; // Int
+  };
+  TaskDefinitionConnection: {
+    // field return type
+    edges: NexusGenRootTypes['TaskDefinitionEdge'][]; // [TaskDefinitionEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  TaskDefinitionEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
   };
   Topology: {
     // field return type
@@ -2005,7 +2031,7 @@ export interface NexusGenFieldTypeNames {
     node: 'Node';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
-    taskDefinitions: 'TaskDefinition';
+    taskDefinitions: 'TaskDefinitionConnection';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
@@ -2105,6 +2131,17 @@ export interface NexusGenFieldTypeNames {
     updateTime: 'String';
     updatedBy: 'String';
     version: 'Int';
+  };
+  TaskDefinitionConnection: {
+    // field return type name
+    edges: 'TaskDefinitionEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  TaskDefinitionEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'TaskDefinition';
   };
   Topology: {
     // field return type name
@@ -2518,6 +2555,14 @@ export interface NexusGenArgTypes {
       after?: string | null; // String
       before?: string | null; // String
       filter?: NexusGenInputs['ScheduleFilterInput'] | null; // ScheduleFilterInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
+    taskDefinitions: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      filter?: NexusGenInputs['FilterTaskDefinitionsInput'] | null; // FilterTaskDefinitionsInput
       first?: number | null; // Int
       last?: number | null; // Int
     };
