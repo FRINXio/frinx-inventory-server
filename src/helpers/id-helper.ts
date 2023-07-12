@@ -14,7 +14,8 @@ export type DataType =
   | 'GraphEdge'
   | 'Schedule'
   | 'Pool'
-  | 'EventHandler';
+  | 'EventHandler'
+  | 'EventHandlerAction';
 
 function isDataType(value: string): value is DataType {
   return (

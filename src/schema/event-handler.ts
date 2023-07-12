@@ -10,6 +10,7 @@ import {
   stringArg,
 } from 'nexus';
 import { connectionFromArray } from 'graphql-relay';
+import { v4 as uuid } from 'uuid';
 import { IsOkResponse, PaginationConnectionArgs } from './global-types';
 import config from '../config';
 import { makeFromApiToGraphQLEventHandler, makeFromGraphQLToApiEventHandler } from '../helpers/event-handler.helpers';
@@ -54,6 +55,7 @@ export const ActionFailTask = objectType({
 export const EventHandlerAction = objectType({
   name: 'EventHandlerAction',
   definition(t) {
+    t.nonNull.id('id');
     t.field('action', { type: EventHandlerActionEnum });
     t.field('startWorkflow', { type: ActionStartWorkflow });
     t.field('completeTask', { type: ActionCompleteTask });
@@ -126,9 +128,17 @@ export const EventHandlerQuery = queryField('eventHandlers', {
       return true;
     });
 
-    const mappedEventHandlers = filteredEventHandlers.map((eventHandler) => ({
+    const mappedEventHandlersWithId = filteredEventHandlers.map((eventHandler) => ({
       id: toGraphId('EventHandler', eventHandler.name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
+    }));
+
+    const mappedEventHandlers = mappedEventHandlersWithId.map((eventHandler) => ({
+      ...eventHandler,
+      actions: eventHandler.actions.map((action) => ({
+        ...action,
+        id: toGraphId('EventHandlerAction', uuid()),
+      })),
     }));
     return connectionFromArray(mappedEventHandlers, paginationArgs);
   },
@@ -284,9 +294,17 @@ export const GetEventHandler = queryField('eventHandler', {
     const { event, name } = args;
     const eventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, event, name);
 
-    return {
+    const eventHandlerWithId = {
       id: toGraphId('EventHandler', name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
+    };
+
+    return {
+      ...eventHandlerWithId,
+      actions: eventHandlerWithId.actions.map((action) => ({
+        ...action,
+        id: toGraphId('EventHandlerAction', uuid()),
+      })),
     };
   },
 });
