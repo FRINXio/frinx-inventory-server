@@ -33,13 +33,16 @@ export type Mutation = {
   updateSchedule: Schedule;
 };
 
+
 export type MutationCreateScheduleArgs = {
   input: CreateScheduleInput;
 };
 
+
 export type MutationDeleteScheduleArgs = {
   name: Scalars['String'];
 };
+
 
 export type MutationUpdateScheduleArgs = {
   input: UpdateScheduleInput;
@@ -60,9 +63,11 @@ export type Query = {
   schedules: Maybe<ScheduleConnection>;
 };
 
+
 export type QueryScheduleArgs = {
   name: Scalars['String'];
 };
+
 
 export type QuerySchedulesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -104,7 +109,14 @@ export type SchedulesFilterInput = {
   workflowVersion: Scalars['String'];
 };
 
-export type Status = 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
+export type Status =
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'PAUSED'
+  | 'RUNNING'
+  | 'TERMINATED'
+  | 'TIMED_OUT'
+  | 'UNKNOWN';
 
 export type UpdateScheduleInput = {
   cronString?: InputMaybe<Scalars['String']>;
@@ -121,71 +133,30 @@ export type DeleteScheduleMutationVariables = Exact<{
   scheduleName: Scalars['String'];
 }>;
 
-export type DeleteScheduleMutation = { __typename?: 'Mutation'; deleteSchedule: boolean };
+
+export type DeleteScheduleMutation = { __typename?: 'Mutation', deleteSchedule: boolean };
 
 export type UpdateScheduleMutationVariables = Exact<{
   scheduleName: Scalars['String'];
   input: UpdateScheduleInput;
 }>;
 
-export type UpdateScheduleMutation = {
-  __typename?: 'Mutation';
-  updateSchedule: {
-    __typename?: 'Schedule';
-    name: string;
-    enabled: boolean;
-    parallelRuns: boolean;
-    workflowName: string;
-    workflowVersion: string;
-    cronString: string;
-    workflowContext: string;
-    fromDate: any;
-    toDate: any;
-    status: Status;
-  };
-};
+
+export type UpdateScheduleMutation = { __typename?: 'Mutation', updateSchedule: { __typename?: 'Schedule', name: string, enabled: boolean, parallelRuns: boolean, workflowName: string, workflowVersion: string, cronString: string, workflowContext: string, fromDate: any, toDate: any, status: Status } };
 
 export type CreateScheduleMutationVariables = Exact<{
   input: CreateScheduleInput;
 }>;
 
-export type CreateScheduleMutation = {
-  __typename?: 'Mutation';
-  createSchedule: {
-    __typename?: 'Schedule';
-    name: string;
-    enabled: boolean;
-    parallelRuns: boolean;
-    workflowName: string;
-    workflowVersion: string;
-    cronString: string;
-    workflowContext: string;
-    fromDate: any;
-    toDate: any;
-    status: Status;
-  };
-};
+
+export type CreateScheduleMutation = { __typename?: 'Mutation', createSchedule: { __typename?: 'Schedule', name: string, enabled: boolean, parallelRuns: boolean, workflowName: string, workflowVersion: string, cronString: string, workflowContext: string, fromDate: any, toDate: any, status: Status } };
 
 export type GetScheduleQueryVariables = Exact<{
   scheduleName: Scalars['String'];
 }>;
 
-export type GetScheduleQuery = {
-  __typename?: 'Query';
-  schedule: {
-    __typename?: 'Schedule';
-    name: string;
-    enabled: boolean;
-    parallelRuns: boolean;
-    workflowName: string;
-    workflowVersion: string;
-    cronString: string;
-    workflowContext: string;
-    fromDate: any;
-    toDate: any;
-    status: Status;
-  } | null;
-};
+
+export type GetScheduleQuery = { __typename?: 'Query', schedule: { __typename?: 'Schedule', name: string, enabled: boolean, parallelRuns: boolean, workflowName: string, workflowVersion: string, cronString: string, workflowContext: string, fromDate: any, toDate: any, status: Status } | null };
 
 export type GetSchedulesQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']>;
@@ -195,34 +166,5 @@ export type GetSchedulesQueryVariables = Exact<{
   filter?: InputMaybe<SchedulesFilterInput>;
 }>;
 
-export type GetSchedulesQuery = {
-  __typename?: 'Query';
-  schedules: {
-    __typename?: 'ScheduleConnection';
-    totalCount: number;
-    edges: Array<{
-      __typename?: 'ScheduleEdge';
-      cursor: string;
-      node: {
-        __typename?: 'Schedule';
-        name: string;
-        enabled: boolean;
-        parallelRuns: boolean;
-        workflowName: string;
-        workflowVersion: string;
-        cronString: string;
-        workflowContext: string;
-        fromDate: any;
-        toDate: any;
-        status: Status;
-      };
-    } | null>;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string | null;
-      endCursor: string | null;
-    };
-  } | null;
-};
+
+export type GetSchedulesQuery = { __typename?: 'Query', schedules: { __typename?: 'ScheduleConnection', totalCount: number, edges: Array<{ __typename?: 'ScheduleEdge', cursor: string, node: { __typename?: 'Schedule', name: string, enabled: boolean, parallelRuns: boolean, workflowName: string, workflowVersion: string, cronString: string, workflowContext: string, fromDate: any, toDate: any, status: Status } } | null>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor: string | null, endCursor: string | null } } | null };
