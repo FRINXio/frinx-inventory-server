@@ -15,7 +15,9 @@ export type DataType =
   | 'Schedule'
   | 'Pool'
   | 'EventHandler'
-  | 'EventHandlerAction';
+  | 'EventHandlerAction'
+  | 'TaskDefinition'
+  | 'Pool';
 
 function isDataType(value: string): value is DataType {
   return (
@@ -31,6 +33,7 @@ function isDataType(value: string): value is DataType {
     value === 'GraphNode' ||
     value === 'GraphEdge' ||
     value === 'Schedule' ||
+    value === 'TaskDefinition' ||
     value === 'Pool'
   );
 }

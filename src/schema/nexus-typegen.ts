@@ -145,6 +145,32 @@ export interface NexusGenInputs {
     workflowName: string; // String!
     workflowVersion: string; // String!
   };
+  CreateTaskDefinitionInput: {
+    // input type
+    accessPolicy?: string | null; // String
+    backoffScaleFactor?: number | null; // Int
+    concurrentExecLimit?: number | null; // Int
+    createdBy?: string | null; // String
+    description?: string | null; // String
+    executionNameSpace?: string | null; // String
+    inputKeys?: string[] | null; // [String!]
+    inputTemplate?: string | null; // String
+    isolationGroupId?: string | null; // String
+    name: string; // String!
+    outputKeys?: string[] | null; // [String!]
+    ownerApp?: string | null; // String
+    ownerEmail?: string | null; // String
+    pollTimeoutSeconds?: number | null; // Int
+    rateLimitFrequencyInSeconds?: number | null; // Int
+    rateLimitPerFrequency?: number | null; // Int
+    responseTimeoutSeconds?: number | null; // Int
+    retryCount?: number | null; // Int
+    retryDelaySeconds?: number | null; // Int
+    retryLogic?: NexusGenEnums['RetryLogic'] | null; // RetryLogic
+    timeoutPolicy?: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
+    timeoutSeconds: number; // Int!
+    updatedBy?: string | null; // String
+  };
   CreateWorkflowInput: {
     // input type
     workflow: NexusGenInputs['WorkflowInput']; // WorkflowInput!
@@ -233,6 +259,10 @@ export interface NexusGenInputs {
   FilterPoolsInput: {
     // input type
     poolName?: string | null; // String
+  };
+  FilterTaskDefinitionsInput: {
+    // input type
+    keyword?: string | null; // String
   };
   FilterTopologyInput: {
     // input type
@@ -830,6 +860,17 @@ export interface NexusGenObjects {
     tag: string; // String!
   };
   TaskDefinition: SourceTypes.TaskDefinition;
+  TaskDefinitionConnection: {
+    // root type
+    edges: NexusGenRootTypes['TaskDefinitionEdge'][]; // [TaskDefinitionEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  TaskDefinitionEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
+  };
   Topology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -933,6 +974,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Location', 'required'>
     | core.Discriminate<'Pool', 'required'>
     | core.Discriminate<'Schedule', 'required'>
+    | core.Discriminate<'TaskDefinition', 'required'>
     | core.Discriminate<'Workflow', 'required'>
     | core.Discriminate<'Zone', 'required'>;
 }
@@ -1347,6 +1389,7 @@ export interface NexusGenFieldTypes {
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createEventHandler: NexusGenRootTypes['EventHandler'] | null; // EventHandler
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
+    createTaskDefinition: NexusGenRootTypes['TaskDefinition'] | null; // TaskDefinition
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
     createWorkflow: NexusGenRootTypes['CreateWorkflowPayload']; // CreateWorkflowPayload!
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
@@ -1355,6 +1398,7 @@ export interface NexusGenFieldTypes {
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSchedule: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
+    deleteTask: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     deleteWorkflow: NexusGenRootTypes['DeleteWorkflowPayload']; // DeleteWorkflowPayload!
     editWorkflowSchedule: NexusGenRootTypes['Schedule'] | null; // Schedule
     executeNewWorkflow: string | null; // String
@@ -1453,7 +1497,7 @@ export interface NexusGenFieldTypes {
     node: NexusGenRootTypes['Node'] | null; // Node
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
-    taskDefinitions: NexusGenRootTypes['TaskDefinition'][]; // [TaskDefinition!]!
+    taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
@@ -1532,9 +1576,10 @@ export interface NexusGenFieldTypes {
   TaskDefinition: {
     // field return type
     concurrentExecLimit: number | null; // Int
-    createdAt: string | null; // String
+    createTime: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
+    id: string; // ID!
     inputKeys: string[] | null; // [String!]
     inputTemplate: string | null; // String
     name: string; // String!
@@ -1549,8 +1594,20 @@ export interface NexusGenFieldTypes {
     retryLogic: NexusGenEnums['RetryLogic'] | null; // RetryLogic
     timeoutPolicy: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
     timeoutSeconds: number; // Int!
-    updatedAt: string | null; // String
+    updateTime: string | null; // String
     updatedBy: string | null; // String
+    version: number | null; // Int
+  };
+  TaskDefinitionConnection: {
+    // field return type
+    edges: NexusGenRootTypes['TaskDefinitionEdge'][]; // [TaskDefinitionEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  TaskDefinitionEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['TaskDefinition']; // TaskDefinition!
   };
   Topology: {
     // field return type
@@ -2084,6 +2141,7 @@ export interface NexusGenFieldTypeNames {
     commitConfig: 'CommitConfigPayload';
     createEventHandler: 'EventHandler';
     createLabel: 'CreateLabelPayload';
+    createTaskDefinition: 'TaskDefinition';
     createTransaction: 'CreateTransactionPayload';
     createWorkflow: 'CreateWorkflowPayload';
     deleteBlueprint: 'DeleteBlueprintPayload';
@@ -2092,6 +2150,7 @@ export interface NexusGenFieldTypeNames {
     deleteLabel: 'DeleteLabelPayload';
     deleteSchedule: 'IsOkResponse';
     deleteSnapshot: 'DeleteSnapshotPayload';
+    deleteTask: 'IsOkResponse';
     deleteWorkflow: 'DeleteWorkflowPayload';
     editWorkflowSchedule: 'Schedule';
     executeNewWorkflow: 'String';
@@ -2190,7 +2249,7 @@ export interface NexusGenFieldTypeNames {
     node: 'Node';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
-    taskDefinitions: 'TaskDefinition';
+    taskDefinitions: 'TaskDefinitionConnection';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
@@ -2269,9 +2328,10 @@ export interface NexusGenFieldTypeNames {
   TaskDefinition: {
     // field return type name
     concurrentExecLimit: 'Int';
-    createdAt: 'String';
+    createTime: 'String';
     createdBy: 'String';
     description: 'String';
+    id: 'ID';
     inputKeys: 'String';
     inputTemplate: 'String';
     name: 'String';
@@ -2286,8 +2346,20 @@ export interface NexusGenFieldTypeNames {
     retryLogic: 'RetryLogic';
     timeoutPolicy: 'TaskTimeoutPolicy';
     timeoutSeconds: 'Int';
-    updatedAt: 'String';
+    updateTime: 'String';
     updatedBy: 'String';
+    version: 'Int';
+  };
+  TaskDefinitionConnection: {
+    // field return type name
+    edges: 'TaskDefinitionEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  TaskDefinitionEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'TaskDefinition';
   };
   Topology: {
     // field return type name
@@ -2492,6 +2564,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['CreateLabelInput']; // CreateLabelInput!
     };
+    createTaskDefinition: {
+      // args
+      input: NexusGenInputs['CreateTaskDefinitionInput']; // CreateTaskDefinitionInput!
+    };
     createTransaction: {
       // args
       deviceId: string; // String!
@@ -2523,6 +2599,10 @@ export interface NexusGenArgTypes {
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
+    };
+    deleteTask: {
+      // args
+      name: string; // String!
     };
     deleteWorkflow: {
       // args
@@ -2732,6 +2812,14 @@ export interface NexusGenArgTypes {
       first?: number | null; // Int
       last?: number | null; // Int
     };
+    taskDefinitions: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      filter?: NexusGenInputs['FilterTaskDefinitionsInput'] | null; // FilterTaskDefinitionsInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    };
     topology: {
       // args
       filter?: NexusGenInputs['FilterTopologyInput'] | null; // FilterTopologyInput
@@ -2791,6 +2879,7 @@ export interface NexusGenAbstractTypeMembers {
     | 'Location'
     | 'Pool'
     | 'Schedule'
+    | 'TaskDefinition'
     | 'Workflow'
     | 'Zone';
 }
@@ -2807,6 +2896,7 @@ export interface NexusGenTypeInterfaces {
   Location: 'Node';
   Pool: 'Node';
   Schedule: 'Node';
+  TaskDefinition: 'Node';
   Workflow: 'Node';
   Zone: 'Node';
 }
