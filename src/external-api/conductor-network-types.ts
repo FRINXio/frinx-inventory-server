@@ -192,6 +192,39 @@ const ExecutedWorkflowsValidator = t.type({
   results: t.array(ExecutedWorkflow),
 });
 
+const CreateTaskDefinitionInputRequired = t.type({
+  name: t.string,
+  timeoutSeconds: t.number,
+});
+
+const CreateTaskDefinitionInputOptional = t.partial({
+  ownerApp: optional(t.string),
+  createTime: optional(t.number),
+  updateTime: optional(t.number),
+  createdBy: optional(t.string),
+  updatedBy: optional(t.string),
+  accessPolicy: optional(t.UnknownRecord),
+  description: optional(t.string),
+  retryCount: optional(t.number),
+  inputKeys: optional(t.array(t.string)),
+  outputKeys: optional(t.array(t.string)),
+  timeoutPolicy: optional(t.union([t.literal('RETRY'), t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
+  retryLogic: optional(t.union([t.literal('FIXED'), t.literal('EXPONENTIAL_BACKOFF'), t.literal('LINEAR_BACKOFF')])),
+  retryDelaySeconds: optional(t.number),
+  responseTimeoutSeconds: optional(t.number),
+  concurrentExecLimit: optional(t.number),
+  inputTemplate: optional(t.UnknownRecord),
+  rateLimitPerFrequency: optional(t.number),
+  rateLimitFrequencyInSeconds: optional(t.number),
+  isolationGroupId: optional(t.string),
+  executionNameSpace: optional(t.string),
+  ownerEmail: optional(t.string),
+  pollTimeoutSeconds: optional(t.number),
+  backoffScaleFactor: optional(t.number),
+});
+
+const TaskDefinitionInput = t.intersection([CreateTaskDefinitionInputRequired, CreateTaskDefinitionInputOptional]);
+
 const TaskDefinition = t.type({
   name: t.string,
   timeoutSeconds: t.number,
@@ -223,6 +256,47 @@ const PollData = t.type({
 });
 const PollDataArray = t.array(PollData);
 
+const ActionStartWorkflow = t.type({
+  name: optional(t.string),
+  version: optional(t.number),
+  input: optional(t.UnknownRecord),
+  correlationId: optional(t.string),
+  taskToDomain: optional(t.record(t.string, t.string)),
+});
+
+const ActionCompleteTask = t.type({
+  workflowId: optional(t.string),
+  taskId: optional(t.string),
+  output: optional(t.UnknownRecord),
+  taskRefName: optional(t.string),
+});
+
+const ActionFailTask = t.type({
+  workflowId: optional(t.string),
+  taskId: optional(t.string),
+  output: optional(t.UnknownRecord),
+  taskRefName: optional(t.string),
+});
+
+const EventHandlerAction = t.type({
+  action: optional(t.union([t.literal('start_workflow'), t.literal('complete_task'), t.literal('fail_task')])),
+  start_workflow: optional(ActionStartWorkflow),
+  complete_task: optional(ActionCompleteTask),
+  fail_task: optional(ActionFailTask),
+  expandInlineJSON: optional(t.boolean),
+});
+export type ApiEventHandlerAction = t.TypeOf<typeof EventHandlerAction>;
+
+const EventHandler = t.type({
+  name: t.string,
+  event: t.string,
+  condition: optional(t.string),
+  actions: t.array(EventHandlerAction),
+  active: optional(t.boolean),
+  evaluatorType: optional(t.string),
+});
+const EventHandlersValidator = t.array(EventHandler);
+
 export type ExecutedWorkflowsOutput = t.TypeOf<typeof ExecutedWorkflowsValidator>;
 export type WorfklowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
 export type WorkflowMetadataOutput = t.TypeOf<typeof WorkflowMetadataValidator>;
@@ -232,6 +306,8 @@ export type ApiExecutedWorkflowTask = t.TypeOf<typeof ExecutedWorkflowTask>;
 export type ApiTaskDefinition = t.TypeOf<typeof TaskDefinition>;
 export type ApiPollData = t.TypeOf<typeof PollData>;
 export type ApiPollDataArray = t.TypeOf<typeof PollDataArray>;
+export type ApiEventHandlersOutput = t.TypeOf<typeof EventHandlersValidator>;
+export type ApiEventHandler = t.TypeOf<typeof EventHandler>;
 
 export function decodeWorkflowMetadataOutput(value: unknown): WorkflowMetadataOutput {
   return extractResult(WorkflowMetadataValidator.decode(value));
@@ -259,9 +335,16 @@ export function decodeExecutedWorkflowDetailOutput(value: unknown): ApiExecutedW
 }
 
 export type TaskDefinitionsOutput = t.TypeOf<typeof TaskDefinitionsValidator>;
+export type TaskDefinitionOutput = t.TypeOf<typeof TaskDefinition>;
+
+export type TaskDefinitionDetailInput = t.TypeOf<typeof TaskDefinitionInput>;
 
 export function decodeTaskDefinitionsOutput(value: unknown): TaskDefinitionsOutput {
   return extractResult(TaskDefinitionsValidator.decode(value));
+}
+
+export function decodeTaskDefinitionOutput(value: unknown): TaskDefinitionOutput {
+  return extractResult(TaskDefinition.decode(value));
 }
 
 export function decodeBulkTerminateOutput(value: unknown): BulkOperationOutput {
@@ -282,4 +365,8 @@ export function decodeExecutedWorkflowTaskDetailOutput(value: unknown): ApiExecu
 
 export function decodePollDataOutput(value: unknown): ApiPollDataArray {
   return extractResult(PollDataArray.decode(value));
+}
+
+export function decodeEventHandlersOutput(value: unknown): ApiEventHandlersOutput {
+  return extractResult(EventHandlersValidator.decode(value));
 }

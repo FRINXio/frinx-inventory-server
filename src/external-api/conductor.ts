@@ -19,6 +19,11 @@ import {
   ApiExecutedWorkflowTask,
   decodePollDataOutput,
   ApiPollDataArray,
+  ApiEventHandlersOutput,
+  decodeEventHandlersOutput,
+  ApiEventHandler,
+  decodeTaskDefinitionOutput,
+  TaskDefinitionDetailInput,
 } from './conductor-network-types';
 import { sendDeleteRequest, sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 
@@ -200,10 +205,24 @@ async function executeWorkflowByName(
   }
 }
 
+async function getTaskDetail(baseURL: string, taskName: string) {
+  const json = await sendGetRequest([baseURL, `metadata/taskdefs/${taskName}`]);
+  const data = decodeTaskDefinitionOutput(json);
+  return data;
+}
+
 async function getTaskDefinitions(baseURL: string): Promise<TaskDefinitionsOutput> {
   const json = await sendGetRequest([baseURL, 'metadata/taskdefs']);
   const data = decodeTaskDefinitionsOutput(json);
   return data;
+}
+
+async function deleteTaskDefinition(baseURL: string, name: string): Promise<void> {
+  await sendDeleteRequest([baseURL, `metadata/taskdefs/${name}`]);
+}
+
+async function createTaskDefinition(baseURL: string, taskDefinitionInput: TaskDefinitionDetailInput): Promise<void> {
+  await sendPostRequest([baseURL, `metadata/taskdefs`], [taskDefinitionInput]);
 }
 
 async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): Promise<ApiExecutedWorkflowTask> {
@@ -215,6 +234,46 @@ async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): P
 async function getPollData(baseURL: string): Promise<ApiPollDataArray> {
   const json = await sendGetRequest([baseURL, '/tasks/queue/polldata/all']);
   const data = decodePollDataOutput(json);
+  return data;
+}
+
+async function getEventHandlers(baseURL: string): Promise<ApiEventHandlersOutput> {
+  const json = await sendGetRequest([baseURL, '/event']);
+  const data = decodeEventHandlersOutput(json);
+  return data;
+}
+
+async function updateEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
+  await sendPutRequest([baseURL, `/event`], eventHandler);
+}
+
+async function deleteEventHandler(baseURL: string, eventHandlerName: string): Promise<void> {
+  await sendDeleteRequest([baseURL, `/event/${eventHandlerName}`]);
+}
+
+async function createEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
+  await sendPostRequest([baseURL, '/event'], eventHandler);
+}
+
+async function getEventHandler(baseURL: string, event: string, eventName: string): Promise<ApiEventHandler> {
+  const json = await sendGetRequest([baseURL, `/event/${event}?activeOnly=false`]);
+  const data = decodeEventHandlersOutput(json);
+  const eventHandler = data.find((eh) => eh.name === eventName);
+
+  if (eventHandler == null) {
+    throw new Error(`Event handler ${eventName} not found`);
+  }
+
+  return eventHandler;
+}
+
+async function getEventHandlersByEvent(
+  baseURL: string,
+  event: string,
+  activeOnly: boolean,
+): Promise<ApiEventHandler[]> {
+  const json = await sendGetRequest([baseURL, `/event/${event}?activeOnly=${activeOnly}`]);
+  const data = decodeEventHandlersOutput(json);
   return data;
 }
 
@@ -239,9 +298,18 @@ const conductorAPI = {
   removeWorkflow,
   executeNewWorkflow,
   executeWorkflowByName,
+  getTaskDetail,
   getTaskDefinitions,
+  deleteTaskDefinition,
+  createTaskDefinition,
   getExecutedWorkflowTaskDetail,
   getPollData,
+  getEventHandlers,
+  updateEventHandler,
+  deleteEventHandler,
+  createEventHandler,
+  getEventHandler,
+  getEventHandlersByEvent,
 };
 
 export type ConductorAPI = typeof conductorAPI;
