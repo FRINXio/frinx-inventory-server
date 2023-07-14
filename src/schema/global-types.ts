@@ -6,6 +6,7 @@ import { fromGraphId, getType } from '../helpers/id-helper';
 import schedulerAPI from '../external-api/scheduler';
 import resourceManagerAPI from '../external-api/resource-manager';
 import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helpers';
+import { makeFromApiToGraphQLEventHandler } from '../helpers/event-handler.helpers';
 
 export const Node = interfaceType({
   name: 'Node',

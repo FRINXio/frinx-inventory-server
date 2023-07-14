@@ -17,6 +17,9 @@ import {
   decodeBulkTerminateOutput,
   decodeExecutedWorkflowTaskDetailOutput,
   ApiExecutedWorkflowTask,
+  ApiEventHandlersOutput,
+  decodeEventHandlersOutput,
+  ApiEventHandler,
   decodeTaskDefinitionOutput,
   TaskDefinitionDetailInput,
 } from './conductor-network-types';
@@ -226,6 +229,46 @@ async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): P
   return data;
 }
 
+async function getEventHandlers(baseURL: string): Promise<ApiEventHandlersOutput> {
+  const json = await sendGetRequest([baseURL, '/event']);
+  const data = decodeEventHandlersOutput(json);
+  return data;
+}
+
+async function updateEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
+  await sendPutRequest([baseURL, `/event`], eventHandler);
+}
+
+async function deleteEventHandler(baseURL: string, eventHandlerName: string): Promise<void> {
+  await sendDeleteRequest([baseURL, `/event/${eventHandlerName}`]);
+}
+
+async function createEventHandler(baseURL: string, eventHandler: ApiEventHandler): Promise<void> {
+  await sendPostRequest([baseURL, '/event'], eventHandler);
+}
+
+async function getEventHandler(baseURL: string, event: string, eventName: string): Promise<ApiEventHandler> {
+  const json = await sendGetRequest([baseURL, `/event/${event}?activeOnly=false`]);
+  const data = decodeEventHandlersOutput(json);
+  const eventHandler = data.find((eh) => eh.name === eventName);
+
+  if (eventHandler == null) {
+    throw new Error(`Event handler ${eventName} not found`);
+  }
+
+  return eventHandler;
+}
+
+async function getEventHandlersByEvent(
+  baseURL: string,
+  event: string,
+  activeOnly: boolean,
+): Promise<ApiEventHandler[]> {
+  const json = await sendGetRequest([baseURL, `/event/${event}?activeOnly=${activeOnly}`]);
+  const data = decodeEventHandlersOutput(json);
+  return data;
+}
+
 const conductorAPI = {
   getWorkflowMetadata,
   getWorkflowDetail,
@@ -252,6 +295,12 @@ const conductorAPI = {
   deleteTaskDefinition,
   createTaskDefinition,
   getExecutedWorkflowTaskDetail,
+  getEventHandlers,
+  updateEventHandler,
+  deleteEventHandler,
+  createEventHandler,
+  getEventHandler,
+  getEventHandlersByEvent,
 };
 
 export type ConductorAPI = typeof conductorAPI;

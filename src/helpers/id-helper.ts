@@ -13,6 +13,9 @@ export type DataType =
   | 'GraphNode'
   | 'GraphEdge'
   | 'Schedule'
+  | 'Pool'
+  | 'EventHandler'
+  | 'EventHandlerAction'
   | 'TaskDefinition'
   | 'Pool';
 
