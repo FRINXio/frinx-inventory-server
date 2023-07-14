@@ -187,6 +187,32 @@ input CreateScheduleInput {
   workflowVersion: String!
 }
 
+input CreateTaskDefinitionInput {
+  accessPolicy: String
+  backoffScaleFactor: Int
+  concurrentExecLimit: Int
+  createdBy: String
+  description: String
+  executionNameSpace: String
+  inputKeys: [String!]
+  inputTemplate: String
+  isolationGroupId: String
+  name: String!
+  outputKeys: [String!]
+  ownerApp: String
+  ownerEmail: String
+  pollTimeoutSeconds: Int
+  rateLimitFrequencyInSeconds: Int
+  rateLimitPerFrequency: Int
+  responseTimeoutSeconds: Int
+  retryCount: Int
+  retryDelaySeconds: Int
+  retryLogic: RetryLogic
+  timeoutPolicy: TaskTimeoutPolicy
+  timeoutSeconds: Int!
+  updatedBy: String
+}
+
 type CreateTransactionPayload {
   transactionId: String
 }
@@ -446,6 +472,10 @@ input FilterPoolsInput {
   poolName: String
 }
 
+input FilterTaskDefinitionsInput {
+  keyword: String
+}
+
 input FilterTopologyInput {
   labels: [String!]
 }
@@ -574,6 +604,7 @@ type Mutation {
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
+  createTaskDefinition(input: CreateTaskDefinitionInput!): TaskDefinition
   createTransaction(deviceId: String!): CreateTransactionPayload!
   createWorkflow(input: CreateWorkflowInput!): CreateWorkflowPayload!
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
@@ -581,6 +612,7 @@ type Mutation {
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSchedule(id: String!): IsOkResponse
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  deleteTask(name: String!): IsOkResponse
   deleteWorkflow(input: DeleteWorkflowInput!): DeleteWorkflowPayload!
   editWorkflowSchedule(id: String!, input: EditWorkflowScheduleInput!): Schedule
   executeNewWorkflow(input: StartWorkflowRequestInput!): String
@@ -710,7 +742,13 @@ type Query {
     resourceTypeId: String
   ): PoolConnection!
   schedules(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): ScheduleConnection!
-  taskDefinitions: [TaskDefinition!]!
+  taskDefinitions(
+    after: String
+    before: String
+    filter: FilterTaskDefinitionsInput
+    first: Int
+    last: Int
+  ): TaskDefinitionConnection!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
@@ -853,11 +891,12 @@ type Tag {
   tag: String!
 }
 
-type TaskDefinition {
+type TaskDefinition implements Node {
   concurrentExecLimit: Int
-  createdAt: String
+  createTime: String
   createdBy: String
   description: String
+  id: ID!
   inputKeys: [String!]
   inputTemplate: String
   name: String!
@@ -872,8 +911,20 @@ type TaskDefinition {
   retryLogic: RetryLogic
   timeoutPolicy: TaskTimeoutPolicy
   timeoutSeconds: Int!
-  updatedAt: String
+  updateTime: String
   updatedBy: String
+  version: Int
+}
+
+type TaskDefinitionConnection {
+  edges: [TaskDefinitionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type TaskDefinitionEdge {
+  cursor: String!
+  node: TaskDefinition!
 }
 
 input TaskInput {
