@@ -6,11 +6,13 @@ import { fromGraphId, getType } from '../helpers/id-helper';
 import schedulerAPI from '../external-api/scheduler';
 import resourceManagerAPI from '../external-api/resource-manager';
 import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helpers';
-import { makeFromApiToGraphQLEventHandler } from '../helpers/event-handler.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
   definition: (t) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // TODO: once TypeDefinition implements Node, type-check fails at this line
     t.nonNull.id('id');
     t.int('version'); // this is only used for Workflow, because it has composite id (name/version)
   },
@@ -153,6 +155,18 @@ export const NodeQuery = extendType({
             }
 
             return { ...task, id: args.id, __typename: 'ExecutedWorkflowTask' };
+          }
+          case 'TaskDefinition': {
+            const id = fromGraphId('TaskDefinition', args.id);
+            const taskDefinition = await conductorAPI.getTaskDetail(config.conductorApiURL, id);
+            if (taskDefinition == null) {
+              return null;
+            }
+            return {
+              ...taskDefinition,
+              id: args.id,
+              __typename: 'TaskDefinition',
+            };
           }
           /* eslint-enable */
           default:

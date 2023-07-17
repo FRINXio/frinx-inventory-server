@@ -399,7 +399,7 @@ input EditWorkflowScheduleInput {
   workflowVersion: String
 }
 
-type EventHandler {
+type EventHandler implements Node {
   actions: [EventHandlerAction!]!
   condition: String
   evaluatorType: String
@@ -415,6 +415,7 @@ type EventHandler {
   The name is immutable and cannot be changed. Also it must be unique.
   """
   name: String!
+  version: Int
 }
 
 type EventHandlerAction {
@@ -422,7 +423,6 @@ type EventHandlerAction {
   completeTask: ActionCompleteTask
   expandInlineJSON: Boolean
   failTask: ActionFailTask
-  id: ID!
   startWorkflow: ActionStartWorkflow
 }
 

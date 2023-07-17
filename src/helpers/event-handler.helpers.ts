@@ -1,4 +1,5 @@
 import { ApiEventHandler, ApiEventHandlerAction } from '../external-api/conductor-network-types';
+import { toGraphId } from './id-helper';
 
 type StartWorkflowGraphQL = {
   name?: string | null;
@@ -91,6 +92,7 @@ export function makeFromApiToGraphQLEventHandlerAction(eventHandlerAction: ApiEv
 
 export function makeFromApiToGraphQLEventHandler(eventHandler: ApiEventHandler) {
   return {
+    id: toGraphId('EventHandler', eventHandler.name),
     name: eventHandler.name,
     event: eventHandler.event,
     isActive: eventHandler.active || false,

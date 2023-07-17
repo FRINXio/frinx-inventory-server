@@ -649,6 +649,7 @@ export interface NexusGenObjects {
     id: string; // ID!
     isActive?: boolean | null; // Boolean
     name: string; // String!
+    version?: number | null; // Int
   };
   EventHandlerAction: {
     // root type
@@ -656,7 +657,6 @@ export interface NexusGenObjects {
     completeTask?: NexusGenRootTypes['ActionCompleteTask'] | null; // ActionCompleteTask
     expandInlineJSON?: boolean | null; // Boolean
     failTask?: NexusGenRootTypes['ActionFailTask'] | null; // ActionFailTask
-    id: string; // ID!
     startWorkflow?: NexusGenRootTypes['ActionStartWorkflow'] | null; // ActionStartWorkflow
   };
   EventHandlerConnection: {
@@ -968,6 +968,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Blueprint', 'required'>
     | core.Discriminate<'Country', 'required'>
     | core.Discriminate<'Device', 'required'>
+    | core.Discriminate<'EventHandler', 'required'>
     | core.Discriminate<'ExecutedWorkflow', 'required'>
     | core.Discriminate<'ExecutedWorkflowTask', 'required'>
     | core.Discriminate<'Label', 'required'>
@@ -1199,6 +1200,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     isActive: boolean | null; // Boolean
     name: string; // String!
+    version: number | null; // Int
   };
   EventHandlerAction: {
     // field return type
@@ -1206,7 +1208,6 @@ export interface NexusGenFieldTypes {
     completeTask: NexusGenRootTypes['ActionCompleteTask'] | null; // ActionCompleteTask
     expandInlineJSON: boolean | null; // Boolean
     failTask: NexusGenRootTypes['ActionFailTask'] | null; // ActionFailTask
-    id: string; // ID!
     startWorkflow: NexusGenRootTypes['ActionStartWorkflow'] | null; // ActionStartWorkflow
   };
   EventHandlerConnection: {
@@ -1951,6 +1952,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     isActive: 'Boolean';
     name: 'String';
+    version: 'Int';
   };
   EventHandlerAction: {
     // field return type name
@@ -1958,7 +1960,6 @@ export interface NexusGenFieldTypeNames {
     completeTask: 'ActionCompleteTask';
     expandInlineJSON: 'Boolean';
     failTask: 'ActionFailTask';
-    id: 'ID';
     startWorkflow: 'ActionStartWorkflow';
   };
   EventHandlerConnection: {
@@ -2873,6 +2874,7 @@ export interface NexusGenAbstractTypeMembers {
     | 'Blueprint'
     | 'Country'
     | 'Device'
+    | 'EventHandler'
     | 'ExecutedWorkflow'
     | 'ExecutedWorkflowTask'
     | 'Label'
@@ -2888,6 +2890,7 @@ export interface NexusGenTypeInterfaces {
   Blueprint: 'Node';
   Country: 'Node';
   Device: 'Node';
+  EventHandler: 'Node';
   ExecutedWorkflow: 'Node';
   ExecutedWorkflowTask: 'Node';
   GraphNode: 'BaseGraphNode';
