@@ -4,8 +4,7 @@ import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
-import {connectionFromArray} from '../helpers/connection.helpers'
-import { log } from 'console';
+import { connectionFromArray } from '../helpers/connection.helpers';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -89,8 +88,6 @@ export const FilterTaskDefinitionsInput = inputObjectType({
   },
 });
 
-
-
 export const TaskDefinitionsQuery = extendType({
   type: 'Query',
   definition: (t) => {
@@ -107,10 +104,10 @@ export const TaskDefinitionsQuery = extendType({
           ? getFilteredTaskDefinitions(taskDefinitions, filter.keyword)
           : taskDefinitions;
 
-          const tasksWithId = filteredTaskDefs.map((task) => ({
-            ...task,
-            id: task.name,
-          }));
+        const tasksWithId = filteredTaskDefs.map((task) => ({
+          ...task,
+          id: task.name,
+        }));
         return {
           ...connectionFromArray(tasksWithId, paginationArgs),
           totalCount: filteredTaskDefs.length,
@@ -119,7 +116,6 @@ export const TaskDefinitionsQuery = extendType({
     });
   },
 });
-
 
 export const DeleteTaskDefinitionMutation = mutationField('deleteTask', {
   type: IsOkResponse,
