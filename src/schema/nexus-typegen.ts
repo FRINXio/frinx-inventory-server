@@ -656,7 +656,6 @@ export interface NexusGenObjects {
     completeTask?: NexusGenRootTypes['ActionCompleteTask'] | null; // ActionCompleteTask
     expandInlineJSON?: boolean | null; // Boolean
     failTask?: NexusGenRootTypes['ActionFailTask'] | null; // ActionFailTask
-    id: string; // ID!
     startWorkflow?: NexusGenRootTypes['ActionStartWorkflow'] | null; // ActionStartWorkflow
   };
   EventHandlerConnection: {
@@ -1206,7 +1205,6 @@ export interface NexusGenFieldTypes {
     completeTask: NexusGenRootTypes['ActionCompleteTask'] | null; // ActionCompleteTask
     expandInlineJSON: boolean | null; // Boolean
     failTask: NexusGenRootTypes['ActionFailTask'] | null; // ActionFailTask
-    id: string; // ID!
     startWorkflow: NexusGenRootTypes['ActionStartWorkflow'] | null; // ActionStartWorkflow
   };
   EventHandlerConnection: {
@@ -1958,7 +1956,6 @@ export interface NexusGenFieldTypeNames {
     completeTask: 'ActionCompleteTask';
     expandInlineJSON: 'Boolean';
     failTask: 'ActionFailTask';
-    id: 'ID';
     startWorkflow: 'ActionStartWorkflow';
   };
   EventHandlerConnection: {

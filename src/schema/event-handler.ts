@@ -55,7 +55,6 @@ export const ActionFailTask = objectType({
 export const EventHandlerAction = objectType({
   name: 'EventHandlerAction',
   definition(t) {
-    t.nonNull.id('id');
     t.field('action', { type: EventHandlerActionEnum });
     t.field('startWorkflow', { type: ActionStartWorkflow });
     t.field('completeTask', { type: ActionCompleteTask });
