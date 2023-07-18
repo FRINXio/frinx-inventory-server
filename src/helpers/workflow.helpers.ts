@@ -188,7 +188,7 @@ export function parseWorkflowId(id: string): WorkflowCompositeID {
   return JSON.parse(id);
 }
 
-export function stringifyWorkflowId(name: string, version?: number): string {
+export function getWorkflowId(name: string, version?: number): string {
   return JSON.stringify({
     name,
     version,

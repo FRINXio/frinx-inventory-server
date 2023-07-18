@@ -23,9 +23,9 @@ import {
   convertToApiOutputParameters,
   getFilteredWorkflows,
   getSubworkflows,
+  getWorkflowId,
   makePaginationFromArgs,
   makeSearchQueryFromArgs,
-  stringifyWorkflowId,
   validateTasks,
 } from '../helpers/workflow.helpers';
 import { StartWorkflowInput } from '../types/conductor.types';
@@ -61,7 +61,7 @@ export const Workflow = objectType({
   definition: (t) => {
     t.implements(Node);
     t.nonNull.id('id', {
-      resolve: (workflow) => toGraphId('Workflow', stringifyWorkflowId(workflow.name, workflow.version ?? undefined)),
+      resolve: (workflow) => toGraphId('Workflow', getWorkflowId(workflow.name, workflow.version ?? undefined)),
     });
     t.nonNull.int('timeoutSeconds');
     t.nonNull.string('name');
@@ -397,9 +397,7 @@ export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
 
     return {
       result: { ...result, id: toGraphId('ExecutedWorkflow', uuid()) },
-      meta: meta
-        ? { ...meta, id: toGraphId('Workflow', stringifyWorkflowId(meta.name, meta.version ?? undefined)) }
-        : null,
+      meta: meta ? { ...meta, id: toGraphId('Workflow', getWorkflowId(meta.name, meta.version ?? undefined)) } : null,
       subworkflows,
     };
   },
@@ -534,7 +532,7 @@ export const CreateWorkflowMutation = extendType({
         await conductorAPI.createWorkflow(config.conductorApiURL, apiWorkflow);
         return {
           workflow: {
-            id: toGraphId('Workflow', stringifyWorkflowId(apiWorkflow.name, apiWorkflow.version ?? undefined)),
+            id: toGraphId('Workflow', getWorkflowId(apiWorkflow.name, apiWorkflow.version ?? undefined)),
             ...apiWorkflow,
           },
         };
@@ -595,7 +593,7 @@ export const UpdateWorkflowMutation = extendType({
 
         return {
           workflow: {
-            id: toGraphId('Workflow', stringifyWorkflowId(apiWorkflow.name, apiWorkflow.version ?? undefined)),
+            id: toGraphId('Workflow', getWorkflowId(apiWorkflow.name, apiWorkflow.version ?? undefined)),
             ...apiWorkflow,
           },
         };
@@ -636,10 +634,7 @@ export const DeleteWorkflowMutation = extendType({
         return {
           workflow: {
             ...workflowToDelete,
-            id: toGraphId(
-              'Workflow',
-              stringifyWorkflowId(workflowToDelete.name, workflowToDelete.version ?? undefined),
-            ),
+            id: toGraphId('Workflow', getWorkflowId(workflowToDelete.name, workflowToDelete.version ?? undefined)),
           },
         };
       },
