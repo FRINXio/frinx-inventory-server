@@ -1,5 +1,3 @@
-import { TaskDefinition } from '../schema/source-types';
-
 type TaskDefinitionDetailInput = {
   name: string;
   timeoutSeconds: number;
@@ -58,6 +56,5 @@ export const getTaskDefinitionInput = (input: TaskDefinitionDetailInput) => {
   return taskDefinitionInput;
 };
 
-export const getFilteredTaskDefinitions = <T extends { name: string }>(defs: T[], searchTerm: string): T[] => {
-  return defs.filter((df) => df.name.toLowerCase().includes(searchTerm.toLowerCase()));
-};
+export const getFilteredTaskDefinitions = <T extends { name: string }>(defs: T[], searchTerm: string): T[] =>
+  defs.filter((df) => df.name.toLowerCase().includes(searchTerm.toLowerCase()));

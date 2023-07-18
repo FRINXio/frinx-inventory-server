@@ -422,7 +422,6 @@ type EventHandlerAction {
   completeTask: ActionCompleteTask
   expandInlineJSON: Boolean
   failTask: ActionFailTask
-  id: ID!
   startWorkflow: ActionStartWorkflow
 }
 
