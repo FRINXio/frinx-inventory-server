@@ -23,6 +23,7 @@ import {
   convertToApiOutputParameters,
   getFilteredWorkflows,
   getSubworkflows,
+  getWorkflowId,
   makePaginationFromArgs,
   makeSearchQueryFromArgs,
   validateTasks,
@@ -60,7 +61,7 @@ export const Workflow = objectType({
   definition: (t) => {
     t.implements(Node);
     t.nonNull.id('id', {
-      resolve: (workflow) => toGraphId('Workflow', workflow.name),
+      resolve: (workflow) => toGraphId('Workflow', getWorkflowId(workflow.name, workflow.version ?? undefined)),
     });
     t.nonNull.int('timeoutSeconds');
     t.nonNull.string('name');
@@ -396,7 +397,7 @@ export const WorkflowInstanceQuery = queryField('workflowInstanceDetail', {
 
     return {
       result: { ...result, id: toGraphId('ExecutedWorkflow', uuid()) },
-      meta: meta ? { ...meta, id: toGraphId('Workflow', meta.name) } : null,
+      meta: meta ? { ...meta, id: toGraphId('Workflow', getWorkflowId(meta.name, meta.version ?? undefined)) } : null,
       subworkflows,
     };
   },
@@ -531,7 +532,7 @@ export const CreateWorkflowMutation = extendType({
         await conductorAPI.createWorkflow(config.conductorApiURL, apiWorkflow);
         return {
           workflow: {
-            id: toGraphId('Workflow', apiWorkflow.name),
+            id: toGraphId('Workflow', getWorkflowId(apiWorkflow.name, apiWorkflow.version ?? undefined)),
             ...apiWorkflow,
           },
         };
@@ -592,7 +593,7 @@ export const UpdateWorkflowMutation = extendType({
 
         return {
           workflow: {
-            id: toGraphId('Workflow', apiWorkflow.name),
+            id: toGraphId('Workflow', getWorkflowId(apiWorkflow.name, apiWorkflow.version ?? undefined)),
             ...apiWorkflow,
           },
         };
@@ -633,7 +634,7 @@ export const DeleteWorkflowMutation = extendType({
         return {
           workflow: {
             ...workflowToDelete,
-            id: toGraphId('Workflow', workflowToDelete.name),
+            id: toGraphId('Workflow', getWorkflowId(workflowToDelete.name, workflowToDelete.version ?? undefined)),
           },
         };
       },

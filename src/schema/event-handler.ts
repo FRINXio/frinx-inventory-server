@@ -11,7 +11,7 @@ import {
 } from 'nexus';
 import { connectionFromArray } from 'graphql-relay';
 import { v4 as uuid } from 'uuid';
-import { IsOkResponse, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PaginationConnectionArgs } from './global-types';
 import config from '../config';
 import { makeFromApiToGraphQLEventHandler, makeFromGraphQLToApiEventHandler } from '../helpers/event-handler.helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
@@ -66,6 +66,7 @@ export const EventHandlerAction = objectType({
 export const EventHandler = objectType({
   name: 'EventHandler',
   definition(t) {
+    t.implements(Node);
     t.nonNull.id('id');
     t.nonNull.string('name', { description: 'The name is immutable and cannot be changed. Also it must be unique.' });
     t.nonNull.string('event', { description: 'The event is immutable and cannot be changed.' });
@@ -128,7 +129,6 @@ export const EventHandlerQuery = queryField('eventHandlers', {
     });
 
     const mappedEventHandlersWithId = filteredEventHandlers.map((eventHandler) => ({
-      id: toGraphId('EventHandler', eventHandler.name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
 
@@ -216,8 +216,8 @@ export const CreateEventHandlerMutation = mutationField('createEventHandler', {
     const { input } = args;
     await conductorAPI.createEventHandler(config.conductorApiURL, makeFromGraphQLToApiEventHandler(input));
     return {
-      id: toGraphId('EventHandler', input.name),
       ...input,
+      id: toGraphId('EventHandler', input.name),
     };
   },
 });
@@ -259,10 +259,10 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
     const mappedEventHandler = makeFromApiToGraphQLEventHandler(oldEventHandler);
 
     return {
-      id: toGraphId('EventHandler', name),
       ...mappedEventHandler,
       ...input,
       actions: input.actions == null ? mappedEventHandler.actions : input.actions,
+      id: toGraphId('EventHandler', name),
     };
   },
 });
@@ -294,7 +294,6 @@ export const GetEventHandler = queryField('eventHandler', {
     const eventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, event, name);
 
     const eventHandlerWithId = {
-      id: toGraphId('EventHandler', name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     };
 
@@ -324,8 +323,8 @@ export const GetEventHandlersByEvent = queryField('eventHandlersByEvent', {
     );
 
     const mappedEventHandlers = eventHandlers.map((eventHandler) => ({
-      id: toGraphId('EventHandler', eventHandler.name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
+      // id: toGraphId('EventHandler', eventHandler.name),
     }));
 
     return connectionFromArray(mappedEventHandlers, {

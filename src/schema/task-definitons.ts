@@ -105,7 +105,7 @@ export const TaskDefinitionsQuery = extendType({
 
         const tasksWithId = filteredTaskDefs.map((task) => ({
           ...task,
-          id: task.name,
+          id: toGraphId('TaskDefinition', task.name),
         }));
         return {
           ...connectionFromArray(tasksWithId, paginationArgs),

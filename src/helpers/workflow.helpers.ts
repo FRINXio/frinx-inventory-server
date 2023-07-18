@@ -178,3 +178,19 @@ export function convertToApiOutputParameters(
     };
   }, {});
 }
+
+export type WorkflowCompositeID = {
+  name: string;
+  version?: number;
+};
+
+export function parseWorkflowId(id: string): WorkflowCompositeID {
+  return JSON.parse(id);
+}
+
+export function getWorkflowId(name: string, version?: number): string {
+  return JSON.stringify({
+    name,
+    version,
+  });
+}
