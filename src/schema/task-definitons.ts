@@ -1,5 +1,16 @@
-import { arg, enumType, extendType, inputObjectType, mutationField, nonNull, objectType, stringArg } from 'nexus';
+import {
+  arg,
+  enumType,
+  extendType,
+  inputObjectType,
+  mutationField,
+  nonNull,
+  objectType,
+  queryField,
+  stringArg,
+} from 'nexus';
 import config from '../config';
+import { filterPollData, makeFromApiToGraphQLPollData } from '../helpers/task.helpers';
 import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput, getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
@@ -113,6 +124,58 @@ export const TaskDefinitionsQuery = extendType({
         };
       },
     });
+  },
+});
+
+export const PollData = objectType({
+  name: 'PollData',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.string('queueName');
+    t.string('workerId');
+    t.string('domain');
+    t.string('lastPollTime');
+  },
+});
+
+export const PollDataEdge = objectType({
+  name: 'PollDataEdge',
+  definition: (t) => {
+    t.string('cursor');
+    t.field('node', { type: PollData });
+  },
+});
+
+export const PollDataConnection = objectType({
+  name: 'PollDataConnection',
+  definition: (t) => {
+    t.int('totalCount');
+    t.list.field('edges', { type: PollDataEdge });
+    t.field('pageInfo', { type: 'PageInfo' });
+  },
+});
+
+export const FilterPollDataInput = inputObjectType({
+  name: 'FilterPollDataInput',
+  definition: (t) => {
+    t.string('queueName');
+    t.string('workerId');
+    t.string('domain');
+    t.string('afterDate');
+    t.string('beforeDate');
+  },
+});
+
+export const PollDataQuery = queryField('pollData', {
+  type: PollDataConnection,
+  args: {
+    filter: arg({ type: FilterPollDataInput }),
+    ...PaginationConnectionArgs,
+  },
+  resolve: async (_, args, { conductorAPI }) => {
+    const { filter, ...pagination } = args;
+    const pollData = await conductorAPI.getPollData(config.conductorApiURL);
+    return connectionFromArray(makeFromApiToGraphQLPollData(filterPollData(pollData, filter)), pagination);
   },
 });
 

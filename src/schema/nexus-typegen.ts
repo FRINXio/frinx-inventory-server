@@ -256,6 +256,14 @@ export interface NexusGenInputs {
     event?: string | null; // String
     isActive?: boolean | null; // Boolean
   };
+  FilterPollDataInput: {
+    // input type
+    afterDate?: string | null; // String
+    beforeDate?: string | null; // String
+    domain?: string | null; // String
+    queueName?: string | null; // String
+    workerId?: string | null; // String
+  };
   FilterPoolsInput: {
     // input type
     poolName?: string | null; // String
@@ -790,6 +798,25 @@ export interface NexusGenObjects {
     hasNextPage: boolean; // Boolean!
     hasPreviousPage: boolean; // Boolean!
     startCursor?: string | null; // String
+  };
+  PollData: {
+    // root type
+    domain?: string | null; // String
+    id: string; // ID!
+    lastPollTime?: string | null; // String
+    queueName?: string | null; // String
+    workerId?: string | null; // String
+  };
+  PollDataConnection: {
+    // root type
+    edges?: Array<NexusGenRootTypes['PollDataEdge'] | null> | null; // [PollDataEdge]
+    pageInfo?: NexusGenRootTypes['PageInfo'] | null; // PageInfo
+    totalCount?: number | null; // Int
+  };
+  PollDataEdge: {
+    // root type
+    cursor?: string | null; // String
+    node?: NexusGenRootTypes['PollData'] | null; // PollData
   };
   Pool: {
     // root type
@@ -1451,6 +1478,25 @@ export interface NexusGenFieldTypes {
     hasPreviousPage: boolean; // Boolean!
     startCursor: string | null; // String
   };
+  PollData: {
+    // field return type
+    domain: string | null; // String
+    id: string; // ID!
+    lastPollTime: string | null; // String
+    queueName: string | null; // String
+    workerId: string | null; // String
+  };
+  PollDataConnection: {
+    // field return type
+    edges: Array<NexusGenRootTypes['PollDataEdge'] | null> | null; // [PollDataEdge]
+    pageInfo: NexusGenRootTypes['PageInfo'] | null; // PageInfo
+    totalCount: number | null; // Int
+  };
+  PollDataEdge: {
+    // field return type
+    cursor: string | null; // String
+    node: NexusGenRootTypes['PollData'] | null; // PollData
+  };
   Pool: {
     // field return type
     id: string; // ID!
@@ -1485,6 +1531,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    pollData: NexusGenRootTypes['PollDataConnection'] | null; // PollDataConnection
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
     taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
@@ -2190,6 +2237,25 @@ export interface NexusGenFieldTypeNames {
     hasPreviousPage: 'Boolean';
     startCursor: 'String';
   };
+  PollData: {
+    // field return type name
+    domain: 'String';
+    id: 'ID';
+    lastPollTime: 'String';
+    queueName: 'String';
+    workerId: 'String';
+  };
+  PollDataConnection: {
+    // field return type name
+    edges: 'PollDataEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  PollDataEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'PollData';
+  };
   Pool: {
     // field return type name
     id: 'ID';
@@ -2224,6 +2290,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    pollData: 'PollDataConnection';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
     taskDefinitions: 'TaskDefinitionConnection';
@@ -2767,6 +2834,14 @@ export interface NexusGenArgTypes {
       // args
       id: string; // ID!
       version?: number | null; // Int
+    };
+    pollData: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      filter?: NexusGenInputs['FilterPollDataInput'] | null; // FilterPollDataInput
+      first?: number | null; // Int
+      last?: number | null; // Int
     };
     pools: {
       // args

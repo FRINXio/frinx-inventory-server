@@ -17,6 +17,8 @@ import {
   decodeBulkTerminateOutput,
   decodeExecutedWorkflowTaskDetailOutput,
   ApiExecutedWorkflowTask,
+  decodePollDataOutput,
+  ApiPollDataArray,
   ApiEventHandlersOutput,
   decodeEventHandlersOutput,
   ApiEventHandler,
@@ -229,6 +231,12 @@ async function getExecutedWorkflowTaskDetail(baseURL: string, taskId: string): P
   return data;
 }
 
+async function getPollData(baseURL: string): Promise<ApiPollDataArray> {
+  const json = await sendGetRequest([baseURL, '/tasks/queue/polldata/all']);
+  const data = decodePollDataOutput(json);
+  return data;
+}
+
 async function getEventHandlers(baseURL: string): Promise<ApiEventHandlersOutput> {
   const json = await sendGetRequest([baseURL, '/event']);
   const data = decodeEventHandlersOutput(json);
@@ -295,6 +303,7 @@ const conductorAPI = {
   deleteTaskDefinition,
   createTaskDefinition,
   getExecutedWorkflowTaskDetail,
+  getPollData,
   getEventHandlers,
   updateEventHandler,
   deleteEventHandler,

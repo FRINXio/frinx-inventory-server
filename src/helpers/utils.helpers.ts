@@ -36,3 +36,11 @@ export function parseJson<T>(json?: string | null, throwError = true): T {
     }
   }
 }
+
+export function isBeforeDate(date: Date, other: Date): boolean {
+  return date.getTime() < other.getTime();
+}
+
+export function isAfterDate(date: Date, other: Date): boolean {
+  return date.getTime() > other.getTime();
+}

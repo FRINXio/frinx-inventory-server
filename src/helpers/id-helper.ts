@@ -14,10 +14,10 @@ export type DataType =
   | 'GraphEdge'
   | 'Schedule'
   | 'Pool'
+  | 'PollData'
   | 'EventHandler'
   | 'EventHandlerAction'
-  | 'TaskDefinition'
-  | 'Pool';
+  | 'TaskDefinition';
 
 function isDataType(value: string): value is DataType {
   return (
