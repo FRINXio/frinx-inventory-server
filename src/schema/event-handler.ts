@@ -129,7 +129,6 @@ export const EventHandlerQuery = queryField('eventHandlers', {
     });
 
     const mappedEventHandlersWithId = filteredEventHandlers.map((eventHandler) => ({
-      // id: toGraphId('EventHandler', eventHandler.name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
 
@@ -295,7 +294,6 @@ export const GetEventHandler = queryField('eventHandler', {
     const eventHandler = await conductorAPI.getEventHandler(config.conductorApiURL, event, name);
 
     const eventHandlerWithId = {
-      // id: toGraphId('EventHandler', name),
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     };
 
