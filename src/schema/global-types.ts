@@ -6,6 +6,7 @@ import { fromGraphId, getType } from '../helpers/id-helper';
 import schedulerAPI from '../external-api/scheduler';
 import resourceManagerAPI from '../external-api/resource-manager';
 import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helpers';
+import { parseWorkflowId } from '../helpers/workflow.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -14,7 +15,6 @@ export const Node = interfaceType({
     // @ts-ignore
     // TODO: once TypeDefinition implements Node, type-check fails at this line
     t.nonNull.id('id');
-    t.int('version'); // this is only used for Workflow, because it has composite id (name/version)
   },
 });
 export const PageInfo = objectType({
@@ -107,11 +107,8 @@ export const NodeQuery = extendType({
           }
           case 'Workflow': {
             const id = fromGraphId('Workflow', args.id);
-            const workflow = await conductorAPI.getWorkflowDetail(
-              config.conductorApiURL,
-              id,
-              args.version ?? undefined,
-            );
+            const { name, version } = parseWorkflowId(id);
+            const workflow = await conductorAPI.getWorkflowDetail(config.conductorApiURL, name, version);
             if (workflow == null) {
               return null;
             }

@@ -126,7 +126,6 @@ type Blueprint implements Node {
   name: String!
   template: String!
   updatedAt: String!
-  version: Int
 }
 
 type BlueprintConnection {
@@ -197,7 +196,6 @@ type Country implements Node {
   code: String!
   id: ID!
   name: String!
-  version: Int
 }
 
 type CountryConnection {
@@ -340,7 +338,6 @@ type Device implements Node {
   source: DeviceSource!
   updatedAt: String!
   vendor: String
-  version: Int
   zone: Zone!
 }
 
@@ -415,7 +412,6 @@ type EventHandler implements Node {
   The name is immutable and cannot be changed. Also it must be unique.
   """
   name: String!
-  version: Int
 }
 
 type EventHandlerAction {
@@ -491,7 +487,6 @@ type ExecutedWorkflow implements Node {
   updatedAt: String
   updatedBy: String
   variables: String
-  version: Int
   workflowDefinition: Workflow
   workflowId: String!
   workflowName: String
@@ -559,7 +554,6 @@ type ExecutedWorkflowTask implements Node {
   taskId: String
   taskType: String
   updateTime: String
-  version: Int
   workflowType: String
 }
 
@@ -673,7 +667,6 @@ type Label implements Node {
   id: ID!
   name: String!
   updatedAt: String!
-  version: Int
 }
 
 type LabelConnection {
@@ -693,7 +686,6 @@ type Location implements Node {
   id: ID!
   name: String!
   updatedAt: String!
-  version: Int
 }
 
 type LocationConnection {
@@ -785,7 +777,6 @@ type NetTopology {
 
 interface Node {
   id: ID!
-  version: Int
 }
 
 type OutputParameter {
@@ -816,7 +807,6 @@ type Pool implements Node {
   poolType: PoolType!
   resourceType: ResourceType!
   tags: [Tag!]!
-  version: Int
 }
 
 type PoolConnection {
@@ -956,7 +946,6 @@ type Schedule implements Node {
   performFromDate: String!
   performTillDate: String!
   status: ScheduleStatus!
-  version: Int
   workflowContext: String!
   workflowName: String!
   workflowVersion: String!
@@ -1050,7 +1039,6 @@ type TaskDefinition implements Node {
   timeoutSeconds: Int!
   updateTime: String
   updatedBy: String
-  version: Int
 }
 
 type TaskDefinitionConnection {
@@ -1297,7 +1285,6 @@ type Zone implements Node {
   id: ID!
   name: String!
   updatedAt: String!
-  version: Int
 }
 
 type ZoneEdge {
