@@ -175,10 +175,7 @@ export const PollDataQuery = queryField('pollData', {
   resolve: async (_, args, { conductorAPI }) => {
     const { filter, ...pagination } = args;
     const pollData = await conductorAPI.getPollData(config.conductorApiURL);
-    return connectionFromArray(makeFromApiToGraphQLPollData(filterPollData(
-        pollData,
-        filter,
-    )), pagination);
+    return connectionFromArray(makeFromApiToGraphQLPollData(filterPollData(pollData, filter)), pagination);
   },
 });
 

@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { isAfterDate, isBeforeDate } from './utils.helpers';
 import { ApiPollDataArray } from '../external-api/conductor-network-types';
-import {toGraphId} from "./id-helper";
+import { toGraphId } from './id-helper';
 
 type FilterPollDataArgs = {
   queueName?: string | null;
@@ -10,29 +10,48 @@ type FilterPollDataArgs = {
   afterDate?: string | null;
   beforeDate?: string | null;
 };
-export function filterPollData(
-  pollData: ApiPollDataArray,
-  filters?: FilterPollDataArgs | null,
-): ApiPollDataArray {
+export function filterPollData(pollData: ApiPollDataArray, filters?: FilterPollDataArgs | null): ApiPollDataArray {
   if (filters == null) return pollData;
 
-    const { queueName, workerId, domain, beforeDate, afterDate } = filters;
-    const beforeDateFormat = beforeDate != null ? new Date(beforeDate) : null;
-    const afterDateFormat = afterDate != null ? new Date(afterDate) : null;
+  const { queueName, workerId, domain, beforeDate, afterDate } = filters;
+  const beforeDateFormat = beforeDate != null ? new Date(beforeDate) : null;
+  const afterDateFormat = afterDate != null ? new Date(afterDate) : null;
 
-    if (afterDateFormat != null && beforeDateFormat != null && afterDateFormat.getTime() >= beforeDateFormat.getTime()) throw new Error('afterDate must be smaller than beforeDate');
+  if (afterDateFormat != null && beforeDateFormat != null && afterDateFormat.getTime() >= beforeDateFormat.getTime())
+    throw new Error('afterDate must be smaller than beforeDate');
 
   return pollData.filter((polldata) => {
-    if (queueName != null && polldata.queueName != null && queueName.length !== 0 && !polldata.queueName.toLowerCase().includes(queueName.toLowerCase())) return false;
-
-    if (workerId != null && workerId.length !== 0 && polldata.workerId != null && polldata.workerId !== workerId) return false;
-
-    if (domain != null && polldata.domain != null && domain.length !== 0 && !polldata.domain.toLowerCase().includes(domain.toLowerCase())) return false;
-
-    if (beforeDateFormat != null && polldata.lastPollTime != null && !isBeforeDate(new Date(polldata.lastPollTime), beforeDateFormat))
+    if (
+      queueName != null &&
+      polldata.queueName != null &&
+      queueName.length !== 0 &&
+      !polldata.queueName.toLowerCase().includes(queueName.toLowerCase())
+    )
       return false;
 
-    if (afterDateFormat != null && polldata.lastPollTime != null && !isAfterDate(new Date(polldata.lastPollTime), afterDateFormat))
+    if (workerId != null && workerId.length !== 0 && polldata.workerId != null && polldata.workerId !== workerId)
+      return false;
+
+    if (
+      domain != null &&
+      polldata.domain != null &&
+      domain.length !== 0 &&
+      !polldata.domain.toLowerCase().includes(domain.toLowerCase())
+    )
+      return false;
+
+    if (
+      beforeDateFormat != null &&
+      polldata.lastPollTime != null &&
+      !isBeforeDate(new Date(polldata.lastPollTime), beforeDateFormat)
+    )
+      return false;
+
+    if (
+      afterDateFormat != null &&
+      polldata.lastPollTime != null &&
+      !isAfterDate(new Date(polldata.lastPollTime), afterDateFormat)
+    )
       return false;
 
     return true;
