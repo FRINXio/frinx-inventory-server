@@ -1,28 +1,38 @@
+import { v4 as uuid } from 'uuid';
 import { isAfterDate, isBeforeDate } from './utils.helpers';
 import { ApiPollDataArray } from '../external-api/conductor-network-types';
+import {toGraphId} from "./id-helper";
 
 type FilterPollDataArgs = {
   queueName?: string | null;
   workerId?: string | null;
   domain?: string | null;
-  beforeLastPollTime?: number | null;
-  afterLastPollTime?: number | null;
+  afterDate?: string | null;
+  beforeDate?: string | null;
 };
 export function filterPollData(
   pollData: ApiPollDataArray,
-  { afterLastPollTime, beforeLastPollTime, queueName, domain, workerId }: FilterPollDataArgs,
+  filters?: FilterPollDataArgs | null,
 ): ApiPollDataArray {
+  if (filters == null) return pollData;
+
+    const { queueName, workerId, domain, beforeDate, afterDate } = filters;
+    const beforeDateFormat = beforeDate != null ? new Date(beforeDate) : null;
+    const afterDateFormat = afterDate != null ? new Date(afterDate) : null;
+
+    if (afterDateFormat != null && beforeDateFormat != null && afterDateFormat.getTime() >= beforeDateFormat.getTime()) throw new Error('afterDate must be smaller than beforeDate');
+
   return pollData.filter((polldata) => {
-    if (queueName && polldata.queueName !== queueName) return false;
+    if (queueName != null && polldata.queueName != null && queueName.length !== 0 && !polldata.queueName.toLowerCase().includes(queueName.toLowerCase())) return false;
 
-    if (workerId && polldata.workerId !== workerId) return false;
+    if (workerId != null && workerId.length !== 0 && polldata.workerId != null && polldata.workerId !== workerId) return false;
 
-    if (domain && polldata.domain !== domain) return false;
+    if (domain != null && polldata.domain != null && domain.length !== 0 && !polldata.domain.toLowerCase().includes(domain.toLowerCase())) return false;
 
-    if (beforeLastPollTime != null && !isBeforeDate(new Date(polldata.lastPollTime || 0), new Date(beforeLastPollTime)))
+    if (beforeDateFormat != null && polldata.lastPollTime != null && !isBeforeDate(new Date(polldata.lastPollTime), beforeDateFormat))
       return false;
 
-    if (afterLastPollTime && !isAfterDate(new Date(polldata.lastPollTime || 0), new Date(afterLastPollTime)))
+    if (afterDateFormat != null && polldata.lastPollTime != null && !isAfterDate(new Date(polldata.lastPollTime), afterDateFormat))
       return false;
 
     return true;
@@ -31,6 +41,7 @@ export function filterPollData(
 
 export function makeFromApiToGraphQLPollData(pollData: ApiPollDataArray) {
   return pollData.map((polldata) => ({
+    id: toGraphId('PollData', uuid()),
     ...(polldata.lastPollTime != null && { lastPollTime: new Date(polldata.lastPollTime).toISOString() }),
     ...(polldata.queueName != null && { queueName: polldata.queueName }),
     ...(polldata.workerId != null && { workerId: polldata.workerId }),

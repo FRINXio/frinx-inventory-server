@@ -586,8 +586,8 @@ input FilterEventHandlerInput {
 }
 
 input FilterPollDataInput {
-  afterLastPollTime: Int
-  beforeLastPollTime: Int
+  afterDate: String
+  beforeDate: String
   domain: String
   queueName: String
   workerId: String

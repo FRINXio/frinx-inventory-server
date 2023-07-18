@@ -17,8 +17,7 @@ export type DataType =
   | 'PollData'
   | 'EventHandler'
   | 'EventHandlerAction'
-  | 'TaskDefinition'
-  | 'Pool';
+  | 'TaskDefinition';
 
 function isDataType(value: string): value is DataType {
   return (

@@ -9,12 +9,12 @@ import {
   queryField,
   stringArg,
 } from 'nexus';
-import { connectionFromArray } from 'graphql-relay';
 import { v4 as uuid } from 'uuid';
 import { IsOkResponse, PaginationConnectionArgs } from './global-types';
 import config from '../config';
 import { makeFromApiToGraphQLEventHandler, makeFromGraphQLToApiEventHandler } from '../helpers/event-handler.helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { connectionFromArray } from '../helpers/connection.helpers';
 
 export const EventHandlerActionEnum = enumType({
   name: 'EventHandlerActionEnum',

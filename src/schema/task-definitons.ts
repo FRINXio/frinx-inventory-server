@@ -9,7 +9,6 @@ import {
   queryField,
   stringArg,
 } from 'nexus';
-import { v4 as uuid } from 'uuid';
 import config from '../config';
 import { filterPollData, makeFromApiToGraphQLPollData } from '../helpers/task.helpers';
 import { toGraphId } from '../helpers/id-helper';
@@ -162,8 +161,8 @@ export const FilterPollDataInput = inputObjectType({
     t.string('queueName');
     t.string('workerId');
     t.string('domain');
-    t.int('beforeLastPollTime');
-    t.int('afterLastPollTime');
+    t.string('afterDate');
+    t.string('beforeDate');
   },
 });
 
@@ -176,18 +175,10 @@ export const PollDataQuery = queryField('pollData', {
   resolve: async (_, args, { conductorAPI }) => {
     const { filter, ...pagination } = args;
     const pollData = await conductorAPI.getPollData(config.conductorApiURL);
-    const filteredPollData = filterPollData(
-      pollData.map((polldata) => ({
-        ...polldata,
-      })),
-      { ...filter },
-    );
-    const filteredPollDataWithId = makeFromApiToGraphQLPollData(filteredPollData).map((polldata) => ({
-      ...polldata,
-      id: toGraphId('PollData', uuid()),
-    }));
-    const paginatedPollData = connectionFromArray(filteredPollDataWithId, pagination);
-    return paginatedPollData;
+    return connectionFromArray(makeFromApiToGraphQLPollData(filterPollData(
+        pollData,
+        filter,
+    )), pagination);
   },
 });
 

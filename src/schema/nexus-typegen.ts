@@ -258,8 +258,8 @@ export interface NexusGenInputs {
   };
   FilterPollDataInput: {
     // input type
-    afterLastPollTime?: number | null; // Int
-    beforeLastPollTime?: number | null; // Int
+    afterDate?: string | null; // String
+    beforeDate?: string | null; // String
     domain?: string | null; // String
     queueName?: string | null; // String
     workerId?: string | null; // String
