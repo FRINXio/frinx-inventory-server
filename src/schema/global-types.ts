@@ -10,6 +10,7 @@ import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helper
 export const Node = interfaceType({
   name: 'Node',
   definition: (t) => {
+    // @ts-ignore
     t.nonNull.id('id');
     t.int('version'); // this is only used for Workflow, because it has composite id (name/version)
   },
