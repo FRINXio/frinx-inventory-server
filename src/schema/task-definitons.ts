@@ -15,6 +15,8 @@ import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput, getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { connectionFromArray } from '../helpers/connection.helpers';
+import { orderBy } from 'lodash';
+import { log } from 'console';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -166,16 +168,36 @@ export const FilterPollDataInput = inputObjectType({
   },
 });
 
+const Order = enumType({
+  name: 'orderBy',
+  members: ['asc', 'desc'],
+});
+
+export const SortDataInput = inputObjectType({
+  name: 'SortDataInput',
+  definition: (t) => {
+    t.nonNull.string('key');
+    t.nonNull.field('order', { type: Order });
+  },
+});
+
 export const PollDataQuery = queryField('pollData', {
   type: PollDataConnection,
   args: {
     filter: arg({ type: FilterPollDataInput }),
+    sortBy: nonNull(arg({ type: SortDataInput })),
     ...PaginationConnectionArgs,
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { filter, ...pagination } = args;
+    const { filter, sortBy, ...pagination } = args;
+
     const pollData = await conductorAPI.getPollData(config.conductorApiURL);
-    return connectionFromArray(makeFromApiToGraphQLPollData(filterPollData(pollData, filter)), pagination);
+    const filteredData = filterPollData(pollData, filter);
+
+    const sortedData = orderBy(filteredData, [sortBy.key], [sortBy.order]);
+    console.log(sortedData);
+
+    return connectionFromArray(makeFromApiToGraphQLPollData(sortedData), pagination);
   },
 });
 

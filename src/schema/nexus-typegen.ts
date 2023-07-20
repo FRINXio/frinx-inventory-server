@@ -323,6 +323,11 @@ export interface NexusGenInputs {
     workflowName: string; // String!
     workflowVersion: string; // String!
   };
+  SortDataInput: {
+    // input type
+    key: string; // String!
+    order: NexusGenEnums['orderBy']; // orderBy!
+  };
   StartWorkflowRequestInput: {
     // input type
     workflow: NexusGenInputs['ExecuteNewWorkflowInput']; // ExecuteNewWorkflowInput!
@@ -470,6 +475,7 @@ export interface NexusGenEnums {
     | 'TERMINATE'
     | 'USER_DEFINED'
     | 'WAIT';
+  orderBy: 'asc' | 'desc';
 }
 
 export interface NexusGenScalars {
@@ -2866,6 +2872,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterPollDataInput'] | null; // FilterPollDataInput
       first?: number | null; // Int
       last?: number | null; // Int
+      sortBy: NexusGenInputs['SortDataInput']; // SortDataInput!
     };
     pools: {
       // args

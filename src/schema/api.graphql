@@ -896,7 +896,14 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!, version: Int): Node
-  pollData(after: String, before: String, filter: FilterPollDataInput, first: Int, last: Int): PollDataConnection
+  pollData(
+    after: String
+    before: String
+    filter: FilterPollDataInput
+    first: Int
+    last: Int
+    sortBy: SortDataInput!
+  ): PollDataConnection
   pools(
     after: String
     before: String
@@ -1018,6 +1025,11 @@ enum ScheduleStatus {
 type Snapshot {
   createdAt: String!
   name: String!
+}
+
+input SortDataInput {
+  key: String!
+  order: orderBy!
 }
 
 enum SortDeviceBy {
@@ -1336,4 +1348,9 @@ type ZonesConnection {
   edges: [ZoneEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+enum orderBy {
+  asc
+  desc
 }
