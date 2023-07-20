@@ -9,14 +9,13 @@ import {
   queryField,
   stringArg,
 } from 'nexus';
+import { orderBy } from 'lodash';
 import config from '../config';
 import { filterPollData, makeFromApiToGraphQLPollData } from '../helpers/task.helpers';
 import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput, getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { connectionFromArray } from '../helpers/connection.helpers';
-import { orderBy } from 'lodash';
-import { log } from 'console';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -195,7 +194,6 @@ export const PollDataQuery = queryField('pollData', {
     const filteredData = filterPollData(pollData, filter);
 
     const sortedData = orderBy(filteredData, [sortBy.key], [sortBy.order]);
-    console.log(sortedData);
 
     return connectionFromArray(makeFromApiToGraphQLPollData(sortedData), pagination);
   },
