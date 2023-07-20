@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - master
+      - story-new-conductor-api
 jobs:
   pr-check:
     runs-on: ubuntu-latest

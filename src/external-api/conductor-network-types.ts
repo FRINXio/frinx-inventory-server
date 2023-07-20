@@ -73,14 +73,14 @@ const WorkflowMetadataOptional = t.partial({
   description: optional(t.string),
   version: optional(t.number),
   inputParameters: optional(t.array(t.string)),
-  outputParameters: optional(t.record(t.string, t.string)),
+  outputParameters: optional(t.record(t.string, t.unknown)),
   failureWorkflow: optional(t.string),
   schemaVersion: optional(t.number),
   restartable: optional(t.boolean),
   workflowStatusListenerEnabled: optional(t.boolean),
   ownerEmail: optional(t.string),
   timeoutPolicy: optional(t.union([t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
-  variables: optional(t.record(t.string, t.UnknownRecord)),
+  variables: optional(t.UnknownRecord),
   inputTemplate: optional(t.record(t.string, t.UnknownRecord)),
 });
 
