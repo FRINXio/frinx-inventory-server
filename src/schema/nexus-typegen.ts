@@ -782,6 +782,11 @@ export interface NexusGenObjects {
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
   };
+  NetRoutingPaths: {
+    // root type
+    alternativePaths: string[][]; // [[String!]!]!
+    shortestPath: string[]; // [String!]!
+  };
   NetTopology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1461,6 +1466,11 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
   };
+  NetRoutingPaths: {
+    // field return type
+    alternativePaths: string[][]; // [[String!]!]!
+    shortestPath: string[]; // [String!]!
+  };
   NetTopology: {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1534,6 +1544,7 @@ export interface NexusGenFieldTypes {
     pollData: NexusGenRootTypes['PollDataConnection'] | null; // PollDataConnection
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
+    shortestPath: NexusGenRootTypes['NetRoutingPaths'] | null; // NetRoutingPaths
     taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -2220,6 +2231,11 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     networks: 'NetNetwork';
   };
+  NetRoutingPaths: {
+    // field return type name
+    alternativePaths: 'String';
+    shortestPath: 'String';
+  };
   NetTopology: {
     // field return type name
     edges: 'GraphEdge';
@@ -2293,6 +2309,7 @@ export interface NexusGenFieldTypeNames {
     pollData: 'PollDataConnection';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
+    shortestPath: 'NetRoutingPaths';
     taskDefinitions: 'TaskDefinitionConnection';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
@@ -2859,6 +2876,11 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['ScheduleFilterInput'] | null; // ScheduleFilterInput
       first?: number | null; // Int
       last?: number | null; // Int
+    };
+    shortestPath: {
+      // args
+      from: string; // String!
+      to: string; // String!
     };
     taskDefinitions: {
       // args
