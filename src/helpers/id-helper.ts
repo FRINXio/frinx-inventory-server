@@ -34,7 +34,10 @@ function isDataType(value: string): value is DataType {
     value === 'GraphEdge' ||
     value === 'Schedule' ||
     value === 'TaskDefinition' ||
-    value === 'Pool'
+    value === 'Pool' ||
+    value === 'PollData' ||
+    value === 'EventHandler' ||
+    value === 'EventHandlerAction'
   );
 }
 
