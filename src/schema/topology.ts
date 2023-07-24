@@ -1,6 +1,6 @@
 import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType, arg, interfaceType } from 'nexus';
 import config from '../config';
-import { toGraphId } from '../helpers/id-helper';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import {
   getFilterQuery,
   getOldTopologyConnectedEdges,
@@ -401,7 +401,7 @@ export const NetTopologyQuery = extendType({
 
         return {
           nodes: nodes.map((n) => ({
-            id: toGraphId('GraphNode', n._key),
+            id: toGraphId('GraphNode', n._id),
             name: n.router_id,
             interfaces: interfaceMap[n._id] ?? [],
             coordinates: n.coordinates,
@@ -424,6 +424,42 @@ export const NetTopologyQuery = extendType({
               nodeId: nodesMap[interfaceDeviceMap[e._to]],
             },
           })),
+        };
+      },
+    });
+  },
+});
+
+export const NetRoutingsPaths = objectType({
+  name: 'NetRoutingPaths',
+  definition: (t) => {
+    t.nonNull.field('shortestPath', { type: nonNull(list(nonNull('String'))) });
+    t.nonNull.field('alternativePaths', { type: nonNull(list(nonNull(list(nonNull('String'))))) });
+  },
+});
+
+export const ShortestPathQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.field('shortestPath', {
+      type: NetRoutingsPaths,
+      args: {
+        from: nonNull(stringArg()),
+        to: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        const { from, to } = args;
+        const fromNodeNativeId = fromGraphId('GraphNode', from);
+        const toNodeNativeId = fromGraphId('GraphNode', to);
+
+        const shortestPathResult = await topologyDiscoveryGraphQLAPI?.getShortestPath(fromNodeNativeId, toNodeNativeId);
+        const shortestPath = shortestPathResult?.netRoutingPaths?.shortestPath?.edges ?? [];
+        const alternativePaths =
+          shortestPathResult?.netRoutingPaths?.alternativePaths?.edges?.filter(omitNullValue) ?? [];
+
+        return {
+          shortestPath,
+          alternativePaths,
         };
       },
     });
