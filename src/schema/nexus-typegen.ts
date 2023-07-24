@@ -304,7 +304,7 @@ export interface NexusGenInputs {
   };
   PollsOrderByInput: {
     // input type
-    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    direction: NexusGenEnums['SortPollsDirection']; // SortPollsDirection!
     sortKey: NexusGenEnums['SortPollsBy']; // SortPollsBy!
   };
   RemoveWorkflowInput: {
@@ -327,11 +327,6 @@ export interface NexusGenInputs {
     // input type
     workflowName: string; // String!
     workflowVersion: string; // String!
-  };
-  SortDataInput: {
-    // input type
-    key: string; // String!
-    order: NexusGenEnums['orderBy']; // orderBy!
   };
   StartWorkflowRequestInput: {
     // input type
@@ -456,6 +451,7 @@ export interface NexusGenEnums {
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
+  SortPollsDirection: 'asc' | 'desc';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
   WorkflowTaskType:
@@ -481,7 +477,6 @@ export interface NexusGenEnums {
     | 'TERMINATE'
     | 'USER_DEFINED'
     | 'WAIT';
-  orderBy: 'asc' | 'desc';
 }
 
 export interface NexusGenScalars {
@@ -2854,7 +2849,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterPollDataInput'] | null; // FilterPollDataInput
       first?: number | null; // Int
       last?: number | null; // Int
-      sortBy: NexusGenInputs['SortDataInput']; // SortDataInput!
+      orderBy: NexusGenInputs['PollsOrderByInput']; // PollsOrderByInput!
     };
     pools: {
       // args

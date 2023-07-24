@@ -16,7 +16,6 @@ import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput, getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { connectionFromArray } from '../helpers/connection.helpers';
-import { SortDirection } from './device';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -168,29 +167,21 @@ export const FilterPollDataInput = inputObjectType({
   },
 });
 
-const Order = enumType({
-  name: 'orderBy',
-  members: ['asc', 'desc'],
-});
-
-export const SortDataInput = inputObjectType({
-  name: 'SortDataInput',
-  definition: (t) => {
-    t.nonNull.string('key');
-    t.nonNull.field('order', { type: Order });
-  },
-});
-
 export const SortPollsBy = enumType({
   name: 'SortPollsBy',
   members: ['queueName', 'workerId', 'lastPollTime'],
+});
+
+export const SortPollsDirection = enumType({
+  name: 'SortPollsDirection',
+  members: ['asc', 'desc'],
 });
 
 export const PollsOrderByInput = inputObjectType({
   name: 'PollsOrderByInput',
   definition: (t) => {
     t.nonNull.field('sortKey', { type: SortPollsBy });
-    t.nonNull.field('direction', { type: SortDirection });
+    t.nonNull.field('direction', { type: SortPollsDirection });
   },
 });
 
@@ -198,18 +189,18 @@ export const PollDataQuery = queryField('pollData', {
   type: PollDataConnection,
   args: {
     filter: arg({ type: FilterPollDataInput }),
-    sortBy: nonNull(arg({ type: SortDataInput })),
+    orderBy: nonNull(arg({ type: PollsOrderByInput })),
     ...PaginationConnectionArgs,
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { filter, sortBy, ...pagination } = args;
+    const { filter, orderBy: orderingArgs, ...pagination } = args;
 
     const pollData = await conductorAPI.getPollData(config.conductorApiURL);
     const filteredData = filterPollData(pollData, filter);
 
-    const sortedData = orderBy(filteredData, [sortBy.key], [sortBy.order]);
+    const orderedData = orderBy(filteredData, [orderingArgs.sortKey], [orderingArgs.direction]);
 
-    return connectionFromArray(makeFromApiToGraphQLPollData(sortedData), pagination);
+    return connectionFromArray(makeFromApiToGraphQLPollData(orderedData), pagination);
   },
 });
 

@@ -829,7 +829,7 @@ type PollDataEdge {
 }
 
 input PollsOrderByInput {
-  direction: SortDirection!
+  direction: SortPollsDirection!
   sortKey: SortPollsBy!
 }
 
@@ -898,7 +898,7 @@ type Query {
     filter: FilterPollDataInput
     first: Int
     last: Int
-    sortBy: SortDataInput!
+    orderBy: PollsOrderByInput!
   ): PollDataConnection
   pools(
     after: String
@@ -1022,11 +1022,6 @@ type Snapshot {
   name: String!
 }
 
-input SortDataInput {
-  key: String!
-  order: orderBy!
-}
-
 enum SortDeviceBy {
   CREATED_AT
   NAME
@@ -1041,6 +1036,11 @@ enum SortPollsBy {
   lastPollTime
   queueName
   workerId
+}
+
+enum SortPollsDirection {
+  asc
+  desc
 }
 
 input StartWorkflowRequestInput {
@@ -1347,9 +1347,4 @@ type ZonesConnection {
   edges: [ZoneEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
-}
-
-enum orderBy {
-  asc
-  desc
 }
