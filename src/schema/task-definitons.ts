@@ -9,6 +9,7 @@ import {
   queryField,
   stringArg,
 } from 'nexus';
+import { orderBy } from 'lodash';
 import config from '../config';
 import { filterPollData, makeFromApiToGraphQLPollData } from '../helpers/task.helpers';
 import { toGraphId } from '../helpers/id-helper';
@@ -166,16 +167,40 @@ export const FilterPollDataInput = inputObjectType({
   },
 });
 
+export const SortPollsBy = enumType({
+  name: 'SortPollsBy',
+  members: ['queueName', 'workerId', 'lastPollTime'],
+});
+
+export const SortPollsDirection = enumType({
+  name: 'SortPollsDirection',
+  members: ['asc', 'desc'],
+});
+
+export const PollsOrderByInput = inputObjectType({
+  name: 'PollsOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortPollsBy });
+    t.nonNull.field('direction', { type: SortPollsDirection });
+  },
+});
+
 export const PollDataQuery = queryField('pollData', {
   type: PollDataConnection,
   args: {
     filter: arg({ type: FilterPollDataInput }),
+    orderBy: nonNull(arg({ type: PollsOrderByInput })),
     ...PaginationConnectionArgs,
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { filter, ...pagination } = args;
+    const { filter, orderBy: orderingArgs, ...pagination } = args;
+
     const pollData = await conductorAPI.getPollData(config.conductorApiURL);
-    return connectionFromArray(makeFromApiToGraphQLPollData(filterPollData(pollData, filter)), pagination);
+    const filteredData = filterPollData(pollData, filter);
+
+    const orderedData = orderBy(filteredData, [orderingArgs.sortKey], [orderingArgs.direction]);
+
+    return connectionFromArray(makeFromApiToGraphQLPollData(orderedData), pagination);
   },
 });
 

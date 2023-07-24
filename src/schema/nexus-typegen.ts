@@ -302,6 +302,11 @@ export interface NexusGenInputs {
     size: number; // Int!
     start: number; // Int!
   };
+  PollsOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortPollsDirection']; // SortPollsDirection!
+    sortKey: NexusGenEnums['SortPollsBy']; // SortPollsBy!
+  };
   RemoveWorkflowInput: {
     // input type
     shouldArchiveWorkflow?: boolean | null; // Boolean
@@ -445,6 +450,8 @@ export interface NexusGenEnums {
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
+  SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
+  SortPollsDirection: 'asc' | 'desc';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
   WorkflowTaskType:
@@ -2859,6 +2866,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterPollDataInput'] | null; // FilterPollDataInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy: NexusGenInputs['PollsOrderByInput']; // PollsOrderByInput!
     };
     pools: {
       // args

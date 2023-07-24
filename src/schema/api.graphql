@@ -833,6 +833,11 @@ type PollDataEdge {
   node: PollData
 }
 
+input PollsOrderByInput {
+  direction: SortPollsDirection!
+  sortKey: SortPollsBy!
+}
+
 type Pool implements Node {
   id: ID!
   name: String!
@@ -892,7 +897,14 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!, version: Int): Node
-  pollData(after: String, before: String, filter: FilterPollDataInput, first: Int, last: Int): PollDataConnection
+  pollData(
+    after: String
+    before: String
+    filter: FilterPollDataInput
+    first: Int
+    last: Int
+    orderBy: PollsOrderByInput!
+  ): PollDataConnection
   pools(
     after: String
     before: String
@@ -1024,6 +1036,17 @@ enum SortDeviceBy {
 enum SortDirection {
   ASC
   DESC
+}
+
+enum SortPollsBy {
+  lastPollTime
+  queueName
+  workerId
+}
+
+enum SortPollsDirection {
+  asc
+  desc
 }
 
 input StartWorkflowRequestInput {
