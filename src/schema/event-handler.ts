@@ -122,12 +122,16 @@ export const EventHandlerQuery = queryField('eventHandlers', {
         return false;
       }
 
-      if (filter?.evaluatorType != null && eventHandler.evaluatorType != null && !eventHandler.evaluatorType.toLowerCase().includes(filter.evaluatorType.toLowerCase())) {
+      if (
+        filter?.evaluatorType != null &&
+        eventHandler.evaluatorType != null &&
+        !eventHandler.evaluatorType.toLowerCase().includes(filter.evaluatorType.toLowerCase())
+      ) {
         return false;
       }
 
       if (filter?.name != null && !eventHandler.name.toLowerCase().includes(filter.name.toLowerCase())) {
-          return false;
+        return false;
       }
 
       return true;
