@@ -828,6 +828,11 @@ type PollDataEdge {
   node: PollData
 }
 
+input PollsOrderByInput {
+  direction: SortDirection!
+  sortKey: SortPollsBy!
+}
+
 type Pool implements Node {
   id: ID!
   name: String!
@@ -1030,6 +1035,12 @@ enum SortDeviceBy {
 enum SortDirection {
   ASC
   DESC
+}
+
+enum SortPollsBy {
+  lastPollTime
+  queueName
+  workerId
 }
 
 input StartWorkflowRequestInput {

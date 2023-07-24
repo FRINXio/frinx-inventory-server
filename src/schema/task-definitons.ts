@@ -16,6 +16,7 @@ import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput, getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
 import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { connectionFromArray } from '../helpers/connection.helpers';
+import { SortDirection } from './device';
 
 const TaskTimeoutPolicy = enumType({
   name: 'TaskTimeoutPolicy',
@@ -177,6 +178,19 @@ export const SortDataInput = inputObjectType({
   definition: (t) => {
     t.nonNull.string('key');
     t.nonNull.field('order', { type: Order });
+  },
+});
+
+export const SortPollsBy = enumType({
+  name: 'SortPollsBy',
+  members: ['queueName', 'workerId', 'lastPollTime'],
+});
+
+export const PollsOrderByInput = inputObjectType({
+  name: 'PollsOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortPollsBy });
+    t.nonNull.field('direction', { type: SortDirection });
   },
 });
 
