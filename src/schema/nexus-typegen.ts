@@ -255,6 +255,7 @@ export interface NexusGenInputs {
     evaluatorType?: string | null; // String
     event?: string | null; // String
     isActive?: boolean | null; // Boolean
+    name?: string | null; // String
   };
   FilterPollDataInput: {
     // input type

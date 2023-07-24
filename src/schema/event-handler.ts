@@ -99,6 +99,7 @@ export const FilterEventHandlerInput = inputObjectType({
     t.boolean('isActive');
     t.string('event');
     t.string('evaluatorType');
+    t.string('name');
   },
 });
 
@@ -117,12 +118,16 @@ export const EventHandlerQuery = queryField('eventHandlers', {
         return false;
       }
 
-      if (filter?.event != null && eventHandler.event !== filter.event) {
+      if (filter?.event != null && !eventHandler.event.toLowerCase().includes(filter.event.toLowerCase())) {
         return false;
       }
 
-      if (filter?.evaluatorType != null && eventHandler.evaluatorType !== filter.evaluatorType) {
+      if (filter?.evaluatorType != null && eventHandler.evaluatorType != null && !eventHandler.evaluatorType.toLowerCase().includes(filter.evaluatorType.toLowerCase())) {
         return false;
+      }
+
+      if (filter?.name != null && !eventHandler.name.toLowerCase().includes(filter.name.toLowerCase())) {
+          return false;
       }
 
       return true;
