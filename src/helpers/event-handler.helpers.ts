@@ -173,3 +173,49 @@ export function makeFromGraphQLToApiEventHandler(eventHandler: EventHandlerGraph
     evaluatorType: eventHandler.evaluatorType || undefined,
   };
 }
+
+export const filterByName = (name?: string | null) => (eventHandler: ApiEventHandler) =>
+  name != null && eventHandler.name.toLowerCase().includes(name.toLowerCase());
+
+export const filterByEvaluatorType = (evaluatorType?: string | null) => (eventHandler: ApiEventHandler) =>
+  evaluatorType != null &&
+  eventHandler.evaluatorType != null &&
+  eventHandler.evaluatorType.toLowerCase().includes(evaluatorType.toLowerCase());
+
+export const filterByEvent = (event?: string | null) => (eventHandler: ApiEventHandler) =>
+  event != null && eventHandler.event.toLowerCase().includes(event.toLowerCase());
+
+export const filterByIsActive = (isActive?: boolean | null) => (eventHandler: ApiEventHandler) =>
+  isActive != null && eventHandler.active != null && eventHandler.active === isActive;
+
+export function filterEventHandlers(
+  eventHandlers: ApiEventHandler[],
+  filters?: {
+    name?: string | null;
+    evaluatorType?: string | null;
+    event?: string | null;
+    isActive?: boolean | null;
+  } | null,
+) {
+  if (eventHandlers == null) {
+    return [];
+  }
+
+  if (filters?.name != null) {
+    return eventHandlers.filter(filterByName(filters.name));
+  }
+
+  if (filters?.evaluatorType != null) {
+    return eventHandlers.filter(filterByEvaluatorType(filters.evaluatorType));
+  }
+
+  if (filters?.event != null) {
+    return eventHandlers.filter(filterByEvent(filters.event));
+  }
+
+  if (filters?.isActive != null) {
+    return eventHandlers.filter(filterByIsActive(filters.isActive));
+  }
+
+  return eventHandlers;
+}
