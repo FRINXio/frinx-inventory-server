@@ -36,11 +36,11 @@ export const TaskDefinition = objectType({
     });
     t.nonNull.string('name');
     t.nonNull.int('timeoutSeconds');
-    t.string('createTime', {
+    t.string('createdAt', {
       resolve: (taskDefinition) =>
         taskDefinition.createTime ? new Date(taskDefinition.createTime).toISOString() : new Date().toISOString(),
     });
-    t.string('updateTime', {
+    t.string('updatedAt', {
       resolve: (taskDefinition) =>
         taskDefinition.updateTime ? new Date(taskDefinition.updateTime).toISOString() : new Date().toISOString(),
     });

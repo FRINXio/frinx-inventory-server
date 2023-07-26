@@ -1630,7 +1630,7 @@ export interface NexusGenFieldTypes {
   TaskDefinition: {
     // field return type
     concurrentExecLimit: number | null; // Int
-    createTime: string | null; // String
+    createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
     id: string; // ID!
@@ -1648,7 +1648,7 @@ export interface NexusGenFieldTypes {
     retryLogic: NexusGenEnums['RetryLogic'] | null; // RetryLogic
     timeoutPolicy: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
     timeoutSeconds: number; // Int!
-    updateTime: string | null; // String
+    updatedAt: string | null; // String
     updatedBy: string | null; // String
   };
   TaskDefinitionConnection: {
@@ -2395,7 +2395,7 @@ export interface NexusGenFieldTypeNames {
   TaskDefinition: {
     // field return type name
     concurrentExecLimit: 'Int';
-    createTime: 'String';
+    createdAt: 'String';
     createdBy: 'String';
     description: 'String';
     id: 'ID';
@@ -2413,7 +2413,7 @@ export interface NexusGenFieldTypeNames {
     retryLogic: 'RetryLogic';
     timeoutPolicy: 'TaskTimeoutPolicy';
     timeoutSeconds: 'Int';
-    updateTime: 'String';
+    updatedAt: 'String';
     updatedBy: 'String';
   };
   TaskDefinitionConnection: {
