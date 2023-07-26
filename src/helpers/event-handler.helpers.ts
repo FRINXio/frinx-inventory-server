@@ -174,19 +174,17 @@ export function makeFromGraphQLToApiEventHandler(eventHandler: EventHandlerGraph
   };
 }
 
-export const filterByName = (name?: string | null) => (eventHandler: ApiEventHandler) =>
-  name != null && eventHandler.name.toLowerCase().includes(name.toLowerCase());
+export const filterByName = (name: string) => (eventHandler: ApiEventHandler) =>
+  eventHandler.name.toLowerCase().includes(name.toLowerCase());
 
-export const filterByEvaluatorType = (evaluatorType?: string | null) => (eventHandler: ApiEventHandler) =>
-  evaluatorType != null &&
-  eventHandler.evaluatorType != null &&
-  eventHandler.evaluatorType.toLowerCase().includes(evaluatorType.toLowerCase());
+export const filterByEvaluatorType = (evaluatorType: string) => (eventHandler: ApiEventHandler) =>
+  eventHandler.evaluatorType != null && eventHandler.evaluatorType.toLowerCase().includes(evaluatorType.toLowerCase());
 
-export const filterByEvent = (event?: string | null) => (eventHandler: ApiEventHandler) =>
-  event != null && eventHandler.event.toLowerCase().includes(event.toLowerCase());
+export const filterByEvent = (event: string) => (eventHandler: ApiEventHandler) =>
+  eventHandler.event.toLowerCase().includes(event.toLowerCase());
 
-export const filterByIsActive = (isActive?: boolean | null) => (eventHandler: ApiEventHandler) =>
-  isActive != null && eventHandler.active != null && eventHandler.active === isActive;
+export const filterByIsActive = (isActive: boolean) => (eventHandler: ApiEventHandler) =>
+  eventHandler.active != null && eventHandler.active === isActive;
 
 export function filterEventHandlers(
   eventHandlers: ApiEventHandler[],
@@ -201,21 +199,27 @@ export function filterEventHandlers(
     return [];
   }
 
-  if (filters?.name != null && filters.name.length > 0) {
-    return eventHandlers.filter(filterByName(filters.name));
-  }
+  return eventHandlers.filter((eventHandler) => {
+    if (filters == null) {
+      return true;
+    }
 
-  if (filters?.evaluatorType != null && filters.evaluatorType.length > 0) {
-    return eventHandlers.filter(filterByEvaluatorType(filters.evaluatorType));
-  }
+    if (filters.name != null && !filterByName(filters.name)(eventHandler)) {
+      return false;
+    }
 
-  if (filters?.event != null && filters.event.length > 0) {
-    return eventHandlers.filter(filterByEvent(filters.event));
-  }
+    if (filters.evaluatorType != null && !filterByEvaluatorType(filters.evaluatorType)(eventHandler)) {
+      return false;
+    }
 
-  if (filters?.isActive != null) {
-    return eventHandlers.filter(filterByIsActive(filters.isActive));
-  }
+    if (filters.event != null && !filterByEvent(filters.event)(eventHandler)) {
+      return false;
+    }
 
-  return eventHandlers;
+    if (filters.isActive != null && !filterByIsActive(filters.isActive)(eventHandler)) {
+      return false;
+    }
+
+    return true;
+  });
 }
