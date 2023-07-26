@@ -13,8 +13,8 @@ import {
   stringArg,
   subscriptionField,
 } from 'nexus';
-import config from '../config';
 import { orderBy } from 'lodash';
+import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import getLogger from '../get-logger';
