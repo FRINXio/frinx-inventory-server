@@ -354,6 +354,7 @@ export const NetNode = objectType({
   name: 'NetNode',
   definition: (t) => {
     t.nonNull.id('id');
+    t.nonNull.string('nodeId');
     t.nonNull.string('name');
     t.nonNull.list.nonNull.field('interfaces', { type: nonNull(NetInterface) });
     t.nonNull.list.nonNull.field('networks', { type: nonNull(NetNetwork) });
@@ -402,6 +403,7 @@ export const NetTopologyQuery = extendType({
         return {
           nodes: nodes.map((n) => ({
             id: toGraphId('GraphNode', n._id),
+            nodeId: n._id,
             name: n.router_id,
             interfaces: interfaceMap[n._id] ?? [],
             coordinates: n.coordinates,
