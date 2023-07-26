@@ -201,15 +201,15 @@ export function filterEventHandlers(
     return [];
   }
 
-  if (filters?.name != null) {
+  if (filters?.name != null && filters.name.length > 0) {
     return eventHandlers.filter(filterByName(filters.name));
   }
 
-  if (filters?.evaluatorType != null) {
+  if (filters?.evaluatorType != null && filters.evaluatorType.length > 0) {
     return eventHandlers.filter(filterByEvaluatorType(filters.evaluatorType));
   }
 
-  if (filters?.event != null) {
+  if (filters?.event != null && filters.event.length > 0) {
     return eventHandlers.filter(filterByEvent(filters.event));
   }
 
