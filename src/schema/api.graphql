@@ -1077,7 +1077,7 @@ type Tag {
 
 type TaskDefinition implements Node {
   concurrentExecLimit: Int
-  createTime: String
+  createdAt: String
   createdBy: String
   description: String
   id: ID!
@@ -1095,7 +1095,7 @@ type TaskDefinition implements Node {
   retryLogic: RetryLogic
   timeoutPolicy: TaskTimeoutPolicy
   timeoutSeconds: Int!
-  updateTime: String
+  updatedAt: String
   updatedBy: String
 }
 
