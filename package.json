@@ -23,6 +23,7 @@
     "test": "run-s test:generate jest",
     "codegen:scheduler": "graphql-codegen --config codegen-scheduler.yml",
     "codegen:resource-manager": "graphql-codegen --config codegen-resource-manager.yml",
+    "codegen:topology-discovery": "graphql-codegen --config codegen-topology-discovery.yml",
     "codegen": "yarn codegen:scheduler && yarn codegen:resource-manager"
   },
   "devDependencies": {

@@ -255,6 +255,7 @@ export interface NexusGenInputs {
     evaluatorType?: string | null; // String
     event?: string | null; // String
     isActive?: boolean | null; // Boolean
+    name?: string | null; // String
   };
   FilterPollDataInput: {
     // input type
@@ -301,6 +302,11 @@ export interface NexusGenInputs {
     // input type
     size: number; // Int!
     start: number; // Int!
+  };
+  PollsOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortPollsDirection']; // SortPollsDirection!
+    sortKey: NexusGenEnums['SortPollsBy']; // SortPollsBy!
   };
   RemoveWorkflowInput: {
     // input type
@@ -452,6 +458,8 @@ export interface NexusGenEnums {
   SortDirection: 'ASC' | 'DESC';
   SortWorkflowsBy: 'name';
   SortWorkflowsDirection: 'asc' | 'desc';
+  SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
+  SortPollsDirection: 'asc' | 'desc';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
   WorkflowTaskType:
@@ -788,6 +796,11 @@ export interface NexusGenObjects {
     interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+  };
+  NetRoutingPaths: {
+    // root type
+    alternativePaths: string[][]; // [[String!]!]!
+    shortestPath: string[]; // [String!]!
   };
   NetTopology: {
     // root type
@@ -1468,6 +1481,11 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
   };
+  NetRoutingPaths: {
+    // field return type
+    alternativePaths: string[][]; // [[String!]!]!
+    shortestPath: string[]; // [String!]!
+  };
   NetTopology: {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1541,6 +1559,7 @@ export interface NexusGenFieldTypes {
     pollData: NexusGenRootTypes['PollDataConnection'] | null; // PollDataConnection
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
+    shortestPath: NexusGenRootTypes['NetRoutingPaths'] | null; // NetRoutingPaths
     taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -1619,7 +1638,7 @@ export interface NexusGenFieldTypes {
   TaskDefinition: {
     // field return type
     concurrentExecLimit: number | null; // Int
-    createTime: string | null; // String
+    createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
     id: string; // ID!
@@ -1637,7 +1656,7 @@ export interface NexusGenFieldTypes {
     retryLogic: NexusGenEnums['RetryLogic'] | null; // RetryLogic
     timeoutPolicy: NexusGenEnums['TaskTimeoutPolicy'] | null; // TaskTimeoutPolicy
     timeoutSeconds: number; // Int!
-    updateTime: string | null; // String
+    updatedAt: string | null; // String
     updatedBy: string | null; // String
   };
   TaskDefinitionConnection: {
@@ -2227,6 +2246,11 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     networks: 'NetNetwork';
   };
+  NetRoutingPaths: {
+    // field return type name
+    alternativePaths: 'String';
+    shortestPath: 'String';
+  };
   NetTopology: {
     // field return type name
     edges: 'GraphEdge';
@@ -2300,6 +2324,7 @@ export interface NexusGenFieldTypeNames {
     pollData: 'PollDataConnection';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
+    shortestPath: 'NetRoutingPaths';
     taskDefinitions: 'TaskDefinitionConnection';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
@@ -2378,7 +2403,7 @@ export interface NexusGenFieldTypeNames {
   TaskDefinition: {
     // field return type name
     concurrentExecLimit: 'Int';
-    createTime: 'String';
+    createdAt: 'String';
     createdBy: 'String';
     description: 'String';
     id: 'ID';
@@ -2396,7 +2421,7 @@ export interface NexusGenFieldTypeNames {
     retryLogic: 'RetryLogic';
     timeoutPolicy: 'TaskTimeoutPolicy';
     timeoutSeconds: 'Int';
-    updateTime: 'String';
+    updatedAt: 'String';
     updatedBy: 'String';
   };
   TaskDefinitionConnection: {
@@ -2849,6 +2874,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterPollDataInput'] | null; // FilterPollDataInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy: NexusGenInputs['PollsOrderByInput']; // PollsOrderByInput!
     };
     pools: {
       // args
@@ -2866,6 +2892,11 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['ScheduleFilterInput'] | null; // ScheduleFilterInput
       first?: number | null; // Int
       last?: number | null; // Int
+    };
+    shortestPath: {
+      // args
+      from: string; // String!
+      to: string; // String!
     };
     taskDefinitions: {
       // args

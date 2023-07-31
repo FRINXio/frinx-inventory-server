@@ -12,7 +12,11 @@ import {
 import { v4 as uuid } from 'uuid';
 import { IsOkResponse, Node, PaginationConnectionArgs } from './global-types';
 import config from '../config';
-import { makeFromApiToGraphQLEventHandler, makeFromGraphQLToApiEventHandler } from '../helpers/event-handler.helpers';
+import {
+  filterEventHandlers,
+  makeFromApiToGraphQLEventHandler,
+  makeFromGraphQLToApiEventHandler,
+} from '../helpers/event-handler.helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { connectionFromArray } from '../helpers/connection.helpers';
 
@@ -99,6 +103,7 @@ export const FilterEventHandlerInput = inputObjectType({
     t.boolean('isActive');
     t.string('event');
     t.string('evaluatorType');
+    t.string('name');
   },
 });
 
@@ -112,22 +117,7 @@ export const EventHandlerQuery = queryField('eventHandlers', {
     const { filter, ...paginationArgs } = args;
     const eventHandlers = await conductorAPI.getEventHandlers(config.conductorApiURL);
 
-    const filteredEventHandlers = eventHandlers.filter((eventHandler) => {
-      if (filter?.isActive != null && eventHandler.active !== filter.isActive) {
-        return false;
-      }
-
-      if (filter?.event != null && eventHandler.event !== filter.event) {
-        return false;
-      }
-
-      if (filter?.evaluatorType != null && eventHandler.evaluatorType !== filter.evaluatorType) {
-        return false;
-      }
-
-      return true;
-    });
-
+    const filteredEventHandlers = filterEventHandlers(eventHandlers, filter);
     const mappedEventHandlersWithId = filteredEventHandlers.map((eventHandler) => ({
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
