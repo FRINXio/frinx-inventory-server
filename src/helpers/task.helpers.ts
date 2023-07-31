@@ -60,10 +60,10 @@ export function filterPollData(pollData: ApiPollDataArray, filters?: FilterPollD
 
 export function makeFromApiToGraphQLPollData(pollData: ApiPollDataArray) {
   return pollData.map((polldata) => ({
-    id: toGraphId('PollData', uuid()),
     ...(polldata.lastPollTime != null && { lastPollTime: new Date(polldata.lastPollTime).toISOString() }),
     ...(polldata.queueName != null && { queueName: polldata.queueName }),
     ...(polldata.workerId != null && { workerId: polldata.workerId }),
     ...(polldata.domain != null && { domain: polldata.domain }),
+    id: toGraphId('PollData', uuid()),
   }));
 }

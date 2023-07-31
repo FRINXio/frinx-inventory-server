@@ -578,6 +578,7 @@ input FilterEventHandlerInput {
   evaluatorType: String
   event: String
   isActive: Boolean
+  name: String
 }
 
 input FilterPollDataInput {
@@ -778,6 +779,11 @@ type NetNode {
   networks: [NetNetwork!]!
 }
 
+type NetRoutingPaths {
+  alternativePaths: [[String!]!]!
+  shortestPath: [String!]!
+}
+
 type NetTopology {
   edges: [GraphEdge!]!
   nodes: [NetNode!]!
@@ -826,6 +832,11 @@ type PollDataConnection {
 type PollDataEdge {
   cursor: String
   node: PollData
+}
+
+input PollsOrderByInput {
+  direction: SortPollsDirection!
+  sortKey: SortPollsBy!
 }
 
 type Pool implements Node {
@@ -887,7 +898,14 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!, version: Int): Node
-  pollData(after: String, before: String, filter: FilterPollDataInput, first: Int, last: Int): PollDataConnection
+  pollData(
+    after: String
+    before: String
+    filter: FilterPollDataInput
+    first: Int
+    last: Int
+    orderBy: PollsOrderByInput!
+  ): PollDataConnection
   pools(
     after: String
     before: String
@@ -897,6 +915,7 @@ type Query {
     resourceTypeId: String
   ): PoolConnection!
   schedules(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): ScheduleConnection!
+  shortestPath(from: String!, to: String!): NetRoutingPaths
   taskDefinitions(
     after: String
     before: String
@@ -1036,6 +1055,17 @@ enum SortWorkflowsDirection {
   desc
 }
 
+enum SortPollsBy {
+  lastPollTime
+  queueName
+  workerId
+}
+
+enum SortPollsDirection {
+  asc
+  desc
+}
+
 input StartWorkflowRequestInput {
   workflow: ExecuteNewWorkflowInput!
   workflowDefinition: WorkflowDefinitionInput
@@ -1063,7 +1093,7 @@ type Tag {
 
 type TaskDefinition implements Node {
   concurrentExecLimit: Int
-  createTime: String
+  createdAt: String
   createdBy: String
   description: String
   id: ID!
@@ -1081,7 +1111,7 @@ type TaskDefinition implements Node {
   retryLogic: RetryLogic
   timeoutPolicy: TaskTimeoutPolicy
   timeoutSeconds: Int!
-  updateTime: String
+  updatedAt: String
   updatedBy: String
 }
 
