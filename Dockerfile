@@ -16,6 +16,7 @@ RUN yarn run prisma:generate
 RUN yarn run build
 
 FROM node:18-slim
+LABEL org.opencontainers.image.source="https://github.com/FRINXio/frinx-inventory-server"
 
 RUN apt-get update
 RUN apt-get install -y openssl wget
