@@ -434,7 +434,7 @@ export interface NexusGenInputs {
   };
   WorkflowsOrderByInput: {
     // input type
-    direction: NexusGenEnums['SortWorkflowsDirection']; // SortWorkflowsDirection!
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortWorkflowsBy']; // SortWorkflowsBy!
   };
 }
@@ -461,12 +461,11 @@ export interface NexusGenEnums {
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
-  SortWorkflowsBy: 'name';
-  SortWorkflowsDirection: 'asc' | 'desc';
   SortExecutedWorkflowsBy: 'endTime' | 'startTime' | 'status' | 'workflowId' | 'workflowName';
   SortExecutedWorkflowsDirection: 'asc' | 'desc';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
   SortPollsDirection: 'asc' | 'desc';
+  SortWorkflowsBy: 'name';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
   WorkflowTaskType:

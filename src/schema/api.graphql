@@ -1055,14 +1055,6 @@ enum SortDirection {
   DESC
 }
 
-enum SortWorkflowsBy {
-  name
-}
-
-enum SortWorkflowsDirection {
-  asc
-  desc
-}
 enum SortExecutedWorkflowsBy {
   endTime
   startTime
@@ -1085,6 +1077,10 @@ enum SortPollsBy {
 enum SortPollsDirection {
   asc
   desc
+}
+
+enum SortWorkflowsBy {
+  name
 }
 
 input StartWorkflowRequestInput {
@@ -1376,7 +1372,7 @@ enum WorkflowTaskType {
 }
 
 input WorkflowsOrderByInput {
-  direction: SortWorkflowsDirection!
+  direction: SortDirection!
   sortKey: SortWorkflowsBy!
 }
 

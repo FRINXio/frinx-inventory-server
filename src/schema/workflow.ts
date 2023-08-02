@@ -18,7 +18,7 @@ import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import getLogger from '../get-logger';
-import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import {
   convertToApiOutputParameters,
@@ -151,16 +151,11 @@ export const SortWorkflowsBy = enumType({
   members: ['name'],
 });
 
-export const SortWorkflowsDirection = enumType({
-  name: 'SortWorkflowsDirection',
-  members: ['asc', 'desc'],
-});
-
 export const WorkflowsOrderByInput = inputObjectType({
   name: 'WorkflowsOrderByInput',
   definition: (t) => {
     t.nonNull.field('sortKey', { type: SortWorkflowsBy });
-    t.nonNull.field('direction', { type: SortWorkflowsDirection });
+    t.nonNull.field('direction', { type: SortDirection });
   },
 });
 
@@ -181,7 +176,11 @@ export const WorkflowsQuery = extendType({
         const filteredWorkflows =
           filter?.labels || filter?.keyword ? getFilteredWorkflows(workflows, filter) : workflows;
 
-        const orderedData = orderBy(filteredWorkflows, [orderingArgs.sortKey], [orderingArgs.direction]);
+        const orderedData = orderBy(
+          filteredWorkflows,
+          [orderingArgs.sortKey],
+          [orderingArgs.direction === 'ASC' ? 'asc' : 'desc'],
+        );
 
         const workflowsWithId = orderedData.map((w) => ({
           ...w,

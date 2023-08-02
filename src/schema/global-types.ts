@@ -1,5 +1,5 @@
 import countries from 'i18n-iso-countries';
-import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
+import { enumType, extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
 import config from '../config';
 import conductorAPI from '../external-api/conductor';
 import { fromGraphId, getType } from '../helpers/id-helper';
@@ -179,4 +179,9 @@ export const IsOkResponse = objectType({
   definition: (t) => {
     t.nonNull.boolean('isOk');
   },
+});
+
+export const SortDirection = enumType({
+  name: 'SortDirection',
+  members: ['ASC', 'DESC'],
 });
