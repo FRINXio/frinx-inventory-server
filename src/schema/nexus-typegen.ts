@@ -245,6 +245,11 @@ export interface NexusGenInputs {
     from: string; // String!
     to?: string | null; // String
   };
+  ExecutedWorkflowsOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortExecutedWorkflowsDirection']; // SortExecutedWorkflowsDirection!
+    sortKey: NexusGenEnums['SortExecutedWorkflowsBy']; // SortExecutedWorkflowsBy!
+  };
   FilterDevicesInput: {
     // input type
     deviceName?: string | null; // String
@@ -458,6 +463,8 @@ export interface NexusGenEnums {
   SortDirection: 'ASC' | 'DESC';
   SortWorkflowsBy: 'name';
   SortWorkflowsDirection: 'asc' | 'desc';
+  SortExecutedWorkflowsBy: 'endTime' | 'startTime' | 'status' | 'workflowId' | 'workflowName';
+  SortExecutedWorkflowsDirection: 'asc' | 'desc';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
   SortPollsDirection: 'asc' | 'desc';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
@@ -2845,6 +2852,7 @@ export interface NexusGenArgTypes {
     };
     executedWorkflows: {
       // args
+      orderBy: NexusGenInputs['ExecutedWorkflowsOrderByInput']; // ExecutedWorkflowsOrderByInput!
       pagination?: NexusGenInputs['PaginationArgs'] | null; // PaginationArgs
       searchQuery?: NexusGenInputs['ExecutedWorkflowSearchInput'] | null; // ExecutedWorkflowSearchInput
     };

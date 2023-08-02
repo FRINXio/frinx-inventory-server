@@ -331,20 +331,40 @@ export const PaginationArgs = inputObjectType({
   },
 });
 
+export const SortExecutedWorkflowsBy = enumType({
+  name: 'SortExecutedWorkflowsBy',
+  members: ['workflowId', 'workflowName', 'startTime', 'endTime', 'status'],
+});
+export const SortExecutedWorkflowsDirection = enumType({
+  name: 'SortExecutedWorkflowsDirection',
+  members: ['asc', 'desc'],
+});
+export const ExecutedWorkflowsOrderByInput = inputObjectType({
+  name: 'ExecutedWorkflowsOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortExecutedWorkflowsBy });
+    t.nonNull.field('direction', { type: SortExecutedWorkflowsDirection });
+  },
+});
+
 export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
   type: ExecutedWorkflowConnection,
   args: {
     pagination: arg({ type: PaginationArgs }),
     searchQuery: arg({ type: ExecutedWorkflowSearchInput }),
+    orderBy: nonNull(ExecutedWorkflowsOrderByInput),
   },
   resolve: async (_, args, { conductorAPI }) => {
+    const { orderBy: orderingArgs } = args;
     const { results: executedWorkflows } = await conductorAPI.getExecutedWorkflows(
       config.conductorApiURL,
       makeSearchQueryFromArgs(args.searchQuery),
       makePaginationFromArgs(args.pagination),
     );
 
-    const executedWorkflowsWithId = executedWorkflows
+    const orderedData = orderBy(executedWorkflows, [orderingArgs.sortKey], [orderingArgs.direction]);
+
+    const executedWorkflowsWithId = orderedData
       .map((w) => ({
         ...w,
         id: toGraphId('ExecutedWorkflow', w.workflowId),

@@ -569,6 +569,11 @@ enum ExecutedWorkflowTaskStatus {
   TIMED_OUT
 }
 
+input ExecutedWorkflowsOrderByInput {
+  direction: SortExecutedWorkflowsDirection!
+  sortKey: SortExecutedWorkflowsBy!
+}
+
 input FilterDevicesInput {
   deviceName: String
   labels: [String!]
@@ -893,7 +898,11 @@ type Query {
     first: Int
     last: Int
   ): EventHandlerConnection
-  executedWorkflows(pagination: PaginationArgs, searchQuery: ExecutedWorkflowSearchInput): ExecutedWorkflowConnection
+  executedWorkflows(
+    orderBy: ExecutedWorkflowsOrderByInput!
+    pagination: PaginationArgs
+    searchQuery: ExecutedWorkflowSearchInput
+  ): ExecutedWorkflowConnection
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
@@ -1051,6 +1060,18 @@ enum SortWorkflowsBy {
 }
 
 enum SortWorkflowsDirection {
+  asc
+  desc
+}
+enum SortExecutedWorkflowsBy {
+  endTime
+  startTime
+  status
+  workflowId
+  workflowName
+}
+
+enum SortExecutedWorkflowsDirection {
   asc
   desc
 }
