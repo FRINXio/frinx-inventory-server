@@ -331,7 +331,7 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
   args: {
     pagination: arg({ type: PaginationArgs }),
     searchQuery: arg({ type: ExecutedWorkflowSearchInput }),
-    orderBy: nonNull(ExecutedWorkflowsOrderByInput),
+    orderBy: ExecutedWorkflowsOrderByInput,
   },
   resolve: async (_, args, { conductorAPI }) => {
     const { orderBy: orderingArgs } = args;
@@ -341,7 +341,9 @@ export const ExecutedWorkflowsQuery = queryField('executedWorkflows', {
       makePaginationFromArgs(args.pagination),
     );
 
-    const orderedData = orderBy(executedWorkflows, [orderingArgs.sortKey], [orderingArgs.direction]);
+    const orderSortKeyArg = orderingArgs ? [orderingArgs.sortKey] : undefined;
+    const orderDirectionArg = orderingArgs ? [orderingArgs.direction] : undefined;
+    const orderedData = orderBy(executedWorkflows, orderSortKeyArg, orderDirectionArg);
 
     const executedWorkflowsWithId = orderedData
       .map((w) => ({

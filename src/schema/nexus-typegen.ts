@@ -2845,7 +2845,7 @@ export interface NexusGenArgTypes {
     };
     executedWorkflows: {
       // args
-      orderBy: NexusGenInputs['ExecutedWorkflowsOrderByInput']; // ExecutedWorkflowsOrderByInput!
+      orderBy?: NexusGenInputs['ExecutedWorkflowsOrderByInput'] | null; // ExecutedWorkflowsOrderByInput
       pagination?: NexusGenInputs['PaginationArgs'] | null; // PaginationArgs
       searchQuery?: NexusGenInputs['ExecutedWorkflowSearchInput'] | null; // ExecutedWorkflowSearchInput
     };

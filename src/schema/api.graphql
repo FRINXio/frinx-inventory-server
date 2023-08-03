@@ -899,7 +899,7 @@ type Query {
     last: Int
   ): EventHandlerConnection
   executedWorkflows(
-    orderBy: ExecutedWorkflowsOrderByInput!
+    orderBy: ExecutedWorkflowsOrderByInput
     pagination: PaginationArgs
     searchQuery: ExecutedWorkflowSearchInput
   ): ExecutedWorkflowConnection
