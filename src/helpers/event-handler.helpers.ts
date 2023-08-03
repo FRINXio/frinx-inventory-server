@@ -163,14 +163,34 @@ function makeFromGraphQLToApiEventHandlerAction(eventHandlerAction: EventHandler
   };
 }
 
-export function makeFromGraphQLToApiEventHandler(eventHandler: EventHandlerGraphQL): ApiEventHandler {
+export function makeFromGraphQLToApiEventHandler(
+  eventHandler: EventHandlerGraphQL,
+  oldEventHandler: ApiEventHandler | null = null,
+): ApiEventHandler {
+  if (oldEventHandler == null) {
+    return {
+      name: eventHandler.name,
+      event: eventHandler.event,
+      actions: eventHandler.actions.map(makeFromGraphQLToApiEventHandlerAction),
+      condition: eventHandler.condition || undefined,
+      active: eventHandler.isActive || undefined,
+      evaluatorType: eventHandler.evaluatorType || undefined,
+    };
+  }
+
   return {
     name: eventHandler.name,
     event: eventHandler.event,
-    active: eventHandler.isActive || undefined,
-    condition: eventHandler.condition || undefined,
     actions: eventHandler.actions.map(makeFromGraphQLToApiEventHandlerAction),
-    evaluatorType: eventHandler.evaluatorType || undefined,
+    ...(eventHandler.condition == null
+      ? { condition: oldEventHandler.condition || undefined }
+      : { condition: eventHandler.condition }),
+    ...(eventHandler.isActive == null
+      ? { active: oldEventHandler.active || undefined }
+      : { active: eventHandler.isActive }),
+    ...(eventHandler.evaluatorType == null
+      ? { evaluatorType: oldEventHandler.evaluatorType || undefined }
+      : { evaluatorType: eventHandler.evaluatorType }),
   };
 }
 

@@ -226,23 +226,29 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
     if (input.actions == null || input.actions.length === 0) {
       await conductorAPI.updateEventHandler(config.conductorApiURL, {
         ...oldEventHandler,
-        ...makeFromGraphQLToApiEventHandler({
-          ...input,
-          actions: [],
-          name,
-          event,
-        }),
+        ...makeFromGraphQLToApiEventHandler(
+          {
+            ...input,
+            actions: [],
+            name,
+            event,
+          },
+          oldEventHandler,
+        ),
         actions: oldEventHandler.actions,
       });
     } else {
       await conductorAPI.updateEventHandler(config.conductorApiURL, {
         ...oldEventHandler,
-        ...makeFromGraphQLToApiEventHandler({
-          ...input,
-          actions: input.actions,
-          name,
-          event,
-        }),
+        ...makeFromGraphQLToApiEventHandler(
+          {
+            ...input,
+            actions: input.actions,
+            name,
+            event,
+          },
+          oldEventHandler,
+        ),
       });
     }
 
