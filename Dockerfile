@@ -17,6 +17,10 @@ RUN yarn run build
 
 FROM node:18-slim
 
+ARG git_commit=unspecified
+LABEL git_commit="${git_commit}"
+LABEL org.opencontainers.image.source="https://github.com/FRINXio/frinx-inventory-server"
+
 RUN apt-get update
 RUN apt-get install -y openssl wget
 
