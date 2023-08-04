@@ -18,7 +18,7 @@ import config from '../config';
 import { WorkflowDetailInput } from '../external-api/conductor-network-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import getLogger from '../get-logger';
-import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
 import { TaskInput, ExecutedWorkflowTask } from './task';
 import {
   convertToApiOutputParameters,
@@ -146,6 +146,19 @@ export const FilterWorkflowsInput = inputObjectType({
   },
 });
 
+export const SortWorkflowsBy = enumType({
+  name: 'SortWorkflowsBy',
+  members: ['name'],
+});
+
+export const WorkflowsOrderByInput = inputObjectType({
+  name: 'WorkflowsOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortWorkflowsBy });
+    t.nonNull.field('direction', { type: SortDirection });
+  },
+});
+
 export const WorkflowsQuery = extendType({
   type: 'Query',
   definition: (t) => {
@@ -154,15 +167,22 @@ export const WorkflowsQuery = extendType({
       args: {
         ...PaginationConnectionArgs,
         filter: FilterWorkflowsInput,
+        orderBy: nonNull(WorkflowsOrderByInput),
       },
       resolve: async (_, args, { conductorAPI }) => {
-        const { filter, ...paginationArgs } = args;
+        const { filter, orderBy: orderingArgs, ...paginationArgs } = args;
         const workflows = await conductorAPI.getWorkflowMetadata(config.conductorApiURL);
 
         const filteredWorkflows =
           filter?.labels || filter?.keyword ? getFilteredWorkflows(workflows, filter) : workflows;
 
-        const workflowsWithId = filteredWorkflows.map((w) => ({
+        const orderedData = orderBy(
+          filteredWorkflows,
+          [orderingArgs.sortKey],
+          [orderingArgs.direction === 'ASC' ? 'asc' : 'desc'],
+        );
+
+        const workflowsWithId = orderedData.map((w) => ({
           ...w,
           id: w.name,
         }));

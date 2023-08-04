@@ -940,7 +940,14 @@ type Query {
   uniconfigShellSession: String
   workflowInstanceDetail(shouldIncludeTasks: Boolean, workflowId: String!): WorkflowInstanceDetail
   workflowLabels: [String!]!
-  workflows(after: String, before: String, filter: FilterWorkflowsInput, first: Int, last: Int): WorkflowConnection!
+  workflows(
+    after: String
+    before: String
+    filter: FilterWorkflowsInput
+    first: Int
+    last: Int
+    orderBy: WorkflowsOrderByInput!
+  ): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }
 
@@ -1070,6 +1077,10 @@ enum SortPollsBy {
 enum SortPollsDirection {
   asc
   desc
+}
+
+enum SortWorkflowsBy {
+  name
 }
 
 input StartWorkflowRequestInput {
@@ -1358,6 +1369,11 @@ enum WorkflowTaskType {
   TERMINATE
   USER_DEFINED
   WAIT
+}
+
+input WorkflowsOrderByInput {
+  direction: SortDirection!
+  sortKey: SortWorkflowsBy!
 }
 
 type Zone implements Node {
