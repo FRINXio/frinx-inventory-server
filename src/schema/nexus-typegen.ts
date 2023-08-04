@@ -802,6 +802,7 @@ export interface NexusGenObjects {
     interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+    nodeId: string; // String!
   };
   NetRoutingPaths: {
     // root type
@@ -1486,6 +1487,7 @@ export interface NexusGenFieldTypes {
     interfaces: NexusGenRootTypes['NetInterface'][]; // [NetInterface!]!
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
+    nodeId: string; // String!
   };
   NetRoutingPaths: {
     // field return type
@@ -2251,6 +2253,7 @@ export interface NexusGenFieldTypeNames {
     interfaces: 'NetInterface';
     name: 'String';
     networks: 'NetNetwork';
+    nodeId: 'String';
   };
   NetRoutingPaths: {
     // field return type name

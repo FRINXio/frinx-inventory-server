@@ -782,6 +782,7 @@ type NetNode {
   interfaces: [NetInterface!]!
   name: String!
   networks: [NetNetwork!]!
+  nodeId: String!
 }
 
 type NetRoutingPaths {
