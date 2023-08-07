@@ -1,3 +1,4 @@
+import { orderBy } from 'lodash';
 import { ApiEventHandler, ApiEventHandlerAction } from '../external-api/conductor-network-types';
 import { toGraphId } from './id-helper';
 
@@ -222,4 +223,20 @@ export function filterEventHandlers(
 
     return true;
   });
+}
+
+export function getOrderedEventHandlers(eventHandlers: ApiEventHandler[], sortKey: string, direction: string) {
+  if (sortKey !== 'isActive') {
+    return orderBy(eventHandlers, sortKey !== 'actions' ? sortKey : 'actions[0].action', [
+      direction === 'ASC' ? 'asc' : 'desc',
+    ]);
+  }
+  if (sortKey === 'isActive' && direction === 'DESC') {
+    return eventHandlers.sort((a, b) => Number(a.active) - Number(b.active));
+  }
+   if (sortKey === 'isActive' && direction === 'ASC') {
+     return eventHandlers.sort((a, b) => Number(b.active) - Number(a.active));
+   }
+
+  return eventHandlers;
 }

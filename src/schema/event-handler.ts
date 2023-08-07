@@ -10,15 +10,17 @@ import {
   stringArg,
 } from 'nexus';
 import { v4 as uuid } from 'uuid';
-import { IsOkResponse, Node, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PaginationConnectionArgs, SortDirection } from './global-types';
 import config from '../config';
 import {
   filterEventHandlers,
+  getOrderedEventHandlers,
   makeFromApiToGraphQLEventHandler,
   makeFromGraphQLToApiEventHandler,
 } from '../helpers/event-handler.helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { connectionFromArray } from '../helpers/connection.helpers';
+import { orderBy } from 'lodash';
 
 export const EventHandlerActionEnum = enumType({
   name: 'EventHandlerActionEnum',
@@ -107,18 +109,33 @@ export const FilterEventHandlerInput = inputObjectType({
   },
 });
 
+export const SortEventHandlersBy = enumType({
+  name: 'SortEventHandlersBy',
+  members: ['isActive','name','evaluatorType','event','actions'],
+});
+
+export const EventHandlersOrderByInput = inputObjectType({
+  name: 'EventHandlersOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortEventHandlersBy });
+    t.nonNull.field('direction', { type: SortDirection });
+  },
+});
+
 export const EventHandlerQuery = queryField('eventHandlers', {
   type: EventHandlerConnection,
   args: {
     filter: arg({ type: FilterEventHandlerInput }),
     ...PaginationConnectionArgs,
+    orderBy: nonNull(EventHandlersOrderByInput),
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { filter, ...paginationArgs } = args;
+    const { filter, orderBy: orderingArgs, ...paginationArgs } = args;
     const eventHandlers = await conductorAPI.getEventHandlers(config.conductorApiURL);
 
     const filteredEventHandlers = filterEventHandlers(eventHandlers, filter);
-    const mappedEventHandlersWithId = filteredEventHandlers.map((eventHandler) => ({
+    const oredEventHandlers = getOrderedEventHandlers(filteredEventHandlers, orderingArgs.sortKey, orderingArgs.direction);
+    const mappedEventHandlersWithId = oredEventHandlers.map((eventHandler) => ({
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
 
