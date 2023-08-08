@@ -20,7 +20,6 @@ import {
 } from '../helpers/event-handler.helpers';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { connectionFromArray } from '../helpers/connection.helpers';
-import { orderBy } from 'lodash';
 
 export const EventHandlerActionEnum = enumType({
   name: 'EventHandlerActionEnum',
