@@ -953,7 +953,7 @@ type Query {
     filter: FilterWorkflowsInput
     first: Int
     last: Int
-    orderBy: WorkflowsOrderByInput!
+    orderBy: WorkflowsOrderByInput
   ): WorkflowConnection!
   zones(after: String, before: String, first: Int, last: Int): ZonesConnection!
 }

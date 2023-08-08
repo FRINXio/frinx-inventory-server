@@ -2947,7 +2947,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterWorkflowsInput'] | null; // FilterWorkflowsInput
       first?: number | null; // Int
       last?: number | null; // Int
-      orderBy: NexusGenInputs['WorkflowsOrderByInput']; // WorkflowsOrderByInput!
+      orderBy?: NexusGenInputs['WorkflowsOrderByInput'] | null; // WorkflowsOrderByInput
     };
     zones: {
       // args
