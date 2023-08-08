@@ -176,8 +176,9 @@ export const WorkflowsQuery = extendType({
         const filteredWorkflows =
           filter?.labels || filter?.keyword ? getFilteredWorkflows(workflows, filter) : workflows;
 
-        const orderedData = (orderingArgs &&
-          orderBy(filteredWorkflows, [orderingArgs.sortKey], [orderingArgs.direction === 'ASC' ? 'asc' : 'desc'])) ??
+        const orderedData =
+          (orderingArgs &&
+            orderBy(filteredWorkflows, [orderingArgs.sortKey], [orderingArgs.direction === 'ASC' ? 'asc' : 'desc'])) ??
           filteredWorkflows;
 
         const workflowsWithId = orderedData.map((w) => ({

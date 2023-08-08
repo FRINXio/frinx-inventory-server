@@ -234,9 +234,9 @@ export function getOrderedEventHandlers(eventHandlers: ApiEventHandler[], sortKe
   if (sortKey === 'isActive' && direction === 'DESC') {
     return eventHandlers.sort((a, b) => Number(a.active) - Number(b.active));
   }
-   if (sortKey === 'isActive' && direction === 'ASC') {
-     return eventHandlers.sort((a, b) => Number(b.active) - Number(a.active));
-   }
+  if (sortKey === 'isActive' && direction === 'ASC') {
+    return eventHandlers.sort((a, b) => Number(b.active) - Number(a.active));
+  }
 
   return eventHandlers;
 }

@@ -111,7 +111,7 @@ export const FilterEventHandlerInput = inputObjectType({
 
 export const SortEventHandlersBy = enumType({
   name: 'SortEventHandlersBy',
-  members: ['isActive','name','evaluatorType','event','actions'],
+  members: ['isActive', 'name', 'evaluatorType', 'event', 'actions'],
 });
 
 export const EventHandlersOrderByInput = inputObjectType({
@@ -134,7 +134,11 @@ export const EventHandlerQuery = queryField('eventHandlers', {
     const eventHandlers = await conductorAPI.getEventHandlers(config.conductorApiURL);
 
     const filteredEventHandlers = filterEventHandlers(eventHandlers, filter);
-    const oredEventHandlers = getOrderedEventHandlers(filteredEventHandlers, orderingArgs.sortKey, orderingArgs.direction);
+    const oredEventHandlers = getOrderedEventHandlers(
+      filteredEventHandlers,
+      orderingArgs.sortKey,
+      orderingArgs.direction,
+    );
     const mappedEventHandlersWithId = oredEventHandlers.map((eventHandler) => ({
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
