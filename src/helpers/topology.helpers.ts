@@ -1,3 +1,5 @@
+import { device as PrismaDevice } from '@prisma/client';
+import { TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
   ArangoEdge,
@@ -6,7 +8,8 @@ import {
   Status,
   TopologyDiffOutput,
 } from '../external-api/topology-network-types';
-import { unwrap } from './utils.helpers';
+import { omitNullValue, unwrap } from './utils.helpers';
+import { toGraphId } from './id-helper';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -150,4 +153,78 @@ export function makeNodesMap<T extends { _id: string }>(
     }),
     {} as Record<string, string>,
   );
+}
+
+function getStatus(status: string | undefined): 'ok' | 'unknown' {
+  return status === 'ok' ? 'ok' : 'unknown';
+}
+
+export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: TopologyDevicesQuery) {
+  if (!topologyDevices) {
+    return [];
+  }
+  const nodes = dbDevices
+    .map((device) => {
+      const node = topologyDevices?.phyDevices.edges?.find((e) => e?.node?.name === device.name)?.node;
+      if (node != null) {
+        return {
+          id: toGraphId('GraphNode', node.id),
+          deviceType: node.details.device_type ?? null,
+          softwareVersion: node.details.sw_version ?? null,
+          device,
+          interfaces:
+            node.phyInterfaces.edges?.map((e) => ({
+              id: unwrap(e?.node?.id),
+              status: getStatus(e?.node?.status),
+              name: unwrap(e?.node?.name),
+            })) ?? [],
+          coordinates: node.coordinates,
+        };
+      }
+      return null;
+    })
+    .filter(omitNullValue);
+  return nodes;
+}
+
+function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
+  return (
+    topologyDevices.phyDevices.edges?.flatMap((e) => {
+      const node = e?.node;
+      if (!node) {
+        return [];
+      }
+      const nodeInterfaces = node.phyInterfaces.edges
+        ?.map((ie) => {
+          const inode = ie?.node;
+          if (!inode || !inode.phyLink) {
+            return null;
+          }
+          return {
+            ...inode,
+            nodeId: node.id,
+          };
+        })
+        .filter(omitNullValue);
+      return nodeInterfaces || [];
+    }) ?? []
+  );
+}
+
+export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery) {
+  if (!topologyDevices) {
+    return [];
+  }
+
+  return getTopologyInterfaces(topologyDevices).map((i) => ({
+    id: `${i.id}-${i.phyLink?.id}`,
+    source: {
+      interface: i.id,
+      nodeId: i.nodeId,
+    },
+    target: {
+      interface: unwrap(i.phyLink?.id),
+      nodeId: unwrap(i.phyLink?.phyDevice?.id),
+    },
+  }));
 }

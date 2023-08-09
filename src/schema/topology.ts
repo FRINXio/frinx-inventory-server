@@ -11,6 +11,8 @@ import {
   makeInterfaceNameMap,
   makeNetInterfaceMap,
   makeNodesMap,
+  makeTopologyEdges,
+  makeTopologyNodes,
 } from '../helpers/topology.helpers';
 import { unwrap, omitNullValue } from '../helpers/utils.helpers';
 import { NetNetwork as NetNetworkType } from '../external-api/topology-network-types';
@@ -130,54 +132,22 @@ export const TopologyQuery = extendType({
       args: {
         filter: FilterTopologyInput,
       },
-      resolve: async (root, args, { prisma, tenantId, topologyDiscoveryAPI }) => {
+      resolve: async (_, args, { prisma, tenantId, topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled) {
           return null;
         }
         const { filter } = args;
 
-        const { has: interfaceEdges, interfaces } = await topologyDiscoveryAPI.getHasAndInterfaces(
-          unwrap(config.topologyDiscoveryURL),
-        );
-        const interfaceDeviceMap = makeInterfaceDeviceMap(interfaceEdges);
-        const interfaceNameMap = makeInterfaceNameMap(interfaces, (i) => i.name);
-        const interfaceMap = makeInterfaceMap(interfaceEdges, interfaceNameMap);
+        const topologyDevices = await topologyDiscoveryGraphQLAPI?.getTopologyDevices();
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
         const labelIds = dbLabels.map((l) => l.id);
         const filterQuery = getFilterQuery({ labelIds });
         const dbDevices = await prisma.device.findMany({ where: { tenantId, ...filterQuery } });
-        const linksAndDevices = await topologyDiscoveryAPI.getLinksAndDevices(unwrap(config.topologyDiscoveryURL));
-        const { nodes, edges } = linksAndDevices;
-        const nodesMap = makeNodesMap(nodes, (n) => n.name);
+
         return {
-          nodes: dbDevices
-            .map((device) => {
-              const node = nodes.find((n) => n.name === device.name);
-              if (node != null) {
-                return {
-                  id: toGraphId('GraphNode', node._key),
-                  deviceType: node.details.device_type ?? null,
-                  softwareVersion: node.details.sw_version ?? null,
-                  device,
-                  interfaces: interfaceMap[node._id] ?? [],
-                  coordinates: node.coordinates,
-                };
-              }
-              return null;
-            })
-            .filter(omitNullValue),
-          edges: edges.map((e) => ({
-            id: e._id,
-            source: {
-              interface: e._from,
-              nodeId: nodesMap[interfaceDeviceMap[e._from]],
-            },
-            target: {
-              interface: e._to,
-              nodeId: nodesMap[interfaceDeviceMap[e._to]],
-            },
-          })),
+          nodes: makeTopologyNodes(dbDevices, topologyDevices),
+          edges: makeTopologyEdges(topologyDevices),
         };
       },
     });
