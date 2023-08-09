@@ -235,7 +235,6 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
           },
           oldEventHandler,
         ),
-        actions: oldEventHandler.actions,
       });
     } else {
       await conductorAPI.updateEventHandler(config.conductorApiURL, {

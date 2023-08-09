@@ -181,16 +181,14 @@ export function makeFromGraphQLToApiEventHandler(
   return {
     name: eventHandler.name,
     event: eventHandler.event,
-    actions: eventHandler.actions.map(makeFromGraphQLToApiEventHandlerAction),
-    ...(eventHandler.condition == null
-      ? { condition: oldEventHandler.condition || undefined }
-      : { condition: eventHandler.condition }),
-    ...(eventHandler.isActive == null
-      ? { active: oldEventHandler.active || undefined }
-      : { active: eventHandler.isActive }),
-    ...(eventHandler.evaluatorType == null
-      ? { evaluatorType: oldEventHandler.evaluatorType || undefined }
-      : { evaluatorType: eventHandler.evaluatorType }),
+    actions:
+      eventHandler.actions == null || eventHandler.actions.length === 0
+        ? oldEventHandler.actions
+        : eventHandler.actions.map(makeFromGraphQLToApiEventHandlerAction),
+    condition: eventHandler.condition == null ? oldEventHandler.condition || undefined : eventHandler.condition,
+    active: eventHandler.isActive == null ? oldEventHandler.active || undefined : eventHandler.isActive,
+    evaluatorType:
+      eventHandler.evaluatorType == null ? oldEventHandler.evaluatorType || undefined : eventHandler.evaluatorType,
   };
 }
 
