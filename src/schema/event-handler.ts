@@ -133,12 +133,12 @@ export const EventHandlerQuery = queryField('eventHandlers', {
     const eventHandlers = await conductorAPI.getEventHandlers(config.conductorApiURL);
 
     const filteredEventHandlers = filterEventHandlers(eventHandlers, filter);
-    const oredEventHandlers = getOrderedEventHandlers(
+    const orderedEventHandlers = getOrderedEventHandlers(
       filteredEventHandlers,
       orderingArgs.sortKey,
       orderingArgs.direction,
     );
-    const mappedEventHandlersWithId = oredEventHandlers.map((eventHandler) => ({
+    const mappedEventHandlersWithId = orderedEventHandlers.map((eventHandler) => ({
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
 
