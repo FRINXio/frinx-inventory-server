@@ -466,7 +466,7 @@ export interface NexusGenEnums {
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
-  SortEventHandlersBy: 'actions' | 'evaluatorType' | 'event' | 'isActive' | 'name';
+  SortEventHandlersBy: 'evaluatorType' | 'event' | 'isActive' | 'name';
   SortExecutedWorkflowsBy: 'endTime' | 'startTime' | 'status' | 'workflowId' | 'workflowName';
   SortExecutedWorkflowsDirection: 'asc' | 'desc';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';

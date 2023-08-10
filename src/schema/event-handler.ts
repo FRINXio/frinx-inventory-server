@@ -110,7 +110,7 @@ export const FilterEventHandlerInput = inputObjectType({
 
 export const SortEventHandlersBy = enumType({
   name: 'SortEventHandlersBy',
-  members: ['isActive', 'name', 'evaluatorType', 'event', 'actions'],
+  members: ['isActive', 'name', 'evaluatorType', 'event'],
 });
 
 export const EventHandlersOrderByInput = inputObjectType({

@@ -1063,7 +1063,6 @@ enum SortDirection {
 }
 
 enum SortEventHandlersBy {
-  actions
   evaluatorType
   event
   isActive
