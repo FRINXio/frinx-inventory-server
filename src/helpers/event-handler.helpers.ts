@@ -227,9 +227,7 @@ export function filterEventHandlers(
 
 export function getOrderedEventHandlers(eventHandlers: ApiEventHandler[], sortKey: string, direction: string) {
   if (sortKey !== 'isActive') {
-    return orderBy(eventHandlers, sortKey, [
-      direction === 'ASC' ? 'asc' : 'desc',
-    ]);
+    return orderBy(eventHandlers, sortKey, [direction === 'ASC' ? 'asc' : 'desc']);
   }
   if (sortKey === 'isActive' && direction === 'DESC') {
     return eventHandlers.sort((a, b) => Number(a.active) - Number(b.active));
