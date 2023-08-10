@@ -73,7 +73,7 @@
     "graphql-relay": "0.10.0",
     "graphql-upload": "15.0.2",
     "graphql-ws": "^5.11.2",
-    "i18n-iso-countries": "7.5.0",
+    "i18n-iso-countries": "7.6.0",
     "io-ts": "2.2.20",
     "json-templates": "4.2.0",
     "lodash": "4.17.21",
