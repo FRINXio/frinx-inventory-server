@@ -75,7 +75,7 @@
     "graphql-ws": "^5.11.2",
     "i18n-iso-countries": "7.5.0",
     "io-ts": "2.2.20",
-    "json-templates": "4.2.0",
+    "json-templates": "4.3.0",
     "lodash": "4.17.21",
     "nexus": "1.3.0",
     "node-fetch": "2.6.11",

@@ -4299,10 +4299,10 @@ json-stable-stringify-without-jsonify@^1.0.1:
   resolved "https://registry.yarnpkg.com/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz#9db7b59496ad3f3cfef30a75142d2d930ad72651"
   integrity sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=
 
-json-templates@4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/json-templates/-/json-templates-4.2.0.tgz#34fdd6fedbe6955e934d86812a89d30d1df87415"
-  integrity sha512-NX0r9SEI2bsz17DJpKhZPymvlw/vcMcRqjqRC0jl7pofLwcpaSsfjweatMFt9QXaUv+dR5EBzInBp8y5lzluIQ==
+json-templates@4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/json-templates/-/json-templates-4.3.0.tgz#96cc7dbd03122c47463b3e07ca5ccac7ee04c6be"
+  integrity sha512-vVrB7Nx2TBijypW/G/mmijWjxN7hz7Rh68m2rao0MMLd5EgY9vH5R8DOJjH1V/VP/l+/QnKYt/pzQbOYuK3Dpg==
   dependencies:
     dedupe "^3.0.2"
     object-path "^0.11.8"
