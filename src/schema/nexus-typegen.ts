@@ -210,6 +210,11 @@ export interface NexusGenInputs {
     failTask?: NexusGenInputs['ActionFailTaskInput'] | null; // ActionFailTaskInput
     startWorkflow?: NexusGenInputs['ActionStartWorkflowInput'] | null; // ActionStartWorkflowInput
   };
+  EventHandlersOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortEventHandlersBy']; // SortEventHandlersBy!
+  };
   ExecuteNewWorkflowInput: {
     // input type
     correlationId?: string | null; // String
@@ -461,6 +466,7 @@ export interface NexusGenEnums {
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
   SortDeviceBy: 'CREATED_AT' | 'NAME';
   SortDirection: 'ASC' | 'DESC';
+  SortEventHandlersBy: 'evaluatorType' | 'event' | 'isActive' | 'name';
   SortExecutedWorkflowsBy: 'endTime' | 'startTime' | 'status' | 'workflowId' | 'workflowName';
   SortExecutedWorkflowsDirection: 'asc' | 'desc';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
@@ -2842,6 +2848,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterEventHandlerInput'] | null; // FilterEventHandlerInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['EventHandlersOrderByInput'] | null; // EventHandlersOrderByInput
     };
     eventHandlersByEvent: {
       // args
@@ -2940,7 +2947,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterWorkflowsInput'] | null; // FilterWorkflowsInput
       first?: number | null; // Int
       last?: number | null; // Int
-      orderBy: NexusGenInputs['WorkflowsOrderByInput']; // WorkflowsOrderByInput!
+      orderBy?: NexusGenInputs['WorkflowsOrderByInput'] | null; // WorkflowsOrderByInput
     };
     zones: {
       // args

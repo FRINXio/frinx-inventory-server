@@ -1,5 +1,7 @@
+import { orderBy } from 'lodash';
 import { ApiEventHandler, ApiEventHandlerAction } from '../external-api/conductor-network-types';
 import { toGraphId } from './id-helper';
+import { NexusGenEnums } from '../schema/nexus-typegen';
 
 type StartWorkflowGraphQL = {
   name?: string | null;
@@ -240,4 +242,17 @@ export function filterEventHandlers(
 
     return true;
   });
+}
+
+function convertGraphqlSortKeyToApiSortKey(sortKey: NexusGenEnums['SortEventHandlersBy']): keyof ApiEventHandler {
+  return sortKey === 'isActive' ? 'active' : sortKey;
+}
+
+export function getOrderedEventHandlers(
+  eventHandlers: ApiEventHandler[],
+  sortKey: NexusGenEnums['SortEventHandlersBy'],
+  direction: string,
+) {
+  const apiSortKey = convertGraphqlSortKeyToApiSortKey(sortKey);
+  return orderBy(eventHandlers, apiSortKey, [direction === 'ASC' ? 'asc' : 'desc']);
 }
