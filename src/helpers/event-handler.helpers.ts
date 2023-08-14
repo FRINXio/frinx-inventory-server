@@ -1,6 +1,7 @@
 import { orderBy } from 'lodash';
 import { ApiEventHandler, ApiEventHandlerAction } from '../external-api/conductor-network-types';
 import { toGraphId } from './id-helper';
+import { NexusGenEnums } from '../schema/nexus-typegen';
 
 type StartWorkflowGraphQL = {
   name?: string | null;
@@ -225,16 +226,20 @@ export function filterEventHandlers(
   });
 }
 
-export function getOrderedEventHandlers(eventHandlers: ApiEventHandler[], sortKey: string, direction: string) {
-  if (sortKey !== 'isActive') {
-    return orderBy(eventHandlers, sortKey, [direction === 'ASC' ? 'asc' : 'desc']);
+function convertGraphqlSortKeyToApiSortKey(sortKey: NexusGenEnums['SortEventHandlersBy']): keyof ApiEventHandler {
+  switch (sortKey) {
+    case 'isActive':
+      return 'active';
+    default:
+      return sortKey;
   }
-  if (sortKey === 'isActive' && direction === 'DESC') {
-    return eventHandlers.sort((a, b) => Number(a.active) - Number(b.active));
-  }
-  if (sortKey === 'isActive' && direction === 'ASC') {
-    return eventHandlers.sort((a, b) => Number(b.active) - Number(a.active));
-  }
+}
 
-  return eventHandlers;
+export function getOrderedEventHandlers(
+  eventHandlers: ApiEventHandler[],
+  sortKey: NexusGenEnums['SortEventHandlersBy'],
+  direction: string,
+) {
+  const apiSortKey = convertGraphqlSortKeyToApiSortKey(sortKey);
+  return orderBy(eventHandlers, apiSortKey, [direction === 'ASC' ? 'asc' : 'desc']);
 }
