@@ -227,12 +227,7 @@ export function filterEventHandlers(
 }
 
 function convertGraphqlSortKeyToApiSortKey(sortKey: NexusGenEnums['SortEventHandlersBy']): keyof ApiEventHandler {
-  switch (sortKey) {
-    case 'isActive':
-      return 'active';
-    default:
-      return sortKey;
-  }
+  return sortKey === 'isActive' ? 'active' : sortKey;
 }
 
 export function getOrderedEventHandlers(
