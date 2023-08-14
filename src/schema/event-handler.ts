@@ -126,18 +126,16 @@ export const EventHandlerQuery = queryField('eventHandlers', {
   args: {
     filter: arg({ type: FilterEventHandlerInput }),
     ...PaginationConnectionArgs,
-    orderBy: nonNull(EventHandlersOrderByInput),
+    orderBy: EventHandlersOrderByInput,
   },
   resolve: async (_, args, { conductorAPI }) => {
     const { filter, orderBy: orderingArgs, ...paginationArgs } = args;
     const eventHandlers = await conductorAPI.getEventHandlers(config.conductorApiURL);
 
     const filteredEventHandlers = filterEventHandlers(eventHandlers, filter);
-    const orderedEventHandlers = getOrderedEventHandlers(
-      filteredEventHandlers,
-      orderingArgs.sortKey,
-      orderingArgs.direction,
-    );
+    const orderedEventHandlers = orderingArgs
+      ? getOrderedEventHandlers(filteredEventHandlers, orderingArgs.sortKey, orderingArgs.direction)
+      : filteredEventHandlers;
     const mappedEventHandlersWithId = orderedEventHandlers.map((eventHandler) => ({
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));

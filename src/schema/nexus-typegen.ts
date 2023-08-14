@@ -2848,7 +2848,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterEventHandlerInput'] | null; // FilterEventHandlerInput
       first?: number | null; // Int
       last?: number | null; // Int
-      orderBy: NexusGenInputs['EventHandlersOrderByInput']; // EventHandlersOrderByInput!
+      orderBy?: NexusGenInputs['EventHandlersOrderByInput'] | null; // EventHandlersOrderByInput
     };
     eventHandlersByEvent: {
       // args
