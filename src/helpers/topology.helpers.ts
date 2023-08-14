@@ -1,5 +1,5 @@
 import { device as PrismaDevice } from '@prisma/client';
-import { TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
+import { NetTopologyQuery, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
   ArangoEdge,
@@ -227,4 +227,88 @@ export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery) {
       nodeId: unwrap(i.phyLink?.phyDevice?.id),
     },
   }));
+}
+
+export function makeNetTopologyNodes(netTopologyDevices?: NetTopologyQuery) {
+  return (
+    netTopologyDevices?.netDevices.edges
+      ?.map((e) => {
+        const node = e?.node;
+        if (!node) {
+          return null;
+        }
+        return {
+          id: toGraphId('GraphNode', node.id),
+          nodeId: node.id,
+          name: node.routerId,
+          interfaces:
+            node.netInterfaces.edges
+              ?.map((i) => {
+                const interfaceNode = i?.node;
+                if (!interfaceNode) {
+                  return null;
+                }
+                return {
+                  id: interfaceNode.id,
+                  name: interfaceNode.ipAddress,
+                };
+              })
+              .filter(omitNullValue) ?? [],
+          coordinates: node.phyDevice?.coordinates ?? { x: 0, y: 0 },
+          networks:
+            node.netNetworks.edges
+              ?.map((n) => {
+                const networkNode = n?.node;
+                if (!networkNode) {
+                  return null;
+                }
+                return {
+                  id: networkNode.id,
+                  subnet: networkNode.subnet,
+                  coordinates: networkNode.coordinates,
+                };
+              })
+              .filter(omitNullValue) ?? [],
+        };
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+function getEdgesFromTopologyDevices(topologyDevices: NetTopologyQuery['netDevices']['edges']) {
+  return (
+    topologyDevices
+      ?.flatMap((e) => {
+        const device = e?.node ?? null;
+        if (!device) {
+          return [];
+        }
+
+        return device.netInterfaces.edges
+          ?.map((i) => {
+            const deviceInterface = i?.node;
+            if (!deviceInterface || !deviceInterface.netDevice || !deviceInterface.netLink?.netDevice) {
+              return null;
+            }
+
+            return {
+              id: `${deviceInterface.id}-${deviceInterface.netLink.id}`,
+              source: {
+                interface: deviceInterface.id,
+                nodeId: deviceInterface.netDevice.routerId,
+              },
+              target: {
+                interface: deviceInterface.netLink.id,
+                nodeId: deviceInterface.netLink.netDevice.routerId,
+              },
+            };
+          })
+          .filter(omitNullValue);
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+export function makeNetTopologyEdges(netTopologyDevices?: NetTopologyQuery) {
+  return netTopologyDevices ? getEdgesFromTopologyDevices(netTopologyDevices.netDevices.edges) : [];
 }

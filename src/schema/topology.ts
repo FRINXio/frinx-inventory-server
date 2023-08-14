@@ -9,13 +9,13 @@ import {
   makeInterfaceDeviceMap,
   makeInterfaceMap,
   makeInterfaceNameMap,
-  makeNetInterfaceMap,
+  makeNetTopologyEdges,
+  makeNetTopologyNodes,
   makeNodesMap,
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
 import { unwrap, omitNullValue } from '../helpers/utils.helpers';
-import { NetNetwork as NetNetworkType } from '../external-api/topology-network-types';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',
@@ -345,57 +345,16 @@ export const NetTopologyQuery = extendType({
   definition: (t) => {
     t.field('netTopology', {
       type: NetTopology,
-      resolve: async (root, _, { topologyDiscoveryAPI }) => {
+      resolve: async (root, _, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled) {
           return null;
         }
-        const topologyDiscoveryURL = unwrap(config.topologyDiscoveryURL);
 
-        const { has: interfaceEdges, interfaces } = await topologyDiscoveryAPI.getNetHasAndInterfaces(
-          topologyDiscoveryURL,
-        );
-        const interfaceDeviceMap = makeInterfaceDeviceMap(interfaceEdges);
-        const interfaceNameMap = makeInterfaceNameMap(interfaces, (i) => i.ip_address);
-        const interfaceMap = makeNetInterfaceMap(interfaceEdges, interfaceNameMap);
-        const linksAndDevices = await topologyDiscoveryAPI.getNetLinksAndDevices(topologyDiscoveryURL);
-        const { nodes, edges } = linksAndDevices;
-        const nodesMap = makeNodesMap(nodes, (n) => n.router_id);
-        const { advertises, networks } = await topologyDiscoveryAPI.getNetAdvertisesAndNetworks(topologyDiscoveryURL);
-
-        const networkMap: Record<string, NetNetworkType[]> = advertises.reduce((acc, curr) => {
-          const network = unwrap(networks.find((n) => n._id === curr._to));
-          return {
-            ...acc,
-            [curr._from]: acc[curr._from]?.length ? [...acc[curr._from], network] : [network],
-          };
-        }, {} as Record<string, NetNetworkType[]>);
+        const netDevices = await topologyDiscoveryGraphQLAPI?.getNetTopologyDevices();
 
         return {
-          nodes: nodes.map((n) => ({
-            id: toGraphId('GraphNode', n._id),
-            nodeId: n._id,
-            name: n.router_id,
-            interfaces: interfaceMap[n._id] ?? [],
-            coordinates: n.coordinates,
-            networks: (networkMap[n._id] ?? []).map((ntw) => {
-              const { _id, ...rest } = ntw;
-              return {
-                id: _id,
-                ...rest,
-              };
-            }),
-          })),
-          edges: edges.map((e) => ({
-            id: e._id,
-            source: {
-              interface: e._from,
-              nodeId: nodesMap[interfaceDeviceMap[e._from]],
-            },
-            target: {
-              interface: e._to,
-              nodeId: nodesMap[interfaceDeviceMap[e._to]],
-            },
-          })),
+          nodes: makeNetTopologyNodes(netDevices),
+          edges: makeNetTopologyEdges(netDevices),
         };
       },
     });

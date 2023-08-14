@@ -3,6 +3,8 @@ import config from '../config';
 import {
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
+  NetTopologyQuery,
+  NetTopologyQueryVariables,
   TopologyDevicesQuery,
   TopologyDevicesQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
@@ -58,6 +60,59 @@ const GET_TOPOLOGY_DEVICES = gql`
   }
 `;
 
+const GET_NET_TOPOLOGY_DEVICES = gql`
+  query NetTopology($filter: NetDeviceFilter) {
+    netDevices(first: 10000, filter: $filter) {
+      edges {
+        node {
+          id
+          routerId
+          phyDevice {
+            id
+            routerId
+            coordinates {
+              x
+              y
+            }
+          }
+          netInterfaces(first: 10000, filter: { ipAddress: "%" }) {
+            edges {
+              cursor
+              node {
+                id
+                ipAddress
+                netDevice {
+                  id
+                  routerId
+                }
+                netLink {
+                  id
+                  netDevice {
+                    id
+                    routerId
+                  }
+                }
+              }
+            }
+          }
+          netNetworks(first: 1000, filter: { subnet: "%" }) {
+            edges {
+              node {
+                id
+                subnet
+                coordinates {
+                  x
+                  y
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -85,8 +140,20 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  async function getNetTopologyDevices() {
+    const response = await client.request<NetTopologyQuery, NetTopologyQueryVariables>(GET_NET_TOPOLOGY_DEVICES, {
+      // topology discovery server changes requested:
+      // first: argument should be changed to optional (to response with all nodes)
+      // filter: is optional, but is failing without id
+      filter: { routerId: '%' },
+    });
+
+    return response;
+  }
+
   return {
     getTopologyDevices,
+    getNetTopologyDevices,
     getShortestPath,
   };
 }
