@@ -36,15 +36,15 @@ export type NetDevice = Node & {
 
 export type NetDeviceNetInterfacesArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  filter?: InputMaybe<NetInterfaceFilter>;
-  first: Scalars['Int'];
+  filters?: InputMaybe<NetInterfaceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 
 export type NetDeviceNetNetworksArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  filter?: InputMaybe<NetNetworkFilter>;
-  first: Scalars['Int'];
+  filters?: InputMaybe<NetNetworkFilter>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 export type NetDeviceConnection = {
@@ -153,8 +153,8 @@ export type PhyDevice = Node & {
 
 export type PhyDevicePhyInterfacesArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  filter?: InputMaybe<PhyInterfaceFilter>;
-  first: Scalars['Int'];
+  filters?: InputMaybe<PhyInterfaceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 export type PhyDeviceConnection = {
@@ -208,6 +208,7 @@ export type PhyInterfaceFilter = {
 
 export type Query = {
   __typename?: 'Query';
+  backups: Array<Scalars['String']>;
   netDevices: NetDeviceConnection;
   netRoutingPaths: Maybe<NetRoutingPathConnection>;
   node: Maybe<Node>;
@@ -217,8 +218,8 @@ export type Query = {
 
 export type QueryNetDevicesArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  filter?: InputMaybe<NetDeviceFilter>;
-  first: Scalars['Int'];
+  filters?: InputMaybe<NetDeviceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -236,8 +237,8 @@ export type QueryNodeArgs = {
 
 export type QueryPhyDevicesArgs = {
   cursor?: InputMaybe<Scalars['String']>;
-  filter?: InputMaybe<PhyDeviceFilter>;
-  first: Scalars['Int'];
+  filters?: InputMaybe<PhyDeviceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 export type ShortestPath = {
@@ -254,16 +255,17 @@ export type GetShortestPathQueryVariables = Exact<{
 
 export type GetShortestPathQuery = { __typename?: 'Query', netRoutingPaths: { __typename?: 'NetRoutingPathConnection', shortestPath: { __typename?: 'ShortestPath', edges: Array<string> | null } | null, alternativePaths: { __typename?: 'AlternativePaths', edges: Array<Array<string> | null> | null } | null } | null };
 
-export type TopologyDevicesQueryVariables = Exact<{
-  filter?: InputMaybe<PhyDeviceFilter>;
-}>;
+export type TopologyDevicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type TopologyDevicesQuery = { __typename?: 'Query', phyDevices: { __typename?: 'PhyDeviceConnection', edges: Array<{ __typename?: 'PhyDeviceEdge', node: { __typename?: 'PhyDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PhyDeviceDetails', sw_version: string, device_type: string }, phyInterfaces: { __typename?: 'PhyInterfaceConnection', edges: Array<{ __typename?: 'PhyInterfaceEdge', node: { __typename?: 'PhyInterface', id: string, name: string, status: string, phyLink: { __typename?: 'PhyInterface', id: string, name: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string } | null } | null } | null } | null> | null } } | null } | null> | null } };
 
-export type NetTopologyQueryVariables = Exact<{
-  filter?: InputMaybe<NetDeviceFilter>;
-}>;
+export type NetTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type NetTopologyQuery = { __typename?: 'Query', netDevices: { __typename?: 'NetDeviceConnection', edges: Array<{ __typename?: 'NetDeviceEdge', node: { __typename?: 'NetDevice', id: string, routerId: string, phyDevice: { __typename?: 'PhyDevice', id: string, routerId: string | null, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null, netInterfaces: { __typename?: 'NetInterfaceConnection', edges: Array<{ __typename?: 'NetInterfaceEdge', cursor: string, node: { __typename?: 'NetInterface', id: string, ipAddress: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null, netLink: { __typename?: 'NetInterface', id: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null } | null } | null } | null> | null }, netNetworks: { __typename?: 'NetNetworkConnection', edges: Array<{ __typename?: 'NetNetworkEdge', node: { __typename?: 'NetNetwork', id: string, subnet: string, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null } | null> | null } } | null } | null> | null } };
+
+export type GetBackupsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetBackupsQuery = { __typename?: 'Query', backups: Array<string> };
