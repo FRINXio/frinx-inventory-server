@@ -715,6 +715,7 @@ export interface NexusGenObjects {
     id: string; // ID!
     source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
     target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    weight?: number | null; // Int
   };
   GraphNode: {
     // root type
@@ -804,10 +805,15 @@ export interface NexusGenObjects {
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
     nodeId: string; // String!
   };
-  NetRoutingPaths: {
+  NetRoutingPathNode: {
     // root type
-    alternativePaths: string[][]; // [[String!]!]!
-    shortestPath: string[]; // [String!]!
+    nodes: NexusGenRootTypes['NetRoutingPathNodeInfo'][]; // [NetRoutingPathNodeInfo!]!
+    weight?: number | null; // Int
+  };
+  NetRoutingPathNodeInfo: {
+    // root type
+    name?: string | null; // String
+    weight?: number | null; // Int
   };
   NetTopology: {
     // root type
@@ -1336,6 +1342,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
     target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    weight: number | null; // Int
   };
   GraphNode: {
     // field return type
@@ -1489,10 +1496,15 @@ export interface NexusGenFieldTypes {
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
     nodeId: string; // String!
   };
-  NetRoutingPaths: {
+  NetRoutingPathNode: {
     // field return type
-    alternativePaths: string[][]; // [[String!]!]!
-    shortestPath: string[]; // [String!]!
+    nodes: NexusGenRootTypes['NetRoutingPathNodeInfo'][]; // [NetRoutingPathNodeInfo!]!
+    weight: number | null; // Int
+  };
+  NetRoutingPathNodeInfo: {
+    // field return type
+    name: string | null; // String
+    weight: number | null; // Int
   };
   NetTopology: {
     // field return type
@@ -1567,7 +1579,7 @@ export interface NexusGenFieldTypes {
     pollData: NexusGenRootTypes['PollDataConnection'] | null; // PollDataConnection
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
-    shortestPath: NexusGenRootTypes['NetRoutingPaths'] | null; // NetRoutingPaths
+    shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -2102,6 +2114,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     source: 'EdgeSourceTarget';
     target: 'EdgeSourceTarget';
+    weight: 'Int';
   };
   GraphNode: {
     // field return type name
@@ -2255,10 +2268,15 @@ export interface NexusGenFieldTypeNames {
     networks: 'NetNetwork';
     nodeId: 'String';
   };
-  NetRoutingPaths: {
+  NetRoutingPathNode: {
     // field return type name
-    alternativePaths: 'String';
-    shortestPath: 'String';
+    nodes: 'NetRoutingPathNodeInfo';
+    weight: 'Int';
+  };
+  NetRoutingPathNodeInfo: {
+    // field return type name
+    name: 'String';
+    weight: 'Int';
   };
   NetTopology: {
     // field return type name
@@ -2333,7 +2351,7 @@ export interface NexusGenFieldTypeNames {
     pollData: 'PollDataConnection';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
-    shortestPath: 'NetRoutingPaths';
+    shortestPath: 'NetRoutingPathNode';
     taskDefinitions: 'TaskDefinitionConnection';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';

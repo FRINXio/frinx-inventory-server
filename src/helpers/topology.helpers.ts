@@ -293,6 +293,7 @@ function getEdgesFromTopologyDevices(topologyDevices: NetTopologyQuery['netDevic
 
             return {
               id: `${deviceInterface.id}-${deviceInterface.netLink.id}`,
+              weight: deviceInterface?.netLink?.igp_metric ?? null,
               source: {
                 interface: deviceInterface.id,
                 nodeId: deviceInterface.netDevice.routerId,

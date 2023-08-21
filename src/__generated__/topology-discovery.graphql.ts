@@ -12,11 +12,6 @@ export type Scalars = {
   Float: number;
 };
 
-export type AlternativePaths = {
-  __typename?: 'AlternativePaths';
-  edges: Maybe<Array<Maybe<Array<Scalars['ID']>>>>;
-};
-
 export type Coordinates = {
   __typename?: 'Coordinates';
   x: Scalars['Float'];
@@ -67,6 +62,7 @@ export type NetDeviceFilter = {
 export type NetInterface = Node & {
   __typename?: 'NetInterface';
   id: Scalars['ID'];
+  igp_metric: Maybe<Scalars['Int']>;
   ipAddress: Scalars['String'];
   netDevice: Maybe<NetDevice>;
   netLink: Maybe<NetInterface>;
@@ -115,8 +111,7 @@ export type NetNetworkFilter = {
 
 export type NetRoutingPathConnection = {
   __typename?: 'NetRoutingPathConnection';
-  alternativePaths: Maybe<AlternativePaths>;
-  shortestPath: Maybe<ShortestPath>;
+  edges: Maybe<Array<RoutingPath>>;
 };
 
 export type NetRoutingPathOutputCollections =
@@ -125,6 +120,12 @@ export type NetRoutingPathOutputCollections =
 
 export type Node = {
   id: Scalars['ID'];
+};
+
+export type NodeInfo = {
+  __typename?: 'NodeInfo';
+  node: Scalars['ID'];
+  weight: Maybe<Scalars['Int']>;
 };
 
 export type NodeStatus =
@@ -240,9 +241,10 @@ export type QueryPhyDevicesArgs = {
   first: Scalars['Int'];
 };
 
-export type ShortestPath = {
-  __typename?: 'ShortestPath';
-  edges: Maybe<Array<Scalars['ID']>>;
+export type RoutingPath = {
+  __typename?: 'RoutingPath';
+  nodes: Array<NodeInfo>;
+  weight: Scalars['Int'];
 };
 
 export type GetShortestPathQueryVariables = Exact<{
@@ -252,7 +254,7 @@ export type GetShortestPathQueryVariables = Exact<{
 }>;
 
 
-export type GetShortestPathQuery = { __typename?: 'Query', netRoutingPaths: { __typename?: 'NetRoutingPathConnection', shortestPath: { __typename?: 'ShortestPath', edges: Array<string> | null } | null, alternativePaths: { __typename?: 'AlternativePaths', edges: Array<Array<string> | null> | null } | null } | null };
+export type GetShortestPathQuery = { __typename?: 'Query', netRoutingPaths: { __typename?: 'NetRoutingPathConnection', edges: Array<{ __typename?: 'RoutingPath', weight: number, nodes: Array<{ __typename?: 'NodeInfo', node: string, weight: number | null }> }> | null } | null };
 
 export type TopologyDevicesQueryVariables = Exact<{
   filter?: InputMaybe<PhyDeviceFilter>;
@@ -266,4 +268,4 @@ export type NetTopologyQueryVariables = Exact<{
 }>;
 
 
-export type NetTopologyQuery = { __typename?: 'Query', netDevices: { __typename?: 'NetDeviceConnection', edges: Array<{ __typename?: 'NetDeviceEdge', node: { __typename?: 'NetDevice', id: string, routerId: string, phyDevice: { __typename?: 'PhyDevice', id: string, routerId: string | null, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null, netInterfaces: { __typename?: 'NetInterfaceConnection', edges: Array<{ __typename?: 'NetInterfaceEdge', cursor: string, node: { __typename?: 'NetInterface', id: string, ipAddress: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null, netLink: { __typename?: 'NetInterface', id: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null } | null } | null } | null> | null }, netNetworks: { __typename?: 'NetNetworkConnection', edges: Array<{ __typename?: 'NetNetworkEdge', node: { __typename?: 'NetNetwork', id: string, subnet: string, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null } | null> | null } } | null } | null> | null } };
+export type NetTopologyQuery = { __typename?: 'Query', netDevices: { __typename?: 'NetDeviceConnection', edges: Array<{ __typename?: 'NetDeviceEdge', node: { __typename?: 'NetDevice', id: string, routerId: string, phyDevice: { __typename?: 'PhyDevice', id: string, routerId: string | null, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null, netInterfaces: { __typename?: 'NetInterfaceConnection', edges: Array<{ __typename?: 'NetInterfaceEdge', cursor: string, node: { __typename?: 'NetInterface', id: string, ipAddress: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null, netLink: { __typename?: 'NetInterface', id: string, igp_metric: number | null, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null } | null } | null } | null> | null }, netNetworks: { __typename?: 'NetNetworkConnection', edges: Array<{ __typename?: 'NetNetworkEdge', node: { __typename?: 'NetNetwork', id: string, subnet: string, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null } | null> | null } } | null } | null> | null } };

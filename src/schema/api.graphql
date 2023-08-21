@@ -620,6 +620,7 @@ type GraphEdge {
   id: ID!
   source: EdgeSourceTarget!
   target: EdgeSourceTarget!
+  weight: Int
 }
 
 enum GraphEdgeStatus {
@@ -785,9 +786,14 @@ type NetNode {
   nodeId: String!
 }
 
-type NetRoutingPaths {
-  alternativePaths: [[String!]!]!
-  shortestPath: [String!]!
+type NetRoutingPathNode {
+  nodes: [NetRoutingPathNodeInfo!]!
+  weight: Int
+}
+
+type NetRoutingPathNodeInfo {
+  name: String
+  weight: Int
 }
 
 type NetTopology {
@@ -925,7 +931,7 @@ type Query {
     resourceTypeId: String
   ): PoolConnection!
   schedules(after: String, before: String, filter: ScheduleFilterInput, first: Int, last: Int): ScheduleConnection!
-  shortestPath(from: String!, to: String!): NetRoutingPaths
+  shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
   taskDefinitions(
     after: String
     before: String
