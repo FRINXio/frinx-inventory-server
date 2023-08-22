@@ -1053,8 +1053,9 @@ type Snapshot {
 }
 
 enum SortDeviceBy {
-  CREATED_AT
-  NAME
+  createdAt
+  name
+  serviceState
 }
 
 enum SortDirection {
