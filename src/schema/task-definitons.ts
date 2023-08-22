@@ -14,7 +14,7 @@ import config from '../config';
 import { filterPollData, makeFromApiToGraphQLPollData } from '../helpers/task.helpers';
 import { toGraphId } from '../helpers/id-helper';
 import { getTaskDefinitionInput, getFilteredTaskDefinitions } from '../helpers/task-definition.helpers';
-import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
 import { connectionFromArray } from '../helpers/connection.helpers';
 
 const TaskTimeoutPolicy = enumType({
@@ -98,7 +98,17 @@ export const FilterTaskDefinitionsInput = inputObjectType({
     t.string('keyword');
   },
 });
-
+export const SortTasksBy = enumType({
+  name: 'SortTasksBy',
+  members: ['name', 'timeoutPolicy', 'timeoutSeconds', 'responseTimeoutSeconds', 'retryCount', 'retryLogic'],
+});
+export const TasksOrderByInput = inputObjectType({
+  name: 'TasksOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortTasksBy });
+    t.nonNull.field('direction', { type: SortDirection });
+  },
+});
 export const TaskDefinitionsQuery = extendType({
   type: 'Query',
   definition: (t) => {
@@ -107,15 +117,20 @@ export const TaskDefinitionsQuery = extendType({
       args: {
         ...PaginationConnectionArgs,
         filter: arg({ type: FilterTaskDefinitionsInput }),
+        orderBy: TasksOrderByInput,
       },
       resolve: async (_, args, { conductorAPI }) => {
-        const { filter, ...paginationArgs } = args;
+        const { filter, orderBy: orderingArgs, ...paginationArgs } = args;
         const taskDefinitions = await conductorAPI.getTaskDefinitions(config.conductorApiURL);
+
         const filteredTaskDefs = filter?.keyword
           ? getFilteredTaskDefinitions(taskDefinitions, filter.keyword)
           : taskDefinitions;
+        const orderedTaskDefs = orderingArgs?.sortKey
+          ? orderBy(filteredTaskDefs, orderingArgs?.sortKey, orderingArgs?.direction === 'ASC' ? 'asc' : 'desc')
+          : filteredTaskDefs;
 
-        const tasksWithId = filteredTaskDefs.map((task) => ({
+        const tasksWithId = orderedTaskDefs.map((task) => ({
           ...task,
           id: toGraphId('TaskDefinition', task.name),
         }));

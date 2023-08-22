@@ -361,6 +361,11 @@ export interface NexusGenInputs {
     type?: string | null; // String
     workflowTaskType?: Array<NexusGenEnums['WorkflowTaskType'] | null> | null; // [WorkflowTaskType]
   };
+  TasksOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortTasksBy']; // SortTasksBy!
+  };
   TerminateWorkflowInput: {
     // input type
     reason?: string | null; // String
@@ -471,6 +476,7 @@ export interface NexusGenEnums {
   SortExecutedWorkflowsDirection: 'asc' | 'desc';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
   SortPollsDirection: 'asc' | 'desc';
+  SortTasksBy: 'name' | 'responseTimeoutSeconds' | 'retryCount' | 'retryLogic' | 'timeoutPolicy' | 'timeoutSeconds';
   SortWorkflowsBy: 'name';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
@@ -2922,6 +2928,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterTaskDefinitionsInput'] | null; // FilterTaskDefinitionsInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['TasksOrderByInput'] | null; // TasksOrderByInput
     };
     topology: {
       // args

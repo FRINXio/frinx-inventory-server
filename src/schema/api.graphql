@@ -938,6 +938,7 @@ type Query {
     filter: FilterTaskDefinitionsInput
     first: Int
     last: Int
+    orderBy: TasksOrderByInput
   ): TaskDefinitionConnection!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
@@ -1093,6 +1094,15 @@ enum SortPollsDirection {
   desc
 }
 
+enum SortTasksBy {
+  name
+  responseTimeoutSeconds
+  retryCount
+  retryLogic
+  timeoutPolicy
+  timeoutSeconds
+}
+
 enum SortWorkflowsBy {
   name
 }
@@ -1178,6 +1188,11 @@ enum TaskTimeoutPolicy {
   ALERT_ONLY
   RETRY
   TIME_OUT_WF
+}
+
+input TasksOrderByInput {
+  direction: SortDirection!
+  sortKey: SortTasksBy!
 }
 
 input TerminateWorkflowInput {
