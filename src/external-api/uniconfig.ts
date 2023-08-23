@@ -12,6 +12,7 @@ import {
   decodeUniconfigDeleteSnapshotOutput,
   decodeUniconfigDiffOuptut,
   decodeUniconfigDryRunCommitOutput,
+  decodeUniconfigExternalStorageOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigRevertChangesOutput,
@@ -276,6 +277,13 @@ async function revertChanges(baseURL: string, params: RevertChangesInput): Promi
   return data;
 }
 
+async function getExternalStorage(baseURL: string, path: string): Promise<Record<string, string>> {
+  const json = await sendGetRequest([baseURL, `/external/postgres/${path}`]);
+  const data = decodeUniconfigExternalStorageOutput(json);
+
+  return data;
+}
+
 const uniconfigAPI = {
   getInstalledDevices,
   installDevice,
@@ -295,6 +303,7 @@ const uniconfigAPI = {
   closeTransaction,
   getTransactionLog,
   revertChanges,
+  getExternalStorage,
 };
 
 export type UniConfigAPI = typeof uniconfigAPI;
