@@ -1299,12 +1299,15 @@ type Workflow implements Node {
   inputParameters: [String!]
   name: String!
   outputParameters: [OutputParameter!]
+  ownerEmail: String
   restartable: Boolean
+  schemaVersion: Int
   tasks: String
   timeoutPolicy: TimeoutPolicy
   timeoutSeconds: Int!
   updatedAt: String
   updatedBy: String
+  variables: String
   version: Int
 }
 

@@ -112,6 +112,11 @@ export const Workflow = objectType({
     });
     t.boolean('restartable');
     t.field('timeoutPolicy', { type: TimeoutPolicy });
+    t.string('ownerEmail');
+    t.int('schemaVersion');
+    t.string('variables', {
+      resolve: (w) => (w.variables ? JSON.stringify(w.variables) : null),
+    });
   },
 });
 

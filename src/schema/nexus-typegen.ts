@@ -1753,12 +1753,15 @@ export interface NexusGenFieldTypes {
     inputParameters: string[] | null; // [String!]
     name: string; // String!
     outputParameters: NexusGenRootTypes['OutputParameter'][] | null; // [OutputParameter!]
+    ownerEmail: string | null; // String
     restartable: boolean | null; // Boolean
+    schemaVersion: number | null; // Int
     tasks: string | null; // String
     timeoutPolicy: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
     timeoutSeconds: number; // Int!
     updatedAt: string | null; // String
     updatedBy: string | null; // String
+    variables: string | null; // String
     version: number | null; // Int
   };
   WorkflowConnection: {
@@ -2519,12 +2522,15 @@ export interface NexusGenFieldTypeNames {
     inputParameters: 'String';
     name: 'String';
     outputParameters: 'OutputParameter';
+    ownerEmail: 'String';
     restartable: 'Boolean';
+    schemaVersion: 'Int';
     tasks: 'String';
     timeoutPolicy: 'TimeoutPolicy';
     timeoutSeconds: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
+    variables: 'String';
     version: 'Int';
   };
   WorkflowConnection: {
