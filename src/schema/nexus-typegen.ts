@@ -469,7 +469,7 @@ export interface NexusGenEnums {
   PoolType: 'allocating' | 'set' | 'singleton';
   RetryLogic: 'EXPONENTIAL_BACKOFF' | 'FIXED' | 'LINEAR_BACKOFF';
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
-  SortDeviceBy: 'CREATED_AT' | 'NAME';
+  SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
   SortEventHandlersBy: 'evaluatorType' | 'event' | 'isActive' | 'name';
   SortExecutedWorkflowsBy: 'endTime' | 'startTime' | 'status' | 'workflowId' | 'workflowName';
