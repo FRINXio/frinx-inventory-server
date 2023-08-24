@@ -81,7 +81,7 @@ const WorkflowMetadataOptional = t.partial({
   ownerEmail: optional(t.string),
   timeoutPolicy: optional(t.union([t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
   variables: optional(t.UnknownRecord),
-  inputTemplate: optional(t.record(t.string, t.UnknownRecord)),
+  inputTemplate: optional(t.UnknownRecord),
 });
 
 const WorkflowMetadata = t.intersection([WorkflowMetadataRequired, WorkflowMetadataOptional]);
