@@ -24,8 +24,8 @@ const GET_SHORTEST_PATH = gql`
 `;
 
 const GET_TOPOLOGY_DEVICES = gql`
-  query topologyDevices($filter: PhyDeviceFilter) {
-    phyDevices(first: 10000, filter: $filter) {
+  query topologyDevices {
+    phyDevices {
       edges {
         node {
           id
@@ -38,7 +38,7 @@ const GET_TOPOLOGY_DEVICES = gql`
             sw_version
             device_type
           }
-          phyInterfaces(first: 10000, filter: { name: "%" }) {
+          phyInterfaces {
             edges {
               node {
                 id
@@ -62,8 +62,8 @@ const GET_TOPOLOGY_DEVICES = gql`
 `;
 
 const GET_NET_TOPOLOGY_DEVICES = gql`
-  query NetTopology($filter: NetDeviceFilter) {
-    netDevices(first: 10000, filter: $filter) {
+  query NetTopology {
+    netDevices {
       edges {
         node {
           id
@@ -76,7 +76,7 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
               y
             }
           }
-          netInterfaces(first: 10000, filter: { ipAddress: "%" }) {
+          netInterfaces {
             edges {
               cursor
               node {
@@ -97,7 +97,7 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
               }
             }
           }
-          netNetworks(first: 1000, filter: { subnet: "%" }) {
+          netNetworks {
             edges {
               node {
                 id
@@ -133,23 +133,13 @@ function getTopologyDiscoveryApi() {
   }
 
   async function getTopologyDevices() {
-    const response = await client.request<TopologyDevicesQuery, TopologyDevicesQueryVariables>(GET_TOPOLOGY_DEVICES, {
-      // topology discovery server changes requested:
-      // first: argument should be changed to optional (to response with all nodes)
-      // filter: is optional, but is failing without id
-      filter: { name: '%' },
-    });
+    const response = await client.request<TopologyDevicesQuery, TopologyDevicesQueryVariables>(GET_TOPOLOGY_DEVICES);
 
     return response;
   }
 
   async function getNetTopologyDevices() {
-    const response = await client.request<NetTopologyQuery, NetTopologyQueryVariables>(GET_NET_TOPOLOGY_DEVICES, {
-      // topology discovery server changes requested:
-      // first: argument should be changed to optional (to response with all nodes)
-      // filter: is optional, but is failing without id
-      filter: { routerId: '%' },
-    });
+    const response = await client.request<NetTopologyQuery, NetTopologyQueryVariables>(GET_NET_TOPOLOGY_DEVICES);
 
     return response;
   }
