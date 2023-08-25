@@ -1148,3 +1148,24 @@ export const ExecutedWorkflowSubscription = subscriptionField('controlExecutedWo
     };
   },
 });
+
+export const ExternalStorage = objectType({
+  name: 'ExternaStorage',
+  definition: (t) => {
+    t.nonNull.string('data');
+  },
+});
+
+export const WorkflowExternalStorage = queryField('externalStorage', {
+  type: ExternalStorage,
+  args: {
+    path: nonNull(stringArg()),
+  },
+  resolve: async (_, { path }, { uniconfigAPI }) => {
+    const result = await uniconfigAPI.getExternalStorage(config.conductorApiURL, path);
+
+    return {
+      data: JSON.stringify(result),
+    };
+  },
+});

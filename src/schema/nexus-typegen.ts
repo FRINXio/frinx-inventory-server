@@ -722,6 +722,10 @@ export interface NexusGenObjects {
     node: NexusGenRootTypes['ExecutedWorkflow']; // ExecutedWorkflow!
   };
   ExecutedWorkflowTask: SourceTypes.ExecutedWorkflowTask;
+  ExternaStorage: {
+    // root type
+    data: string; // String!
+  };
   GraphEdge: {
     // root type
     id: string; // ID!
@@ -1349,6 +1353,10 @@ export interface NexusGenFieldTypes {
     updateTime: string | null; // String
     workflowType: string | null; // String
   };
+  ExternaStorage: {
+    // field return type
+    data: string; // String!
+  };
   GraphEdge: {
     // field return type
     id: string; // ID!
@@ -1584,6 +1592,7 @@ export interface NexusGenFieldTypes {
     eventHandlers: NexusGenRootTypes['EventHandlerConnection'] | null; // EventHandlerConnection
     eventHandlersByEvent: NexusGenRootTypes['EventHandlerConnection'] | null; // EventHandlerConnection
     executedWorkflows: NexusGenRootTypes['ExecutedWorkflowConnection'] | null; // ExecutedWorkflowConnection
+    externalStorage: NexusGenRootTypes['ExternaStorage'] | null; // ExternaStorage
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
@@ -2124,6 +2133,10 @@ export interface NexusGenFieldTypeNames {
     updateTime: 'String';
     workflowType: 'String';
   };
+  ExternaStorage: {
+    // field return type name
+    data: 'String';
+  };
   GraphEdge: {
     // field return type name
     id: 'ID';
@@ -2359,6 +2372,7 @@ export interface NexusGenFieldTypeNames {
     eventHandlers: 'EventHandlerConnection';
     eventHandlersByEvent: 'EventHandlerConnection';
     executedWorkflows: 'ExecutedWorkflowConnection';
+    externalStorage: 'ExternaStorage';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
@@ -2894,6 +2908,10 @@ export interface NexusGenArgTypes {
       orderBy?: NexusGenInputs['ExecutedWorkflowsOrderByInput'] | null; // ExecutedWorkflowsOrderByInput
       pagination?: NexusGenInputs['PaginationArgs'] | null; // PaginationArgs
       searchQuery?: NexusGenInputs['ExecutedWorkflowSearchInput'] | null; // ExecutedWorkflowSearchInput
+    };
+    externalStorage: {
+      // args
+      path: string; // String!
     };
     labels: {
       // args

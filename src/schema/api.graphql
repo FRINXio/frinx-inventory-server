@@ -579,6 +579,10 @@ input ExecutedWorkflowsOrderByInput {
   sortKey: SortExecutedWorkflowsBy!
 }
 
+type ExternaStorage {
+  data: String!
+}
+
 input FilterDevicesInput {
   deviceName: String
   labels: [String!]
@@ -916,6 +920,7 @@ type Query {
     pagination: PaginationArgs
     searchQuery: ExecutedWorkflowSearchInput
   ): ExecutedWorkflowConnection
+  externalStorage(path: String!): ExternaStorage
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
