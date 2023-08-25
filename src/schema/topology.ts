@@ -77,6 +77,7 @@ export const GraphEdge = objectType({
   name: 'GraphEdge',
   definition: (t) => {
     t.nonNull.id('id');
+    t.int('weight');
     t.nonNull.field('source', { type: EdgeSourceTarget });
     t.nonNull.field('target', { type: EdgeSourceTarget });
   },
@@ -361,11 +362,19 @@ export const NetTopologyQuery = extendType({
   },
 });
 
-export const NetRoutingsPaths = objectType({
-  name: 'NetRoutingPaths',
+export const NetRoutingPathNodeInfo = objectType({
+  name: 'NetRoutingPathNodeInfo',
   definition: (t) => {
-    t.nonNull.field('shortestPath', { type: nonNull(list(nonNull('String'))) });
-    t.nonNull.field('alternativePaths', { type: nonNull(list(nonNull(list(nonNull('String'))))) });
+    t.int('weight');
+    t.string('name');
+  },
+});
+
+export const NetRoutingPathNode = objectType({
+  name: 'NetRoutingPathNode',
+  definition: (t) => {
+    t.int('weight');
+    t.field('nodes', { type: nonNull(list(nonNull(NetRoutingPathNodeInfo))) });
   },
 });
 
@@ -373,7 +382,7 @@ export const ShortestPathQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.field('shortestPath', {
-      type: NetRoutingsPaths,
+      type: nonNull(list(nonNull(NetRoutingPathNode))),
       args: {
         from: nonNull(stringArg()),
         to: nonNull(stringArg()),
@@ -384,14 +393,15 @@ export const ShortestPathQuery = extendType({
         const toNodeNativeId = fromGraphId('GraphNode', to);
 
         const shortestPathResult = await topologyDiscoveryGraphQLAPI?.getShortestPath(fromNodeNativeId, toNodeNativeId);
-        const shortestPath = shortestPathResult?.netRoutingPaths?.shortestPath?.edges ?? [];
-        const alternativePaths =
-          shortestPathResult?.netRoutingPaths?.alternativePaths?.edges?.filter(omitNullValue) ?? [];
+        const shortestPathNodes = shortestPathResult?.netRoutingPaths?.edges?.filter(omitNullValue) ?? [];
 
-        return {
-          shortestPath,
-          alternativePaths,
-        };
+        return shortestPathNodes.map((n) => ({
+          weight: n.weight,
+          nodes: n.nodes.map((nodes) => ({
+            weight: nodes.weight,
+            name: nodes.node,
+          })),
+        }));
       },
     });
   },

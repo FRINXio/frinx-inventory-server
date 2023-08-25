@@ -10,10 +10,11 @@ import {
   stringArg,
 } from 'nexus';
 import { v4 as uuid } from 'uuid';
-import { IsOkResponse, Node, PaginationConnectionArgs } from './global-types';
+import { IsOkResponse, Node, PaginationConnectionArgs, SortDirection } from './global-types';
 import config from '../config';
 import {
   filterEventHandlers,
+  getOrderedEventHandlers,
   makeFromApiToGraphQLEventHandler,
   makeFromGraphQLToApiEventHandler,
 } from '../helpers/event-handler.helpers';
@@ -107,18 +108,35 @@ export const FilterEventHandlerInput = inputObjectType({
   },
 });
 
+export const SortEventHandlersBy = enumType({
+  name: 'SortEventHandlersBy',
+  members: ['isActive', 'name', 'evaluatorType', 'event'],
+});
+
+export const EventHandlersOrderByInput = inputObjectType({
+  name: 'EventHandlersOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortEventHandlersBy });
+    t.nonNull.field('direction', { type: SortDirection });
+  },
+});
+
 export const EventHandlerQuery = queryField('eventHandlers', {
   type: EventHandlerConnection,
   args: {
     filter: arg({ type: FilterEventHandlerInput }),
     ...PaginationConnectionArgs,
+    orderBy: EventHandlersOrderByInput,
   },
   resolve: async (_, args, { conductorAPI }) => {
-    const { filter, ...paginationArgs } = args;
+    const { filter, orderBy: orderingArgs, ...paginationArgs } = args;
     const eventHandlers = await conductorAPI.getEventHandlers(config.conductorApiURL);
 
     const filteredEventHandlers = filterEventHandlers(eventHandlers, filter);
-    const mappedEventHandlersWithId = filteredEventHandlers.map((eventHandler) => ({
+    const orderedEventHandlers = orderingArgs
+      ? getOrderedEventHandlers(filteredEventHandlers, orderingArgs.sortKey, orderingArgs.direction)
+      : filteredEventHandlers;
+    const mappedEventHandlersWithId = orderedEventHandlers.map((eventHandler) => ({
       ...makeFromApiToGraphQLEventHandler(eventHandler),
     }));
 
@@ -226,23 +244,28 @@ export const UpdateEventHandlerMutation = mutationField('updateEventHandler', {
     if (input.actions == null || input.actions.length === 0) {
       await conductorAPI.updateEventHandler(config.conductorApiURL, {
         ...oldEventHandler,
-        ...makeFromGraphQLToApiEventHandler({
-          ...input,
-          actions: [],
-          name,
-          event,
-        }),
-        actions: oldEventHandler.actions,
+        ...makeFromGraphQLToApiEventHandler(
+          {
+            ...input,
+            actions: [],
+            name,
+            event,
+          },
+          oldEventHandler,
+        ),
       });
     } else {
       await conductorAPI.updateEventHandler(config.conductorApiURL, {
         ...oldEventHandler,
-        ...makeFromGraphQLToApiEventHandler({
-          ...input,
-          actions: input.actions,
-          name,
-          event,
-        }),
+        ...makeFromGraphQLToApiEventHandler(
+          {
+            ...input,
+            actions: input.actions,
+            name,
+            event,
+          },
+          oldEventHandler,
+        ),
       });
     }
 

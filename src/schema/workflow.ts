@@ -112,6 +112,11 @@ export const Workflow = objectType({
     });
     t.boolean('restartable');
     t.field('timeoutPolicy', { type: TimeoutPolicy });
+    t.string('ownerEmail');
+    t.int('schemaVersion');
+    t.string('variables', {
+      resolve: (w) => (w.variables ? JSON.stringify(w.variables) : null),
+    });
   },
 });
 
@@ -167,7 +172,7 @@ export const WorkflowsQuery = extendType({
       args: {
         ...PaginationConnectionArgs,
         filter: FilterWorkflowsInput,
-        orderBy: nonNull(WorkflowsOrderByInput),
+        orderBy: WorkflowsOrderByInput,
       },
       resolve: async (_, args, { conductorAPI }) => {
         const { filter, orderBy: orderingArgs, ...paginationArgs } = args;
@@ -176,11 +181,10 @@ export const WorkflowsQuery = extendType({
         const filteredWorkflows =
           filter?.labels || filter?.keyword ? getFilteredWorkflows(workflows, filter) : workflows;
 
-        const orderedData = orderBy(
-          filteredWorkflows,
-          [orderingArgs.sortKey],
-          [orderingArgs.direction === 'ASC' ? 'asc' : 'desc'],
-        );
+        const orderedData =
+          (orderingArgs &&
+            orderBy(filteredWorkflows, [orderingArgs.sortKey], [orderingArgs.direction === 'ASC' ? 'asc' : 'desc'])) ??
+          filteredWorkflows;
 
         const workflowsWithId = orderedData.map((w) => ({
           ...w,

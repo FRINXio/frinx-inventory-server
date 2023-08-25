@@ -202,7 +202,7 @@ function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
           }
           return {
             ...inode,
-            nodeId: node.id,
+            nodeId: node.name,
           };
         })
         .filter(omitNullValue);
@@ -224,7 +224,7 @@ export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery) {
     },
     target: {
       interface: unwrap(i.phyLink?.id),
-      nodeId: unwrap(i.phyLink?.phyDevice?.id),
+      nodeId: unwrap(i.phyLink?.phyDevice?.name),
     },
   }));
 }
@@ -293,6 +293,7 @@ function getEdgesFromTopologyDevices(topologyDevices: NetTopologyQuery['netDevic
 
             return {
               id: `${deviceInterface.id}-${deviceInterface.netLink.id}`,
+              weight: deviceInterface?.netLink?.igp_metric ?? null,
               source: {
                 interface: deviceInterface.id,
                 nodeId: deviceInterface.netDevice.routerId,

@@ -11,11 +11,12 @@ import {
 const GET_SHORTEST_PATH = gql`
   query GetShortestPath($deviceFrom: ID!, $deviceTo: ID!, $collection: NetRoutingPathOutputCollections) {
     netRoutingPaths(deviceFrom: $deviceFrom, deviceTo: $deviceTo, outputCollection: $collection) {
-      shortestPath {
-        edges
-      }
-      alternativePaths {
-        edges
+      edges {
+        weight
+        nodes {
+          node
+          weight
+        }
       }
     }
   }
@@ -86,6 +87,7 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
                 }
                 netLink {
                   id
+                  igp_metric
                   netDevice {
                     id
                     routerId
@@ -129,6 +131,7 @@ function getTopologyDiscoveryApi() {
     const response = await client.request<GetShortestPathQuery, GetShortestPathQueryVariables>(GET_SHORTEST_PATH, {
       deviceFrom: from,
       deviceTo: to,
+      collection: 'NetInterface',
     });
 
     return response;
@@ -148,7 +151,6 @@ function getTopologyDiscoveryApi() {
 
   async function getBackups() {
     const response = await client.request<GetBackupsQuery>(GET_BACKUPS);
-
     return response;
   }
 

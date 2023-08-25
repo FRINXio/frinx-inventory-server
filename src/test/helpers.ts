@@ -14,15 +14,6 @@ type TestContext = {
   db: PrismaClient;
 };
 
-function truncate(prisma: PrismaClient) {
-  // eslint-disable-next-line
-  // @ts-ignore
-  const models = Reflect.ownKeys(prisma).filter((key) => key[0] !== '_');
-  // eslint-disable-next-line
-  // @ts-ignore
-  return Promise.all(models.map((modelKey) => prisma[modelKey].deleteMany()));
-}
-
 function graphqlTestContext() {
   let serverInstance: Server | null = null;
   return {
@@ -53,7 +44,6 @@ function prismaTestContext() {
       // Run the migrations to ensure our schema has the required structure
       execSync(`${prismaBinary} db push`);
       // Construct a new Prisma Client connected to the generated schema
-      await truncate(prismaClient);
       return prismaClient;
     },
     async after() {

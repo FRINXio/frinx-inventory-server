@@ -210,6 +210,11 @@ export interface NexusGenInputs {
     failTask?: NexusGenInputs['ActionFailTaskInput'] | null; // ActionFailTaskInput
     startWorkflow?: NexusGenInputs['ActionStartWorkflowInput'] | null; // ActionStartWorkflowInput
   };
+  EventHandlersOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortEventHandlersBy']; // SortEventHandlersBy!
+  };
   ExecuteNewWorkflowInput: {
     // input type
     correlationId?: string | null; // String
@@ -356,6 +361,11 @@ export interface NexusGenInputs {
     type?: string | null; // String
     workflowTaskType?: Array<NexusGenEnums['WorkflowTaskType'] | null> | null; // [WorkflowTaskType]
   };
+  TasksOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortTasksBy']; // SortTasksBy!
+  };
   TerminateWorkflowInput: {
     // input type
     reason?: string | null; // String
@@ -459,12 +469,14 @@ export interface NexusGenEnums {
   PoolType: 'allocating' | 'set' | 'singleton';
   RetryLogic: 'EXPONENTIAL_BACKOFF' | 'FIXED' | 'LINEAR_BACKOFF';
   ScheduleStatus: 'COMPLETED' | 'FAILED' | 'PAUSED' | 'RUNNING' | 'TERMINATED' | 'TIMED_OUT' | 'UNKNOWN';
-  SortDeviceBy: 'CREATED_AT' | 'NAME';
+  SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
+  SortEventHandlersBy: 'evaluatorType' | 'event' | 'isActive' | 'name';
   SortExecutedWorkflowsBy: 'endTime' | 'startTime' | 'status' | 'workflowId' | 'workflowName';
   SortExecutedWorkflowsDirection: 'asc' | 'desc';
   SortPollsBy: 'lastPollTime' | 'queueName' | 'workerId';
   SortPollsDirection: 'asc' | 'desc';
+  SortTasksBy: 'name' | 'responseTimeoutSeconds' | 'retryCount' | 'retryLogic' | 'timeoutPolicy' | 'timeoutSeconds';
   SortWorkflowsBy: 'name';
   TaskTimeoutPolicy: 'ALERT_ONLY' | 'RETRY' | 'TIME_OUT_WF';
   TimeoutPolicy: 'ALERT_ONLY' | 'TIME_OUT_WF';
@@ -715,6 +727,7 @@ export interface NexusGenObjects {
     id: string; // ID!
     source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
     target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    weight?: number | null; // Int
   };
   GraphNode: {
     // root type
@@ -804,10 +817,15 @@ export interface NexusGenObjects {
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
     nodeId: string; // String!
   };
-  NetRoutingPaths: {
+  NetRoutingPathNode: {
     // root type
-    alternativePaths: string[][]; // [[String!]!]!
-    shortestPath: string[]; // [String!]!
+    nodes: NexusGenRootTypes['NetRoutingPathNodeInfo'][]; // [NetRoutingPathNodeInfo!]!
+    weight?: number | null; // Int
+  };
+  NetRoutingPathNodeInfo: {
+    // root type
+    name?: string | null; // String
+    weight?: number | null; // Int
   };
   NetTopology: {
     // root type
@@ -1336,6 +1354,7 @@ export interface NexusGenFieldTypes {
     id: string; // ID!
     source: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
     target: NexusGenRootTypes['EdgeSourceTarget']; // EdgeSourceTarget!
+    weight: number | null; // Int
   };
   GraphNode: {
     // field return type
@@ -1489,10 +1508,15 @@ export interface NexusGenFieldTypes {
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
     nodeId: string; // String!
   };
-  NetRoutingPaths: {
+  NetRoutingPathNode: {
     // field return type
-    alternativePaths: string[][]; // [[String!]!]!
-    shortestPath: string[]; // [String!]!
+    nodes: NexusGenRootTypes['NetRoutingPathNodeInfo'][]; // [NetRoutingPathNodeInfo!]!
+    weight: number | null; // Int
+  };
+  NetRoutingPathNodeInfo: {
+    // field return type
+    name: string | null; // String
+    weight: number | null; // Int
   };
   NetTopology: {
     // field return type
@@ -1567,7 +1591,7 @@ export interface NexusGenFieldTypes {
     pollData: NexusGenRootTypes['PollDataConnection'] | null; // PollDataConnection
     pools: NexusGenRootTypes['PoolConnection']; // PoolConnection!
     schedules: NexusGenRootTypes['ScheduleConnection']; // ScheduleConnection!
-    shortestPath: NexusGenRootTypes['NetRoutingPaths'] | null; // NetRoutingPaths
+    shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     taskDefinitions: NexusGenRootTypes['TaskDefinitionConnection']; // TaskDefinitionConnection!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -1747,12 +1771,15 @@ export interface NexusGenFieldTypes {
     inputParameters: string[] | null; // [String!]
     name: string; // String!
     outputParameters: NexusGenRootTypes['OutputParameter'][] | null; // [OutputParameter!]
+    ownerEmail: string | null; // String
     restartable: boolean | null; // Boolean
+    schemaVersion: number | null; // Int
     tasks: string | null; // String
     timeoutPolicy: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
     timeoutSeconds: number; // Int!
     updatedAt: string | null; // String
     updatedBy: string | null; // String
+    variables: string | null; // String
     version: number | null; // Int
   };
   WorkflowConnection: {
@@ -2102,6 +2129,7 @@ export interface NexusGenFieldTypeNames {
     id: 'ID';
     source: 'EdgeSourceTarget';
     target: 'EdgeSourceTarget';
+    weight: 'Int';
   };
   GraphNode: {
     // field return type name
@@ -2255,10 +2283,15 @@ export interface NexusGenFieldTypeNames {
     networks: 'NetNetwork';
     nodeId: 'String';
   };
-  NetRoutingPaths: {
+  NetRoutingPathNode: {
     // field return type name
-    alternativePaths: 'String';
-    shortestPath: 'String';
+    nodes: 'NetRoutingPathNodeInfo';
+    weight: 'Int';
+  };
+  NetRoutingPathNodeInfo: {
+    // field return type name
+    name: 'String';
+    weight: 'Int';
   };
   NetTopology: {
     // field return type name
@@ -2333,7 +2366,7 @@ export interface NexusGenFieldTypeNames {
     pollData: 'PollDataConnection';
     pools: 'PoolConnection';
     schedules: 'ScheduleConnection';
-    shortestPath: 'NetRoutingPaths';
+    shortestPath: 'NetRoutingPathNode';
     taskDefinitions: 'TaskDefinitionConnection';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
@@ -2513,12 +2546,15 @@ export interface NexusGenFieldTypeNames {
     inputParameters: 'String';
     name: 'String';
     outputParameters: 'OutputParameter';
+    ownerEmail: 'String';
     restartable: 'Boolean';
+    schemaVersion: 'Int';
     tasks: 'String';
     timeoutPolicy: 'TimeoutPolicy';
     timeoutSeconds: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
+    variables: 'String';
     version: 'Int';
   };
   WorkflowConnection: {
@@ -2842,6 +2878,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterEventHandlerInput'] | null; // FilterEventHandlerInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['EventHandlersOrderByInput'] | null; // EventHandlersOrderByInput
     };
     eventHandlersByEvent: {
       // args
@@ -2915,6 +2952,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterTaskDefinitionsInput'] | null; // FilterTaskDefinitionsInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['TasksOrderByInput'] | null; // TasksOrderByInput
     };
     topology: {
       // args
@@ -2940,7 +2978,7 @@ export interface NexusGenArgTypes {
       filter?: NexusGenInputs['FilterWorkflowsInput'] | null; // FilterWorkflowsInput
       first?: number | null; // Int
       last?: number | null; // Int
-      orderBy: NexusGenInputs['WorkflowsOrderByInput']; // WorkflowsOrderByInput!
+      orderBy?: NexusGenInputs['WorkflowsOrderByInput'] | null; // WorkflowsOrderByInput
     };
     zones: {
       // args
