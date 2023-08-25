@@ -287,3 +287,8 @@ export type NetTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type NetTopologyQuery = { __typename?: 'Query', netDevices: { __typename?: 'NetDeviceConnection', edges: Array<{ __typename?: 'NetDeviceEdge', node: { __typename?: 'NetDevice', id: string, routerId: string, phyDevice: { __typename?: 'PhyDevice', id: string, routerId: string | null, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null, netInterfaces: { __typename?: 'NetInterfaceConnection', edges: Array<{ __typename?: 'NetInterfaceEdge', cursor: string, node: { __typename?: 'NetInterface', id: string, ipAddress: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null, netLink: { __typename?: 'NetInterface', id: string, igp_metric: number | null, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null } | null } | null } | null> | null }, netNetworks: { __typename?: 'NetNetworkConnection', edges: Array<{ __typename?: 'NetNetworkEdge', node: { __typename?: 'NetNetwork', id: string, subnet: string, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null } | null> | null } } | null } | null> | null } };
+
+export type GetBackupsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetBackupsQuery = { __typename?: 'Query', backups: Array<string> };

@@ -1,12 +1,11 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import config from '../config';
 import {
+  GetBackupsQuery,
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
   NetTopologyQuery,
-  NetTopologyQueryVariables,
   TopologyDevicesQuery,
-  TopologyDevicesQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 
 const GET_SHORTEST_PATH = gql`
@@ -115,6 +114,12 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
   }
 `;
 
+const GET_BACKUPS = gql`
+  query GetBackups {
+    backups
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -133,14 +138,19 @@ function getTopologyDiscoveryApi() {
   }
 
   async function getTopologyDevices() {
-    const response = await client.request<TopologyDevicesQuery, TopologyDevicesQueryVariables>(GET_TOPOLOGY_DEVICES);
+    const response = await client.request<TopologyDevicesQuery>(GET_TOPOLOGY_DEVICES);
 
     return response;
   }
 
   async function getNetTopologyDevices() {
-    const response = await client.request<NetTopologyQuery, NetTopologyQueryVariables>(GET_NET_TOPOLOGY_DEVICES);
+    const response = await client.request<NetTopologyQuery>(GET_NET_TOPOLOGY_DEVICES);
 
+    return response;
+  }
+
+  async function getBackups() {
+    const response = await client.request<GetBackupsQuery>(GET_BACKUPS);
     return response;
   }
 
@@ -148,6 +158,7 @@ function getTopologyDiscoveryApi() {
     getTopologyDevices,
     getNetTopologyDevices,
     getShortestPath,
+    getBackups,
   };
 }
 

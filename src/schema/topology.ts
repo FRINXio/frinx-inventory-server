@@ -160,12 +160,12 @@ export const TopologyVersionsQuery = extendType({
   definition: (t) => {
     t.field('topologyVersions', {
       type: list(nonNull('String')),
-      resolve: async (_, _args, { topologyDiscoveryAPI }) => {
+      resolve: async (_, _args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled) {
           return null;
         }
-        const { backups: versions } = await topologyDiscoveryAPI.getVersions(unwrap(config.topologyDiscoveryURL));
-        return versions;
+        const data = await topologyDiscoveryGraphQLAPI?.getBackups();
+        return data?.backups ?? [];
       },
     });
   },
