@@ -10,12 +10,35 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  JSON: any;
+};
+
+export type CommonNodesResponse = {
+  __typename?: 'CommonNodesResponse';
+  common_nodes: Array<Scalars['String']>;
 };
 
 export type Coordinates = {
   __typename?: 'Coordinates';
   x: Scalars['Float'];
   y: Scalars['Float'];
+};
+
+export type CoordinatesInput = {
+  node_name: Scalars['String'];
+  node_type: CoordinatesNodeType;
+  x: Scalars['Float'];
+  y: Scalars['Float'];
+};
+
+export type CoordinatesNodeType =
+  | 'device'
+  | 'network';
+
+export type CoordinatesResponse = {
+  __typename?: 'CoordinatesResponse';
+  not_updated: Array<Scalars['String']>;
+  updated: Array<Scalars['String']>;
 };
 
 export type CreateBackupResponse = {
@@ -32,11 +55,17 @@ export type Mutation = {
   __typename?: 'Mutation';
   createBackup: CreateBackupResponse;
   deleteBackups: DeleteBackupsResponse;
+  updateCoordinates: CoordinatesResponse;
 };
 
 
 export type MutationDeleteBackupsArgs = {
   delete_age?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type MutationUpdateCoordinatesArgs = {
+  coordinates_list: Array<CoordinatesInput>;
 };
 
 export type NetDevice = Node & {
@@ -202,6 +231,11 @@ export type PhyDeviceFilter = {
   name?: InputMaybe<Scalars['String']>;
 };
 
+export type PhyHasAndInterfacesResponse = {
+  __typename?: 'PhyHasAndInterfacesResponse';
+  phy_has_and_interfaces_data: Scalars['JSON'];
+};
+
 export type PhyInterface = Node & {
   __typename?: 'PhyInterface';
   id: Scalars['ID'];
@@ -228,13 +262,28 @@ export type PhyInterfaceFilter = {
   status?: InputMaybe<Scalars['String']>;
 };
 
+export type PhyLinksAndDevicesResponse = {
+  __typename?: 'PhyLinksAndDevicesResponse';
+  phy_links_and_devices_data: Scalars['JSON'];
+};
+
 export type Query = {
   __typename?: 'Query';
   backups: Array<Scalars['String']>;
+  commonNodes: CommonNodesResponse;
   netDevices: NetDeviceConnection;
   netRoutingPaths: Maybe<NetRoutingPathConnection>;
   node: Maybe<Node>;
   phyDevices: PhyDeviceConnection;
+  phyHasAndInterfaces: PhyHasAndInterfacesResponse;
+  phyLinksAndDevices: PhyLinksAndDevicesResponse;
+  topologyDiff: TopologyResponse;
+};
+
+
+export type QueryCommonNodesArgs = {
+  db_name?: InputMaybe<Scalars['String']>;
+  selected_nodes: Array<Scalars['String']>;
 };
 
 
@@ -263,10 +312,26 @@ export type QueryPhyDevicesArgs = {
   first?: InputMaybe<Scalars['Int']>;
 };
 
+
+export type QueryTopologyDiffArgs = {
+  collection_type: TopologyDiffCollectionTypes;
+  new_db?: InputMaybe<Scalars['String']>;
+  old_db?: InputMaybe<Scalars['String']>;
+};
+
 export type RoutingPath = {
   __typename?: 'RoutingPath';
   nodes: Array<NodeInfo>;
   weight: Scalars['Int'];
+};
+
+export type TopologyDiffCollectionTypes =
+  | 'net'
+  | 'phy';
+
+export type TopologyResponse = {
+  __typename?: 'TopologyResponse';
+  diff_data: Maybe<Scalars['JSON']>;
 };
 
 export type GetShortestPathQueryVariables = Exact<{
@@ -292,3 +357,35 @@ export type GetBackupsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetBackupsQuery = { __typename?: 'Query', backups: Array<string> };
+
+export type TopologyDiffQueryVariables = Exact<{
+  new_db: Scalars['String'];
+  old_db: Scalars['String'];
+}>;
+
+
+export type TopologyDiffQuery = { __typename?: 'Query', topologyDiff: { __typename?: 'TopologyResponse', diff_data: any | null } };
+
+export type GetLinksAndDevicesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetLinksAndDevicesQuery = { __typename?: 'Query', phyLinksAndDevices: { __typename?: 'PhyLinksAndDevicesResponse', phy_links_and_devices_data: any } };
+
+export type GetHasAndInterfacesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetHasAndInterfacesQuery = { __typename?: 'Query', phyHasAndInterfaces: { __typename?: 'PhyHasAndInterfacesResponse', phy_has_and_interfaces_data: any } };
+
+export type GetCommonNodesQueryVariables = Exact<{
+  selectedNodes: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type GetCommonNodesQuery = { __typename?: 'Query', commonNodes: { __typename?: 'CommonNodesResponse', common_nodes: Array<string> } };
+
+export type UpdateCoordinatesMutationVariables = Exact<{
+  coordinates: Array<CoordinatesInput> | CoordinatesInput;
+}>;
+
+
+export type UpdateCoordinatesMutation = { __typename?: 'Mutation', updateCoordinates: { __typename?: 'CoordinatesResponse', updated: Array<string> } };
