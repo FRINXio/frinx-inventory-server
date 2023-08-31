@@ -6,7 +6,6 @@ import {
   GetCommonNodesQuery,
   GetCommonNodesQueryVariables,
   GetHasAndInterfacesQuery,
-  GetHasAndInterfacesQueryVariables,
   GetLinksAndDevicesQuery,
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
@@ -220,12 +219,7 @@ function getTopologyDiscoveryApi() {
       new_db: 'current',
       old_db: version,
     });
-    console.log('topologyDiff response: ', response.topologyDiff.diff_data);
     const json = decodeTopologyDiffOutput(response.topologyDiff.diff_data);
-    console.log(json.added);
-    console.log(json.changed);
-    console.log(json.deleted);
-    console.log('topologyDiff: OK');
 
     return json;
   }
@@ -233,7 +227,6 @@ function getTopologyDiscoveryApi() {
   async function getHasAndInterfaces() {
     const response = await client.request<GetHasAndInterfacesQuery>(GET_HAS_AND_INTERFACES);
     const { phyHasAndInterfaces } = response;
-    console.log('hasAndInterfaces: ', phyHasAndInterfaces);
     const json = decodeHasAndInterfacesOutput(phyHasAndInterfaces.phy_has_and_interfaces_data);
 
     return json;
@@ -242,9 +235,7 @@ function getTopologyDiscoveryApi() {
   async function getLinksAndDevices() {
     const response = await client.request<GetLinksAndDevicesQuery>(GET_LINKS_AND_DEVICES);
     const { phyLinksAndDevices } = response;
-    console.log('linksAndDevices: ', phyLinksAndDevices);
     const json = decodeLinksAndDevicesOutput(phyLinksAndDevices.phy_links_and_devices_data);
-    console.log('linksAndDevices: OK');
 
     return json;
   }
