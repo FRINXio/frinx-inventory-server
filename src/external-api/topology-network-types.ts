@@ -80,7 +80,7 @@ const Edge = t.type({
 const EdgeWithStatusValidator = t.intersection([
   Edge,
   t.type({
-    status: optional(StatusValidator),
+    status: StatusValidator,
   }),
 ]);
 
