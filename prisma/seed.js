@@ -9,8 +9,8 @@ const client_1 = require('@prisma/client');
 const csv_parse_1 = require('csv-parse');
 const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
-const import_csv_helpers_1 = require('../src/helpers/import-csv.helpers');
-const utils_helpers_1 = require('../src/helpers/utils.helpers');
+const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
+const utils_helpers_1 = require('../helpers/utils.helpers');
 const DEFAULT_UNICONFIG_ZONE = 'localhost';
 const { X_TENANT_ID } = process.env;
 if (!X_TENANT_ID) {
