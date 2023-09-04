@@ -30,7 +30,7 @@ import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/i
 import { getUniconfigURL } from '../helpers/zone.helpers';
 import { sshClient } from '../uniconfig-shell';
 import { Blueprint } from './blueprint';
-import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
@@ -175,11 +175,7 @@ export const FilterDevicesInput = inputObjectType({
 });
 export const SortDeviceBy = enumType({
   name: 'SortDeviceBy',
-  members: ['NAME', 'CREATED_AT'],
-});
-export const SortDirection = enumType({
-  name: 'SortDirection',
-  members: ['ASC', 'DESC'],
+  members: ['name', 'createdAt', 'serviceState'],
 });
 export const DeviceOrderByInput = inputObjectType({
   name: 'DeviceOrderByInput',

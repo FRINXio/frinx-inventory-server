@@ -445,3 +445,11 @@ export type UniconfigRevertChangesOutput = t.TypeOf<typeof UniconfigRevertChange
 export function decodeUniconfigRevertChangesOutput(value: unknown): UniconfigRevertChangesOutput {
   return extractResult(UniconfigRevertChangesOutputValidator.decode(value));
 }
+
+const UniconfigExternalStorageOutputValidator = t.record(t.string, t.string);
+
+export type UniconfigExternalStorageOutput = t.TypeOf<typeof UniconfigExternalStorageOutputValidator>;
+
+export function decodeUniconfigExternalStorageOutput(value: unknown): UniconfigExternalStorageOutput {
+  return extractResult(UniconfigExternalStorageOutputValidator.decode(value));
+}

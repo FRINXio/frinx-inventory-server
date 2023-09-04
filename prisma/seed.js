@@ -10,7 +10,7 @@ const csv_parse_1 = require('csv-parse');
 const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
 const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
-const unwrap_1 = __importDefault(require('../helpers/unwrap'));
+const utils_helpers_1 = require('../helpers/utils.helpers');
 const DEFAULT_UNICONFIG_ZONE = 'localhost';
 const { X_TENANT_ID } = process.env;
 if (!X_TENANT_ID) {
@@ -70,7 +70,7 @@ async function getCreateDevicesArgs() {
     return {
       name: node_id,
       tenantId,
-      uniconfigZoneId: (0, unwrap_1.default)(uniconfigZoneId).id,
+      uniconfigZoneId: (0, utils_helpers_1.unwrap)(uniconfigZoneId).id,
       managementIp: ip_address,
       port: port_number,
       software: device_type,

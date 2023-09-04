@@ -3,7 +3,7 @@ import { parse } from 'csv-parse';
 import { createReadStream } from 'fs';
 import jsonParse from 'json-templates';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid, JSONDevice } from '../src/helpers/import-csv.helpers';
-import unwrap from '../src/helpers/unwrap';
+import { unwrap } from '../src/helpers/utils.helpers';
 
 const DEFAULT_UNICONFIG_ZONE = 'localhost';
 

@@ -1,4 +1,13 @@
 import { blueprint, device, label, location, uniconfigZone } from '@prisma/client';
+import {
+  ApiExecutedWorkflow,
+  ApiExecutedWorkflowTask,
+  ApiWorkflow,
+  NestedTask,
+  ApiTaskDefinition,
+} from '../external-api/conductor-network-types';
+import { GetScheduleQuery } from '../__generated__/scheduler.graphql';
+import { PoolFragmentFragment } from '../__generated__/resource-manager.graphql';
 
 export type Label = label;
 export type Device = device;
@@ -15,3 +24,10 @@ export type Country = {
   code: string;
 };
 export type Blueprint = blueprint;
+export type Workflow = ApiWorkflow & { id: string };
+export type ExecutedWorkflow = ApiExecutedWorkflow & { id: string };
+export type ExecutedWorkflowTask = ApiExecutedWorkflowTask & { id: string };
+export type WorkflowTask = NestedTask;
+export type TaskDefinition = ApiTaskDefinition;
+export type Schedule = GetScheduleQuery['schedule'] & { id: string };
+export type ResourcePool = PoolFragmentFragment;
