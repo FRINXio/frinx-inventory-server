@@ -68,6 +68,7 @@ const GET_TOPOLOGY_DEVICES = gql`
                 status
                 phyLink {
                   id
+                  idLink
                   name
                   phyDevice {
                     id

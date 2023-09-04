@@ -217,7 +217,7 @@ export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery) {
   }
 
   return getTopologyInterfaces(topologyDevices).map((i) => ({
-    id: `${i.id}-${i.phyLink?.id}`,
+    id: i.phyLink?.idLink ?? '',
     source: {
       interface: i.id,
       nodeId: i.nodeId,

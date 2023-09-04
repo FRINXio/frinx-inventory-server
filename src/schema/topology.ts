@@ -140,6 +140,7 @@ export const TopologyQuery = extendType({
         const { filter } = args;
 
         const topologyDevices = await topologyDiscoveryGraphQLAPI?.getTopologyDevices();
+        // console.log(JSON.stringify(topologyDevices, null, 2));
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
         const labelIds = dbLabels.map((l) => l.id);
@@ -250,7 +251,7 @@ export const TopologyVersionDataQuery = extendType({
 
         return {
           nodes: oldDevices.map((device) => ({
-            id: toGraphId('GraphNode', device._key),
+            id: toGraphId('GraphNode', device._id),
             name: device.name,
             interfaces: interfaceMap[device._id] ?? [],
             coordinates: device.coordinates,

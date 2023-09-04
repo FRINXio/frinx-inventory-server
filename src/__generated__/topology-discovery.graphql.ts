@@ -239,6 +239,7 @@ export type PhyHasAndInterfacesResponse = {
 export type PhyInterface = Node & {
   __typename?: 'PhyInterface';
   id: Scalars['ID'];
+  idLink: Maybe<Scalars['ID']>;
   name: Scalars['String'];
   phyDevice: Maybe<PhyDevice>;
   phyLink: Maybe<PhyInterface>;
@@ -346,7 +347,7 @@ export type GetShortestPathQuery = { __typename?: 'Query', netRoutingPaths: { __
 export type TopologyDevicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TopologyDevicesQuery = { __typename?: 'Query', phyDevices: { __typename?: 'PhyDeviceConnection', edges: Array<{ __typename?: 'PhyDeviceEdge', node: { __typename?: 'PhyDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PhyDeviceDetails', sw_version: string, device_type: string }, phyInterfaces: { __typename?: 'PhyInterfaceConnection', edges: Array<{ __typename?: 'PhyInterfaceEdge', node: { __typename?: 'PhyInterface', id: string, name: string, status: string, phyLink: { __typename?: 'PhyInterface', id: string, name: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string } | null } | null } | null } | null> | null } } | null } | null> | null } };
+export type TopologyDevicesQuery = { __typename?: 'Query', phyDevices: { __typename?: 'PhyDeviceConnection', edges: Array<{ __typename?: 'PhyDeviceEdge', node: { __typename?: 'PhyDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PhyDeviceDetails', sw_version: string, device_type: string }, phyInterfaces: { __typename?: 'PhyInterfaceConnection', edges: Array<{ __typename?: 'PhyInterfaceEdge', node: { __typename?: 'PhyInterface', id: string, name: string, status: string, phyLink: { __typename?: 'PhyInterface', id: string, idLink: string | null, name: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string } | null } | null } | null } | null> | null } } | null } | null> | null } };
 
 export type NetTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
