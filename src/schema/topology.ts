@@ -15,7 +15,7 @@ import {
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
-import { unwrap, omitNullValue } from '../helpers/utils.helpers';
+import { omitNullValue } from '../helpers/utils.helpers';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',
@@ -201,7 +201,7 @@ export const TopologyVersionDataQuery = extendType({
       args: {
         version: nonNull(stringArg()),
       },
-      resolve: async (_, args, { topologyDiscoveryAPI, topologyDiscoveryGraphQLAPI }) => {
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return {
             nodes: [],
@@ -288,7 +288,7 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
       args: {
         input: nonNull(arg({ type: list(nonNull(GraphNodeCoordinatesInput)) })),
       },
-      resolve: async (_, args, { topologyDiscoveryAPI, topologyDiscoveryGraphQLAPI }) => {
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return { deviceNames: [] };
         }

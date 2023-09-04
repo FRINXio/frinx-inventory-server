@@ -216,7 +216,9 @@ function getTopologyDiscoveryApi() {
 
   async function getTopologyDiff(version: string) {
     const response = await client.request<TopologyDiffQuery, TopologyDiffQueryVariables>(GET_TOPOLOGY_DIFF, {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       new_db: 'current',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       old_db: version,
     });
     const json = decodeTopologyDiffOutput(response.topologyDiff.diff_data);
@@ -250,7 +252,9 @@ function getTopologyDiscoveryApi() {
 
   async function updateCoordinates(coordinates: CoordinatesParam[]) {
     const coordinatesInput: CoordinatesInput[] = coordinates.map((c) => ({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       node_name: c.device,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       node_type: 'device',
       x: c.x,
       y: c.y,
