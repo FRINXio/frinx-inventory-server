@@ -211,8 +211,6 @@ export const TopologyVersionDataQuery = extendType({
         }
 
         const { nodes, edges } = await topologyDiscoveryGraphQLAPI.getLinksAndDevices();
-        // console.log('nodes:', nodes);
-        // console.log('edges:', edges);
 
         const { version } = args;
         const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version);
