@@ -17,6 +17,9 @@ import {
   UpdateCoordinatesMutationVariables,
 } from '../__generated__/topology-discovery.graphql';
 import {
+  HasAndInterfacesOutput,
+  LinksAndDevicesOutput,
+  TopologyDiffOutput,
   decodeHasAndInterfacesOutput,
   decodeLinksAndDevicesOutput,
   decodeTopologyDiffOutput,
@@ -197,24 +200,24 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
-  async function getTopologyDevices() {
+  async function getTopologyDevices(): Promise<TopologyDevicesQuery> {
     const response = await client.request<TopologyDevicesQuery>(GET_TOPOLOGY_DEVICES);
 
     return response;
   }
 
-  async function getNetTopologyDevices() {
+  async function getNetTopologyDevices(): Promise<NetTopologyQuery> {
     const response = await client.request<NetTopologyQuery>(GET_NET_TOPOLOGY_DEVICES);
 
     return response;
   }
 
-  async function getBackups() {
+  async function getBackups(): Promise<GetBackupsQuery> {
     const response = await client.request<GetBackupsQuery>(GET_BACKUPS);
     return response;
   }
 
-  async function getTopologyDiff(version: string) {
+  async function getTopologyDiff(version: string): Promise<TopologyDiffOutput> {
     const response = await client.request<TopologyDiffQuery, TopologyDiffQueryVariables>(GET_TOPOLOGY_DIFF, {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       new_db: 'current',
@@ -226,7 +229,7 @@ function getTopologyDiscoveryApi() {
     return json;
   }
 
-  async function getHasAndInterfaces() {
+  async function getHasAndInterfaces(): Promise<HasAndInterfacesOutput> {
     const response = await client.request<GetHasAndInterfacesQuery>(GET_HAS_AND_INTERFACES);
     const { phyHasAndInterfaces } = response;
     const json = decodeHasAndInterfacesOutput(phyHasAndInterfaces.phy_has_and_interfaces_data);
@@ -234,7 +237,7 @@ function getTopologyDiscoveryApi() {
     return json;
   }
 
-  async function getLinksAndDevices() {
+  async function getLinksAndDevices(): Promise<LinksAndDevicesOutput> {
     const response = await client.request<GetLinksAndDevicesQuery>(GET_LINKS_AND_DEVICES);
     const { phyLinksAndDevices } = response;
     const json = decodeLinksAndDevicesOutput(phyLinksAndDevices.phy_links_and_devices_data);
@@ -242,7 +245,7 @@ function getTopologyDiscoveryApi() {
     return json;
   }
 
-  async function getCommonNodes(selectedNodes: string[]) {
+  async function getCommonNodes(selectedNodes: string[]): Promise<string[]> {
     const response = await client.request<GetCommonNodesQuery, GetCommonNodesQueryVariables>(GET_COMMON_NODES, {
       selectedNodes,
     });
@@ -250,7 +253,7 @@ function getTopologyDiscoveryApi() {
     return response.commonNodes.common_nodes;
   }
 
-  async function updateCoordinates(coordinates: CoordinatesParam[]) {
+  async function updateCoordinates(coordinates: CoordinatesParam[]): Promise<string[]> {
     const coordinatesInput: CoordinatesInput[] = coordinates.map((c) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       node_name: c.device,
