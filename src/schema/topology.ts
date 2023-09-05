@@ -15,7 +15,7 @@ import {
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
-import { unwrap, omitNullValue } from '../helpers/utils.helpers';
+import { omitNullValue } from '../helpers/utils.helpers';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',
@@ -140,6 +140,7 @@ export const TopologyQuery = extendType({
         const { filter } = args;
 
         const topologyDevices = await topologyDiscoveryGraphQLAPI?.getTopologyDevices();
+        // console.log(JSON.stringify(topologyDevices, null, 2));
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
         const labelIds = dbLabels.map((l) => l.id);
@@ -179,15 +180,12 @@ export const TopologyCommonNodesQuery = extendType({
       args: {
         nodes: nonNull(list(nonNull(stringArg()))),
       },
-      resolve: async (_, args, { topologyDiscoveryAPI }) => {
-        if (!config.topologyEnabled) {
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return null;
         }
         const { nodes } = args;
-        const { 'common-nodes': commonNodes } = await topologyDiscoveryAPI.getCommonNodes(
-          unwrap(config.topologyDiscoveryURL),
-          nodes,
-        );
+        const commonNodes = await topologyDiscoveryGraphQLAPI.getCommonNodes(nodes);
         return {
           commonNodes,
         };
@@ -204,24 +202,22 @@ export const TopologyVersionDataQuery = extendType({
       args: {
         version: nonNull(stringArg()),
       },
-      resolve: async (_, args, { topologyDiscoveryAPI }) => {
-        if (!config.topologyEnabled) {
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return {
             nodes: [],
             edges: [],
           };
         }
 
-        const { nodes, edges } = await topologyDiscoveryAPI.getLinksAndDevices(unwrap(config.topologyDiscoveryURL));
+        const { nodes, edges } = await topologyDiscoveryGraphQLAPI.getLinksAndDevices();
 
         const { version } = args;
-        const result = await topologyDiscoveryAPI.getTopologyDiff(unwrap(config.topologyDiscoveryURL), version);
+        const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version);
         const oldDevices = getOldTopologyDevices(nodes, result);
 
         // get interface edges for old version
-        const { has: interfaceEdges, interfaces } = await topologyDiscoveryAPI.getHasAndInterfaces(
-          unwrap(config.topologyDiscoveryURL),
-        );
+        const { has: interfaceEdges, interfaces } = await topologyDiscoveryGraphQLAPI.getHasAndInterfaces();
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
         const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
         const interfaceNameMap = makeInterfaceNameMap(
@@ -253,7 +249,7 @@ export const TopologyVersionDataQuery = extendType({
 
         return {
           nodes: oldDevices.map((device) => ({
-            id: toGraphId('GraphNode', device._key),
+            id: toGraphId('GraphNode', device._id),
             name: device.name,
             interfaces: interfaceMap[device._id] ?? [],
             coordinates: device.coordinates,
@@ -291,14 +287,14 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
       args: {
         input: nonNull(arg({ type: list(nonNull(GraphNodeCoordinatesInput)) })),
       },
-      resolve: async (_, args, { topologyDiscoveryAPI }) => {
-        if (!config.topologyEnabled) {
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return { deviceNames: [] };
         }
         const { input } = args;
         const apiParams = input.map((i) => ({ device: i.deviceName, x: i.x, y: i.y }));
-        const response = await topologyDiscoveryAPI.updateCoordinates(unwrap(config.topologyDiscoveryURL), apiParams);
-        return { deviceNames: response.updated };
+        const response = await topologyDiscoveryGraphQLAPI.updateCoordinates(apiParams);
+        return { deviceNames: response };
       },
     });
   },
