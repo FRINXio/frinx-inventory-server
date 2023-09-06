@@ -1318,24 +1318,31 @@ The `Upload` scalar type represents a file upload.
 scalar Upload
 
 type Workflow implements Node {
+  accessPolicy: Record
+  createTime: Int
   createdAt: String
   createdBy: String
   description: String
+  failureWorkflow: String
   hasSchedule: Boolean
   id: ID!
   inputParameters: [String!]
+  inputTemplate: String
   name: String!
   outputParameters: [OutputParameter!]
+  ownerApp: String
   ownerEmail: String
   restartable: Boolean
   schemaVersion: Int
   tasks: String
   timeoutPolicy: TimeoutPolicy
   timeoutSeconds: Int!
+  updateTime: Int
   updatedAt: String
   updatedBy: String
-  variables: String
+  variables: Record
   version: Int
+  workflowStatusListenerEnabled: Boolean
 }
 
 type WorkflowConnection {
@@ -1373,15 +1380,29 @@ type WorkflowEdge {
 }
 
 input WorkflowInput {
+  accessPolicy: Record
+  createTime: Int
   createdAt: String
+  createdBy: String
   description: String
+  failureWorkflow: String
+  inputParameters: [String!]
+  inputTemplate: String
   name: String!
   outputParameters: [OutputParameterInput!]
+  ownerApp: String
+  ownerEmail: String
   restartable: Boolean
+  schemaVersion: Int
   tasks: String!
+  timeoutPolicy: TimeoutPolicy
   timeoutSeconds: Int!
+  updateTime: Int
   updatedAt: String
+  updatedBy: String
+  variables: Record
   version: Int
+  workflowStatusListenerEnabled: Boolean
 }
 
 type WorkflowInstanceDetail {
