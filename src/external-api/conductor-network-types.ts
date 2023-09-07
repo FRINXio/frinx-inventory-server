@@ -80,8 +80,10 @@ const WorkflowMetadataOptional = t.partial({
   workflowStatusListenerEnabled: optional(t.boolean),
   ownerEmail: optional(t.string),
   timeoutPolicy: optional(t.union([t.literal('TIME_OUT_WF'), t.literal('ALERT_ONLY')])),
-  variables: optional(t.UnknownRecord),
-  inputTemplate: optional(t.UnknownRecord),
+  variables: optional(t.record(t.string, t.unknown)),
+  inputTemplate: optional(t.record(t.string, t.unknown)),
+  ownerApp: optional(t.string),
+  accessPolicy: optional(t.record(t.string, t.string)),
 });
 
 const WorkflowMetadata = t.intersection([WorkflowMetadataRequired, WorkflowMetadataOptional]);
@@ -180,7 +182,7 @@ const ExecutedWorkflow = t.type({
   externalInputPayloadStoragePath: optional(t.string),
   externalOutputPayloadStoragePath: optional(t.string),
   priority: optional(t.number),
-  variables: optional(t.record(t.string, t.UnknownRecord)),
+  variables: optional(t.record(t.string, t.unknown)),
   lastRetriedTime: optional(t.number),
   failedTaskNames: optional(t.array(t.string)),
   startTime: optional(t.number),

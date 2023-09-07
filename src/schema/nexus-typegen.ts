@@ -432,15 +432,27 @@ export interface NexusGenInputs {
   };
   WorkflowInput: {
     // input type
+    accessPolicy?: NexusGenScalars['Record'] | null; // Record
     createdAt?: string | null; // String
+    createdBy?: string | null; // String
     description?: string | null; // String
+    failureWorkflow?: string | null; // String
+    inputParameters?: string[] | null; // [String!]
+    inputTemplate?: string | null; // String
     name: string; // String!
     outputParameters?: NexusGenInputs['OutputParameterInput'][] | null; // [OutputParameterInput!]
+    ownerApp?: string | null; // String
+    ownerEmail?: string | null; // String
     restartable?: boolean | null; // Boolean
+    schemaVersion?: number | null; // Int
     tasks: string; // String!
+    timeoutPolicy?: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
     timeoutSeconds: number; // Int!
     updatedAt?: string | null; // String
+    updatedBy?: string | null; // String
+    variables?: NexusGenScalars['Record'] | null; // Record
     version?: number | null; // Int
+    workflowStatusListenerEnabled?: boolean | null; // Boolean
   };
   WorkflowsOrderByInput: {
     // input type
@@ -1772,14 +1784,18 @@ export interface NexusGenFieldTypes {
   };
   Workflow: {
     // field return type
+    accessPolicy: NexusGenScalars['Record'] | null; // Record
     createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
+    failureWorkflow: string | null; // String
     hasSchedule: boolean | null; // Boolean
     id: string; // ID!
     inputParameters: string[] | null; // [String!]
+    inputTemplate: string | null; // String
     name: string; // String!
     outputParameters: NexusGenRootTypes['OutputParameter'][] | null; // [OutputParameter!]
+    ownerApp: string | null; // String
     ownerEmail: string | null; // String
     restartable: boolean | null; // Boolean
     schemaVersion: number | null; // Int
@@ -1788,8 +1804,9 @@ export interface NexusGenFieldTypes {
     timeoutSeconds: number; // Int!
     updatedAt: string | null; // String
     updatedBy: string | null; // String
-    variables: string | null; // String
+    variables: NexusGenScalars['Record'] | null; // Record
     version: number | null; // Int
+    workflowStatusListenerEnabled: boolean | null; // Boolean
   };
   WorkflowConnection: {
     // field return type
@@ -2552,14 +2569,18 @@ export interface NexusGenFieldTypeNames {
   };
   Workflow: {
     // field return type name
+    accessPolicy: 'Record';
     createdAt: 'String';
     createdBy: 'String';
     description: 'String';
+    failureWorkflow: 'String';
     hasSchedule: 'Boolean';
     id: 'ID';
     inputParameters: 'String';
+    inputTemplate: 'String';
     name: 'String';
     outputParameters: 'OutputParameter';
+    ownerApp: 'String';
     ownerEmail: 'String';
     restartable: 'Boolean';
     schemaVersion: 'Int';
@@ -2568,8 +2589,9 @@ export interface NexusGenFieldTypeNames {
     timeoutSeconds: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
-    variables: 'String';
+    variables: 'Record';
     version: 'Int';
+    workflowStatusListenerEnabled: 'Boolean';
   };
   WorkflowConnection: {
     // field return type name

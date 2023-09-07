@@ -114,9 +114,12 @@ export const Workflow = objectType({
     t.field('timeoutPolicy', { type: TimeoutPolicy });
     t.string('ownerEmail');
     t.int('schemaVersion');
-    t.string('variables', {
-      resolve: (w) => (w.variables ? JSON.stringify(w.variables) : null),
-    });
+    t.record('variables');
+    t.string('ownerApp');
+    t.string('inputTemplate');
+    t.record('accessPolicy');
+    t.string('failureWorkflow');
+    t.boolean('workflowStatusListenerEnabled');
   },
 });
 
@@ -499,9 +502,23 @@ const WorkflowInput = inputObjectType({
     t.string('description');
     t.int('version');
     t.boolean('restartable');
+    t.list.nonNull.string('inputParameters');
     t.list.nonNull.field({ name: 'outputParameters', type: OutputParameterInput });
+    t.int('schemaVersion');
+    t.string('ownerApp');
+    t.string('ownerEmail');
+    t.record('variables');
+    t.string('inputTemplate');
+    t.field('timeoutPolicy', {
+      type: TimeoutPolicy,
+    });
+    t.string('createdBy');
+    t.string('updatedBy');
     t.string('createdAt');
     t.string('updatedAt');
+    t.record('accessPolicy');
+    t.string('failureWorkflow');
+    t.boolean('workflowStatusListenerEnabled');
   },
 });
 
@@ -630,6 +647,18 @@ export const UpdateWorkflowMutation = extendType({
           outputParameters: outputParameters || undefined,
           createTime: workflow.createdAt ? Date.parse(workflow.createdAt) : undefined,
           updateTime: workflow.updatedAt ? Date.parse(workflow.updatedAt) : undefined,
+          createdBy: workflow.createdBy || undefined,
+          updatedBy: workflow.updatedBy || undefined,
+          schemaVersion: workflow.schemaVersion || undefined,
+          ownerApp: workflow.ownerApp || undefined,
+          ownerEmail: workflow.ownerEmail || undefined,
+          variables: workflow.variables || undefined,
+          inputTemplate: workflow.inputTemplate ? JSON.parse(workflow.inputTemplate) : undefined,
+          timeoutPolicy: workflow.timeoutPolicy || undefined,
+          accessPolicy: workflow.accessPolicy || undefined,
+          failureWorkflow: workflow.failureWorkflow || undefined,
+          workflowStatusListenerEnabled: workflow.workflowStatusListenerEnabled || undefined,
+          inputParameters: workflow.inputParameters || undefined,
         };
 
         const result = await conductorAPI.editWorkflow(config.conductorApiURL, apiWorkflow);
