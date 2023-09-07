@@ -433,7 +433,6 @@ export interface NexusGenInputs {
   WorkflowInput: {
     // input type
     accessPolicy?: NexusGenScalars['Record'] | null; // Record
-    createTime?: number | null; // Int
     createdAt?: string | null; // String
     createdBy?: string | null; // String
     description?: string | null; // String
@@ -449,7 +448,6 @@ export interface NexusGenInputs {
     tasks: string; // String!
     timeoutPolicy?: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
     timeoutSeconds: number; // Int!
-    updateTime?: number | null; // Int
     updatedAt?: string | null; // String
     updatedBy?: string | null; // String
     variables?: NexusGenScalars['Record'] | null; // Record
@@ -1787,7 +1785,6 @@ export interface NexusGenFieldTypes {
   Workflow: {
     // field return type
     accessPolicy: NexusGenScalars['Record'] | null; // Record
-    createTime: number | null; // Int
     createdAt: string | null; // String
     createdBy: string | null; // String
     description: string | null; // String
@@ -1805,7 +1802,6 @@ export interface NexusGenFieldTypes {
     tasks: string | null; // String
     timeoutPolicy: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
     timeoutSeconds: number; // Int!
-    updateTime: number | null; // Int
     updatedAt: string | null; // String
     updatedBy: string | null; // String
     variables: NexusGenScalars['Record'] | null; // Record
@@ -2574,7 +2570,6 @@ export interface NexusGenFieldTypeNames {
   Workflow: {
     // field return type name
     accessPolicy: 'Record';
-    createTime: 'Int';
     createdAt: 'String';
     createdBy: 'String';
     description: 'String';
@@ -2592,7 +2587,6 @@ export interface NexusGenFieldTypeNames {
     tasks: 'String';
     timeoutPolicy: 'TimeoutPolicy';
     timeoutSeconds: 'Int';
-    updateTime: 'Int';
     updatedAt: 'String';
     updatedBy: 'String';
     variables: 'Record';

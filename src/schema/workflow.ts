@@ -117,8 +117,6 @@ export const Workflow = objectType({
     t.record('variables');
     t.string('ownerApp');
     t.string('inputTemplate');
-    t.int('createTime');
-    t.int('updateTime');
     t.record('accessPolicy');
     t.string('failureWorkflow');
     t.boolean('workflowStatusListenerEnabled');
@@ -516,8 +514,6 @@ const WorkflowInput = inputObjectType({
     });
     t.string('createdBy');
     t.string('updatedBy');
-    t.int('createTime');
-    t.int('updateTime');
     t.string('createdAt');
     t.string('updatedAt');
     t.record('accessPolicy');
