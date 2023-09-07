@@ -433,7 +433,6 @@ export interface NexusGenInputs {
   WorkflowInput: {
     // input type
     accessPolicy?: NexusGenScalars['Record'] | null; // Record
-    createdAt?: string | null; // String
     createdBy?: string | null; // String
     description?: string | null; // String
     failureWorkflow?: string | null; // String
@@ -448,7 +447,6 @@ export interface NexusGenInputs {
     tasks: string; // String!
     timeoutPolicy?: NexusGenEnums['TimeoutPolicy'] | null; // TimeoutPolicy
     timeoutSeconds: number; // Int!
-    updatedAt?: string | null; // String
     updatedBy?: string | null; // String
     variables?: NexusGenScalars['Record'] | null; // Record
     version?: number | null; // Int

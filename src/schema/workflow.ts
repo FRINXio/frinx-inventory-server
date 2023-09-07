@@ -514,8 +514,6 @@ const WorkflowInput = inputObjectType({
     });
     t.string('createdBy');
     t.string('updatedBy');
-    t.string('createdAt');
-    t.string('updatedAt');
     t.record('accessPolicy');
     t.string('failureWorkflow');
     t.boolean('workflowStatusListenerEnabled');
@@ -591,6 +589,8 @@ export const CreateWorkflowMutation = extendType({
           tasks: parsedTasks,
           version: workflow.version || undefined,
           description: workflow.description || undefined,
+          createTime: Date.now(),
+          updateTime: Date.now(),
         };
 
         await conductorAPI.createWorkflow(config.conductorApiURL, apiWorkflow);
@@ -645,8 +645,7 @@ export const UpdateWorkflowMutation = extendType({
           description: workflow.description || undefined,
           restartable: workflow.restartable || undefined,
           outputParameters: outputParameters || undefined,
-          createTime: workflow.createdAt ? Date.parse(workflow.createdAt) : undefined,
-          updateTime: workflow.updatedAt ? Date.parse(workflow.updatedAt) : undefined,
+          updateTime: Date.now(),
           createdBy: workflow.createdBy || undefined,
           updatedBy: workflow.updatedBy || undefined,
           schemaVersion: workflow.schemaVersion || undefined,

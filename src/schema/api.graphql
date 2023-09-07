@@ -1379,7 +1379,6 @@ type WorkflowEdge {
 
 input WorkflowInput {
   accessPolicy: Record
-  createdAt: String
   createdBy: String
   description: String
   failureWorkflow: String
@@ -1394,7 +1393,6 @@ input WorkflowInput {
   tasks: String!
   timeoutPolicy: TimeoutPolicy
   timeoutSeconds: Int!
-  updatedAt: String
   updatedBy: String
   variables: Record
   version: Int
