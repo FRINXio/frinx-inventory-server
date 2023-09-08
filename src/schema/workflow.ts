@@ -223,10 +223,6 @@ export const WorkflowDefinitionInput = inputObjectType({
     t.field('timeoutPolicy', {
       type: TimeoutPolicy,
     });
-    t.int('createdAt');
-    t.int('updatedAt');
-    t.int('createTime');
-    t.int('updateTime');
     t.string('createdBy');
     t.string('updatedBy');
   },
