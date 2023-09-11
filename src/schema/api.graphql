@@ -1350,8 +1350,6 @@ type WorkflowConnection {
 }
 
 input WorkflowDefinitionInput {
-  createTime: Int
-  createdAt: Int
   createdBy: String
   description: String
   inputParameters: [String]
@@ -1365,8 +1363,6 @@ input WorkflowDefinitionInput {
   tasks: [TaskInput!]!
   timeoutPolicy: TimeoutPolicy
   timeoutSeconds: Int!
-  updateTime: Int
-  updatedAt: Int
   updatedBy: String
   variables: String
   version: Int
@@ -1379,7 +1375,6 @@ type WorkflowEdge {
 
 input WorkflowInput {
   accessPolicy: Record
-  createdAt: String
   createdBy: String
   description: String
   failureWorkflow: String
@@ -1394,7 +1389,6 @@ input WorkflowInput {
   tasks: String!
   timeoutPolicy: TimeoutPolicy
   timeoutSeconds: Int!
-  updatedAt: String
   updatedBy: String
   variables: Record
   version: Int
