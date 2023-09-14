@@ -596,7 +596,7 @@ input FilterEventHandlerInput {
 }
 
 input FilterLabelsInput {
-  name: String
+  name: String!
 }
 
 input FilterPollDataInput {
@@ -625,7 +625,7 @@ input FilterWorkflowsInput {
 }
 
 input FilterZonesInput {
-  name: String
+  name: String!
 }
 
 input FreeResourceInput {

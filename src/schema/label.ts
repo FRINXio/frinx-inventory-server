@@ -41,7 +41,7 @@ export const LabelConnection = objectType({
 export const FilterLabelsInput = inputObjectType({
   name: 'FilterLabelsInput',
   definition: (t) => {
-    t.string('name');
+    t.nonNull.string('name');
   },
 });
 

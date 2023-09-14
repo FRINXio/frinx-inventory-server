@@ -44,7 +44,7 @@ export const ZonesConnection = objectType({
 export const FilterZonesInput = inputObjectType({
   name: 'FilterZonesInput',
   definition: (t) => {
-    t.string('name');
+    t.nonNull.string('name');
   },
 });
 

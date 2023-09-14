@@ -269,7 +269,7 @@ export interface NexusGenInputs {
   };
   FilterLabelsInput: {
     // input type
-    name?: string | null; // String
+    name: string; // String!
   };
   FilterPollDataInput: {
     // input type
@@ -298,7 +298,7 @@ export interface NexusGenInputs {
   };
   FilterZonesInput: {
     // input type
-    name?: string | null; // String
+    name: string; // String!
   };
   FreeResourceInput: {
     // input type
