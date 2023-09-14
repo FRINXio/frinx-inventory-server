@@ -57,7 +57,7 @@ export const LabelsQuery = extendType({
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
           () => prisma.label.count(baseArgs),
-          paginationArgs,
+          args,
         );
         return result;
       },
