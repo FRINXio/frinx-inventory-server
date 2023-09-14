@@ -267,6 +267,10 @@ export interface NexusGenInputs {
     isActive?: boolean | null; // Boolean
     name?: string | null; // String
   };
+  FilterLabelsInput: {
+    // input type
+    name?: string | null; // String
+  };
   FilterPollDataInput: {
     // input type
     afterDate?: string | null; // String
@@ -291,6 +295,10 @@ export interface NexusGenInputs {
     // input type
     keyword?: string | null; // String
     labels?: string[] | null; // [String!]
+  };
+  FilterZonesInput: {
+    // input type
+    name?: string | null; // String
   };
   FreeResourceInput: {
     // input type
@@ -2933,6 +2941,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
+      filter?: NexusGenInputs['FilterLabelsInput'] | null; // FilterLabelsInput
       first?: number | null; // Int
       last?: number | null; // Int
     };
@@ -3018,6 +3027,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
+      filter?: NexusGenInputs['FilterZonesInput'] | null; // FilterZonesInput
       first?: number | null; // Int
       last?: number | null; // Int
     };
