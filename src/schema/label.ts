@@ -52,7 +52,7 @@ export const LabelsQuery = extendType({
       type: LabelConnection,
       args: { ...PaginationConnectionArgs, filter: FilterLabelsInput },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const { filter, ...paginationArgs } = args;
+        const { filter } = args;
         const baseArgs = { where: { tenantId, ...(filter?.name ? filter : {}) } };
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
