@@ -50,6 +50,7 @@ export const Pool = objectType({
     t.nonNull.field('poolType', { type: PoolType });
     t.nonNull.list.nonNull.field('tags', { type: Tag });
     t.nonNull.field('resourceType', { type: ResourceType });
+    t.nonNull.record('poolProperties');
   },
 });
 

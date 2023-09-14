@@ -877,6 +877,7 @@ export interface NexusGenObjects {
     // root type
     id: string; // ID!
     name: string; // String!
+    poolProperties: NexusGenScalars['Record']; // Record!
     poolType: NexusGenEnums['PoolType']; // PoolType!
     resourceType: NexusGenRootTypes['ResourceType']; // ResourceType!
     tags: NexusGenRootTypes['Tag'][]; // [Tag!]!
@@ -1572,6 +1573,7 @@ export interface NexusGenFieldTypes {
     // field return type
     id: string; // ID!
     name: string; // String!
+    poolProperties: NexusGenScalars['Record']; // Record!
     poolType: NexusGenEnums['PoolType']; // PoolType!
     resourceType: NexusGenRootTypes['ResourceType']; // ResourceType!
     tags: NexusGenRootTypes['Tag'][]; // [Tag!]!
@@ -2357,6 +2359,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     id: 'ID';
     name: 'String';
+    poolProperties: 'Record';
     poolType: 'PoolType';
     resourceType: 'ResourceType';
     tags: 'Tag';

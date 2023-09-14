@@ -17,6 +17,7 @@ export function apiPoolEdgeToGraphqlPoolEdge(apiPool: PoolFragmentFragment) {
       id: apiPool.id,
       name: apiPool.Name,
     },
+    poolProperties: apiPool.PoolProperties,
   };
 }
 

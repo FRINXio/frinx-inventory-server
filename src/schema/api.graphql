@@ -863,6 +863,7 @@ input PollsOrderByInput {
 type Pool implements Node {
   id: ID!
   name: String!
+  poolProperties: Record!
   poolType: PoolType!
   resourceType: ResourceType!
   tags: [Tag!]!
