@@ -38,14 +38,22 @@ export const LabelConnection = objectType({
   },
 });
 
+export const FilterLabelsInput = inputObjectType({
+  name: 'FilterLabelsInput',
+  definition: (t) => {
+    t.nonNull.string('name');
+  },
+});
+
 export const LabelsQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('labels', {
       type: LabelConnection,
-      args: PaginationConnectionArgs,
+      args: { ...PaginationConnectionArgs, filter: FilterLabelsInput },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const baseArgs = { where: { tenantId } };
+        const { filter } = args;
+        const baseArgs = { where: { tenantId, ...(filter?.name ? filter : {}) } };
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.label.findMany({ ...baseArgs, ...paginationArgs }),
           () => prisma.label.count(baseArgs),

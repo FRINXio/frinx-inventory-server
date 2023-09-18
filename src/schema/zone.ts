@@ -40,14 +40,23 @@ export const ZonesConnection = objectType({
     t.nonNull.int('totalCount');
   },
 });
+
+export const FilterZonesInput = inputObjectType({
+  name: 'FilterZonesInput',
+  definition: (t) => {
+    t.nonNull.string('name');
+  },
+});
+
 export const ZonesQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('zones', {
       type: ZonesConnection,
-      args: PaginationConnectionArgs,
+      args: { ...PaginationConnectionArgs, filter: FilterZonesInput },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const baseArgs = { where: { tenantId } };
+        const { filter } = args;
+        const baseArgs = { where: { tenantId, ...(filter?.name ? filter : {}) } };
         const result = await findManyCursorConnection(
           (paginationArgs) => prisma.uniconfigZone.findMany({ ...baseArgs, ...paginationArgs }),
           () => prisma.uniconfigZone.count(baseArgs),
