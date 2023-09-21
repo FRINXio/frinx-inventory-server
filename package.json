@@ -69,7 +69,7 @@
     "csv-parse": "5.3.10",
     "express": "4.18.1",
     "fp-ts": "2.15.0",
-    "graphql": "16.6.0",
+    "graphql": "16.8.1",
     "graphql-relay": "0.10.0",
     "graphql-upload": "15.0.2",
     "graphql-ws": "^5.11.2",
