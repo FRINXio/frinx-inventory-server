@@ -453,3 +453,21 @@ export type UniconfigExternalStorageOutput = t.TypeOf<typeof UniconfigExternalSt
 export function decodeUniconfigExternalStorageOutput(value: unknown): UniconfigExternalStorageOutput {
   return extractResult(UniconfigExternalStorageOutputValidator.decode(value));
 }
+
+const UniconfigInstallMultipleNodesOutputValidator = t.type({
+  output: t.type({
+    'node-results': t.array(
+      t.type({
+        'node-id': t.string,
+        status: UniconfigStatusValidator,
+        'error-message': optional(t.string),
+      }),
+    ),
+  }),
+});
+
+export type UniconfigInstallMultipleNodesOutput = t.TypeOf<typeof UniconfigInstallMultipleNodesOutputValidator>;
+
+export function decodeUniconfigInstallMultipleNodesOutput(value: unknown): UniconfigInstallMultipleNodesOutput {
+  return extractResult(UniconfigInstallMultipleNodesOutputValidator.decode(value));
+}

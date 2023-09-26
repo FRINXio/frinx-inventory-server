@@ -13,6 +13,7 @@ import {
   decodeUniconfigDiffOuptut,
   decodeUniconfigDryRunCommitOutput,
   decodeUniconfigExternalStorageOutput,
+  decodeUniconfigInstallMultipleNodesOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigRevertChangesOutput,
@@ -33,6 +34,7 @@ import {
   UniconfigDiffInput,
   UniconfigDiffOutput,
   UniconfigDryRunCommitOutput,
+  UniconfigInstallMultipleNodesOutput,
   UniconfigInstallOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
@@ -70,6 +72,16 @@ export async function getCheckInstalledDevices(
 ): Promise<CheckInstalledNodesOutput> {
   const json = await sendPostRequest([baseURL, '/operations/connection-manager:check-installed-nodes'], input);
   const data = decodeInstalledNodeOutput(json);
+
+  return data;
+}
+
+export async function installMultipleDevices(
+  baseURL: string,
+  input: unknown,
+): Promise<UniconfigInstallMultipleNodesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
+  const data = decodeUniconfigInstallMultipleNodesOutput(json);
 
   return data;
 }

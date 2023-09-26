@@ -1,6 +1,6 @@
 import urlJoin from 'url-join';
 import { UninstallDeviceInput } from './network-types';
-import { getCheckInstalledDevices, installDevice, uninstallDevice } from './uniconfig';
+import { getCheckInstalledDevices, installDevice, installMultipleDevices, uninstallDevice } from './uniconfig';
 
 export class UniconfigCache {
   private static instance: UniconfigCache;
@@ -92,4 +92,26 @@ export async function uninstallDeviceCache({
   const uniconfigCache = UniconfigCache.getInstance();
   await uninstallDevice(uniconfigURL, params);
   uniconfigCache.delete(uniconfigURL, deviceName);
+}
+
+export async function installMultipleDevicesCache({
+  uniconfigURL,
+  deviceNames,
+  params,
+}: {
+  uniconfigURL: string;
+  deviceNames: string[];
+  params: unknown;
+}): Promise<void> {
+  const uniconfigCache = UniconfigCache.getInstance();
+  console.log(params);
+  const response = await installMultipleDevices(uniconfigURL, params);
+
+  response.output['node-results']?.forEach((nodeResult) => {
+    if (nodeResult.status === 'fail') {
+      throw new Error(nodeResult['error-message'] ?? 'could not install device');
+    }
+  });
+
+  deviceNames.forEach((deviceName) => uniconfigCache.delete(uniconfigURL, deviceName));
 }

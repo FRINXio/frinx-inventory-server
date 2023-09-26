@@ -106,6 +106,10 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     name: string; // String!
   };
+  BulkInstallDevicesInput: {
+    // input type
+    devicesToInstall: NexusGenInputs['Jozko'][]; // [Jozko!]!
+  };
   BulkOperationInput: {
     // input type
     executedWorkflowIds: string[]; // [String!]!
@@ -310,6 +314,11 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
+  };
+  Jozko: {
+    // input type
+    deviceIds: string[]; // [String!]!
+    zoneId: string; // String!
   };
   OutputParameterInput: {
     // input type
@@ -588,6 +597,10 @@ export interface NexusGenObjects {
     // root type
     cursor: string; // String!
     node: NexusGenRootTypes['Blueprint']; // Blueprint!
+  };
+  BulkInstallDevicePayload: {
+    // root type
+    installedDevices: NexusGenRootTypes['Device'][]; // [Device!]!
   };
   BulkOperationResponse: {
     // root type
@@ -1142,6 +1155,10 @@ export interface NexusGenFieldTypes {
     cursor: string; // String!
     node: NexusGenRootTypes['Blueprint']; // Blueprint!
   };
+  BulkInstallDevicePayload: {
+    // field return type
+    installedDevices: NexusGenRootTypes['Device'][]; // [Device!]!
+  };
   BulkOperationResponse: {
     // field return type
     bulkErrorResults: string | null; // String
@@ -1467,6 +1484,7 @@ export interface NexusGenFieldTypes {
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
+    bulkInstallDevices: NexusGenRootTypes['BulkInstallDevicePayload']; // BulkInstallDevicePayload!
     bulkPauseWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     bulkRestartWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     bulkResumeWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
@@ -1928,6 +1946,10 @@ export interface NexusGenFieldTypeNames {
     cursor: 'String';
     node: 'Blueprint';
   };
+  BulkInstallDevicePayload: {
+    // field return type name
+    installedDevices: 'Device';
+  };
   BulkOperationResponse: {
     // field return type name
     bulkErrorResults: 'String';
@@ -2253,6 +2275,7 @@ export interface NexusGenFieldTypeNames {
     addSnapshot: 'AddSnapshotPayload';
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
+    bulkInstallDevices: 'BulkInstallDevicePayload';
     bulkPauseWorkflow: 'BulkOperationResponse';
     bulkRestartWorkflow: 'BulkOperationResponse';
     bulkResumeWorkflow: 'BulkOperationResponse';
@@ -2683,6 +2706,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['ApplySnapshotInput']; // ApplySnapshotInput!
       transactionId: string; // String!
+    };
+    bulkInstallDevices: {
+      // args
+      input: NexusGenInputs['BulkInstallDevicesInput']; // BulkInstallDevicesInput!
     };
     bulkPauseWorkflow: {
       // args

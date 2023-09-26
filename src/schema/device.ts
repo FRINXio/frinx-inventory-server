@@ -20,9 +20,15 @@ import { v4 as uuid } from 'uuid';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
+  installMultipleDevicesCache,
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
-import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
+import {
+  decodeMountParams,
+  getConnectionType,
+  prepareInstallParameters,
+  prepareMultipleInstallParameters,
+} from '../helpers/converters';
 import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
@@ -34,6 +40,7 @@ import { Node, PageInfo, PaginationConnectionArgs, SortDirection } from './globa
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
+import { omitNullValue } from '../helpers/utils.helpers';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -601,6 +608,80 @@ export const UniconfigShellSession = extendType({
         const id = uuid();
         await sshClient.prepareShell(id);
         return id;
+      },
+    });
+  },
+});
+
+export const BulkInstallDevicePayload = objectType({
+  name: 'BulkInstallDevicePayload',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('installedDevices', { type: Device });
+  },
+});
+
+export const Jozko = inputObjectType({
+  name: 'Jozko',
+  definition: (t) => {
+    t.nonNull.string('zoneId');
+    t.nonNull.list.nonNull.string('deviceIds');
+  },
+});
+
+export const BulkInstallDevicesInput = inputObjectType({
+  name: 'BulkInstallDevicesInput',
+  definition: (t) => {
+    // definition should be in the form as Record<string, string[]>
+    t.nonNull.list.nonNull.field('devicesToInstall', { type: Jozko });
+  },
+});
+
+export const BulkInstallDevicesMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('bulkInstallDevices', {
+      type: BulkInstallDevicePayload,
+      args: {
+        input: nonNull(arg({ type: BulkInstallDevicesInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const devicesToInstallWithNativeIds = args.input.devicesToInstall.map((devices) => ({
+          ...devices,
+          deviceIds: devices.deviceIds.map((deviceId) => fromGraphId('Device', deviceId)),
+        }));
+
+        const nativeIds = devicesToInstallWithNativeIds.flatMap((devices) => devices.deviceIds);
+        const devices = await prisma.device.findMany({
+          where: { id: { in: nativeIds }, AND: { tenantId } },
+        });
+
+        if (devices == null || devices.length === 0) {
+          throw new Error('device not found');
+        }
+
+        const zonesWithDevices = devicesToInstallWithNativeIds.map((devs) => ({
+          ...devs,
+          devices: devs.deviceIds
+            .map((deviceId) => devices.find((device) => device.id === deviceId))
+            .filter(omitNullValue),
+        }));
+
+        const devicesToInstall = await Promise.all(
+          zonesWithDevices.map(async (zone) => {
+            const uniconfigURL = await getUniconfigURL(prisma, fromGraphId('Zone', zone.zoneId));
+            const deviceNames = zone.devices.map((device) => device.name);
+            const params = prepareMultipleInstallParameters(
+              deviceNames,
+              zone.devices.map((device) => device.mountParameters),
+            );
+
+            return { uniconfigURL, deviceNames, params };
+          }),
+        );
+
+        await Promise.all(devicesToInstall.map((deviceToInstall) => installMultipleDevicesCache(deviceToInstall)));
+
+        return { installedDevices: devices };
       },
     });
   },

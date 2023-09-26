@@ -139,6 +139,14 @@ type BlueprintEdge {
   node: Blueprint!
 }
 
+type BulkInstallDevicePayload {
+  installedDevices: [Device!]!
+}
+
+input BulkInstallDevicesInput {
+  devicesToInstall: [Jozko!]!
+}
+
 input BulkOperationInput {
   executedWorkflowIds: [String!]!
 }
@@ -694,6 +702,11 @@ type IsOkResponse {
   isOk: Boolean!
 }
 
+input Jozko {
+  deviceIds: [String!]!
+  zoneId: String!
+}
+
 type Label implements Node {
   createdAt: String!
   id: ID!
@@ -738,6 +751,7 @@ type Mutation {
   addSnapshot(input: AddSnapshotInput!, transactionId: String!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
+  bulkInstallDevices(input: BulkInstallDevicesInput!): BulkInstallDevicePayload!
   bulkPauseWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkRestartWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkResumeWorkflow(input: BulkOperationInput!): BulkOperationResponse

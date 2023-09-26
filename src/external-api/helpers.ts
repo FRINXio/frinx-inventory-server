@@ -112,6 +112,7 @@ export async function sendGetRequest(path: APIPath, cookie?: string): Promise<un
 }
 
 export async function sendPostRequest(path: APIPath, body?: unknown, cookie?: string): Promise<unknown> {
+  console.log(JSON.stringify(body));
   const options = {
     method: 'POST',
     body: JSON.stringify(body),
