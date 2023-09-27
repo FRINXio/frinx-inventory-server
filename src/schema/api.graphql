@@ -144,7 +144,7 @@ type BulkInstallDevicePayload {
 }
 
 input BulkInstallDevicesInput {
-  devicesToInstall: [Jozko!]!
+  devicesToInstall: [DevicesToInstallInput!]!
 }
 
 input BulkOperationInput {
@@ -381,6 +381,11 @@ enum DeviceSource {
   DISCOVERED
   IMPORTED
   MANUAL
+}
+
+input DevicesToInstallInput {
+  deviceIds: [String!]!
+  zoneId: String!
 }
 
 type DiffData {
@@ -700,11 +705,6 @@ type InstallDevicePayload {
 
 type IsOkResponse {
   isOk: Boolean!
-}
-
-input Jozko {
-  deviceIds: [String!]!
-  zoneId: String!
 }
 
 type Label implements Node {

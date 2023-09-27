@@ -620,8 +620,8 @@ export const BulkInstallDevicePayload = objectType({
   },
 });
 
-export const Jozko = inputObjectType({
-  name: 'Jozko',
+export const DevicesToInstallInput = inputObjectType({
+  name: 'DevicesToInstallInput',
   definition: (t) => {
     t.nonNull.string('zoneId');
     t.nonNull.list.nonNull.string('deviceIds');
@@ -632,7 +632,7 @@ export const BulkInstallDevicesInput = inputObjectType({
   name: 'BulkInstallDevicesInput',
   definition: (t) => {
     // definition should be in the form as Record<string, string[]>
-    t.nonNull.list.nonNull.field('devicesToInstall', { type: Jozko });
+    t.nonNull.list.nonNull.field('devicesToInstall', { type: DevicesToInstallInput });
   },
 });
 

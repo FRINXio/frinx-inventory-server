@@ -108,7 +108,7 @@ export interface NexusGenInputs {
   };
   BulkInstallDevicesInput: {
     // input type
-    devicesToInstall: NexusGenInputs['Jozko'][]; // [Jozko!]!
+    devicesToInstall: NexusGenInputs['DevicesToInstallInput'][]; // [DevicesToInstallInput!]!
   };
   BulkOperationInput: {
     // input type
@@ -194,6 +194,11 @@ export interface NexusGenInputs {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
+  };
+  DevicesToInstallInput: {
+    // input type
+    deviceIds: string[]; // [String!]!
+    zoneId: string; // String!
   };
   EditWorkflowScheduleInput: {
     // input type
@@ -314,11 +319,6 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
-  };
-  Jozko: {
-    // input type
-    deviceIds: string[]; // [String!]!
-    zoneId: string; // String!
   };
   OutputParameterInput: {
     // input type
