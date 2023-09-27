@@ -104,7 +104,6 @@ export async function installMultipleDevicesCache({
   params: unknown;
 }): Promise<void> {
   const uniconfigCache = UniconfigCache.getInstance();
-  console.log(params);
   const response = await installMultipleDevices(uniconfigURL, params);
 
   response.output['node-results']?.forEach((nodeResult) => {
