@@ -23,7 +23,7 @@ export function prepareInstallParameters(deviceName: string, mountParameters: Pr
     input: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'node-id': deviceName,
-      ...JSON.parse(mountParameters as string),
+      ...JSON.parse(JSON.stringify(mountParameters)),
     },
   };
 }
@@ -39,7 +39,7 @@ export function prepareMultipleInstallParameters(
         'node-id': deviceName,
         // json stringify and parse is used here because of TS compilator is not able to recognize that mountParameters[index] is already a JSON object
         // to prevent parsing of already parsed JSON object, we need to convert it to string and then back to JSON object
-        ...JSON.parse(JSON.stringify(mountParameters[index]) as string),
+        ...JSON.parse(JSON.stringify(mountParameters[index])),
       })),
     },
   };
