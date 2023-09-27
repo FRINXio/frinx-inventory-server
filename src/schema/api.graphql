@@ -156,6 +156,14 @@ type BulkOperationResponse {
   bulkSuccessfulResults: [String!]
 }
 
+type BulkUninstallDevicePayload {
+  uninstalledDevices: [Device!]!
+}
+
+input BulkUninstallDevicesInput {
+  devicesToUninstall: [DevicesToUninstallInput!]!
+}
+
 type CSVImport {
   isOk: Boolean
 }
@@ -384,6 +392,11 @@ enum DeviceSource {
 }
 
 input DevicesToInstallInput {
+  deviceIds: [String!]!
+  zoneId: String!
+}
+
+input DevicesToUninstallInput {
   deviceIds: [String!]!
   zoneId: String!
 }
@@ -757,6 +770,7 @@ type Mutation {
   bulkResumeWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkRetryWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkTerminateWorkflow(input: BulkOperationInput!): BulkOperationResponse
+  bulkUninstallDevices(input: BulkUninstallDevicesInput!): BulkUninstallDevicePayload!
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createEventHandler(input: CreateEventHandlerInput!): EventHandler

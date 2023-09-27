@@ -114,6 +114,10 @@ export interface NexusGenInputs {
     // input type
     executedWorkflowIds: string[]; // [String!]!
   };
+  BulkUninstallDevicesInput: {
+    // input type
+    devicesToUninstall: NexusGenInputs['DevicesToUninstallInput'][]; // [DevicesToUninstallInput!]!
+  };
   CSVImportInput: {
     // input type
     file: NexusGenScalars['Upload']; // Upload!
@@ -196,6 +200,11 @@ export interface NexusGenInputs {
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
   };
   DevicesToInstallInput: {
+    // input type
+    deviceIds: string[]; // [String!]!
+    zoneId: string; // String!
+  };
+  DevicesToUninstallInput: {
     // input type
     deviceIds: string[]; // [String!]!
     zoneId: string; // String!
@@ -606,6 +615,10 @@ export interface NexusGenObjects {
     // root type
     bulkErrorResults?: string | null; // String
     bulkSuccessfulResults?: string[] | null; // [String!]
+  };
+  BulkUninstallDevicePayload: {
+    // root type
+    uninstalledDevices: NexusGenRootTypes['Device'][]; // [Device!]!
   };
   CSVImport: {
     // root type
@@ -1164,6 +1177,10 @@ export interface NexusGenFieldTypes {
     bulkErrorResults: string | null; // String
     bulkSuccessfulResults: string[] | null; // [String!]
   };
+  BulkUninstallDevicePayload: {
+    // field return type
+    uninstalledDevices: NexusGenRootTypes['Device'][]; // [Device!]!
+  };
   CSVImport: {
     // field return type
     isOk: boolean | null; // Boolean
@@ -1490,6 +1507,7 @@ export interface NexusGenFieldTypes {
     bulkResumeWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     bulkRetryWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
     bulkTerminateWorkflow: NexusGenRootTypes['BulkOperationResponse'] | null; // BulkOperationResponse
+    bulkUninstallDevices: NexusGenRootTypes['BulkUninstallDevicePayload']; // BulkUninstallDevicePayload!
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createEventHandler: NexusGenRootTypes['EventHandler'] | null; // EventHandler
@@ -1955,6 +1973,10 @@ export interface NexusGenFieldTypeNames {
     bulkErrorResults: 'String';
     bulkSuccessfulResults: 'String';
   };
+  BulkUninstallDevicePayload: {
+    // field return type name
+    uninstalledDevices: 'Device';
+  };
   CSVImport: {
     // field return type name
     isOk: 'Boolean';
@@ -2281,6 +2303,7 @@ export interface NexusGenFieldTypeNames {
     bulkResumeWorkflow: 'BulkOperationResponse';
     bulkRetryWorkflow: 'BulkOperationResponse';
     bulkTerminateWorkflow: 'BulkOperationResponse';
+    bulkUninstallDevices: 'BulkUninstallDevicePayload';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createEventHandler: 'EventHandler';
@@ -2730,6 +2753,10 @@ export interface NexusGenArgTypes {
     bulkTerminateWorkflow: {
       // args
       input: NexusGenInputs['BulkOperationInput']; // BulkOperationInput!
+    };
+    bulkUninstallDevices: {
+      // args
+      input: NexusGenInputs['BulkUninstallDevicesInput']; // BulkUninstallDevicesInput!
     };
     closeTransaction: {
       // args
