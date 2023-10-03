@@ -1,4 +1,5 @@
 import urlJoin from 'url-join';
+import { Prisma } from '@prisma/client';
 import { UninstallDeviceInput, UninstallMultipleDevicesInput } from './network-types';
 import {
   getCheckInstalledDevices,
@@ -102,15 +103,16 @@ export async function uninstallDeviceCache({
 
 export async function installMultipleDevicesCache({
   uniconfigURL,
+  devicesToInstall,
   deviceNames,
-  params,
 }: {
-  uniconfigURL: string;
+  uniconfigURL: Promise<string>;
+  devicesToInstall: Prisma.JsonValue;
   deviceNames: string[];
-  params: unknown;
 }): Promise<void> {
   const uniconfigCache = UniconfigCache.getInstance();
-  const response = await installMultipleDevices(uniconfigURL, params);
+  const url = await uniconfigURL;
+  const response = await installMultipleDevices(url, devicesToInstall);
 
   response.output['node-results']?.forEach((nodeResult) => {
     if (nodeResult.status === 'fail') {
@@ -118,20 +120,21 @@ export async function installMultipleDevicesCache({
     }
   });
 
-  deviceNames.forEach((deviceName) => uniconfigCache.delete(uniconfigURL, deviceName));
+  deviceNames.forEach((deviceName) => uniconfigCache.delete(url, deviceName));
 }
 
 export async function uninstallMultipleDevicesCache({
   uniconfigURL,
   deviceNames,
-  params,
+  devicesToUninstall,
 }: {
-  uniconfigURL: string;
+  uniconfigURL: Promise<string>;
+  devicesToUninstall: UninstallMultipleDevicesInput;
   deviceNames: string[];
-  params: UninstallMultipleDevicesInput;
 }): Promise<void> {
   const uniconfigCache = UniconfigCache.getInstance();
-  const response = await uninstallMultipleDevices(uniconfigURL, params);
+  const url = await uniconfigURL;
+  const response = await uninstallMultipleDevices(url, devicesToUninstall);
 
   response.output['node-results']?.forEach((nodeResult) => {
     if (nodeResult.status === 'fail') {
@@ -139,5 +142,5 @@ export async function uninstallMultipleDevicesCache({
     }
   });
 
-  deviceNames.forEach((deviceName) => uniconfigCache.delete(uniconfigURL, deviceName));
+  deviceNames.forEach((deviceName) => uniconfigCache.delete(url, deviceName));
 }

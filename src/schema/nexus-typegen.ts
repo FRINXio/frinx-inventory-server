@@ -108,7 +108,7 @@ export interface NexusGenInputs {
   };
   BulkInstallDevicesInput: {
     // input type
-    devicesToInstall: NexusGenInputs['DevicesToInstallInput'][]; // [DevicesToInstallInput!]!
+    deviceIds: string[]; // [String!]!
   };
   BulkOperationInput: {
     // input type
@@ -116,7 +116,7 @@ export interface NexusGenInputs {
   };
   BulkUninstallDevicesInput: {
     // input type
-    devicesToUninstall: NexusGenInputs['DevicesToUninstallInput'][]; // [DevicesToUninstallInput!]!
+    deviceIds: string[]; // [String!]!
   };
   CSVImportInput: {
     // input type
@@ -198,16 +198,6 @@ export interface NexusGenInputs {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortDeviceBy']; // SortDeviceBy!
-  };
-  DevicesToInstallInput: {
-    // input type
-    deviceIds: string[]; // [String!]!
-    zoneId: string; // String!
-  };
-  DevicesToUninstallInput: {
-    // input type
-    deviceIds: string[]; // [String!]!
-    zoneId: string; // String!
   };
   EditWorkflowScheduleInput: {
     // input type

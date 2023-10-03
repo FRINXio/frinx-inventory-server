@@ -28,18 +28,13 @@ export function prepareInstallParameters(deviceName: string, mountParameters: Pr
   };
 }
 
-export function prepareMultipleInstallParameters(
-  deviceNames: string[],
-  mountParameters: Prisma.JsonValue[],
-): Prisma.JsonValue {
+export function prepareMultipleInstallParameters(inputs: { deviceName: string; params: unknown }[]): Prisma.JsonValue {
   return {
     input: {
-      nodes: deviceNames.map((deviceName, index) => ({
+      nodes: inputs.map(({ deviceName, params }) => ({
         // eslint-disable-next-line @typescript-eslint/naming-convention
         'node-id': deviceName,
-        // json stringify and parse is used here because of TS compilator is not able to recognize that mountParameters[index] is already a JSON object
-        // to prevent parsing of already parsed JSON object, we need to convert it to string and then back to JSON object
-        ...JSON.parse(JSON.stringify(mountParameters[index])),
+        ...JSON.parse(JSON.stringify(params)),
       })),
     },
   };

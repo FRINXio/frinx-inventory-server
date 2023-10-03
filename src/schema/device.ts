@@ -24,13 +24,13 @@ import {
   uninstallDeviceCache,
   uninstallMultipleDevicesCache,
 } from '../external-api/uniconfig-cache';
-import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
 import {
-  getFilterQuery,
-  getOrderingQuery,
-  prepareDevicesForBulkInstall,
-  prepareDevicesForBulkUninstall,
-} from '../helpers/device-helpers';
+  decodeMountParams,
+  getConnectionType,
+  prepareInstallParameters,
+  prepareMultipleInstallParameters,
+} from '../helpers/converters';
+import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
@@ -620,18 +620,10 @@ export const BulkInstallDevicePayload = objectType({
   },
 });
 
-export const DevicesToInstallInput = inputObjectType({
-  name: 'DevicesToInstallInput',
-  definition: (t) => {
-    t.nonNull.string('zoneId');
-    t.nonNull.list.nonNull.string('deviceIds');
-  },
-});
-
 export const BulkInstallDevicesInput = inputObjectType({
   name: 'BulkInstallDevicesInput',
   definition: (t) => {
-    t.nonNull.list.nonNull.field('devicesToInstall', { type: DevicesToInstallInput });
+    t.nonNull.list.nonNull.string('deviceIds');
   },
 });
 
@@ -644,13 +636,44 @@ export const BulkInstallDevicesMutation = extendType({
         input: nonNull(arg({ type: BulkInstallDevicesInput })),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const { devicesToInstallWithParams, devices } = await prepareDevicesForBulkInstall(
-          args.input.devicesToInstall,
-          tenantId,
-          prisma,
+        const { deviceIds } = args.input;
+        const devices = await prisma.device.findMany({ where: { id: { in: deviceIds }, tenantId } });
+
+        const zonesWithDevices = new Map<
+          string,
+          {
+            deviceName: string;
+            params: unknown;
+          }[]
+        >();
+
+        devices.forEach((device) => {
+          const devicesInZone = zonesWithDevices.get(device.uniconfigZoneId) ?? [];
+
+          const deviceToInstall = {
+            deviceName: device.name,
+            params: device.mountParameters,
+          };
+
+          zonesWithDevices.set(device.uniconfigZoneId, [...devicesInZone, deviceToInstall]);
+        });
+
+        const devicesToInstallWithParams = [...zonesWithDevices.entries()].map(
+          ([uniconfigZoneId, devicesToInstall]) => ({
+            uniconfigURL: getUniconfigURL(prisma, uniconfigZoneId),
+            devices: prepareMultipleInstallParameters(devicesToInstall),
+            deviceNames: devicesToInstall.map((device) => device.deviceName),
+          }),
         );
+
         await Promise.all(
-          devicesToInstallWithParams.map((deviceToInstall) => installMultipleDevicesCache(deviceToInstall)),
+          devicesToInstallWithParams.map((zone) =>
+            installMultipleDevicesCache({
+              uniconfigURL: zone.uniconfigURL,
+              devicesToInstall: zone.devices,
+              deviceNames: zone.deviceNames,
+            }),
+          ),
         );
 
         return { installedDevices: devices };
@@ -666,18 +689,10 @@ export const BulkUninstallDevicePayload = objectType({
   },
 });
 
-export const DevicesToUninstallInput = inputObjectType({
-  name: 'DevicesToUninstallInput',
-  definition: (t) => {
-    t.nonNull.string('zoneId');
-    t.nonNull.list.nonNull.string('deviceIds');
-  },
-});
-
 export const BulkUninstallDevicesInput = inputObjectType({
   name: 'BulkUninstallDevicesInput',
   definition: (t) => {
-    t.nonNull.list.nonNull.field('devicesToUninstall', { type: DevicesToUninstallInput });
+    t.nonNull.list.nonNull.string('deviceIds');
   },
 });
 
@@ -690,11 +705,45 @@ export const BulkUninstallDevicesMutation = extendType({
         input: nonNull(arg({ type: BulkUninstallDevicesInput })),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const { devicesToUninstallWithParams, devices } = await prepareDevicesForBulkUninstall(
-          args.input.devicesToUninstall,
-          tenantId,
-          prisma,
+        const { deviceIds } = args.input;
+        const devices = await prisma.device.findMany({ where: { id: { in: deviceIds }, tenantId } });
+
+        const zonesWithDevices = new Map<
+          string,
+          {
+            deviceName: string;
+            mountParameters: unknown;
+          }[]
+        >();
+
+        devices.forEach((device) => {
+          const devicesInZone = zonesWithDevices.get(device.uniconfigZoneId) ?? [];
+
+          const deviceToInstall = {
+            deviceName: device.name,
+            mountParameters: device.mountParameters,
+          };
+
+          zonesWithDevices.set(device.uniconfigZoneId, [...devicesInZone, deviceToInstall]);
+        });
+
+        const devicesToUninstallWithParams = [...zonesWithDevices.entries()].map(
+          ([uniconfigZoneId, devicesToUninstall]) => ({
+            uniconfigURL: getUniconfigURL(prisma, uniconfigZoneId),
+            devicesToUninstall: {
+              input: {
+                nodes: devicesToUninstall.map(({ deviceName, mountParameters }) => ({
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
+                  'node-id': deviceName,
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
+                  'connection-type': getConnectionType(decodeMountParams(mountParameters)),
+                })),
+              },
+            },
+            deviceNames: devicesToUninstall.map((device) => device.deviceName),
+          }),
         );
+
         await Promise.all(
           devicesToUninstallWithParams.map((deviceToUninstall) => uninstallMultipleDevicesCache(deviceToUninstall)),
         );
