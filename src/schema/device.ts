@@ -637,7 +637,8 @@ export const BulkInstallDevicesMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { deviceIds } = args.input;
-        const devices = await prisma.device.findMany({ where: { id: { in: deviceIds }, tenantId } });
+        const nativeIds = deviceIds.map((id) => fromGraphId('Device', id));
+        const devices = await prisma.device.findMany({ where: { id: { in: nativeIds }, tenantId } });
         const zonesWithDevices = makeZonesWithDevicesFromDevices(devices);
 
         const devicesToInstallWithParams = [...zonesWithDevices.entries()].map(
@@ -682,7 +683,8 @@ export const BulkUninstallDevicesMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { deviceIds } = args.input;
-        const devices = await prisma.device.findMany({ where: { id: { in: deviceIds }, tenantId } });
+        const nativeIds = deviceIds.map((id) => fromGraphId('Device', id));
+        const devices = await prisma.device.findMany({ where: { id: { in: nativeIds }, tenantId } });
         const zonesWithDevices = makeZonesWithDevicesFromDevices(devices);
 
         const devicesToUninstallWithParams = [...zonesWithDevices.entries()].map(

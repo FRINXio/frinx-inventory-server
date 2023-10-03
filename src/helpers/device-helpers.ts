@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Device } from '../schema/source-types';
 
 type FilterInput = {
@@ -47,7 +48,7 @@ export function makeZonesWithDevicesFromDevices(devices: Device[]) {
     string,
     {
       deviceName: string;
-      params: unknown;
+      params: Prisma.JsonValue;
     }[]
   >();
 
