@@ -1,3 +1,5 @@
+import { Device } from '../schema/source-types';
+
 type FilterInput = {
   labelIds?: string[] | null;
   deviceName?: string | null;
@@ -38,4 +40,27 @@ export function getOrderingQuery(ordering?: OrderingInput | null): Record<string
         orderBy: [{ [ordering.sortKey]: ordering.direction.toLowerCase() }],
       }
     : undefined;
+}
+
+export function makeZonesWithDevicesFromDevices(devices: Device[]) {
+  const zonesWithDevices = new Map<
+    string,
+    {
+      deviceName: string;
+      params: unknown;
+    }[]
+  >();
+
+  devices.forEach((device) => {
+    const devicesInZone = zonesWithDevices.get(device.uniconfigZoneId) ?? [];
+
+    const deviceToInstall = {
+      deviceName: device.name,
+      params: device.mountParameters,
+    };
+
+    zonesWithDevices.set(device.uniconfigZoneId, [...devicesInZone, deviceToInstall]);
+  });
+
+  return zonesWithDevices;
 }

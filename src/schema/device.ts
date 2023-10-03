@@ -30,7 +30,7 @@ import {
   prepareInstallParameters,
   prepareMultipleInstallParameters,
 } from '../helpers/converters';
-import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
+import { getFilterQuery, getOrderingQuery, makeZonesWithDevicesFromDevices } from '../helpers/device-helpers';
 import { decodeMetadataOutput } from '../helpers/device-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { CSVParserToPromise, CSVValuesToJSON, isHeaderValid } from '../helpers/import-csv.helpers';
@@ -638,42 +638,18 @@ export const BulkInstallDevicesMutation = extendType({
       resolve: async (_, args, { prisma, tenantId }) => {
         const { deviceIds } = args.input;
         const devices = await prisma.device.findMany({ where: { id: { in: deviceIds }, tenantId } });
-
-        const zonesWithDevices = new Map<
-          string,
-          {
-            deviceName: string;
-            params: unknown;
-          }[]
-        >();
-
-        devices.forEach((device) => {
-          const devicesInZone = zonesWithDevices.get(device.uniconfigZoneId) ?? [];
-
-          const deviceToInstall = {
-            deviceName: device.name,
-            params: device.mountParameters,
-          };
-
-          zonesWithDevices.set(device.uniconfigZoneId, [...devicesInZone, deviceToInstall]);
-        });
+        const zonesWithDevices = makeZonesWithDevicesFromDevices(devices);
 
         const devicesToInstallWithParams = [...zonesWithDevices.entries()].map(
           ([uniconfigZoneId, devicesToInstall]) => ({
             uniconfigURL: getUniconfigURL(prisma, uniconfigZoneId),
-            devices: prepareMultipleInstallParameters(devicesToInstall),
+            devicesToInstall: prepareMultipleInstallParameters(devicesToInstall),
             deviceNames: devicesToInstall.map((device) => device.deviceName),
           }),
         );
 
         await Promise.all(
-          devicesToInstallWithParams.map((zone) =>
-            installMultipleDevicesCache({
-              uniconfigURL: zone.uniconfigURL,
-              devicesToInstall: zone.devices,
-              deviceNames: zone.deviceNames,
-            }),
-          ),
+          devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
         );
 
         return { installedDevices: devices };
@@ -707,36 +683,18 @@ export const BulkUninstallDevicesMutation = extendType({
       resolve: async (_, args, { prisma, tenantId }) => {
         const { deviceIds } = args.input;
         const devices = await prisma.device.findMany({ where: { id: { in: deviceIds }, tenantId } });
-
-        const zonesWithDevices = new Map<
-          string,
-          {
-            deviceName: string;
-            mountParameters: unknown;
-          }[]
-        >();
-
-        devices.forEach((device) => {
-          const devicesInZone = zonesWithDevices.get(device.uniconfigZoneId) ?? [];
-
-          const deviceToInstall = {
-            deviceName: device.name,
-            mountParameters: device.mountParameters,
-          };
-
-          zonesWithDevices.set(device.uniconfigZoneId, [...devicesInZone, deviceToInstall]);
-        });
+        const zonesWithDevices = makeZonesWithDevicesFromDevices(devices);
 
         const devicesToUninstallWithParams = [...zonesWithDevices.entries()].map(
           ([uniconfigZoneId, devicesToUninstall]) => ({
             uniconfigURL: getUniconfigURL(prisma, uniconfigZoneId),
             devicesToUninstall: {
               input: {
-                nodes: devicesToUninstall.map(({ deviceName, mountParameters }) => ({
+                nodes: devicesToUninstall.map(({ deviceName, params }) => ({
                   // eslint-disable-next-line @typescript-eslint/naming-convention
                   'node-id': deviceName,
                   // eslint-disable-next-line @typescript-eslint/naming-convention
-                  'connection-type': getConnectionType(decodeMountParams(mountParameters)),
+                  'connection-type': getConnectionType(decodeMountParams(params)),
                 })),
               },
             },
@@ -745,7 +703,7 @@ export const BulkUninstallDevicesMutation = extendType({
         );
 
         await Promise.all(
-          devicesToUninstallWithParams.map((deviceToUninstall) => uninstallMultipleDevicesCache(deviceToUninstall)),
+          devicesToUninstallWithParams.map((devicesToUninstall) => uninstallMultipleDevicesCache(devicesToUninstall)),
         );
 
         return { uninstalledDevices: devices };
