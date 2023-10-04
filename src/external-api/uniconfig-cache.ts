@@ -1,6 +1,13 @@
 import urlJoin from 'url-join';
-import { UninstallDeviceInput } from './network-types';
-import { getCheckInstalledDevices, installDevice, uninstallDevice } from './uniconfig';
+import { Prisma } from '@prisma/client';
+import { UninstallDeviceInput, UninstallMultipleDevicesInput } from './network-types';
+import {
+  getCheckInstalledDevices,
+  installDevice,
+  installMultipleDevices,
+  uninstallDevice,
+  uninstallMultipleDevices,
+} from './uniconfig';
 
 export class UniconfigCache {
   private static instance: UniconfigCache;
@@ -92,4 +99,48 @@ export async function uninstallDeviceCache({
   const uniconfigCache = UniconfigCache.getInstance();
   await uninstallDevice(uniconfigURL, params);
   uniconfigCache.delete(uniconfigURL, deviceName);
+}
+
+export async function installMultipleDevicesCache({
+  uniconfigURL,
+  devicesToInstall,
+  deviceNames,
+}: {
+  uniconfigURL: Promise<string>;
+  devicesToInstall: Prisma.JsonValue;
+  deviceNames: string[];
+}): Promise<void> {
+  const uniconfigCache = UniconfigCache.getInstance();
+  const url = await uniconfigURL;
+  const response = await installMultipleDevices(url, devicesToInstall);
+
+  response.output['node-results']?.forEach((nodeResult) => {
+    if (nodeResult.status === 'fail') {
+      throw new Error(nodeResult['error-message'] ?? 'could not install device');
+    }
+  });
+
+  deviceNames.forEach((deviceName) => uniconfigCache.delete(url, deviceName));
+}
+
+export async function uninstallMultipleDevicesCache({
+  uniconfigURL,
+  deviceNames,
+  devicesToUninstall,
+}: {
+  uniconfigURL: Promise<string>;
+  devicesToUninstall: UninstallMultipleDevicesInput;
+  deviceNames: string[];
+}): Promise<void> {
+  const uniconfigCache = UniconfigCache.getInstance();
+  const url = await uniconfigURL;
+  const response = await uninstallMultipleDevices(url, devicesToUninstall);
+
+  response.output['node-results']?.forEach((nodeResult) => {
+    if (nodeResult.status === 'fail') {
+      throw new Error(nodeResult['error-message'] ?? 'could not install device');
+    }
+  });
+
+  deviceNames.forEach((deviceName) => uniconfigCache.delete(url, deviceName));
 }

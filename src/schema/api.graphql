@@ -139,6 +139,14 @@ type BlueprintEdge {
   node: Blueprint!
 }
 
+type BulkInstallDevicePayload {
+  installedDevices: [Device!]!
+}
+
+input BulkInstallDevicesInput {
+  deviceIds: [String!]!
+}
+
 input BulkOperationInput {
   executedWorkflowIds: [String!]!
 }
@@ -146,6 +154,14 @@ input BulkOperationInput {
 type BulkOperationResponse {
   bulkErrorResults: String
   bulkSuccessfulResults: [String!]
+}
+
+type BulkUninstallDevicePayload {
+  uninstalledDevices: [Device!]!
+}
+
+input BulkUninstallDevicesInput {
+  deviceIds: [String!]!
 }
 
 type CSVImport {
@@ -738,11 +754,13 @@ type Mutation {
   addSnapshot(input: AddSnapshotInput!, transactionId: String!): AddSnapshotPayload
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
+  bulkInstallDevices(input: BulkInstallDevicesInput!): BulkInstallDevicePayload!
   bulkPauseWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkRestartWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkResumeWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkRetryWorkflow(input: BulkOperationInput!): BulkOperationResponse
   bulkTerminateWorkflow(input: BulkOperationInput!): BulkOperationResponse
+  bulkUninstallDevices(input: BulkUninstallDevicesInput!): BulkUninstallDevicePayload!
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createEventHandler(input: CreateEventHandlerInput!): EventHandler

@@ -35,6 +35,15 @@ export type UninstallDeviceInput = {
   };
 };
 
+export type UninstallMultipleDevicesInput = {
+  input: {
+    nodes: {
+      'node-id': string;
+      'connection-type': 'netconf' | 'cli';
+    }[];
+  };
+};
+
 const UniconfigZonesOutputValidator = t.type({
   instances: t.array(t.string),
 });
@@ -452,4 +461,22 @@ export type UniconfigExternalStorageOutput = t.TypeOf<typeof UniconfigExternalSt
 
 export function decodeUniconfigExternalStorageOutput(value: unknown): UniconfigExternalStorageOutput {
   return extractResult(UniconfigExternalStorageOutputValidator.decode(value));
+}
+
+const UniconfigMultipleNodesOutputValidator = t.type({
+  output: t.type({
+    'node-results': t.array(
+      t.type({
+        'node-id': t.string,
+        status: UniconfigStatusValidator,
+        'error-message': optional(t.string),
+      }),
+    ),
+  }),
+});
+
+export type UniconfigMultipleNodesOutput = t.TypeOf<typeof UniconfigMultipleNodesOutputValidator>;
+
+export function decodeUniconfigMultipleNodesOutput(value: unknown): UniconfigMultipleNodesOutput {
+  return extractResult(UniconfigMultipleNodesOutputValidator.decode(value));
 }

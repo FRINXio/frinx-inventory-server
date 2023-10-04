@@ -14,6 +14,7 @@ import {
   decodeUniconfigDryRunCommitOutput,
   decodeUniconfigExternalStorageOutput,
   decodeUniconfigInstallOutput,
+  decodeUniconfigMultipleNodesOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigRevertChangesOutput,
   decodeUniconfigSnapshotOutput,
@@ -34,6 +35,7 @@ import {
   UniconfigDiffOutput,
   UniconfigDryRunCommitOutput,
   UniconfigInstallOutput,
+  UniconfigMultipleNodesOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
   UniconfigRevertChangesOutput,
@@ -44,6 +46,7 @@ import {
   UniconfigSyncOutput,
   UniconfigTransactionLogOutput,
   UninstallDeviceInput,
+  UninstallMultipleDevicesInput,
 } from './network-types';
 
 export async function getInstalledDevices(baseURL: string): Promise<InstalledDevicesOutput> {
@@ -70,6 +73,23 @@ export async function getCheckInstalledDevices(
 ): Promise<CheckInstalledNodesOutput> {
   const json = await sendPostRequest([baseURL, '/operations/connection-manager:check-installed-nodes'], input);
   const data = decodeInstalledNodeOutput(json);
+
+  return data;
+}
+
+export async function installMultipleDevices(baseURL: string, input: unknown): Promise<UniconfigMultipleNodesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
+  const data = decodeUniconfigMultipleNodesOutput(json);
+
+  return data;
+}
+
+export async function uninstallMultipleDevices(
+  baseURL: string,
+  input: UninstallMultipleDevicesInput,
+): Promise<UniconfigMultipleNodesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:uninstall-multiple-nodes'], input);
+  const data = decodeUniconfigMultipleNodesOutput(json);
 
   return data;
 }
