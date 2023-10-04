@@ -14,8 +14,8 @@ export function apiPoolEdgeToGraphqlPoolEdge(apiPool: PoolFragmentFragment) {
       tag: t.Tag,
     })),
     resourceType: {
-      id: apiPool.id,
-      name: apiPool.Name,
+      id: apiPool.ResourceType.id,
+      name: apiPool.ResourceType.Name,
     },
     poolProperties: apiPool.PoolProperties,
   };
