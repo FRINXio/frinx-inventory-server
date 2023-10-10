@@ -25,13 +25,7 @@ function isDataType(value: string): value is DataType {
     value === 'Country' ||
     value === 'Blueprint' ||
     value === 'GraphNode' ||
-    value === 'GraphEdge' ||
-    value === 'Schedule' ||
-    value === 'TaskDefinition' ||
-    value === 'Pool' ||
-    value === 'PollData' ||
-    value === 'EventHandler' ||
-    value === 'EventHandlerAction'
+    value === 'GraphEdge'
   );
 }
 
