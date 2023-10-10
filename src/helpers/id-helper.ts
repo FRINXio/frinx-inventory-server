@@ -11,13 +11,7 @@ export type DataType =
   | 'Country'
   | 'Blueprint'
   | 'GraphNode'
-  | 'GraphEdge'
-  | 'Schedule'
-  | 'Pool'
-  | 'PollData'
-  | 'EventHandler'
-  | 'EventHandlerAction'
-  | 'TaskDefinition';
+  | 'GraphEdge';
 
 function isDataType(value: string): value is DataType {
   return (

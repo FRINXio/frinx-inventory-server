@@ -1,12 +1,6 @@
 import countries from 'i18n-iso-countries';
 import { enumType, extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
-import config from '../config';
-import conductorAPI from '../external-api/conductor';
 import { fromGraphId, getType } from '../helpers/id-helper';
-import schedulerAPI from '../external-api/scheduler';
-import resourceManagerAPI from '../external-api/resource-manager';
-import { apiPoolEdgeToGraphqlPoolEdge } from '../helpers/resource-manager.helpers';
-import { parseWorkflowId } from '../helpers/workflow.helpers';
 
 export const Node = interfaceType({
   name: 'Node',
@@ -104,66 +98,6 @@ export const NodeQuery = extendType({
               return null;
             }
             return { ...blueprint, __typename: 'Blueprint' };
-          }
-          case 'Workflow': {
-            const id = fromGraphId('Workflow', args.id);
-            const { name, version } = parseWorkflowId(id);
-            const workflow = await conductorAPI.getWorkflowDetail(config.conductorApiURL, name, version);
-            if (workflow == null) {
-              return null;
-            }
-            return { ...workflow, id: args.id, __typename: 'Workflow' };
-          }
-          case 'ExecutedWorkflow': {
-            const id = fromGraphId('ExecutedWorkflow', args.id);
-            const workflow = await conductorAPI.getExecutedWorkflowDetail(config.conductorApiURL, id);
-            if (workflow == null) {
-              return null;
-            }
-            return { ...workflow, id: args.id, __typename: 'ExecutedWorkflow' };
-          }
-          case 'Pool': {
-            const id = fromGraphId('Pool', args.id);
-            const apiPool = await resourceManagerAPI.getPool(id);
-
-            if (apiPool == null) {
-              return null;
-            }
-
-            const pool = apiPoolEdgeToGraphqlPoolEdge(apiPool);
-
-            return { ...pool, id: args.id, __typename: 'Pool' };
-          }
-          case 'Schedule': {
-            const id = fromGraphId('Schedule', args.id);
-            const schedule = await schedulerAPI.getSchedule(id);
-
-            if (schedule == null) {
-              return null;
-            }
-
-            return { ...schedule, id: args.id, __typename: 'Schedule' };
-          }
-          case 'ExecutedWorkflowTask': {
-            const id = fromGraphId('ExecutedWorkflowTask', args.id);
-            const task = await conductorAPI.getExecutedWorkflowTaskDetail(config.conductorApiURL, id);
-            if (task == null) {
-              return null;
-            }
-
-            return { ...task, id: args.id, __typename: 'ExecutedWorkflowTask' };
-          }
-          case 'TaskDefinition': {
-            const id = fromGraphId('TaskDefinition', args.id);
-            const taskDefinition = await conductorAPI.getTaskDetail(config.conductorApiURL, id);
-            if (taskDefinition == null) {
-              return null;
-            }
-            return {
-              ...taskDefinition,
-              id: args.id,
-              __typename: 'TaskDefinition',
-            };
           }
           /* eslint-enable */
           default:
