@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - story-new-conductor-api
+      - story-new-graphql-proxy
 jobs:
   pr-check:
     runs-on: ubuntu-latest
