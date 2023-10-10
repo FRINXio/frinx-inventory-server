@@ -36,7 +36,7 @@ const SAMPLE_BLUEPRINT_TEMPLATE = `
 `;
 
 // TODO: we are setting uniconfig zone based on optional -z flag when running seed script
-// example: `yarn run prisma:seed -z uniconfig`
+// example: `npm run prisma:seed -z uniconfig`
 // when flag is omitted, localhost is used
 // we should maybe look for other alternative how to fill uniconfig zone automatically
 function getUniconfigZone(): string {
