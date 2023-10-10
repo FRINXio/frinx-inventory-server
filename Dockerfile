@@ -6,14 +6,14 @@ RUN apt-get install -y openssl
 RUN mkdir /app
 
 # We need to set production for Node.js
-# first we copy things that are needed for yarn-install
+# first we copy things that are needed for npm-install
 COPY . /app/
 
 WORKDIR /app
-RUN yarn install --immutable
+RUN npm ci
 ENV NODE_ENV production
-RUN yarn run prisma:generate
-RUN yarn run build
+RUN npm run prisma:generate
+RUN npm run build
 
 FROM node:18-slim
 
@@ -46,7 +46,7 @@ COPY --from=build /app/package.json /app
 
 WORKDIR /app
 USER root
-RUN yarn install --production
+RUN npm install --production
 USER node
 
 CMD ["node", "index.js"]
