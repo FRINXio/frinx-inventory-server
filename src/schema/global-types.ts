@@ -5,9 +5,6 @@ import { fromGraphId, getType } from '../helpers/id-helper';
 export const Node = interfaceType({
   name: 'Node',
   definition: (t) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // TODO: once TypeDefinition implements Node, type-check fails at this line
     t.nonNull.id('id');
   },
 });
