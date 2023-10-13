@@ -1,5 +1,5 @@
+import { ExpressContextFunctionArgument } from '@apollo/server/express4';
 import { PrismaClient } from '@prisma/client';
-import { ExpressContext } from 'apollo-server-express';
 import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topology-discovery';
 import getTopologyDiscoveryApi, { TopologyDiscoveryGraphQLAPI } from './external-api/topology-discovery-graphql';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
@@ -13,7 +13,7 @@ export type Context = {
   topologyDiscoveryGraphQLAPI?: TopologyDiscoveryGraphQLAPI;
 };
 
-export default function createContext(context: ExpressContext): Context {
+export default async function createContext(context: ExpressContextFunctionArgument): Promise<Context> {
   const { req } = context;
   const { headers } = req;
   let tenantId: string;
