@@ -5,6 +5,7 @@ import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topol
 import getTopologyDiscoveryApi, { TopologyDiscoveryGraphQLAPI } from './external-api/topology-discovery-graphql';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
+import config from './config';
 
 export type Context = {
   prisma: PrismaClient;
@@ -16,7 +17,7 @@ export type Context = {
 
 function getTenantIdFromHeaders(headers: IncomingHttpHeaders): string {
   if (headers['x-tenant-id'] == null) {
-    return 'frinx';
+    return config.defaultTenantId;
   }
   if (Array.isArray(headers['x-tenant-id'])) {
     return headers['x-tenant-id'][0];
