@@ -4,17 +4,13 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import express from 'express';
 import cors from 'cors';
 import { json } from 'body-parser';
-import fs from 'fs';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'; // eslint-disable-line import/extensions
 import { useServer } from 'graphql-ws/lib/use/ws';
-import https from 'https';
 import http, { Server } from 'http';
-import path from 'path';
 import { WebSocketServer } from 'ws';
 import createContext, { Context, createSubscriptionContext } from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
 import getLogger from './get-logger';
-import isDev from './is-dev';
 import schema from './schema';
 import syncZones from './sync-zones';
 
@@ -35,15 +31,7 @@ process.on('uncaughtException', (error) => {
 const app = express();
 app.use(graphqlUploadExpress());
 
-const server = isDev
-  ? https.createServer(
-      {
-        key: fs.readFileSync(path.resolve(process.cwd(), './server.key')),
-        cert: fs.readFileSync(path.resolve(process.cwd(), './server.cert')),
-      },
-      app,
-    )
-  : http.createServer(app);
+const server = http.createServer(app);
 
 const wsServer = new WebSocketServer({
   server,
