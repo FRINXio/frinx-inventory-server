@@ -1636,7 +1636,6 @@ export interface NexusGenArgTypes {
     node: {
       // args
       id: string; // ID!
-      version?: number | null; // Int
     };
     shortestPath: {
       // args
