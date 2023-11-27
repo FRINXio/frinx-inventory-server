@@ -52,6 +52,9 @@ const GET_TOPOLOGY_DEVICES = gql`
         node {
           id
           name
+          status
+          labels
+          routerId
           coordinates {
             x
             y

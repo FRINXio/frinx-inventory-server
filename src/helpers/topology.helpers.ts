@@ -1,5 +1,5 @@
 import { device as PrismaDevice } from '@prisma/client';
-import { NetTopologyQuery, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
+import { NetTopologyQuery, PhyDevice, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
   ArangoEdge,
@@ -47,6 +47,52 @@ export function getOldTopologyDevices(devices: ArangoDevice[], diffData: Topolog
       return changedDevice.old;
     });
   return oldDevices;
+}
+
+type PhyDeviceWithoutInterfaces = Omit<PhyDevice, 'phyInterfaces' | 'netDevice'>;
+
+export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterfaces): ArangoDevice {
+  const { name, status, coordinates, details, labels } = phyDevice;
+  return {
+    _id: phyDevice.id,
+    _key: phyDevice.id,
+    coordinates,
+    details,
+    labels: labels ?? [],
+    name,
+    status,
+  };
+}
+
+export function getNodesFromTopologyQuery(query: TopologyDevicesQuery): ArangoDevice[] {
+  const nodes =
+    query.phyDevices.edges
+      ?.map((e) => e?.node)
+      .filter(omitNullValue)
+      .map(convertPhyDeviceToArangoDevice) ?? [];
+  return nodes;
+}
+
+export function getEdgesFromTopologyQuery(query: TopologyDevicesQuery): ArangoEdge[] {
+  const currentEdges = query.phyDevices.edges?.flatMap(
+    (e) =>
+      e?.node?.phyInterfaces.edges
+        ?.map((i) => i?.node)
+        .filter(omitNullValue)
+        .map((i) => {
+          if (!i.phyLink?.idLink) {
+            return null;
+          }
+          return {
+            _id: i.phyLink.idLink,
+            _key: i.phyLink.idLink,
+            _from: i.id,
+            _to: i.phyLink.id,
+          };
+        })
+        .filter(omitNullValue) ?? [],
+  );
+  return currentEdges ?? [];
 }
 
 export function getOldTopologyInterfaceEdges(
