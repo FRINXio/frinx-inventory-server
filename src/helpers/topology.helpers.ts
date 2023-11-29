@@ -1,5 +1,4 @@
 import { device as PrismaDevice } from '@prisma/client';
-import { uniqueId } from 'lodash';
 import { NetTopologyQuery, PhyDevice, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
@@ -265,7 +264,7 @@ export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): 
       (d) =>
         d?.node?.phyInterfaces.edges?.map((i) => ({
           _id: `${d.node?.id}-${i?.node?.id}`,
-          _key: uniqueId(),
+          _key: i?.node?.idHas ?? '',
           _from: d.node?.id ?? '',
           _to: i?.node?.id ?? '',
           status: d.node?.status ?? 'unknown',
