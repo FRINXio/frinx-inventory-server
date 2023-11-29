@@ -507,7 +507,7 @@ type Query {
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
-  node(id: ID!, version: Int): Node
+  node(id: ID!): Node
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!

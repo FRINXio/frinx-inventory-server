@@ -30,7 +30,6 @@ export const NodeQuery = extendType({
       type: Node,
       args: {
         id: nonNull(idArg()),
-        version: intArg(),
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         /* eslint-disable @typescript-eslint/naming-convention */
