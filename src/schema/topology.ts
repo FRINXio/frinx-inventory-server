@@ -2,12 +2,14 @@ import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enum
 import config from '../config';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import {
+  getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
   getNodesFromTopologyQuery,
   getOldTopologyConnectedEdges,
   getOldTopologyDevices,
   getOldTopologyInterfaceEdges,
+  getTopologyInterfaces,
   makeInterfaceDeviceMap,
   makeInterfaceMap,
   makeInterfaceNameMap,
@@ -216,15 +218,14 @@ export const TopologyVersionDataQuery = extendType({
 
         const currentNodes = getNodesFromTopologyQuery(topologyDevicesResult);
         const currentEdges = getEdgesFromTopologyQuery(topologyDevicesResult);
-        console.log('current edges: ', currentEdges);
+
+        const interfaces = getTopologyInterfaces(topologyDevicesResult);
+        const interfaceEdges = getDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
         const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version);
         const oldDevices = getOldTopologyDevices(currentNodes, result);
 
-        // get interface edges for old version
-        const { has: interfaceEdges, interfaces } = await topologyDiscoveryGraphQLAPI.getHasAndInterfaces();
-        console.log('interface edges: ', interfaceEdges);
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
         const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
         const interfaceNameMap = makeInterfaceNameMap(

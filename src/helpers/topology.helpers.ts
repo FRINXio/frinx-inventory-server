@@ -1,4 +1,5 @@
 import { device as PrismaDevice } from '@prisma/client';
+import { uniqueId } from 'lodash';
 import { NetTopologyQuery, PhyDevice, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
@@ -233,7 +234,7 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
   return nodes;
 }
 
-function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
+export function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
   return (
     topologyDevices.phyDevices.edges?.flatMap((e) => {
       const node = e?.node;
@@ -248,12 +249,28 @@ function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
           }
           return {
             ...inode,
+            _id: inode.id,
             nodeId: node.name,
           };
         })
         .filter(omitNullValue);
       return nodeInterfaces || [];
     }) ?? []
+  );
+}
+
+export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): ArangoEdgeWithStatus[] {
+  return (
+    topologyDevices.phyDevices.edges?.flatMap(
+      (d) =>
+        d?.node?.phyInterfaces.edges?.map((i) => ({
+          _id: `${d.node?.id}-${i?.node?.id}`,
+          _key: uniqueId(),
+          _from: d.node?.id ?? '',
+          _to: i?.node?.id ?? '',
+          status: d.node?.status ?? 'unknown',
+        })) ?? [],
+    ) ?? []
   );
 }
 
