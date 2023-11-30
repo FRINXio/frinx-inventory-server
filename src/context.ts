@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
-import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topology-discovery';
 import getTopologyDiscoveryApi, { TopologyDiscoveryGraphQLAPI } from './external-api/topology-discovery-graphql';
 import conductorAPI, { ConductorAPI } from './external-api/conductor';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
@@ -12,7 +11,6 @@ export type Context = {
   prisma: PrismaClient;
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
-  topologyDiscoveryAPI: TopologyDiscoveryAPI;
   topologyDiscoveryGraphQLAPI?: TopologyDiscoveryGraphQLAPI;
   conductorAPI: ConductorAPI;
   schedulerAPI: SchedulerAPI;
@@ -34,7 +32,6 @@ export default function createContext(context: ExpressContext): Context {
     prisma: prismaClient,
     tenantId,
     uniconfigAPI,
-    topologyDiscoveryAPI,
     topologyDiscoveryGraphQLAPI: getTopologyDiscoveryApi(),
     conductorAPI,
     schedulerAPI,
