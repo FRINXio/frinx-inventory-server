@@ -475,14 +475,14 @@ type PtpDeviceDetails {
   ptpProfile: String!
 }
 
-type PtpGraphNode implements BaseGraphNode {
+type PtpGraphNode {
   coordinates: GraphNodeCoordinates!
-  deviceType: String
   id: ID!
   interfaces: [GraphNodeInterface!]!
   labels: [String!]
+  name: String!
+  nodeId: String!
   ptpDeviceDetails: PtpDeviceDetails!
-  softwareVersion: String
   status: GraphEdgeStatus!
 }
 

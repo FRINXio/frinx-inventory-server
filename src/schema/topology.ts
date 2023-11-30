@@ -445,7 +445,11 @@ export const PtpDeviceDetails = objectType({
 export const PtpGraphNode = objectType({
   name: 'PtpGraphNode',
   definition: (t) => {
-    t.implements(BaseGraphNode);
+    t.nonNull.id('id');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
     t.nonNull.field('ptpDeviceDetails', { type: PtpDeviceDetails });
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.list.nonNull.string('labels');

@@ -397,11 +397,11 @@ export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
               id: `${deviceInterface.id}-${deviceInterface.ptpLink.id}`,
               source: {
                 interface: deviceInterface.id,
-                nodeId: deviceInterface.ptpDevice.id,
+                nodeId: deviceInterface.ptpDevice.name,
               },
               target: {
                 interface: deviceInterface.ptpLink.id,
-                nodeId: deviceInterface.ptpLink.ptpDevice.id,
+                nodeId: deviceInterface.ptpLink.ptpDevice.name,
               },
             };
           })
