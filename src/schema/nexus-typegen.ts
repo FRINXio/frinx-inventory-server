@@ -431,6 +431,31 @@ export interface NexusGenObjects {
     hasPreviousPage: boolean; // Boolean!
     startCursor?: string | null; // String
   };
+  PtpDeviceDetails: {
+    // root type
+    clockId: string; // String!
+    clockType: string; // String!
+    domain: number; // Int!
+    gmClockId: string; // String!
+    parentClockId: string; // String!
+    ptpProfile: string; // String!
+  };
+  PtpGraphNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    deviceType?: string | null; // String
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    labels?: string[] | null; // [String!]
+    ptpDeviceDetails: NexusGenRootTypes['PtpDeviceDetails']; // PtpDeviceDetails!
+    softwareVersion?: string | null; // String
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  PtpTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['PtpGraphNode'][]; // [PtpGraphNode!]!
+  };
   Query: {};
   ResetConfigPayload: {
     // root type
@@ -520,7 +545,10 @@ export interface NexusGenObjects {
 }
 
 export interface NexusGenInterfaces {
-  BaseGraphNode: core.Discriminate<'GraphNode', 'required'> | core.Discriminate<'GraphVersionNode', 'required'>;
+  BaseGraphNode:
+    | core.Discriminate<'GraphNode', 'required'>
+    | core.Discriminate<'GraphVersionNode', 'required'>
+    | core.Discriminate<'PtpGraphNode', 'required'>;
   Node:
     | core.Discriminate<'Blueprint', 'required'>
     | core.Discriminate<'Country', 'required'>
@@ -869,6 +897,31 @@ export interface NexusGenFieldTypes {
     hasPreviousPage: boolean; // Boolean!
     startCursor: string | null; // String
   };
+  PtpDeviceDetails: {
+    // field return type
+    clockId: string; // String!
+    clockType: string; // String!
+    domain: number; // Int!
+    gmClockId: string; // String!
+    parentClockId: string; // String!
+    ptpProfile: string; // String!
+  };
+  PtpGraphNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    deviceType: string | null; // String
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    labels: string[] | null; // [String!]
+    ptpDeviceDetails: NexusGenRootTypes['PtpDeviceDetails']; // PtpDeviceDetails!
+    softwareVersion: string | null; // String
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  PtpTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['PtpGraphNode'][]; // [PtpGraphNode!]!
+  };
   Query: {
     // field return type
     blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
@@ -880,6 +933,8 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    ptpPathToGrandMaster: string[] | null; // [String!]
+    ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -1330,6 +1385,31 @@ export interface NexusGenFieldTypeNames {
     hasPreviousPage: 'Boolean';
     startCursor: 'String';
   };
+  PtpDeviceDetails: {
+    // field return type name
+    clockId: 'String';
+    clockType: 'String';
+    domain: 'Int';
+    gmClockId: 'String';
+    parentClockId: 'String';
+    ptpProfile: 'String';
+  };
+  PtpGraphNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    deviceType: 'String';
+    id: 'ID';
+    interfaces: 'GraphNodeInterface';
+    labels: 'String';
+    ptpDeviceDetails: 'PtpDeviceDetails';
+    softwareVersion: 'String';
+    status: 'GraphEdgeStatus';
+  };
+  PtpTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'PtpGraphNode';
+  };
   Query: {
     // field return type name
     blueprints: 'BlueprintConnection';
@@ -1341,6 +1421,8 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    ptpPathToGrandMaster: 'String';
+    ptpTopology: 'PtpTopology';
     shortestPath: 'NetRoutingPathNode';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
@@ -1637,6 +1719,10 @@ export interface NexusGenArgTypes {
       // args
       id: string; // ID!
     };
+    ptpPathToGrandMaster: {
+      // args
+      deviceFrom: string; // String!
+    };
     shortestPath: {
       // args
       from: string; // String!
@@ -1674,7 +1760,7 @@ export interface NexusGenArgTypes {
 }
 
 export interface NexusGenAbstractTypeMembers {
-  BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
+  BaseGraphNode: 'GraphNode' | 'GraphVersionNode' | 'PtpGraphNode';
   Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
 }
 
@@ -1686,6 +1772,7 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
+  PtpGraphNode: 'BaseGraphNode';
   Zone: 'Node';
 }
 

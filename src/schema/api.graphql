@@ -466,6 +466,31 @@ type PageInfo {
   startCursor: String
 }
 
+type PtpDeviceDetails {
+  clockId: String!
+  clockType: String!
+  domain: Int!
+  gmClockId: String!
+  parentClockId: String!
+  ptpProfile: String!
+}
+
+type PtpGraphNode implements BaseGraphNode {
+  coordinates: GraphNodeCoordinates!
+  deviceType: String
+  id: ID!
+  interfaces: [GraphNodeInterface!]!
+  labels: [String!]
+  ptpDeviceDetails: PtpDeviceDetails!
+  softwareVersion: String
+  status: GraphEdgeStatus!
+}
+
+type PtpTopology {
+  edges: [GraphEdge!]!
+  nodes: [PtpGraphNode!]!
+}
+
 type Query {
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
@@ -483,6 +508,8 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!): Node
+  ptpPathToGrandMaster(deviceFrom: String!): [String!]
+  ptpTopology: PtpTopology
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes

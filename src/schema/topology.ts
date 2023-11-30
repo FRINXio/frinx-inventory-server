@@ -1,4 +1,15 @@
-import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType, arg, interfaceType } from 'nexus';
+import {
+  extendType,
+  inputObjectType,
+  nonNull,
+  list,
+  objectType,
+  stringArg,
+  enumType,
+  arg,
+  interfaceType,
+  queryField,
+} from 'nexus';
 import config from '../config';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import {
@@ -12,6 +23,8 @@ import {
   makeNetTopologyEdges,
   makeNetTopologyNodes,
   makeNodesMap,
+  makePtpTopologyEdges,
+  makePtpTopologyNodes,
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
@@ -400,5 +413,64 @@ export const ShortestPathQuery = extendType({
         }));
       },
     });
+  },
+});
+
+export const PtpPathToGrandMasterQuery = queryField('ptpPathToGrandMaster', {
+  type: list(nonNull('String')),
+  args: {
+    deviceFrom: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const { deviceFrom } = args;
+    const fromNodeNativeId = fromGraphId('GraphNode', deviceFrom);
+
+    const ptpPathResult = await topologyDiscoveryGraphQLAPI?.getPtpPathToGrandMaster(fromNodeNativeId);
+    return ptpPathResult ?? [];
+  },
+});
+
+export const PtpDeviceDetails = objectType({
+  name: 'PtpDeviceDetails',
+  definition: (t) => {
+    t.nonNull.string('clockType');
+    t.nonNull.int('domain');
+    t.nonNull.string('ptpProfile');
+    t.nonNull.string('clockId');
+    t.nonNull.string('parentClockId');
+    t.nonNull.string('gmClockId');
+  },
+});
+
+export const PtpGraphNode = objectType({
+  name: 'PtpGraphNode',
+  definition: (t) => {
+    t.implements(BaseGraphNode);
+    t.nonNull.field('ptpDeviceDetails', { type: PtpDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+  },
+});
+
+export const PtpTopology = objectType({
+  name: 'PtpTopology',
+  definition: (t) => {
+    t.nonNull.list.field('edges', { type: nonNull(GraphEdge) });
+    t.nonNull.list.field('nodes', { type: nonNull(PtpGraphNode) });
+  },
+});
+
+export const PtpTopologyQuery = queryField('ptpTopology', {
+  type: 'PtpTopology',
+  resolve: async (_, _args, { topologyDiscoveryGraphQLAPI }) => {
+    const ptpTopologyResult = await topologyDiscoveryGraphQLAPI?.getPtpTopology();
+
+    const nodes = makePtpTopologyNodes(ptpTopologyResult);
+    const edges = makePtpTopologyEdges(ptpTopologyResult);
+
+    return {
+      nodes,
+      edges,
+    };
   },
 });

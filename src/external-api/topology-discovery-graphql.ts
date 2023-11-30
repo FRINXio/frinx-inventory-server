@@ -10,6 +10,9 @@ import {
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
   NetTopologyQuery,
+  PtpPathToGrandMasterQuery,
+  PtpPathToGrandMasterQueryVariables,
+  PtpTopologyQuery,
   TopologyDevicesQuery,
   TopologyDiffQuery,
   TopologyDiffQueryVariables,
@@ -184,6 +187,95 @@ const UPDATE_COORDINATES = gql`
   }
 `;
 
+const PTP_TOPOLOGY = gql`
+  fragment PtpDeviceParts on PtpDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    details {
+      clock_type
+      domain
+      ptp_profile
+      clock_id
+      parent_clock_id
+      gm_clock_id
+    }
+    status
+    labels
+    ptpInterfaces {
+      edges {
+        cursor
+        node {
+          ...PtpInterfaceParts
+        }
+      }
+    }
+  }
+
+  fragment PtpInterfaceDeviceParts on PtpDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    ptpInterfaces {
+      edges {
+        node {
+          id
+          idLink
+          name
+          ptpLink {
+            id
+            idLink
+            name
+          }
+        }
+      }
+    }
+  }
+
+  fragment PtpInterfaceParts on PtpInterface {
+    id
+    idLink
+    name
+    status
+    ptpStatus
+    ptpDevice {
+      ...PtpInterfaceDeviceParts
+    }
+    ptpLink {
+      id
+      idLink
+      ptpDevice {
+        ...PtpInterfaceDeviceParts
+      }
+    }
+  }
+
+  query PtpTopology {
+    ptpDevices {
+      edges {
+        cursor
+        node {
+          ...PtpDeviceParts
+        }
+      }
+    }
+  }
+`;
+
+const PTP_PATH = gql`
+  query PtpPathToGrandMaster($deviceFrom: ID!) {
+    ptpPathToGmClock(deviceFrom: $deviceFrom) {
+      nodes
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -273,6 +365,20 @@ function getTopologyDiscoveryApi() {
     return response.updateCoordinates.updated;
   }
 
+  async function getPtpTopology(): Promise<PtpTopologyQuery> {
+    const response = await client.request<PtpTopologyQuery>(PTP_TOPOLOGY);
+
+    return response;
+  }
+
+  async function getPtpPathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
+    const response = await client.request<PtpPathToGrandMasterQuery, PtpPathToGrandMasterQueryVariables>(PTP_PATH, {
+      deviceFrom,
+    });
+
+    return response.ptpPathToGmClock.nodes;
+  }
+
   return {
     getTopologyDevices,
     getNetTopologyDevices,
@@ -282,6 +388,8 @@ function getTopologyDiscoveryApi() {
     getHasAndInterfaces,
     getLinksAndDevices,
     getCommonNodes,
+    getPtpTopology,
+    getPtpPathToGrandMaster,
     updateCoordinates,
   };
 }

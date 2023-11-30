@@ -1,5 +1,5 @@
 import { device as PrismaDevice } from '@prisma/client';
-import { NetTopologyQuery, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
+import { NetTopologyQuery, PtpTopologyQuery, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
   ArangoEdge,
@@ -17,6 +17,15 @@ type FilterInput = {
 
 type FilterQuery = {
   label?: Record<string, unknown>;
+};
+
+type PtpDeviceDetails = {
+  clockType: string;
+  domain: number;
+  ptpProfile: string;
+  clockId: string;
+  parentClockId: string;
+  gmClockId: string;
 };
 
 function getLabelsQuery(labelIds: string[]): Record<string, unknown> | undefined {
@@ -312,4 +321,92 @@ function getEdgesFromTopologyDevices(topologyDevices: NetTopologyQuery['netDevic
 
 export function makeNetTopologyEdges(netTopologyDevices?: NetTopologyQuery) {
   return netTopologyDevices ? getEdgesFromTopologyDevices(netTopologyDevices.netDevices.edges) : [];
+}
+
+export function makePtpDeviceDetails(
+  device: NonNullable<NonNullable<NonNullable<PtpTopologyQuery['ptpDevices']['edges']>[0]>['node']>,
+): PtpDeviceDetails {
+  return {
+    clockType: device.details.clock_type,
+    domain: device.details.domain,
+    ptpProfile: device.details.ptp_profile,
+    clockId: device.details.clock_id,
+    parentClockId: device.details.parent_clock_id,
+    gmClockId: device.details.gm_clock_id,
+  };
+}
+
+export function makePtpTopologyNodes(ptpDevices?: PtpTopologyQuery) {
+  return (
+    ptpDevices?.ptpDevices.edges
+      ?.map((e) => {
+        const node = e?.node;
+        if (!node) {
+          return null;
+        }
+        return {
+          id: toGraphId('GraphNode', node.id),
+          nodeId: node.id,
+          name: node.name,
+          ptpDeviceDetails: makePtpDeviceDetails(node),
+          status: getStatus(node.status),
+          labels: node.labels?.map((l) => l) ?? [],
+          interfaces:
+            node.ptpInterfaces.edges
+              ?.map((i) => {
+                const interfaceNode = i?.node;
+                if (!interfaceNode) {
+                  return null;
+                }
+                return {
+                  id: interfaceNode.id,
+                  name: interfaceNode.name,
+                  status: getStatus(interfaceNode.status),
+                };
+              })
+              .filter(omitNullValue) ?? [],
+          coordinates: node.coordinates ?? { x: 0, y: 0 },
+        };
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
+  return (
+    ptpDevices?.ptpDevices.edges
+      ?.flatMap((e) => {
+        const device = e?.node ?? null;
+        if (!device) {
+          return [];
+        }
+
+        return device.ptpInterfaces.edges
+          ?.map((i) => {
+            const deviceInterface = i?.node;
+            if (
+              !deviceInterface ||
+              !deviceInterface.ptpLink ||
+              !deviceInterface.ptpLink.ptpDevice ||
+              !deviceInterface.ptpDevice
+            ) {
+              return null;
+            }
+
+            return {
+              id: `${deviceInterface.id}-${deviceInterface.ptpLink.id}`,
+              source: {
+                interface: deviceInterface.id,
+                nodeId: deviceInterface.ptpDevice.id,
+              },
+              target: {
+                interface: deviceInterface.ptpLink.id,
+                nodeId: deviceInterface.ptpLink.ptpDevice.id,
+              },
+            };
+          })
+          .filter(omitNullValue);
+      })
+      .filter(omitNullValue) ?? []
+  );
 }
