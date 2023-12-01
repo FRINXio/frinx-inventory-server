@@ -443,12 +443,12 @@ export interface NexusGenObjects {
   PtpGraphNode: {
     // root type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
-    deviceType?: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     labels?: string[] | null; // [String!]
+    name: string; // String!
+    nodeId: string; // String!
     ptpDeviceDetails: NexusGenRootTypes['PtpDeviceDetails']; // PtpDeviceDetails!
-    softwareVersion?: string | null; // String
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
   PtpTopology: {
@@ -545,10 +545,7 @@ export interface NexusGenObjects {
 }
 
 export interface NexusGenInterfaces {
-  BaseGraphNode:
-    | core.Discriminate<'GraphNode', 'required'>
-    | core.Discriminate<'GraphVersionNode', 'required'>
-    | core.Discriminate<'PtpGraphNode', 'required'>;
+  BaseGraphNode: core.Discriminate<'GraphNode', 'required'> | core.Discriminate<'GraphVersionNode', 'required'>;
   Node:
     | core.Discriminate<'Blueprint', 'required'>
     | core.Discriminate<'Country', 'required'>
@@ -909,12 +906,12 @@ export interface NexusGenFieldTypes {
   PtpGraphNode: {
     // field return type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
-    deviceType: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
     labels: string[] | null; // [String!]
+    name: string; // String!
+    nodeId: string; // String!
     ptpDeviceDetails: NexusGenRootTypes['PtpDeviceDetails']; // PtpDeviceDetails!
-    softwareVersion: string | null; // String
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
   PtpTopology: {
@@ -1397,12 +1394,12 @@ export interface NexusGenFieldTypeNames {
   PtpGraphNode: {
     // field return type name
     coordinates: 'GraphNodeCoordinates';
-    deviceType: 'String';
     id: 'ID';
     interfaces: 'GraphNodeInterface';
     labels: 'String';
+    name: 'String';
+    nodeId: 'String';
     ptpDeviceDetails: 'PtpDeviceDetails';
-    softwareVersion: 'String';
     status: 'GraphEdgeStatus';
   };
   PtpTopology: {
@@ -1760,7 +1757,7 @@ export interface NexusGenArgTypes {
 }
 
 export interface NexusGenAbstractTypeMembers {
-  BaseGraphNode: 'GraphNode' | 'GraphVersionNode' | 'PtpGraphNode';
+  BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
   Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
 }
 
@@ -1772,7 +1769,6 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
-  PtpGraphNode: 'BaseGraphNode';
   Zone: 'Node';
 }
 
