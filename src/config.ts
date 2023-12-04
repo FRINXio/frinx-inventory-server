@@ -31,7 +31,6 @@ function optionalEnvString(key: string): string | null {
 
 type TopologyConfigEnabled = {
   topologyEnabled: true;
-  topologyDiscoveryURL: string;
   topologyDiscoveryGraphqlURL: string;
 };
 
@@ -44,7 +43,6 @@ type TopologyConfig = TopologyConfigDisabled | TopologyConfigEnabled;
 // all arango params must be present or none
 function getTopologyConfig(): TopologyConfig {
   const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
-  const topologyDiscoveryURL = optionalEnvString('TOPOLOGY_DISCOVERY_API_URL');
   const topologyDiscoveryGraphqlURL = optionalEnvString('TOPOLOGY_DISCOVERY_GRAPHQL_API_URL');
   if (!topologyEnabled) {
     return {
@@ -52,15 +50,14 @@ function getTopologyConfig(): TopologyConfig {
     };
   }
 
-  if (!topologyDiscoveryURL || !topologyDiscoveryGraphqlURL) {
+  if (!topologyDiscoveryGraphqlURL) {
     throw new Error(
-      'Not all mandatory topology discovery url (TOPOLOGY_DISCOVERY_API_URL, TOPOLOGY_DISCOVERY_GRAPHQL_API_URL) were found.',
+      'Not all mandatory topology discovery url (TOPOLOGY_DISCOVERY_GRAPHQL_API_URL) were found.',
     );
   }
 
   return {
     topologyEnabled: true,
-    topologyDiscoveryURL,
     topologyDiscoveryGraphqlURL,
   };
 }
