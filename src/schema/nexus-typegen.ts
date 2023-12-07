@@ -155,6 +155,11 @@ export interface NexusGenInputs {
     vendor?: string | null; // String
     version?: string | null; // String
   };
+  UpdateGraphNodeCoordinatesInput: {
+    // input type
+    coordinates: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
+    layer?: NexusGenEnums['TopologyLayer'] | null; // TopologyLayer
+  };
 }
 
 export interface NexusGenEnums {
@@ -164,6 +169,7 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
+  TopologyLayer: 'PhysicalTopology' | 'PtpTopology';
 }
 
 export interface NexusGenScalars {
@@ -1660,7 +1666,7 @@ export interface NexusGenArgTypes {
     };
     updateGraphNodeCoordinates: {
       // args
-      input: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
+      input: NexusGenInputs['UpdateGraphNodeCoordinatesInput']; // UpdateGraphNodeCoordinatesInput!
     };
   };
   Query: {
