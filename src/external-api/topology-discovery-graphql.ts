@@ -16,6 +16,7 @@ import {
   TopologyDevicesQuery,
   TopologyDiffQuery,
   TopologyDiffQueryVariables,
+  TopologyType,
   UpdateCoordinatesMutation,
   UpdateCoordinatesMutationVariables,
 } from '../__generated__/topology-discovery.graphql';
@@ -180,8 +181,8 @@ const GET_COMMON_NODES = gql`
 `;
 
 const UPDATE_COORDINATES = gql`
-  mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!) {
-    updateCoordinates(coordinates_list: $coordinates) {
+  mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!, $topology_type: TopologyType) {
+    updateCoordinates(coordinates_list: $coordinates, topology_type: $topology_type) {
       updated
     }
   }
@@ -346,7 +347,7 @@ function getTopologyDiscoveryApi() {
     return response.commonNodes.common_nodes;
   }
 
-  async function updateCoordinates(coordinates: CoordinatesParam[]): Promise<string[]> {
+  async function updateCoordinates(coordinates: CoordinatesParam[], topologyType?: TopologyType): Promise<string[]> {
     const coordinatesInput: CoordinatesInput[] = coordinates.map((c) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       node_name: c.device,
@@ -359,6 +360,8 @@ function getTopologyDiscoveryApi() {
       UPDATE_COORDINATES,
       {
         coordinates: coordinatesInput,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        topology_type: topologyType,
       },
     );
 

@@ -6,7 +6,6 @@ import {
   objectType,
   stringArg,
   enumType,
-  arg,
   interfaceType,
   queryField,
 } from 'nexus';
@@ -285,6 +284,23 @@ export const GraphNodeCoordinatesInput = inputObjectType({
   },
 });
 
+export const TopologyLayer = enumType({
+  name: 'TopologyLayer',
+  members: ['PhysicalTopology', 'PtpTopology'],
+});
+
+export const UpdateGraphNodeCooordinatesInput = inputObjectType({
+  name: 'UpdateGraphNodeCoordinatesInput',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('coordinates', {
+      type: GraphNodeCoordinatesInput,
+    });
+    t.field('layer', {
+      type: TopologyLayer,
+    });
+  },
+});
+
 export const UpdateGraphNodeCoordinatesPayload = objectType({
   name: 'UpdateGraphNodeCoordinatesPayload',
   definition: (t) => {
@@ -298,15 +314,18 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
     t.nonNull.field('updateGraphNodeCoordinates', {
       type: UpdateGraphNodeCoordinatesPayload,
       args: {
-        input: nonNull(arg({ type: list(nonNull(GraphNodeCoordinatesInput)) })),
+        input: nonNull(UpdateGraphNodeCooordinatesInput),
       },
       resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return { deviceNames: [] };
         }
         const { input } = args;
-        const apiParams = input.map((i) => ({ device: i.deviceName, x: i.x, y: i.y }));
-        const response = await topologyDiscoveryGraphQLAPI.updateCoordinates(apiParams);
+        const apiParams = input.coordinates.map((i) => ({ device: i.deviceName, x: i.x, y: i.y })) || [];
+        const response = await topologyDiscoveryGraphQLAPI.updateCoordinates(
+          apiParams,
+          input.layer ?? 'PhysicalTopology',
+        );
         return { deviceNames: response };
       },
     });

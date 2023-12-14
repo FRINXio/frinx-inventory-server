@@ -213,6 +213,8 @@ export type NetInterface = Node & {
   __typename?: 'NetInterface';
   /** Unique identifier of the object. */
   id: Scalars['ID'];
+  /** Identifier of the NetHas document between interface and device. */
+  idHas: Maybe<Scalars['ID']>;
   /** IGP metric configured on the network interface. */
   igp_metric: Maybe<Scalars['Int']>;
   /** IP address configured on the interface. */
@@ -411,6 +413,8 @@ export type PhyInterface = Node & {
   __typename?: 'PhyInterface';
   /** Unique identifier of the object. */
   id: Scalars['ID'];
+  /** Identifier of the PhyHas document between interface and device. */
+  idHas: Maybe<Scalars['ID']>;
   /** Identifier of the link that connects this interface to the interface on the remote device */
   idLink: Maybe<Scalars['ID']>;
   /** Human readable name of the network port. */
@@ -541,6 +545,8 @@ export type PtpInterface = Node & {
   __typename?: 'PtpInterface';
   /** Unique identifier of the object. */
   id: Scalars['ID'];
+  /** Identifier of the PtpHas document between interface and device. */
+  idHas: Maybe<Scalars['ID']>;
   /** Identifier of the link that connects this interface to the interface on the remote device */
   idLink: Maybe<Scalars['ID']>;
   /** Human readable name of the network port. */
@@ -584,6 +590,8 @@ export type PtpInterfaceFilter = {
 /** Computed path from source to destination PTP clock device. */
 export type PtpPath = {
   __typename?: 'PtpPath';
+  /** True if path is complete - the last element in the path represents GM clock, False otherwise. */
+  complete: Scalars['Boolean'];
   /** Ordered list of node identifiers that compose path from source clock to destination clock. */
   nodes: Maybe<Array<Scalars['ID']>>;
 };
@@ -823,6 +831,7 @@ export type GetCommonNodesQuery = { __typename?: 'Query', commonNodes: { __typen
 
 export type UpdateCoordinatesMutationVariables = Exact<{
   coordinates: Array<CoordinatesInput> | CoordinatesInput;
+  topology_type?: InputMaybe<TopologyType>;
 }>;
 
 

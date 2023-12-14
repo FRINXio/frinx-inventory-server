@@ -417,7 +417,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
-  updateGraphNodeCoordinates(input: [GraphNodeCoordinatesInput!]!): UpdateGraphNodeCoordinatesPayload!
+  updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
 }
 
 type NetInterface {
@@ -561,6 +561,11 @@ type TopologyCommonNodes {
   commonNodes: [String!]!
 }
 
+enum TopologyLayer {
+  PhysicalTopology
+  PtpTopology
+}
+
 type TopologyVersionData {
   edges: [GraphVersionEdge!]!
   nodes: [GraphVersionNode!]!
@@ -627,6 +632,11 @@ type UpdateDeviceMetadataPayload {
 
 type UpdateDevicePayload {
   device: Device
+}
+
+input UpdateGraphNodeCoordinatesInput {
+  coordinates: [GraphNodeCoordinatesInput!]!
+  layer: TopologyLayer
 }
 
 type UpdateGraphNodeCoordinatesPayload {
