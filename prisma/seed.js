@@ -75,7 +75,7 @@ async function getCreateDevicesArgs() {
       port: port_number,
       software: device_type,
       softwareVersion: version,
-      mountParameters: JSON.stringify(JSON.parse(parsedTemplate(device))),
+      mountParameters: JSON.parse(parsedTemplate(device)),
       source: 'IMPORTED',
     };
   });
@@ -95,7 +95,7 @@ async function importBlueprints() {
       {
         tenantId,
         name: 'ios xr_5.3.*_22',
-        template: SAMPLE_BLUEPRINT_TEMPLATE,
+        template: JSON.stringify(JSON.parse(SAMPLE_BLUEPRINT_TEMPLATE)),
       },
     ],
     skipDuplicates: true,
