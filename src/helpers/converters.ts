@@ -19,7 +19,6 @@ export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = JSONValue[];
 
 export function prepareInstallParameters(deviceName: string, mountParameters: Prisma.JsonValue): Prisma.JsonValue {
-  console.log(mountParameters);
   return {
     input: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
