@@ -244,7 +244,6 @@ const PTP_TOPOLOGY = gql`
     idLink
     name
     status
-    ptpStatus
     ptpDevice {
       ...PtpInterfaceDeviceParts
     }
