@@ -1,5 +1,10 @@
 import { device as PrismaDevice } from '@prisma/client';
-import { NetTopologyQuery, PtpTopologyQuery, TopologyDevicesQuery } from '../__generated__/topology-discovery.graphql';
+import {
+  NetTopologyQuery,
+  PtpTopologyQuery,
+  SynceTopologyQuery,
+  TopologyDevicesQuery,
+} from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
   ArangoEdge,
@@ -26,6 +31,10 @@ type PtpDeviceDetails = {
   clockId: string;
   parentClockId: string;
   gmClockId: string;
+};
+
+type SynceDeviceDetails = {
+  selectedForUse: string | null;
 };
 
 function getLabelsQuery(labelIds: string[]): Record<string, unknown> | undefined {
@@ -402,6 +411,89 @@ export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
               target: {
                 interface: deviceInterface.ptpLink.id,
                 nodeId: deviceInterface.ptpLink.ptpDevice.name,
+              },
+            };
+          })
+          .filter(omitNullValue);
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+export function makeSynceDeviceDetails(
+  device: NonNullable<NonNullable<NonNullable<SynceTopologyQuery['synceDevices']['edges']>[0]>['node']>,
+): SynceDeviceDetails {
+  return {
+    selectedForUse: device.details.selected_for_use,
+  };
+}
+
+export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
+  return (
+    synceDevices?.synceDevices.edges
+      ?.map((e) => {
+        const node = e?.node;
+        if (!node) {
+          return null;
+        }
+        return {
+          id: toGraphId('GraphNode', node.id),
+          nodeId: node.id,
+          name: node.name,
+          synceDeviceDetails: makeSynceDeviceDetails(node),
+          status: getStatus(node.status),
+          labels: node.labels?.map((l) => l) ?? [],
+          interfaces:
+            node.synceInterfaces.edges
+              ?.map((i) => {
+                const interfaceNode = i?.node;
+                if (!interfaceNode) {
+                  return null;
+                }
+                return {
+                  id: interfaceNode.id,
+                  name: interfaceNode.name,
+                  status: getStatus(interfaceNode.status),
+                };
+              })
+              .filter(omitNullValue) ?? [],
+          coordinates: node.coordinates ?? { x: 0, y: 0 },
+        };
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+export function makeSynceTopologyEdges(synceDevices?: SynceTopologyQuery) {
+  return (
+    synceDevices?.synceDevices.edges
+      ?.flatMap((e) => {
+        const device = e?.node ?? null;
+        if (!device) {
+          return [];
+        }
+
+        return device.synceInterfaces.edges
+          ?.map((i) => {
+            const deviceInterface = i?.node;
+            if (
+              !deviceInterface ||
+              !deviceInterface.synceLink ||
+              !deviceInterface.synceLink.synceDevice ||
+              !deviceInterface.synceDevice
+            ) {
+              return null;
+            }
+
+            return {
+              id: `${deviceInterface.id}-${deviceInterface.synceLink.id}`,
+              source: {
+                interface: deviceInterface.id,
+                nodeId: deviceInterface.synceDevice.name,
+              },
+              target: {
+                interface: deviceInterface.synceLink.id,
+                nodeId: deviceInterface.synceLink.synceDevice.name,
               },
             };
           })
