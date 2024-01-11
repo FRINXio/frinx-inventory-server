@@ -19,6 +19,7 @@ import {
   TopologyType,
   UpdateCoordinatesMutation,
   UpdateCoordinatesMutationVariables,
+  SynceTopologyQuery,
 } from '../__generated__/topology-discovery.graphql';
 import {
   HasAndInterfacesOutput,
@@ -276,6 +277,81 @@ const PTP_PATH = gql`
   }
 `;
 
+const SYNCE_TOPOLOGY = gql`
+  fragment SynceDeviceParts on SynceDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    details {
+      selected_for_use
+    }
+    status
+    labels
+    synceInterfaces {
+      edges {
+        cursor
+        node {
+          ...SynceInterfaceParts
+        }
+      }
+    }
+  }
+
+  fragment SynceInterfaceDeviceParts on SynceDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    synceInterfaces {
+      edges {
+        node {
+          id
+          idLink
+          name
+          synceLink {
+            id
+            idLink
+            name
+          }
+        }
+      }
+    }
+  }
+
+  fragment SynceInterfaceParts on SynceInterface {
+    id
+    idLink
+    name
+    status
+    synceDevice {
+      ...SynceInterfaceDeviceParts
+    }
+    synceLink {
+      id
+      idLink
+      synceDevice {
+        ...SynceInterfaceDeviceParts
+      }
+    }
+  }
+
+  query SynceTopology {
+    synceDevices {
+      edges {
+        cursor
+        node {
+          ...SynceDeviceParts
+        }
+      }
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -381,6 +457,12 @@ function getTopologyDiscoveryApi() {
     return response.ptpPathToGmClock.nodes;
   }
 
+  async function getSynceTopology(): Promise<SynceTopologyQuery> {
+    const response = await client.request<SynceTopologyQuery>(SYNCE_TOPOLOGY);
+
+    return response;
+  }
+
   return {
     getTopologyDevices,
     getNetTopologyDevices,
@@ -393,6 +475,7 @@ function getTopologyDiscoveryApi() {
     getPtpTopology,
     getPtpPathToGrandMaster,
     updateCoordinates,
+    getSynceTopology,
   };
 }
 

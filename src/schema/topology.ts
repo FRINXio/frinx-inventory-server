@@ -24,6 +24,8 @@ import {
   makeNodesMap,
   makePtpTopologyEdges,
   makePtpTopologyNodes,
+  makeSynceTopologyEdges,
+  makeSynceTopologyNodes,
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
@@ -286,7 +288,7 @@ export const GraphNodeCoordinatesInput = inputObjectType({
 
 export const TopologyLayer = enumType({
   name: 'TopologyLayer',
-  members: ['PhysicalTopology', 'PtpTopology'],
+  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology'],
 });
 
 export const UpdateGraphNodeCooordinatesInput = inputObjectType({
@@ -490,6 +492,50 @@ export const PtpTopologyQuery = queryField('ptpTopology', {
 
     const nodes = makePtpTopologyNodes(ptpTopologyResult);
     const edges = makePtpTopologyEdges(ptpTopologyResult);
+
+    return {
+      nodes,
+      edges,
+    };
+  },
+});
+
+export const SynceDeviceDetails = objectType({
+  name: 'SynceDeviceDetails',
+  definition: (t) => {
+    t.string('selectedForUse');
+  },
+});
+
+export const SynceGraphNode = objectType({
+  name: 'SynceGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
+    t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+  },
+});
+
+export const SynceTopology = objectType({
+  name: 'SynceTopology',
+  definition: (t) => {
+    t.nonNull.list.field('edges', { type: nonNull(GraphEdge) });
+    t.nonNull.list.field('nodes', { type: nonNull(SynceGraphNode) });
+  },
+});
+
+export const SynceTopologyQuery = queryField('synceTopology', {
+  type: 'SynceTopology',
+  resolve: async (_, _args, { topologyDiscoveryGraphQLAPI }) => {
+    const synceTopologyResult = await topologyDiscoveryGraphQLAPI?.getSynceTopology();
+
+    const nodes = makeSynceTopologyNodes(synceTopologyResult);
+    const edges = makeSynceTopologyEdges(synceTopologyResult);
 
     return {
       nodes,

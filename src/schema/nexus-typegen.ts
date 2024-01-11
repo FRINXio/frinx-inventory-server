@@ -169,7 +169,7 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
-  TopologyLayer: 'PhysicalTopology' | 'PtpTopology';
+  TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
 export interface NexusGenScalars {
@@ -480,6 +480,26 @@ export interface NexusGenObjects {
   SyncFromNetworkPayload: {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  SynceDeviceDetails: {
+    // root type
+    selectedForUse?: string | null; // String
+  };
+  SynceGraphNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    labels?: string[] | null; // [String!]
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+    synceDeviceDetails: NexusGenRootTypes['SynceDeviceDetails']; // SynceDeviceDetails!
+  };
+  SynceTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
   Topology: {
     // root type
@@ -939,6 +959,7 @@ export interface NexusGenFieldTypes {
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
+    synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
@@ -967,6 +988,26 @@ export interface NexusGenFieldTypes {
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  SynceDeviceDetails: {
+    // field return type
+    selectedForUse: string | null; // String
+  };
+  SynceGraphNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    labels: string[] | null; // [String!]
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+    synceDeviceDetails: NexusGenRootTypes['SynceDeviceDetails']; // SynceDeviceDetails!
+  };
+  SynceTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
   Topology: {
     // field return type
@@ -1427,6 +1468,7 @@ export interface NexusGenFieldTypeNames {
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
     shortestPath: 'NetRoutingPathNode';
+    synceTopology: 'SynceTopology';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
@@ -1455,6 +1497,26 @@ export interface NexusGenFieldTypeNames {
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  SynceDeviceDetails: {
+    // field return type name
+    selectedForUse: 'String';
+  };
+  SynceGraphNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'ID';
+    interfaces: 'GraphNodeInterface';
+    labels: 'String';
+    name: 'String';
+    nodeId: 'String';
+    status: 'GraphEdgeStatus';
+    synceDeviceDetails: 'SynceDeviceDetails';
+  };
+  SynceTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'SynceGraphNode';
   };
   Topology: {
     // field return type name

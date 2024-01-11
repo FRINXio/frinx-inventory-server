@@ -511,6 +511,7 @@ type Query {
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
+  synceTopology: SynceTopology
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
@@ -552,6 +553,26 @@ type SyncFromNetworkPayload {
   dataStore: DataStore
 }
 
+type SynceDeviceDetails {
+  selectedForUse: String
+}
+
+type SynceGraphNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [GraphNodeInterface!]!
+  labels: [String!]
+  name: String!
+  nodeId: String!
+  status: GraphEdgeStatus!
+  synceDeviceDetails: SynceDeviceDetails!
+}
+
+type SynceTopology {
+  edges: [GraphEdge!]!
+  nodes: [SynceGraphNode!]!
+}
+
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
@@ -562,6 +583,7 @@ type TopologyCommonNodes {
 }
 
 enum TopologyLayer {
+  EthTopology
   PhysicalTopology
   PtpTopology
 }
