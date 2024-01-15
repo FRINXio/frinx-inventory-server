@@ -439,12 +439,18 @@ export interface NexusGenObjects {
   };
   PtpDeviceDetails: {
     // root type
+    clockAccuracy?: string | null; // String
+    clockClass?: number | null; // Int
     clockId: string; // String!
     clockType: string; // String!
+    clockVariance?: string | null; // String
     domain: number; // Int!
+    globalPriority?: number | null; // Int
     gmClockId: string; // String!
     parentClockId: string; // String!
     ptpProfile: string; // String!
+    timeRecoveryStatus?: string | null; // String
+    userPriority?: number | null; // Int
   };
   PtpGraphNode: {
     // root type
@@ -922,12 +928,18 @@ export interface NexusGenFieldTypes {
   };
   PtpDeviceDetails: {
     // field return type
+    clockAccuracy: string | null; // String
+    clockClass: number | null; // Int
     clockId: string; // String!
     clockType: string; // String!
+    clockVariance: string | null; // String
     domain: number; // Int!
+    globalPriority: number | null; // Int
     gmClockId: string; // String!
     parentClockId: string; // String!
     ptpProfile: string; // String!
+    timeRecoveryStatus: string | null; // String
+    userPriority: number | null; // Int
   };
   PtpGraphNode: {
     // field return type
@@ -1431,12 +1443,18 @@ export interface NexusGenFieldTypeNames {
   };
   PtpDeviceDetails: {
     // field return type name
+    clockAccuracy: 'String';
+    clockClass: 'Int';
     clockId: 'String';
     clockType: 'String';
+    clockVariance: 'String';
     domain: 'Int';
+    globalPriority: 'Int';
     gmClockId: 'String';
     parentClockId: 'String';
     ptpProfile: 'String';
+    timeRecoveryStatus: 'String';
+    userPriority: 'Int';
   };
   PtpGraphNode: {
     // field return type name
