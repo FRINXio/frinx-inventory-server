@@ -467,12 +467,18 @@ type PageInfo {
 }
 
 type PtpDeviceDetails {
+  clockAccuracy: String
+  clockClass: Int
   clockId: String!
   clockType: String!
+  clockVariance: String
   domain: Int!
+  globalPriority: Int
   gmClockId: String!
   parentClockId: String!
   ptpProfile: String!
+  timeRecoveryStatus: String
+  userPriority: Int
 }
 
 type PtpGraphNode {

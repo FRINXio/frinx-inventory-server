@@ -31,6 +31,12 @@ type PtpDeviceDetails = {
   clockId: string;
   parentClockId: string;
   gmClockId: string;
+  clockClass: number | null;
+  clockAccuracy: string | null;
+  clockVariance: string | null;
+  timeRecoveryStatus: string | null;
+  globalPriority: number | null;
+  userPriority: number | null;
 };
 
 type SynceDeviceDetails = {
@@ -342,6 +348,12 @@ export function makePtpDeviceDetails(
     clockId: device.details.clock_id,
     parentClockId: device.details.parent_clock_id,
     gmClockId: device.details.gm_clock_id,
+    clockClass: device.details.clock_class,
+    clockAccuracy: device.details.clock_accuracy,
+    clockVariance: device.details.clock_variance,
+    timeRecoveryStatus: device.details.time_recovery_status,
+    globalPriority: device.details.global_priority,
+    userPriority: device.details.user_priority,
   };
 }
 

@@ -460,6 +460,12 @@ export const PtpDeviceDetails = objectType({
     t.nonNull.string('clockId');
     t.nonNull.string('parentClockId');
     t.nonNull.string('gmClockId');
+    t.int('clockClass');
+    t.string('clockAccuracy');
+    t.string('clockVariance');
+    t.string('timeRecoveryStatus');
+    t.int('globalPriority');
+    t.int('userPriority');
   },
 });
 
