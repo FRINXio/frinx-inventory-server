@@ -405,12 +405,7 @@ export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
         return device.ptpInterfaces.edges
           ?.map((i) => {
             const deviceInterface = i?.node;
-            if (
-              !deviceInterface ||
-              !deviceInterface.ptpLink ||
-              !deviceInterface.ptpLink.ptpDevice ||
-              !deviceInterface.ptpDevice
-            ) {
+            if (!deviceInterface || !deviceInterface.ptpLink || !deviceInterface.ptpLink.ptpDevice) {
               return null;
             }
 
@@ -418,7 +413,7 @@ export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
               id: `${deviceInterface.id}-${deviceInterface.ptpLink.id}`,
               source: {
                 interface: deviceInterface.id,
-                nodeId: deviceInterface.ptpDevice.name,
+                nodeId: device.name,
               },
               target: {
                 interface: deviceInterface.ptpLink.id,
