@@ -383,6 +383,11 @@ export function makePtpTopologyNodes(ptpDevices?: PtpTopologyQuery) {
                   id: interfaceNode.id,
                   name: interfaceNode.name,
                   status: getStatus(interfaceNode.status),
+                  details: {
+                    ptpStatus: interfaceNode.details?.ptp_status ?? null,
+                    adminOperStatus: interfaceNode.details?.admin_oper_status ?? null,
+                    ptsfUnusable: interfaceNode.details?.ptsf_unusable ?? null,
+                  },
                 };
               })
               .filter(omitNullValue) ?? [],

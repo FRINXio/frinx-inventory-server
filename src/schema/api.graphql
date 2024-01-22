@@ -326,9 +326,16 @@ input GraphNodeCoordinatesInput {
 }
 
 type GraphNodeInterface {
+  details: GraphNodeInterfaceDetails
   id: String!
   name: String!
   status: GraphEdgeStatus!
+}
+
+type GraphNodeInterfaceDetails {
+  adminOperStatus: String
+  ptpStatus: String
+  ptsfUnusable: String
 }
 
 type GraphVersionEdge {

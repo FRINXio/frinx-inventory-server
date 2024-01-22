@@ -43,12 +43,22 @@ export const GraphInterfaceStatus = enumType({
   members: ['ok', 'unknown'],
 });
 
+export const GraphNodeInterfaceDetails = objectType({
+  name: 'GraphNodeInterfaceDetails',
+  definition: (t) => {
+    t.string('ptpStatus');
+    t.string('adminOperStatus');
+    t.string('ptsfUnusable');
+  },
+});
+
 export const GraphNodeInterface = objectType({
   name: 'GraphNodeInterface',
   definition: (t) => {
     t.nonNull.string('id');
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.nonNull.string('name');
+    t.field('details', { type: GraphNodeInterfaceDetails });
   },
 });
 

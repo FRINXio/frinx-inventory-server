@@ -218,6 +218,11 @@ const PTP_TOPOLOGY = gql`
         cursor
         node {
           ...PtpInterfaceParts
+          details {
+            ptp_status
+            ptsf_unusable
+            admin_oper_status
+          }
         }
       }
     }

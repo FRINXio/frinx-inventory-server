@@ -343,9 +343,16 @@ export interface NexusGenObjects {
   };
   GraphNodeInterface: {
     // root type
+    details?: NexusGenRootTypes['GraphNodeInterfaceDetails'] | null; // GraphNodeInterfaceDetails
     id: string; // String!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  GraphNodeInterfaceDetails: {
+    // root type
+    adminOperStatus?: string | null; // String
+    ptpStatus?: string | null; // String
+    ptsfUnusable?: string | null; // String
   };
   GraphVersionEdge: {
     // root type
@@ -791,9 +798,16 @@ export interface NexusGenFieldTypes {
   };
   GraphNodeInterface: {
     // field return type
+    details: NexusGenRootTypes['GraphNodeInterfaceDetails'] | null; // GraphNodeInterfaceDetails
     id: string; // String!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  GraphNodeInterfaceDetails: {
+    // field return type
+    adminOperStatus: string | null; // String
+    ptpStatus: string | null; // String
+    ptsfUnusable: string | null; // String
   };
   GraphVersionEdge: {
     // field return type
@@ -1306,9 +1320,16 @@ export interface NexusGenFieldTypeNames {
   };
   GraphNodeInterface: {
     // field return type name
+    details: 'GraphNodeInterfaceDetails';
     id: 'String';
     name: 'String';
     status: 'GraphEdgeStatus';
+  };
+  GraphNodeInterfaceDetails: {
+    // field return type name
+    adminOperStatus: 'String';
+    ptpStatus: 'String';
+    ptsfUnusable: 'String';
   };
   GraphVersionEdge: {
     // field return type name
