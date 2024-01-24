@@ -517,6 +517,7 @@ type Query {
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
+  syncePathToGrandMaster(deviceFrom: String!): [String!]
   synceTopology: SynceTopology
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes

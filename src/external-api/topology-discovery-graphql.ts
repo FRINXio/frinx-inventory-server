@@ -20,6 +20,8 @@ import {
   UpdateCoordinatesMutation,
   UpdateCoordinatesMutationVariables,
   SynceTopologyQuery,
+  SyncePathToGrandMasterQuery,
+  SyncePathToGrandMasterQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import {
   HasAndInterfacesOutput,
@@ -355,6 +357,14 @@ const SYNCE_TOPOLOGY = gql`
   }
 `;
 
+const SYNCE_PATH = gql`
+  query SyncePathToGrandMaster($deviceFrom: ID!) {
+    syncePathToGm(deviceFrom: $deviceFrom) {
+      nodes
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -466,6 +476,17 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  async function getSyncePathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
+    const response = await client.request<SyncePathToGrandMasterQuery, SyncePathToGrandMasterQueryVariables>(
+      SYNCE_PATH,
+      {
+        deviceFrom,
+      },
+    );
+
+    return response.syncePathToGm.nodes;
+  }
+
   return {
     getTopologyDevices,
     getNetTopologyDevices,
@@ -479,6 +500,7 @@ function getTopologyDiscoveryApi() {
     getPtpPathToGrandMaster,
     updateCoordinates,
     getSynceTopology,
+    getSyncePathToGrandMaster,
   };
 }
 

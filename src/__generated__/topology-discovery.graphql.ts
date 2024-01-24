@@ -760,6 +760,12 @@ export type Query = {
   /** Read synce devices that match specified filter. */
   synceDevices: SynceDeviceConnection;
   /**
+   * Find path between selected SYNCE device and its current grandmaster.
+   * If synced SYNCED topology does not contain active path from specified device to grandmaster, empty path is returned.
+   * If invalid device identifier is specified, error is returned.
+   */
+  syncePathToGm: SyncePath;
+  /**
    * Computation of the diff between two databases per collections - created, deleted, and changed entries.
    * Only documents that belong to the specified topology are included in the diff.
    */
@@ -829,6 +835,12 @@ export type QuerySynceDevicesArgs = {
   cursor?: InputMaybe<Scalars['String']>;
   filters?: InputMaybe<SynceDeviceFilter>;
   first?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QuerySyncePathToGmArgs = {
+  deviceFrom: Scalars['ID'];
+  outputCollection?: InputMaybe<SyncePathOutputCollections>;
 };
 
 
@@ -1012,6 +1024,22 @@ export type SynceInterfaceFilter = {
   synce_enabled?: InputMaybe<Scalars['Boolean']>;
 };
 
+/** Computed path from source to destination SYNCE device. */
+export type SyncePath = {
+  __typename?: 'SyncePath';
+  /** True if path is complete - the last element in the path represents GM, False otherwise. */
+  complete: Scalars['Boolean'];
+  /** Ordered list of node identifiers that compose path from source device to destination device. */
+  nodes: Maybe<Array<Scalars['ID']>>;
+};
+
+/** Types of the nodes that should be included in the returned path. */
+export type SyncePathOutputCollections =
+  /** Include SynceDevice nodes in the returned path. */
+  | 'SynceDevice'
+  /** Include SynceInterface nodes in the returned path. */
+  | 'SynceInterface';
+
 /** Type of the topology from which the diff is created. */
 export type TopologyDiffCollectionTypes =
   /** Network topology. */
@@ -1128,3 +1156,10 @@ export type SynceTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SynceTopologyQuery = { __typename?: 'Query', synceDevices: { __typename?: 'SynceDeviceConnection', edges: Array<{ __typename?: 'SynceDeviceEdge', cursor: string, node: { __typename?: 'SynceDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'SynceDeviceDetails', selected_for_use: string | null }, synceInterfaces: { __typename?: 'SynceInterfaceConnection', edges: Array<{ __typename?: 'SynceInterfaceEdge', cursor: string, node: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string, status: NodeStatus, synceDevice: { __typename?: 'SynceDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, synceInterfaces: { __typename?: 'SynceInterfaceConnection', edges: Array<{ __typename?: 'SynceInterfaceEdge', node: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string, synceLink: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null, synceLink: { __typename?: 'SynceInterface', id: string, idLink: string | null, synceDevice: { __typename?: 'SynceDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, synceInterfaces: { __typename?: 'SynceInterfaceConnection', edges: Array<{ __typename?: 'SynceInterfaceEdge', node: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string, synceLink: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null } | null } | null } | null> | null } } | null } | null> | null } };
+
+export type SyncePathToGrandMasterQueryVariables = Exact<{
+  deviceFrom: Scalars['ID'];
+}>;
+
+
+export type SyncePathToGrandMasterQuery = { __typename?: 'Query', syncePathToGm: { __typename?: 'SyncePath', nodes: Array<string> | null } };
