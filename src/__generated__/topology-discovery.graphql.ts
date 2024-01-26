@@ -1156,3 +1156,10 @@ export type SynceTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SynceTopologyQuery = { __typename?: 'Query', synceDevices: { __typename?: 'SynceDeviceConnection', edges: Array<{ __typename?: 'SynceDeviceEdge', cursor: string, node: { __typename?: 'SynceDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'SynceDeviceDetails', selected_for_use: string | null }, synceInterfaces: { __typename?: 'SynceInterfaceConnection', edges: Array<{ __typename?: 'SynceInterfaceEdge', cursor: string, node: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string, status: NodeStatus, synceDevice: { __typename?: 'SynceDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, synceInterfaces: { __typename?: 'SynceInterfaceConnection', edges: Array<{ __typename?: 'SynceInterfaceEdge', node: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string, synceLink: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null, synceLink: { __typename?: 'SynceInterface', id: string, idLink: string | null, synceDevice: { __typename?: 'SynceDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, synceInterfaces: { __typename?: 'SynceInterfaceConnection', edges: Array<{ __typename?: 'SynceInterfaceEdge', node: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string, synceLink: { __typename?: 'SynceInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null } | null } | null } | null> | null } } | null } | null> | null } };
+
+export type SyncePathToGrandMasterQueryVariables = Exact<{
+  deviceFrom: Scalars['ID'];
+}>;
+
+
+export type SyncePathToGrandMasterQuery = { __typename?: 'Query', syncePathToGm: { __typename?: 'SyncePath', nodes: Array<string> | null } };

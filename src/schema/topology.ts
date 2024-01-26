@@ -559,3 +559,17 @@ export const SynceTopologyQuery = queryField('synceTopology', {
     };
   },
 });
+
+export const SyncePathToGrandMasterQuery = queryField('syncePathToGrandMaster', {
+  type: list(nonNull('String')),
+  args: {
+    deviceFrom: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const { deviceFrom } = args;
+    const fromNodeNativeId = fromGraphId('GraphNode', deviceFrom);
+
+    const syncePathResult = await topologyDiscoveryGraphQLAPI?.getSyncePathToGrandMaster(fromNodeNativeId);
+    return syncePathResult ?? [];
+  },
+});

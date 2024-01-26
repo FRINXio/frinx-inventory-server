@@ -985,6 +985,7 @@ export interface NexusGenFieldTypes {
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
+    syncePathToGrandMaster: string[] | null; // [String!]
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
@@ -1507,6 +1508,7 @@ export interface NexusGenFieldTypeNames {
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
     shortestPath: 'NetRoutingPathNode';
+    syncePathToGrandMaster: 'String';
     synceTopology: 'SynceTopology';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
@@ -1831,6 +1833,10 @@ export interface NexusGenArgTypes {
       // args
       from: string; // String!
       to: string; // String!
+    };
+    syncePathToGrandMaster: {
+      // args
+      deviceFrom: string; // String!
     };
     topology: {
       // args
