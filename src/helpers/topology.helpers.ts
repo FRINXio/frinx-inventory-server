@@ -289,7 +289,7 @@ export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): 
       (d) =>
         d?.node?.phyInterfaces.edges?.map((i) => ({
           _id: `${d.node?.id}-${i?.node?.id}`,
-          _key: i?.node?.idHas ?? '',
+          _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
           _from: d.node?.id ?? '',
           _to: i?.node?.id ?? '',
           status: d.node?.status ?? 'unknown',

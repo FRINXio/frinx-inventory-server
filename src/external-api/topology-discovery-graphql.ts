@@ -67,7 +67,6 @@ const GET_TOPOLOGY_DEVICES = gql`
                 id
                 name
                 status
-                idHas
                 phyLink {
                   id
                   idLink
@@ -107,7 +106,6 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
               node {
                 id
                 ipAddress
-                idHas
                 netDevice {
                   id
                   routerId
