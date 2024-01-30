@@ -29,7 +29,6 @@ import {
   decodeLinksAndDevicesOutput,
   decodeTopologyDiffOutput,
 } from './topology-network-types';
-import { log } from 'console';
 
 type CoordinatesParam = {
   device: string;
@@ -312,15 +311,12 @@ function getTopologyDiscoveryApi() {
 
     return response;
   }
-  
+
   async function getPtpDiffSynce(): Promise<PtpDiffSynceQuery> {
     const response = await client.request<PtpDiffSynceQuery>(GET_PTP_DIFF_SYNCE);
-     // console.log(response);
 
     return response;
   }
-
-
 
   async function getNetTopologyDevices(): Promise<NetTopologyQuery> {
     const response = await client.request<NetTopologyQuery>(GET_NET_TOPOLOGY_DEVICES);

@@ -28,7 +28,6 @@ import {
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
 import { omitNullValue } from '../helpers/utils.helpers';
-import { log } from 'console';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',
