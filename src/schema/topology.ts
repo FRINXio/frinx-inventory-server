@@ -196,12 +196,20 @@ export const PtpDiffSynceQuery = extendType({
     t.nonNull.field('ptpDiffSynce', {
       type: PtpDiffSynce,
       resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
-        const { ptpDiffSynce } = await topologyDiscoveryGraphQLAPI?.getPtpDiffSynce();
-        // console.log(result);
+        const data = await topologyDiscoveryGraphQLAPI?.getPtpDiffSynce();
 
-        return {
-          ptpDiffSynce,
-        };
+        if (!data || !data.ptpDiffSynce.edges) {
+          return { edges: [] };
+        }
+
+        const nodes = data.ptpDiffSynce.edges
+          .map((e) => {
+            const node = e?.node ? { node: { id: e.node.id } } : null;
+            return node;
+          })
+          .filter(omitNullValue);
+
+        return { edges: nodes };
       },
     });
   },
