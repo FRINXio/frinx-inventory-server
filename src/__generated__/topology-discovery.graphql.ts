@@ -1114,16 +1114,6 @@ export type TopologyDiffQueryVariables = Exact<{
 
 export type TopologyDiffQuery = { __typename?: 'Query', topologyDiff: { __typename?: 'TopologyResponse', diff_data: any | null } };
 
-export type GetLinksAndDevicesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetLinksAndDevicesQuery = { __typename?: 'Query', phyLinksAndDevices: { __typename?: 'PhyLinksAndDevicesResponse', phy_links_and_devices_data: any } };
-
-export type GetHasAndInterfacesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetHasAndInterfacesQuery = { __typename?: 'Query', phyHasAndInterfaces: { __typename?: 'PhyHasAndInterfacesResponse', phy_has_and_interfaces_data: any } };
-
 export type GetCommonNodesQueryVariables = Exact<{
   selectedNodes: Array<Scalars['String']> | Scalars['String'];
 }>;
