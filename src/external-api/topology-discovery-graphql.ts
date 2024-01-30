@@ -10,11 +10,18 @@ import {
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
   NetTopologyQuery,
+  PtpPathToGrandMasterQuery,
+  PtpPathToGrandMasterQueryVariables,
+  PtpTopologyQuery,
   TopologyDevicesQuery,
   TopologyDiffQuery,
   TopologyDiffQueryVariables,
+  TopologyType,
   UpdateCoordinatesMutation,
   UpdateCoordinatesMutationVariables,
+  SynceTopologyQuery,
+  SyncePathToGrandMasterQuery,
+  SyncePathToGrandMasterQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import {
   HasAndInterfacesOutput,
@@ -182,9 +189,188 @@ const GET_COMMON_NODES = gql`
 `;
 
 const UPDATE_COORDINATES = gql`
-  mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!) {
-    updateCoordinates(coordinates_list: $coordinates) {
+  mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!, $topology_type: TopologyType) {
+    updateCoordinates(coordinates_list: $coordinates, topology_type: $topology_type) {
       updated
+    }
+  }
+`;
+
+const PTP_TOPOLOGY = gql`
+  fragment PtpDeviceParts on PtpDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    details {
+      clock_type
+      domain
+      ptp_profile
+      clock_id
+      parent_clock_id
+      gm_clock_id
+      clock_class
+      clock_accuracy
+      clock_variance
+      time_recovery_status
+      global_priority
+      user_priority
+    }
+    status
+    labels
+    ptpInterfaces {
+      edges {
+        cursor
+        node {
+          ...PtpInterfaceParts
+          details {
+            ptp_status
+            ptsf_unusable
+            admin_oper_status
+          }
+        }
+      }
+    }
+  }
+
+  fragment PtpInterfaceDeviceParts on PtpDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    ptpInterfaces {
+      edges {
+        node {
+          id
+          idLink
+          name
+          ptpLink {
+            id
+            idLink
+            name
+          }
+        }
+      }
+    }
+  }
+
+  fragment PtpInterfaceParts on PtpInterface {
+    id
+    idLink
+    name
+    status
+    ptpLink {
+      id
+      idLink
+      ptpDevice {
+        ...PtpInterfaceDeviceParts
+      }
+    }
+  }
+
+  query PtpTopology {
+    ptpDevices {
+      edges {
+        cursor
+        node {
+          ...PtpDeviceParts
+        }
+      }
+    }
+  }
+`;
+
+const PTP_PATH = gql`
+  query PtpPathToGrandMaster($deviceFrom: ID!) {
+    ptpPathToGmClock(deviceFrom: $deviceFrom) {
+      nodes
+    }
+  }
+`;
+
+const SYNCE_TOPOLOGY = gql`
+  fragment SynceDeviceParts on SynceDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    details {
+      selected_for_use
+    }
+    status
+    labels
+    synceInterfaces {
+      edges {
+        cursor
+        node {
+          ...SynceInterfaceParts
+        }
+      }
+    }
+  }
+
+  fragment SynceInterfaceDeviceParts on SynceDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    synceInterfaces {
+      edges {
+        node {
+          id
+          idLink
+          name
+          synceLink {
+            id
+            idLink
+            name
+          }
+        }
+      }
+    }
+  }
+
+  fragment SynceInterfaceParts on SynceInterface {
+    id
+    idLink
+    name
+    status
+    synceDevice {
+      ...SynceInterfaceDeviceParts
+    }
+    synceLink {
+      id
+      idLink
+      synceDevice {
+        ...SynceInterfaceDeviceParts
+      }
+    }
+  }
+
+  query SynceTopology {
+    synceDevices {
+      edges {
+        cursor
+        node {
+          ...SynceDeviceParts
+        }
+      }
+    }
+  }
+`;
+
+const SYNCE_PATH = gql`
+  query SyncePathToGrandMaster($deviceFrom: ID!) {
+    syncePathToGm(deviceFrom: $deviceFrom) {
+      nodes
     }
   }
 `;
@@ -259,7 +445,7 @@ function getTopologyDiscoveryApi() {
     return response.commonNodes.common_nodes;
   }
 
-  async function updateCoordinates(coordinates: CoordinatesParam[]): Promise<string[]> {
+  async function updateCoordinates(coordinates: CoordinatesParam[], topologyType?: TopologyType): Promise<string[]> {
     const coordinatesInput: CoordinatesInput[] = coordinates.map((c) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       node_name: c.device,
@@ -272,10 +458,43 @@ function getTopologyDiscoveryApi() {
       UPDATE_COORDINATES,
       {
         coordinates: coordinatesInput,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        topology_type: topologyType,
       },
     );
 
     return response.updateCoordinates.updated;
+  }
+
+  async function getPtpTopology(): Promise<PtpTopologyQuery> {
+    const response = await client.request<PtpTopologyQuery>(PTP_TOPOLOGY);
+
+    return response;
+  }
+
+  async function getPtpPathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
+    const response = await client.request<PtpPathToGrandMasterQuery, PtpPathToGrandMasterQueryVariables>(PTP_PATH, {
+      deviceFrom,
+    });
+
+    return response.ptpPathToGmClock.nodes;
+  }
+
+  async function getSynceTopology(): Promise<SynceTopologyQuery> {
+    const response = await client.request<SynceTopologyQuery>(SYNCE_TOPOLOGY);
+
+    return response;
+  }
+
+  async function getSyncePathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
+    const response = await client.request<SyncePathToGrandMasterQuery, SyncePathToGrandMasterQueryVariables>(
+      SYNCE_PATH,
+      {
+        deviceFrom,
+      },
+    );
+
+    return response.syncePathToGm.nodes;
   }
 
   return {
@@ -287,7 +506,11 @@ function getTopologyDiscoveryApi() {
     getHasAndInterfaces,
     getLinksAndDevices,
     getCommonNodes,
+    getPtpTopology,
+    getPtpPathToGrandMaster,
     updateCoordinates,
+    getSynceTopology,
+    getSyncePathToGrandMaster,
   };
 }
 

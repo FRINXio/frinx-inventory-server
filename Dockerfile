@@ -43,6 +43,7 @@ COPY --from=build /app/build /app
 COPY --from=build /app/prisma /app/prisma
 COPY --from=build /app/sample.csv /app/sample.csv
 COPY --from=build /app/package.json /app
+COPY --from=build /app/package-lock.json /app
 
 WORKDIR /app
 USER root

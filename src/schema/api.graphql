@@ -326,9 +326,16 @@ input GraphNodeCoordinatesInput {
 }
 
 type GraphNodeInterface {
+  details: GraphNodeInterfaceDetails
   id: String!
   name: String!
   status: GraphEdgeStatus!
+}
+
+type GraphNodeInterfaceDetails {
+  adminOperStatus: String
+  ptpStatus: String
+  ptsfUnusable: String
 }
 
 type GraphVersionEdge {
@@ -417,7 +424,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
-  updateGraphNodeCoordinates(input: [GraphNodeCoordinatesInput!]!): UpdateGraphNodeCoordinatesPayload!
+  updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
 }
 
 type NetInterface {
@@ -466,6 +473,37 @@ type PageInfo {
   startCursor: String
 }
 
+type PtpDeviceDetails {
+  clockAccuracy: String
+  clockClass: Int
+  clockId: String!
+  clockType: String!
+  clockVariance: String
+  domain: Int!
+  globalPriority: Int
+  gmClockId: String!
+  parentClockId: String!
+  ptpProfile: String!
+  timeRecoveryStatus: String
+  userPriority: Int
+}
+
+type PtpGraphNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [GraphNodeInterface!]!
+  labels: [String!]
+  name: String!
+  nodeId: String!
+  ptpDeviceDetails: PtpDeviceDetails!
+  status: GraphEdgeStatus!
+}
+
+type PtpTopology {
+  edges: [GraphEdge!]!
+  nodes: [PtpGraphNode!]!
+}
+
 type Query {
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
@@ -482,8 +520,12 @@ type Query {
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
-  node(id: ID!, version: Int): Node
+  node(id: ID!): Node
+  ptpPathToGrandMaster(deviceFrom: String!): [String!]
+  ptpTopology: PtpTopology
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
+  syncePathToGrandMaster(deviceFrom: String!): [String!]
+  synceTopology: SynceTopology
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersionData(version: String!): TopologyVersionData!
@@ -525,6 +567,26 @@ type SyncFromNetworkPayload {
   dataStore: DataStore
 }
 
+type SynceDeviceDetails {
+  selectedForUse: String
+}
+
+type SynceGraphNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [GraphNodeInterface!]!
+  labels: [String!]
+  name: String!
+  nodeId: String!
+  status: GraphEdgeStatus!
+  synceDeviceDetails: SynceDeviceDetails!
+}
+
+type SynceTopology {
+  edges: [GraphEdge!]!
+  nodes: [SynceGraphNode!]!
+}
+
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
@@ -532,6 +594,12 @@ type Topology {
 
 type TopologyCommonNodes {
   commonNodes: [String!]!
+}
+
+enum TopologyLayer {
+  EthTopology
+  PhysicalTopology
+  PtpTopology
 }
 
 type TopologyVersionData {
@@ -600,6 +668,11 @@ type UpdateDeviceMetadataPayload {
 
 type UpdateDevicePayload {
   device: Device
+}
+
+input UpdateGraphNodeCoordinatesInput {
+  coordinates: [GraphNodeCoordinatesInput!]!
+  layer: TopologyLayer
 }
 
 type UpdateGraphNodeCoordinatesPayload {

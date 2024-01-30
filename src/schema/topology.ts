@@ -1,4 +1,14 @@
-import { extendType, inputObjectType, nonNull, list, objectType, stringArg, enumType, arg, interfaceType } from 'nexus';
+import {
+  extendType,
+  inputObjectType,
+  nonNull,
+  list,
+  objectType,
+  stringArg,
+  enumType,
+  interfaceType,
+  queryField,
+} from 'nexus';
 import config from '../config';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import {
@@ -16,6 +26,10 @@ import {
   makeNetTopologyEdges,
   makeNetTopologyNodes,
   makeNodesMap,
+  makePtpTopologyEdges,
+  makePtpTopologyNodes,
+  makeSynceTopologyEdges,
+  makeSynceTopologyNodes,
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
@@ -33,12 +47,22 @@ export const GraphInterfaceStatus = enumType({
   members: ['ok', 'unknown'],
 });
 
+export const GraphNodeInterfaceDetails = objectType({
+  name: 'GraphNodeInterfaceDetails',
+  definition: (t) => {
+    t.string('ptpStatus');
+    t.string('adminOperStatus');
+    t.string('ptsfUnusable');
+  },
+});
+
 export const GraphNodeInterface = objectType({
   name: 'GraphNodeInterface',
   definition: (t) => {
     t.nonNull.string('id');
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.nonNull.string('name');
+    t.field('details', { type: GraphNodeInterfaceDetails });
   },
 });
 
@@ -280,6 +304,23 @@ export const GraphNodeCoordinatesInput = inputObjectType({
   },
 });
 
+export const TopologyLayer = enumType({
+  name: 'TopologyLayer',
+  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology'],
+});
+
+export const UpdateGraphNodeCooordinatesInput = inputObjectType({
+  name: 'UpdateGraphNodeCoordinatesInput',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('coordinates', {
+      type: GraphNodeCoordinatesInput,
+    });
+    t.field('layer', {
+      type: TopologyLayer,
+    });
+  },
+});
+
 export const UpdateGraphNodeCoordinatesPayload = objectType({
   name: 'UpdateGraphNodeCoordinatesPayload',
   definition: (t) => {
@@ -293,15 +334,18 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
     t.nonNull.field('updateGraphNodeCoordinates', {
       type: UpdateGraphNodeCoordinatesPayload,
       args: {
-        input: nonNull(arg({ type: list(nonNull(GraphNodeCoordinatesInput)) })),
+        input: nonNull(UpdateGraphNodeCooordinatesInput),
       },
       resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
           return { deviceNames: [] };
         }
         const { input } = args;
-        const apiParams = input.map((i) => ({ device: i.deviceName, x: i.x, y: i.y }));
-        const response = await topologyDiscoveryGraphQLAPI.updateCoordinates(apiParams);
+        const apiParams = input.coordinates.map((i) => ({ device: i.deviceName, x: i.x, y: i.y })) || [];
+        const response = await topologyDiscoveryGraphQLAPI.updateCoordinates(
+          apiParams,
+          input.layer ?? 'PhysicalTopology',
+        );
         return { deviceNames: response };
       },
     });
@@ -408,5 +452,132 @@ export const ShortestPathQuery = extendType({
         }));
       },
     });
+  },
+});
+
+export const PtpPathToGrandMasterQuery = queryField('ptpPathToGrandMaster', {
+  type: list(nonNull('String')),
+  args: {
+    deviceFrom: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const { deviceFrom } = args;
+    const fromNodeNativeId = fromGraphId('GraphNode', deviceFrom);
+
+    const ptpPathResult = await topologyDiscoveryGraphQLAPI?.getPtpPathToGrandMaster(fromNodeNativeId);
+    return ptpPathResult ?? [];
+  },
+});
+
+export const PtpDeviceDetails = objectType({
+  name: 'PtpDeviceDetails',
+  definition: (t) => {
+    t.nonNull.string('clockType');
+    t.nonNull.int('domain');
+    t.nonNull.string('ptpProfile');
+    t.nonNull.string('clockId');
+    t.nonNull.string('parentClockId');
+    t.nonNull.string('gmClockId');
+    t.int('clockClass');
+    t.string('clockAccuracy');
+    t.string('clockVariance');
+    t.string('timeRecoveryStatus');
+    t.int('globalPriority');
+    t.int('userPriority');
+  },
+});
+
+export const PtpGraphNode = objectType({
+  name: 'PtpGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
+    t.nonNull.field('ptpDeviceDetails', { type: PtpDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+  },
+});
+
+export const PtpTopology = objectType({
+  name: 'PtpTopology',
+  definition: (t) => {
+    t.nonNull.list.field('edges', { type: nonNull(GraphEdge) });
+    t.nonNull.list.field('nodes', { type: nonNull(PtpGraphNode) });
+  },
+});
+
+export const PtpTopologyQuery = queryField('ptpTopology', {
+  type: 'PtpTopology',
+  resolve: async (_, _args, { topologyDiscoveryGraphQLAPI }) => {
+    const ptpTopologyResult = await topologyDiscoveryGraphQLAPI?.getPtpTopology();
+
+    const nodes = makePtpTopologyNodes(ptpTopologyResult);
+    const edges = makePtpTopologyEdges(ptpTopologyResult);
+
+    return {
+      nodes,
+      edges,
+    };
+  },
+});
+
+export const SynceDeviceDetails = objectType({
+  name: 'SynceDeviceDetails',
+  definition: (t) => {
+    t.string('selectedForUse');
+  },
+});
+
+export const SynceGraphNode = objectType({
+  name: 'SynceGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
+    t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+  },
+});
+
+export const SynceTopology = objectType({
+  name: 'SynceTopology',
+  definition: (t) => {
+    t.nonNull.list.field('edges', { type: nonNull(GraphEdge) });
+    t.nonNull.list.field('nodes', { type: nonNull(SynceGraphNode) });
+  },
+});
+
+export const SynceTopologyQuery = queryField('synceTopology', {
+  type: 'SynceTopology',
+  resolve: async (_, _args, { topologyDiscoveryGraphQLAPI }) => {
+    const synceTopologyResult = await topologyDiscoveryGraphQLAPI?.getSynceTopology();
+
+    const nodes = makeSynceTopologyNodes(synceTopologyResult);
+    const edges = makeSynceTopologyEdges(synceTopologyResult);
+
+    return {
+      nodes,
+      edges,
+    };
+  },
+});
+
+export const SyncePathToGrandMasterQuery = queryField('syncePathToGrandMaster', {
+  type: list(nonNull('String')),
+  args: {
+    deviceFrom: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const { deviceFrom } = args;
+    const fromNodeNativeId = fromGraphId('GraphNode', deviceFrom);
+
+    const syncePathResult = await topologyDiscoveryGraphQLAPI?.getSyncePathToGrandMaster(fromNodeNativeId);
+    return syncePathResult ?? [];
   },
 });
