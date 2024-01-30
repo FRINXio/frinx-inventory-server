@@ -10,6 +10,7 @@ import {
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
   NetTopologyQuery,
+  PtpDiffSynceQuery,
   PtpPathToGrandMasterQuery,
   PtpPathToGrandMasterQueryVariables,
   PtpTopologyQuery,
@@ -28,6 +29,7 @@ import {
   decodeLinksAndDevicesOutput,
   decodeTopologyDiffOutput,
 } from './topology-network-types';
+import { log } from 'console';
 
 type CoordinatesParam = {
   device: string;
@@ -152,6 +154,18 @@ const GET_TOPOLOGY_DIFF = gql`
   query topologyDiff($new_db: String!, $old_db: String!) {
     topologyDiff(new_db: $new_db, old_db: $old_db, collection_type: phy) {
       diff_data
+    }
+  }
+`;
+
+const GET_PTP_DIFF_SYNCE = gql`
+  query ptpDiffSynce {
+    ptpDiffSynce {
+      edges {
+        node {
+          id
+        }
+      }
     }
   }
 `;
@@ -298,10 +312,18 @@ function getTopologyDiscoveryApi() {
 
     return response;
   }
+  
+  async function getPtpDiffSynce(): Promise<PtpDiffSynceQuery> {
+    const response = await client.request<PtpDiffSynceQuery>(GET_PTP_DIFF_SYNCE);
+     // console.log(response);
+
+    return response;
+  }
+
+
 
   async function getNetTopologyDevices(): Promise<NetTopologyQuery> {
     const response = await client.request<NetTopologyQuery>(GET_NET_TOPOLOGY_DEVICES);
-
     return response;
   }
 
@@ -383,6 +405,7 @@ function getTopologyDiscoveryApi() {
 
   return {
     getTopologyDevices,
+    getPtpDiffSynce,
     getNetTopologyDevices,
     getShortestPath,
     getBackups,

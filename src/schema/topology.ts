@@ -28,6 +28,7 @@ import {
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
 import { omitNullValue } from '../helpers/utils.helpers';
+import { log } from 'console';
 
 export const FilterTopologyInput = inputObjectType({
   name: 'FilterTopologyInput',
@@ -162,6 +163,44 @@ export const TopologyQuery = extendType({
         return {
           nodes: makeTopologyNodes(dbDevices, topologyDevices),
           edges: makeTopologyEdges(topologyDevices),
+        };
+      },
+    });
+  },
+});
+
+export const PtpDiffSynceNode = objectType({
+  name: 'PtpDiffSynceNode',
+  definition: (t) => {
+    t.nonNull.string('id');
+  },
+});
+
+export const PtpDiffSynceEdges = objectType({
+  name: 'PtpDiffSynceEdges',
+  definition: (t) => {
+    t.nonNull.field('node', { type: PtpDiffSynceNode });
+  },
+});
+
+export const PtpDiffSynce = objectType({
+  name: 'PtpDiffSynce',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('edges', { type: PtpDiffSynceEdges });
+  },
+});
+
+export const PtpDiffSynceQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('ptpDiffSynce', {
+      type: PtpDiffSynce,
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        const { ptpDiffSynce } = await topologyDiscoveryGraphQLAPI?.getPtpDiffSynce();
+        // console.log(result);
+
+        return {
+          ptpDiffSynce,
         };
       },
     });
