@@ -20,6 +20,9 @@ import {
   TopologyType,
   UpdateCoordinatesMutation,
   UpdateCoordinatesMutationVariables,
+  SynceTopologyQuery,
+  SyncePathToGrandMasterQuery,
+  SyncePathToGrandMasterQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import {
   HasAndInterfacesOutput,
@@ -216,6 +219,12 @@ const PTP_TOPOLOGY = gql`
       clock_id
       parent_clock_id
       gm_clock_id
+      clock_class
+      clock_accuracy
+      clock_variance
+      time_recovery_status
+      global_priority
+      user_priority
     }
     status
     labels
@@ -224,6 +233,11 @@ const PTP_TOPOLOGY = gql`
         cursor
         node {
           ...PtpInterfaceParts
+          details {
+            ptp_status
+            ptsf_unusable
+            admin_oper_status
+          }
         }
       }
     }
@@ -257,9 +271,6 @@ const PTP_TOPOLOGY = gql`
     idLink
     name
     status
-    ptpDevice {
-      ...PtpInterfaceDeviceParts
-    }
     ptpLink {
       id
       idLink
@@ -284,6 +295,89 @@ const PTP_TOPOLOGY = gql`
 const PTP_PATH = gql`
   query PtpPathToGrandMaster($deviceFrom: ID!) {
     ptpPathToGmClock(deviceFrom: $deviceFrom) {
+      nodes
+    }
+  }
+`;
+
+const SYNCE_TOPOLOGY = gql`
+  fragment SynceDeviceParts on SynceDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    details {
+      selected_for_use
+    }
+    status
+    labels
+    synceInterfaces {
+      edges {
+        cursor
+        node {
+          ...SynceInterfaceParts
+        }
+      }
+    }
+  }
+
+  fragment SynceInterfaceDeviceParts on SynceDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    synceInterfaces {
+      edges {
+        node {
+          id
+          idLink
+          name
+          synceLink {
+            id
+            idLink
+            name
+          }
+        }
+      }
+    }
+  }
+
+  fragment SynceInterfaceParts on SynceInterface {
+    id
+    idLink
+    name
+    status
+    synceDevice {
+      ...SynceInterfaceDeviceParts
+    }
+    synceLink {
+      id
+      idLink
+      synceDevice {
+        ...SynceInterfaceDeviceParts
+      }
+    }
+  }
+
+  query SynceTopology {
+    synceDevices {
+      edges {
+        cursor
+        node {
+          ...SynceDeviceParts
+        }
+      }
+    }
+  }
+`;
+
+const SYNCE_PATH = gql`
+  query SyncePathToGrandMaster($deviceFrom: ID!) {
+    syncePathToGm(deviceFrom: $deviceFrom) {
       nodes
     }
   }
@@ -399,6 +493,23 @@ function getTopologyDiscoveryApi() {
     return response.ptpPathToGmClock.nodes;
   }
 
+  async function getSynceTopology(): Promise<SynceTopologyQuery> {
+    const response = await client.request<SynceTopologyQuery>(SYNCE_TOPOLOGY);
+
+    return response;
+  }
+
+  async function getSyncePathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
+    const response = await client.request<SyncePathToGrandMasterQuery, SyncePathToGrandMasterQueryVariables>(
+      SYNCE_PATH,
+      {
+        deviceFrom,
+      },
+    );
+
+    return response.syncePathToGm.nodes;
+  }
+
   return {
     getTopologyDevices,
     getPtpDiffSynce,
@@ -412,6 +523,8 @@ function getTopologyDiscoveryApi() {
     getPtpTopology,
     getPtpPathToGrandMaster,
     updateCoordinates,
+    getSynceTopology,
+    getSyncePathToGrandMaster,
   };
 }
 

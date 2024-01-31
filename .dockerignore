@@ -10,7 +10,7 @@
 # now we add what we want to be not-ignored
 !/provoke.txt
 !/package.json
-!/yarn.lock
+!/package-lock.json
 !/src
 !/tsconfig.json
 !/tsconfig.production.json

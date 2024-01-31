@@ -169,7 +169,7 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
-  TopologyLayer: 'PhysicalTopology' | 'PtpTopology';
+  TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
 export interface NexusGenScalars {
@@ -343,9 +343,16 @@ export interface NexusGenObjects {
   };
   GraphNodeInterface: {
     // root type
+    details?: NexusGenRootTypes['GraphNodeInterfaceDetails'] | null; // GraphNodeInterfaceDetails
     id: string; // String!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  GraphNodeInterfaceDetails: {
+    // root type
+    adminOperStatus?: string | null; // String
+    ptpStatus?: string | null; // String
+    ptsfUnusable?: string | null; // String
   };
   GraphVersionEdge: {
     // root type
@@ -439,12 +446,18 @@ export interface NexusGenObjects {
   };
   PtpDeviceDetails: {
     // root type
+    clockAccuracy?: string | null; // String
+    clockClass?: number | null; // Int
     clockId: string; // String!
     clockType: string; // String!
+    clockVariance?: string | null; // String
     domain: number; // Int!
+    globalPriority?: number | null; // Int
     gmClockId: string; // String!
     parentClockId: string; // String!
     ptpProfile: string; // String!
+    timeRecoveryStatus?: string | null; // String
+    userPriority?: number | null; // Int
   };
   PtpDiffSynce: {
     // root type
@@ -492,6 +505,26 @@ export interface NexusGenObjects {
   SyncFromNetworkPayload: {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  SynceDeviceDetails: {
+    // root type
+    selectedForUse?: string | null; // String
+  };
+  SynceGraphNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    labels?: string[] | null; // [String!]
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+    synceDeviceDetails: NexusGenRootTypes['SynceDeviceDetails']; // SynceDeviceDetails!
+  };
+  SynceTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
   Topology: {
     // root type
@@ -777,9 +810,16 @@ export interface NexusGenFieldTypes {
   };
   GraphNodeInterface: {
     // field return type
+    details: NexusGenRootTypes['GraphNodeInterfaceDetails'] | null; // GraphNodeInterfaceDetails
     id: string; // String!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  GraphNodeInterfaceDetails: {
+    // field return type
+    adminOperStatus: string | null; // String
+    ptpStatus: string | null; // String
+    ptsfUnusable: string | null; // String
   };
   GraphVersionEdge: {
     // field return type
@@ -914,12 +954,18 @@ export interface NexusGenFieldTypes {
   };
   PtpDeviceDetails: {
     // field return type
+    clockAccuracy: string | null; // String
+    clockClass: number | null; // Int
     clockId: string; // String!
     clockType: string; // String!
+    clockVariance: string | null; // String
     domain: number; // Int!
+    globalPriority: number | null; // Int
     gmClockId: string; // String!
     parentClockId: string; // String!
     ptpProfile: string; // String!
+    timeRecoveryStatus: string | null; // String
+    userPriority: number | null; // Int
   };
   PtpDiffSynce: {
     // field return type
@@ -964,6 +1010,8 @@ export interface NexusGenFieldTypes {
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
+    syncePathToGrandMaster: string[] | null; // [String!]
+    synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
@@ -992,6 +1040,26 @@ export interface NexusGenFieldTypes {
   SyncFromNetworkPayload: {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+  };
+  SynceDeviceDetails: {
+    // field return type
+    selectedForUse: string | null; // String
+  };
+  SynceGraphNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    labels: string[] | null; // [String!]
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+    synceDeviceDetails: NexusGenRootTypes['SynceDeviceDetails']; // SynceDeviceDetails!
+  };
+  SynceTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
   Topology: {
     // field return type
@@ -1278,9 +1346,16 @@ export interface NexusGenFieldTypeNames {
   };
   GraphNodeInterface: {
     // field return type name
+    details: 'GraphNodeInterfaceDetails';
     id: 'String';
     name: 'String';
     status: 'GraphEdgeStatus';
+  };
+  GraphNodeInterfaceDetails: {
+    // field return type name
+    adminOperStatus: 'String';
+    ptpStatus: 'String';
+    ptsfUnusable: 'String';
   };
   GraphVersionEdge: {
     // field return type name
@@ -1415,12 +1490,18 @@ export interface NexusGenFieldTypeNames {
   };
   PtpDeviceDetails: {
     // field return type name
+    clockAccuracy: 'String';
+    clockClass: 'Int';
     clockId: 'String';
     clockType: 'String';
+    clockVariance: 'String';
     domain: 'Int';
+    globalPriority: 'Int';
     gmClockId: 'String';
     parentClockId: 'String';
     ptpProfile: 'String';
+    timeRecoveryStatus: 'String';
+    userPriority: 'Int';
   };
   PtpDiffSynce: {
     // field return type name
@@ -1465,6 +1546,8 @@ export interface NexusGenFieldTypeNames {
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
     shortestPath: 'NetRoutingPathNode';
+    syncePathToGrandMaster: 'String';
+    synceTopology: 'SynceTopology';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersionData: 'TopologyVersionData';
@@ -1493,6 +1576,26 @@ export interface NexusGenFieldTypeNames {
   SyncFromNetworkPayload: {
     // field return type name
     dataStore: 'DataStore';
+  };
+  SynceDeviceDetails: {
+    // field return type name
+    selectedForUse: 'String';
+  };
+  SynceGraphNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'ID';
+    interfaces: 'GraphNodeInterface';
+    labels: 'String';
+    name: 'String';
+    nodeId: 'String';
+    status: 'GraphEdgeStatus';
+    synceDeviceDetails: 'SynceDeviceDetails';
+  };
+  SynceTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'SynceGraphNode';
   };
   Topology: {
     // field return type name
@@ -1768,6 +1871,10 @@ export interface NexusGenArgTypes {
       // args
       from: string; // String!
       to: string; // String!
+    };
+    syncePathToGrandMaster: {
+      // args
+      deviceFrom: string; // String!
     };
     topology: {
       // args
