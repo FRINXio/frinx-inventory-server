@@ -186,7 +186,11 @@ const GET_COMMON_NODES = gql`
 const UPDATE_COORDINATES = gql`
   mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!, $topology_type: TopologyType) {
     updateCoordinates(coordinates_list: $coordinates, topology_type: $topology_type) {
-      updated
+      not_installed
+      installed {
+        not_updated
+        updated
+      }
     }
   }
 `;
@@ -458,7 +462,7 @@ function getTopologyDiscoveryApi() {
       },
     );
 
-    return response.updateCoordinates.updated;
+    return response.updateCoordinates.installed.updated;
   }
 
   async function getPtpTopology(): Promise<PtpTopologyQuery> {
