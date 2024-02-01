@@ -5,8 +5,6 @@ import {
   GetBackupsQuery,
   GetCommonNodesQuery,
   GetCommonNodesQueryVariables,
-  GetHasAndInterfacesQuery,
-  GetLinksAndDevicesQuery,
   GetShortestPathQuery,
   GetShortestPathQueryVariables,
   NetTopologyQuery,
@@ -23,14 +21,7 @@ import {
   SyncePathToGrandMasterQuery,
   SyncePathToGrandMasterQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
-import {
-  HasAndInterfacesOutput,
-  LinksAndDevicesOutput,
-  TopologyDiffOutput,
-  decodeHasAndInterfacesOutput,
-  decodeLinksAndDevicesOutput,
-  decodeTopologyDiffOutput,
-} from './topology-network-types';
+import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
 type CoordinatesParam = {
   device: string;
@@ -59,6 +50,9 @@ const GET_TOPOLOGY_DEVICES = gql`
         node {
           id
           name
+          status
+          labels
+          routerId
           coordinates {
             x
             y
@@ -155,22 +149,6 @@ const GET_TOPOLOGY_DIFF = gql`
   query topologyDiff($new_db: String!, $old_db: String!) {
     topologyDiff(new_db: $new_db, old_db: $old_db, collection_type: phy) {
       diff_data
-    }
-  }
-`;
-
-const GET_LINKS_AND_DEVICES = gql`
-  query getLinksAndDevices {
-    phyLinksAndDevices {
-      phy_links_and_devices_data
-    }
-  }
-`;
-
-const GET_HAS_AND_INTERFACES = gql`
-  query getHasAndInterfaces {
-    phyHasAndInterfaces {
-      phy_has_and_interfaces_data
     }
   }
 `;
@@ -416,22 +394,6 @@ function getTopologyDiscoveryApi() {
     return json;
   }
 
-  async function getHasAndInterfaces(): Promise<HasAndInterfacesOutput> {
-    const response = await client.request<GetHasAndInterfacesQuery>(GET_HAS_AND_INTERFACES);
-    const { phyHasAndInterfaces } = response;
-    const json = decodeHasAndInterfacesOutput(phyHasAndInterfaces.phy_has_and_interfaces_data);
-
-    return json;
-  }
-
-  async function getLinksAndDevices(): Promise<LinksAndDevicesOutput> {
-    const response = await client.request<GetLinksAndDevicesQuery>(GET_LINKS_AND_DEVICES);
-    const { phyLinksAndDevices } = response;
-    const json = decodeLinksAndDevicesOutput(phyLinksAndDevices.phy_links_and_devices_data);
-
-    return json;
-  }
-
   async function getCommonNodes(selectedNodes: string[]): Promise<string[]> {
     const response = await client.request<GetCommonNodesQuery, GetCommonNodesQueryVariables>(GET_COMMON_NODES, {
       selectedNodes,
@@ -498,8 +460,6 @@ function getTopologyDiscoveryApi() {
     getShortestPath,
     getBackups,
     getTopologyDiff,
-    getHasAndInterfaces,
-    getLinksAndDevices,
     getCommonNodes,
     getPtpTopology,
     getPtpPathToGrandMaster,
