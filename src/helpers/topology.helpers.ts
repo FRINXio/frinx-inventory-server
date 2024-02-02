@@ -1,6 +1,7 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
   NetTopologyQuery,
+  PhyDevice,
   PtpTopologyQuery,
   SynceTopologyQuery,
   TopologyDevicesQuery,
@@ -71,6 +72,52 @@ export function getOldTopologyDevices(devices: ArangoDevice[], diffData: Topolog
       return changedDevice.old;
     });
   return oldDevices;
+}
+
+type PhyDeviceWithoutInterfaces = Omit<PhyDevice, 'phyInterfaces' | 'netDevice'>;
+
+export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterfaces): ArangoDevice {
+  const { name, status, coordinates, details, labels } = phyDevice;
+  return {
+    _id: phyDevice.id,
+    _key: phyDevice.id,
+    coordinates,
+    details,
+    labels: labels ?? [],
+    name,
+    status,
+  };
+}
+
+export function getNodesFromTopologyQuery(query: TopologyDevicesQuery): ArangoDevice[] {
+  const nodes =
+    query.phyDevices.edges
+      ?.map((e) => e?.node)
+      .filter(omitNullValue)
+      .map(convertPhyDeviceToArangoDevice) ?? [];
+  return nodes;
+}
+
+export function getEdgesFromTopologyQuery(query: TopologyDevicesQuery): ArangoEdge[] {
+  const currentEdges = query.phyDevices.edges?.flatMap(
+    (e) =>
+      e?.node?.phyInterfaces.edges
+        ?.map((i) => i?.node)
+        .filter(omitNullValue)
+        .map((i) => {
+          if (!i.phyLink?.idLink) {
+            return null;
+          }
+          return {
+            _id: i.phyLink.idLink,
+            _key: i.phyLink.idLink,
+            _from: i.id,
+            _to: i.phyLink.id,
+          };
+        })
+        .filter(omitNullValue) ?? [],
+  );
+  return currentEdges ?? [];
 }
 
 export function getOldTopologyInterfaceEdges(
@@ -211,7 +258,7 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
   return nodes;
 }
 
-function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
+export function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
   return (
     topologyDevices.phyDevices.edges?.flatMap((e) => {
       const node = e?.node;
@@ -226,12 +273,28 @@ function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
           }
           return {
             ...inode,
+            _id: inode.id,
             nodeId: node.name,
           };
         })
         .filter(omitNullValue);
       return nodeInterfaces || [];
     }) ?? []
+  );
+}
+
+export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): ArangoEdgeWithStatus[] {
+  return (
+    topologyDevices.phyDevices.edges?.flatMap(
+      (d) =>
+        d?.node?.phyInterfaces.edges?.map((i) => ({
+          _id: `${d.node?.id}-${i?.node?.id}`,
+          _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
+          _from: d.node?.id ?? '',
+          _to: i?.node?.id ?? '',
+          status: d.node?.status ?? 'unknown',
+        })) ?? [],
+    ) ?? []
   );
 }
 
