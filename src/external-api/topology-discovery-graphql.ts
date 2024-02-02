@@ -166,22 +166,6 @@ const GET_PTP_DIFF_SYNCE = gql`
   }
 `;
 
-const GET_LINKS_AND_DEVICES = gql`
-  query getLinksAndDevices {
-    phyLinksAndDevices {
-      phy_links_and_devices_data
-    }
-  }
-`;
-
-const GET_HAS_AND_INTERFACES = gql`
-  query getHasAndInterfaces {
-    phyHasAndInterfaces {
-      phy_has_and_interfaces_data
-    }
-  }
-`;
-
 const GET_COMMON_NODES = gql`
   query getCommonNodes($selectedNodes: [String!]!) {
     commonNodes(selected_nodes: $selectedNodes) {
