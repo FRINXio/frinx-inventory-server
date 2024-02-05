@@ -459,6 +459,18 @@ export interface NexusGenObjects {
     timeRecoveryStatus?: string | null; // String
     userPriority?: number | null; // Int
   };
+  PtpDiffSynce: {
+    // root type
+    edges: NexusGenRootTypes['PtpDiffSynceEdges'][]; // [PtpDiffSynceEdges!]!
+  };
+  PtpDiffSynceEdges: {
+    // root type
+    node: NexusGenRootTypes['PtpDiffSynceNode']; // PtpDiffSynceNode!
+  };
+  PtpDiffSynceNode: {
+    // root type
+    id: string; // String!
+  };
   PtpGraphNode: {
     // root type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
@@ -955,6 +967,18 @@ export interface NexusGenFieldTypes {
     timeRecoveryStatus: string | null; // String
     userPriority: number | null; // Int
   };
+  PtpDiffSynce: {
+    // field return type
+    edges: NexusGenRootTypes['PtpDiffSynceEdges'][]; // [PtpDiffSynceEdges!]!
+  };
+  PtpDiffSynceEdges: {
+    // field return type
+    node: NexusGenRootTypes['PtpDiffSynceNode']; // PtpDiffSynceNode!
+  };
+  PtpDiffSynceNode: {
+    // field return type
+    id: string; // String!
+  };
   PtpGraphNode: {
     // field return type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
@@ -982,6 +1006,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    ptpDiffSynce: NexusGenRootTypes['PtpDiffSynce']; // PtpDiffSynce!
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
@@ -1478,6 +1503,18 @@ export interface NexusGenFieldTypeNames {
     timeRecoveryStatus: 'String';
     userPriority: 'Int';
   };
+  PtpDiffSynce: {
+    // field return type name
+    edges: 'PtpDiffSynceEdges';
+  };
+  PtpDiffSynceEdges: {
+    // field return type name
+    node: 'PtpDiffSynceNode';
+  };
+  PtpDiffSynceNode: {
+    // field return type name
+    id: 'String';
+  };
   PtpGraphNode: {
     // field return type name
     coordinates: 'GraphNodeCoordinates';
@@ -1505,6 +1542,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    ptpDiffSynce: 'PtpDiffSynce';
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
     shortestPath: 'NetRoutingPathNode';
