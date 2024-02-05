@@ -51,10 +51,10 @@ export type CoordinatesNodeType =
 /** Response from the updateCoordinates query that contains information about updated coordinated of selected nodes. */
 export type CoordinatesResponse = {
   __typename?: 'CoordinatesResponse';
-  /** List of node names which coordinates have not been updated because they do not exist in the database. */
-  not_updated: Array<Scalars['String']>;
-  /** List of successfully updated node names. */
-  updated: Array<Scalars['String']>;
+  /** Devices that exist in the database. */
+  installed: InstalledDevices;
+  /** List of node names that do not exist in the database. */
+  not_installed: Array<Scalars['String']>;
 };
 
 /** Response from the createBackup mutation that contains information about created backup. */
@@ -69,6 +69,14 @@ export type DeleteBackupsResponse = {
   __typename?: 'DeleteBackupsResponse';
   /** Names of the removed databases that contained backups. */
   deleted_backups: Array<Scalars['String']>;
+};
+
+export type InstalledDevices = {
+  __typename?: 'InstalledDevices';
+  /** List of node names which coordinates have not been updated. */
+  not_updated: Array<Scalars['String']>;
+  /** List of node names which coordinates have been updated. */
+  updated: Array<Scalars['String']>;
 };
 
 export type Mutation = {
@@ -1141,7 +1149,7 @@ export type UpdateCoordinatesMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCoordinatesMutation = { __typename?: 'Mutation', updateCoordinates: { __typename?: 'CoordinatesResponse', updated: Array<string> } };
+export type UpdateCoordinatesMutation = { __typename?: 'Mutation', updateCoordinates: { __typename?: 'CoordinatesResponse', not_installed: Array<string>, installed: { __typename?: 'InstalledDevices', not_updated: Array<string>, updated: Array<string> } } };
 
 export type PtpDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string, domain: number, ptp_profile: string, clock_id: string, parent_clock_id: string, gm_clock_id: string, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null } | null } | null } | null> | null } };
 export type PtpInterfaceDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } };
