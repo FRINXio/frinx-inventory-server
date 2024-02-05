@@ -18,8 +18,8 @@ export const log = getLogger('frinx-inventory-server');
 
 // two minutes
 const SYNC_ZONES_INTERVAL = 1000 * 60 * 2;
-// ten minutes
-const CACHE_CLEAR_INTERVAL = 1000 * 60 * 10;
+// 30 seconds
+const CACHE_CLEAR_INTERVAL = 1000 * 30;
 
 process.on('unhandledRejection', (error) => {
   log.error(`Error: unhandled promise rejection: ${error}`);
