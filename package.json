@@ -1,6 +1,6 @@
 {
   "name": "@frinx/inventory-server",
-  "version": "2.0.2",
+  "version": "3.0.0-alpha",
   "engines": {
     "node": "18"
   },
@@ -35,7 +35,7 @@
     "@typescript-eslint/parser": "5.54.0",
     "@vercel/ncc": "0.36.1",
     "cross-env": "7.0.3",
-    "dotenv": "16.0.3",
+    "dotenv": "16.3.1",
     "eslint": "8.35.0",
     "eslint-config-prettier": "7.2.0",
     "eslint-import-resolver-typescript": "3.5.5",
