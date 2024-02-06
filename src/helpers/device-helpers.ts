@@ -1,3 +1,6 @@
+import { Prisma } from '@prisma/client';
+import { Device } from '../schema/source-types';
+
 type FilterInput = {
   labelIds?: string[] | null;
   deviceName?: string | null;
@@ -9,7 +12,7 @@ type FilterQuery = {
 };
 
 type OrderingInput = {
-  sortKey: 'NAME' | 'CREATED_AT';
+  sortKey: 'name' | 'createdAt' | 'serviceState';
   direction: 'ASC' | 'DESC';
 };
 
@@ -35,7 +38,30 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
 export function getOrderingQuery(ordering?: OrderingInput | null): Record<string, unknown> | undefined {
   return ordering
     ? {
-        orderBy: [{ [ordering.sortKey === 'NAME' ? 'name' : 'createdAt']: ordering.direction.toLowerCase() }],
+        orderBy: [{ [ordering.sortKey]: ordering.direction.toLowerCase() }],
       }
     : undefined;
+}
+
+export function makeZonesWithDevicesFromDevices(devices: Device[]) {
+  const zonesWithDevices = new Map<
+    string,
+    {
+      deviceName: string;
+      params: Prisma.JsonValue;
+    }[]
+  >();
+
+  devices.forEach((device) => {
+    const devicesInZone = zonesWithDevices.get(device.uniconfigZoneId) ?? [];
+
+    const deviceToInstall = {
+      deviceName: device.name,
+      params: device.mountParameters,
+    };
+
+    zonesWithDevices.set(device.uniconfigZoneId, [...devicesInZone, deviceToInstall]);
+  });
+
+  return zonesWithDevices;
 }

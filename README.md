@@ -9,22 +9,26 @@
 ## Running development version
 
 ```bash
-$ docker compose up
-$ yarn run prisma:generate
-$ yarn run dev
+docker compose up
+yarn run prisma:generate
+yarn run dev
 ```
 
-`docker compose up` will initialize a database along with some sample development data. Run `docker compose down` to start fresh.
+`docker compose up` will initialize a database along with some sample development data.
+Run `docker compose down` to start fresh.
 
 ## Enviroment variables
 
 Example values are stored in `.env.example` in the root of the repository. These are required values:
 
-```
+```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/frinx"
 UNICONFIG_API_PROTOCOL=http
 UNICONFIG_API_PORT=8181
 UNICONFIG_LIST_URL=http://10.19.0.7/static/list/uniconfig
+CONDUCTOR_API_URL="http:/10.19.0.7:8080/api"
+SCHEDULER_API_URL="http://10.19.0.7:3001/query"
+RESOURCE_MANAGER_API_URL="http://10.19.0.7/api/resource"
 X_TENANT_ID="frinx"
 ```
 
@@ -35,8 +39,8 @@ X_TENANT_ID="frinx"
 To seed postgre data:
 
 ```bash
-$ yarn prisma:seed
-$ yarn prisma:seed -z <uniconfig_zone> # with optional uniconfigZone parameter
+yarn prisma:seed
+yarn prisma:seed -z <uniconfig_zone> # with optional uniconfigZone parameter
 ```
 
 ### Production
@@ -44,13 +48,13 @@ $ yarn prisma:seed -z <uniconfig_zone> # with optional uniconfigZone parameter
 Both script are compiled and included in running docker. So you can connect to running docker and run the script inside:
 
 ```bash
-$ docker exec -it <inventory-container-id> sh
-$ node prisma/seed.js
+docker exec -it <inventory-container-id> sh
+node prisma/seed.js
 ```
 
 Or you can run it directly using:
 
 ```bash
-$ docker exec <inventory-container-id> node prisma/seed.js
+docker exec <inventory-container-id> node prisma/seed.js
 
 ```

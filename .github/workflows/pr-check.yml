@@ -3,6 +3,8 @@ on:
   pull_request:
     branches:
       - master
+      - story-new-conductor-api
+      - story-new-graphql-proxy
 jobs:
   pr-check:
     runs-on: ubuntu-latest
@@ -24,14 +26,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Install apt deps
         run: apt-get update && apt-get install -y openssl
-      - name: Copy yarn.lock file
-        run: cp yarn.lock yarn.lock.orig
       - name: Install dependencies
-        run: yarn install --immutable
+        run: npm ci
       - name: Generate prisma client
-        run: yarn run prisma:generate
+        run: npm run prisma:generate
       - name: Test the code
-        run: yarn run test
+        run: npm test
         env:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/frinx
           HOST: localhost
@@ -42,9 +42,12 @@ jobs:
           X_TENANT_ID: frinx
           TOPOLOGY_ENABLED: false
           SHELL_HOST: 10.19.0.12
+          CONDUCTOR_API_URL: 10.19.0.7
+          SCHEDULER_API_URL: 10.19.0.7
+          RESOURCE_MANAGER_API_URL: 10.19.0.7
       - name: Check code formatting
-        run: yarn run formatter:check
+        run: npm run formatter:check
       - name: Run eslint check
-        run: yarn run lint
+        run: npm run lint
       - name: Run TS typecheck
-        run: yarn run type-check
+        run: npm run type-check

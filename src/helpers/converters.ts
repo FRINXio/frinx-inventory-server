@@ -23,7 +23,23 @@ export function prepareInstallParameters(deviceName: string, mountParameters: Pr
     input: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'node-id': deviceName,
-      ...(mountParameters as Record<string, unknown>),
+      // we use typecast here because Prisma JSON is already a string and TS is not aware of it
+      ...JSON.parse(mountParameters as string),
+    },
+  };
+}
+
+export function prepareMultipleInstallParameters(
+  inputs: { deviceName: string; params: Prisma.JsonValue }[],
+): Prisma.JsonValue {
+  return {
+    input: {
+      nodes: inputs.map(({ deviceName, params }) => ({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'node-id': deviceName,
+        // we use typecast here because Prisma JSON is already a string and TS is not aware of it
+        ...JSON.parse(params as string),
+      })),
     },
   };
 }

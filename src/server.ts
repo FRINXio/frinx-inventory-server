@@ -1,17 +1,16 @@
-import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import express from 'express';
-import fs from 'fs';
+import cors from 'cors';
+import { json } from 'body-parser';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'; // eslint-disable-line import/extensions
 import { useServer } from 'graphql-ws/lib/use/ws';
-import https from 'https';
 import http, { Server } from 'http';
-import path from 'path';
 import { WebSocketServer } from 'ws';
-import createContext from './context';
+import createContext, { Context, createSubscriptionContext } from './context';
 import { UniconfigCache } from './external-api/uniconfig-cache';
 import getLogger from './get-logger';
-import isDev from './is-dev';
 import schema from './schema';
 import syncZones from './sync-zones';
 
@@ -32,29 +31,25 @@ process.on('uncaughtException', (error) => {
 const app = express();
 app.use(graphqlUploadExpress());
 
-const server = isDev
-  ? https.createServer(
-      {
-        key: fs.readFileSync(path.resolve(process.cwd(), './server.key')),
-        cert: fs.readFileSync(path.resolve(process.cwd(), './server.cert')),
-      },
-      app,
-    )
-  : http.createServer(app);
+const server = http.createServer(app);
 
 const wsServer = new WebSocketServer({
   server,
   path: '/graphql',
 });
-const serverCleanup = useServer({ schema }, wsServer);
+const serverCleanup = useServer(
+  {
+    schema,
+    context: createSubscriptionContext,
+  },
+  wsServer,
+);
 
-const apolloServer = new ApolloServer({
+const apolloServer = new ApolloServer<Context>({
   csrfPrevention: true,
   cache: 'bounded',
-  context: createContext,
   schema,
   introspection: true,
-  dataSources: () => ({}),
   logger: log,
   formatError: (err) => {
     log.error(err.message);
@@ -62,7 +57,6 @@ const apolloServer = new ApolloServer({
   },
   plugins: [
     ApolloServerPluginDrainHttpServer({ httpServer: server }),
-    ApolloServerPluginLandingPageLocalDefault({ embed: true }),
     {
       async serverWillStart() {
         return {
@@ -76,12 +70,14 @@ const apolloServer = new ApolloServer({
 });
 
 apolloServer.start().then(() => {
-  apolloServer.applyMiddleware({
-    app,
-    path: '/graphql',
-    bodyParserConfig: { limit: '50mb' },
-    cors: { origin: '*', credentials: true },
-  });
+  app.use(
+    '/graphql',
+    cors<cors.CorsRequest>(),
+    json(),
+    expressMiddleware<Context>(apolloServer, {
+      context: createContext,
+    }),
+  );
 });
 
 export function runSyncZones(serverInstance?: Server): void {

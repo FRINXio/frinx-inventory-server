@@ -12,7 +12,9 @@ import {
   decodeUniconfigDeleteSnapshotOutput,
   decodeUniconfigDiffOuptut,
   decodeUniconfigDryRunCommitOutput,
+  decodeUniconfigExternalStorageOutput,
   decodeUniconfigInstallOutput,
+  decodeUniconfigMultipleNodesOutput,
   decodeUniconfigReplaceOutput,
   decodeUniconfigRevertChangesOutput,
   decodeUniconfigSnapshotOutput,
@@ -33,6 +35,7 @@ import {
   UniconfigDiffOutput,
   UniconfigDryRunCommitOutput,
   UniconfigInstallOutput,
+  UniconfigMultipleNodesOutput,
   UniconfigReplaceInput,
   UniconfigReplaceOutput,
   UniconfigRevertChangesOutput,
@@ -43,6 +46,7 @@ import {
   UniconfigSyncOutput,
   UniconfigTransactionLogOutput,
   UninstallDeviceInput,
+  UninstallMultipleDevicesInput,
 } from './network-types';
 
 export async function getInstalledDevices(baseURL: string): Promise<InstalledDevicesOutput> {
@@ -69,6 +73,23 @@ export async function getCheckInstalledDevices(
 ): Promise<CheckInstalledNodesOutput> {
   const json = await sendPostRequest([baseURL, '/operations/connection-manager:check-installed-nodes'], input);
   const data = decodeInstalledNodeOutput(json);
+
+  return data;
+}
+
+export async function installMultipleDevices(baseURL: string, input: unknown): Promise<UniconfigMultipleNodesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
+  const data = decodeUniconfigMultipleNodesOutput(json);
+
+  return data;
+}
+
+export async function uninstallMultipleDevices(
+  baseURL: string,
+  input: UninstallMultipleDevicesInput,
+): Promise<UniconfigMultipleNodesOutput> {
+  const json = await sendPostRequest([baseURL, '/operations/connection-manager:uninstall-multiple-nodes'], input);
+  const data = decodeUniconfigMultipleNodesOutput(json);
 
   return data;
 }
@@ -276,6 +297,13 @@ async function revertChanges(baseURL: string, params: RevertChangesInput): Promi
   return data;
 }
 
+async function getExternalStorage(baseURL: string, path: string): Promise<Record<string, string>> {
+  const json = await sendGetRequest([baseURL, `/external/postgres/${path}`]);
+  const data = decodeUniconfigExternalStorageOutput(json);
+
+  return data;
+}
+
 const uniconfigAPI = {
   getInstalledDevices,
   installDevice,
@@ -295,6 +323,7 @@ const uniconfigAPI = {
   closeTransaction,
   getTransactionLog,
   revertChanges,
+  getExternalStorage,
 };
 
 export type UniConfigAPI = typeof uniconfigAPI;

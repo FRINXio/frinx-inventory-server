@@ -1,5 +1,5 @@
 import countries from 'i18n-iso-countries';
-import { extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
+import { enumType, extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
 import { fromGraphId, getType } from '../helpers/id-helper';
 
 export const Node = interfaceType({
@@ -102,4 +102,16 @@ export const NodeQuery = extendType({
       },
     });
   },
+});
+
+export const IsOkResponse = objectType({
+  name: 'IsOkResponse',
+  definition: (t) => {
+    t.nonNull.boolean('isOk');
+  },
+});
+
+export const SortDirection = enumType({
+  name: 'SortDirection',
+  members: ['ASC', 'DESC'],
 });

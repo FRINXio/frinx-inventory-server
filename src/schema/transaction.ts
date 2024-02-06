@@ -1,7 +1,7 @@
 import { extendType, list, nonNull, objectType, stringArg } from 'nexus';
 import { SuccessTransactionType, TransactionType } from '../external-api/network-types';
 import { fromGraphId } from '../helpers/id-helper';
-import unwrap from '../helpers/unwrap';
+import { unwrap } from '../helpers/utils.helpers';
 import { getUniconfigURL, makeUniconfigURL } from '../helpers/zone.helpers';
 import { Device } from './device';
 

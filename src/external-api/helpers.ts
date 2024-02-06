@@ -79,10 +79,24 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
     return response;
   }
 
-  const json = await response.json();
-  logResponse(requestId, json);
+  // TODO:
+  // this is stupid hack because of how conductor API is working
+  // it always response with 200 even if it has empty body
+  // the change was requested (it should use 201/204 status codes) and once implemented in conductor API
+  // we can revert this changes to previous state
+  const text = await response.text();
 
-  return json;
+  if (!text.length) {
+    return response;
+  }
+
+  try {
+    const json = JSON.parse(text);
+    return json;
+  } catch (e) {
+    logResponse(requestId, text);
+    return text;
+  }
 }
 
 export async function sendGetRequest(path: APIPath, cookie?: string): Promise<unknown> {
@@ -127,6 +141,18 @@ export async function sendPatchRequest(path: APIPath, body?: unknown, cookie?: s
   const options = {
     method: 'PATCH',
     body: JSON.stringify(body),
+    headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'Content-Type': 'application/json',
+      ...(cookie != null ? { cookie } : {}),
+    },
+  };
+  return apiFetch(path, options);
+}
+
+export async function sendDeleteRequest(path: APIPath, cookie?: string): Promise<unknown> {
+  const options = {
+    method: 'DELETE',
     headers: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'Content-Type': 'application/json',

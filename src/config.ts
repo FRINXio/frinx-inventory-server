@@ -31,7 +31,8 @@ function optionalEnvString(key: string): string | null {
 
 type TopologyConfigEnabled = {
   topologyEnabled: true;
-  topologyDiscoveryURL: string | null;
+  topologyDiscoveryURL: string;
+  topologyDiscoveryGraphqlURL: string;
 };
 
 type TopologyConfigDisabled = {
@@ -44,19 +45,23 @@ type TopologyConfig = TopologyConfigDisabled | TopologyConfigEnabled;
 function getTopologyConfig(): TopologyConfig {
   const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
   const topologyDiscoveryURL = optionalEnvString('TOPOLOGY_DISCOVERY_API_URL');
+  const topologyDiscoveryGraphqlURL = optionalEnvString('TOPOLOGY_DISCOVERY_GRAPHQL_API_URL');
   if (!topologyEnabled) {
     return {
       topologyEnabled: false,
     };
   }
 
-  if (!topologyDiscoveryURL) {
-    throw new Error('Not all mandatory topology discovery url were found.');
+  if (!topologyDiscoveryURL || !topologyDiscoveryGraphqlURL) {
+    throw new Error(
+      'Not all mandatory topology discovery url (TOPOLOGY_DISCOVERY_API_URL, TOPOLOGY_DISCOVERY_GRAPHQL_API_URL) were found.',
+    );
   }
 
   return {
     topologyEnabled: true,
     topologyDiscoveryURL,
+    topologyDiscoveryGraphqlURL,
   };
 }
 
