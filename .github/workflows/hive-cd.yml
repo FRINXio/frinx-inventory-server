@@ -2,7 +2,7 @@ name: Hive Publish
 
 on:
   push:
-    branches: [story-new-graphql-proxy]
+    branches: [master]
 
 jobs:
   hive-publish:
