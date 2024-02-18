@@ -21,8 +21,11 @@ ARG git_commit=unspecified
 LABEL git_commit="${git_commit}"
 LABEL org.opencontainers.image.source="https://github.com/FRINXio/frinx-inventory-server"
 
-RUN apt-get update
-RUN apt-get install -y openssl wget
+RUN apt-get update \
+    && apt-get install -y --quiet --no-install-recommends openssl wget \
+    && apt-get -y autoremove \
+    && apt-get clean autoclean \
+    && rm -rf /var/lib/apt/lists/{apt,dpkg,cache,log}
 
 RUN mkdir /app
 RUN chmod +w /app
