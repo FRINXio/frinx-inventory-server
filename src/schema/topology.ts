@@ -89,7 +89,8 @@ export const GraphNode = objectType({
   name: 'GraphNode',
   definition: (t) => {
     t.implements(BaseGraphNode);
-    t.nonNull.field('device', { type: 'Device' });
+    t.nonNull.string('name');
+    t.field('device', { type: 'Device' });
   },
 });
 
@@ -168,7 +169,6 @@ export const TopologyQuery = extendType({
         const { filter } = args;
 
         const topologyDevices = await topologyDiscoveryGraphQLAPI?.getTopologyDevices();
-        // console.log(JSON.stringify(topologyDevices, null, 2));
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
         const labelIds = dbLabels.map((l) => l.id);
