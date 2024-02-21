@@ -66,6 +66,36 @@ export const GraphNodeInterface = objectType({
   },
 });
 
+export const Interface = objectType({
+  name: 'Interface',
+  definition: (t) => {
+    t.boolean('synceEnabled');
+    t.string('rxQualityLevel');
+    t.string('qualifiedForUse');
+    t.string('notQualifiedDueTo');
+    t.string('notSelectedDueTo');
+  },
+});
+
+export const SynceDeviceInterfaces = objectType({
+  name: 'synceDeviceInterfaces',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
+    t.nonNull.field('interface', { type: Interface });
+  },
+});
+
+export const GraphSynceNodeInterface = objectType({
+  name: 'GraphSynceNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.nonNull.string('name');
+    t.field('details', { type: SynceDeviceInterfaces });
+  },
+});
+
 export const GraphNodeCoordinates = objectType({
   name: 'GraphNodeCoordinates',
   definition: (t) => {
@@ -577,17 +607,34 @@ export const SynceDeviceDetails = objectType({
   },
 });
 
+export const SynceDevice = objectType({
+  name: 'SynceDevice',
+  definition: (t) => {
+    t.nonNull.list.field('synceDeviceInterfaces', { type: SynceDeviceInterfaces });
+  },
+});
+
+export const Interfaces = objectType({
+  name: 'Interfaces',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.nonNull.field('synceDevice', { type: SynceDevice });
+  },
+});
+
 export const SynceGraphNode = objectType({
   name: 'SynceGraphNode',
   definition: (t) => {
     t.nonNull.id('id');
-    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
-    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
     t.nonNull.string('nodeId');
     t.nonNull.string('name');
     t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.list.nonNull.string('labels');
+    t.nonNull.list.field('interfaces', { type: nonNull(Interfaces) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
 

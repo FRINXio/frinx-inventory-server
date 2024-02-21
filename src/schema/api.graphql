@@ -338,6 +338,13 @@ type GraphNodeInterfaceDetails {
   ptsfUnusable: String
 }
 
+type GraphSynceNodeInterface {
+  details: synceDeviceInterfaces
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+}
+
 type GraphVersionEdge {
   id: ID!
   source: EdgeSourceTarget!
@@ -355,6 +362,21 @@ type GraphVersionNode implements BaseGraphNode {
 
 type InstallDevicePayload {
   device: Device!
+}
+
+type Interface {
+  notQualifiedDueTo: String
+  notSelectedDueTo: String
+  qualifiedForUse: String
+  rxQualityLevel: String
+  synceEnabled: Boolean
+}
+
+type Interfaces {
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+  synceDevice: SynceDevice!
 }
 
 type IsOkResponse {
@@ -580,6 +602,10 @@ type SyncFromNetworkPayload {
   dataStore: DataStore
 }
 
+type SynceDevice {
+  synceDeviceInterfaces: [synceDeviceInterfaces]!
+}
+
 type SynceDeviceDetails {
   selectedForUse: String
 }
@@ -587,7 +613,7 @@ type SynceDeviceDetails {
 type SynceGraphNode {
   coordinates: GraphNodeCoordinates!
   id: ID!
-  interfaces: [GraphNodeInterface!]!
+  interfaces: [Interfaces!]!
   labels: [String!]
   name: String!
   nodeId: String!
@@ -713,4 +739,10 @@ type ZonesConnection {
   edges: [ZoneEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+type synceDeviceInterfaces {
+  id: String!
+  interface: Interface!
+  name: String!
 }
