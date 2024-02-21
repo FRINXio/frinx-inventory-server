@@ -16,7 +16,6 @@ import {
 } from '../external-api/topology-network-types';
 import { omitNullValue, unwrap } from './utils.helpers';
 import { toGraphId } from './id-helper';
-import { log } from 'console';
 
 type FilterInput = {
   labelIds?: string[] | null;
