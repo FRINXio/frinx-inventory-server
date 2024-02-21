@@ -235,15 +235,24 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
   if (!topologyDevices) {
     return [];
   }
-  const nodes = dbDevices
-    .map((device) => {
-      const node = topologyDevices?.phyDevices.edges?.find((e) => e?.node?.name === device.name)?.node;
-      if (node != null) {
+
+  // hashmap used to map topology device with device inventory id via its name
+  const dbDevicesMap = new Map(dbDevices.map((d) => [d.name, d]));
+
+  const nodes =
+    topologyDevices.phyDevices.edges
+      ?.map((edge) => {
+        if (!edge || !edge.node) {
+          return null;
+        }
+        const { node } = edge;
+
         return {
           id: toGraphId('GraphNode', node.id),
+          name: node.name,
           deviceType: node.details.device_type ?? null,
           softwareVersion: node.details.sw_version ?? null,
-          device,
+          device: dbDevicesMap.get(node.name) ?? null,
           interfaces:
             node.phyInterfaces.edges?.map((e) => ({
               id: unwrap(e?.node?.id),
@@ -252,10 +261,8 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
             })) ?? [],
           coordinates: node.coordinates,
         };
-      }
-      return null;
-    })
-    .filter(omitNullValue);
+      })
+      .filter(omitNullValue) ?? [];
   return nodes;
 }
 

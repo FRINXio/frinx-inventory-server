@@ -330,10 +330,11 @@ export interface NexusGenObjects {
   GraphNode: {
     // root type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
-    device: NexusGenRootTypes['Device']; // Device!
+    device?: NexusGenRootTypes['Device'] | null; // Device
     deviceType?: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    name: string; // String!
     softwareVersion?: string | null; // String
   };
   GraphNodeCoordinates: {
@@ -829,10 +830,11 @@ export interface NexusGenFieldTypes {
   GraphNode: {
     // field return type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
-    device: NexusGenRootTypes['Device']; // Device!
+    device: NexusGenRootTypes['Device'] | null; // Device
     deviceType: string | null; // String
     id: string; // ID!
     interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    name: string; // String!
     softwareVersion: string | null; // String
   };
   GraphNodeCoordinates: {
@@ -1401,6 +1403,7 @@ export interface NexusGenFieldTypeNames {
     deviceType: 'String';
     id: 'ID';
     interfaces: 'GraphNodeInterface';
+    name: 'String';
     softwareVersion: 'String';
   };
   GraphNodeCoordinates: {
