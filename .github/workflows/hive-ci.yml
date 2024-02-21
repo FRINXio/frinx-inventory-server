@@ -2,7 +2,7 @@ name: Hive Check
 
 on:
   pull_request:
-    branches: [story-new-graphql-proxy]
+    branches: [master]
 
 jobs:
   hive-check:
