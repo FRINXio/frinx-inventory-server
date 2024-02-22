@@ -89,13 +89,6 @@ export type EdgeWithStatus = t.TypeOf<typeof EdgeWithStatusValidator>;
 export type ArangoEdge = t.TypeOf<typeof Edge>;
 export type ArangoEdgeWithStatus = t.TypeOf<typeof EdgeWithStatusValidator>;
 
-const Diff = t.type({
-  PhyDevice: t.array(DeviceValidator),
-  PhyHas: t.array(EdgeWithStatusValidator),
-  PhyInterface: t.array(InterfaceWithStatusValidator),
-  PhyLink: t.array(Edge),
-});
-
 const ChangedDevice = t.type({
   new: DeviceValidator,
   old: DeviceValidator,
@@ -114,17 +107,66 @@ const ChangedEdgeWithStatusValidator = t.type({
   old: EdgeWithStatusValidator,
 });
 
-const ChangeDiff = t.type({
+const ChangePhyDiff = t.type({
   PhyDevice: t.array(ChangedDevice),
   PhyHas: t.array(ChangedEdgeWithStatusValidator),
   PhyInterface: t.array(ChangedInterface),
   PhyLink: t.array(ChangedEdge),
 });
 
+const PhyDiff = t.type({
+  PhyDevice: t.array(DeviceValidator),
+  PhyHas: t.array(EdgeWithStatusValidator),
+  PhyInterface: t.array(InterfaceWithStatusValidator),
+  PhyLink: t.array(Edge),
+});
+
+const ChangePtpDiff = t.type({
+  PtpDevice: t.array(ChangedDevice),
+  PtpHas: t.array(ChangedEdgeWithStatusValidator),
+  PtpInterface: t.array(ChangedInterface),
+  PtpLink: t.array(ChangedEdge),
+});
+
+const PtpDiff = t.type({
+  PtpDevice: t.array(DeviceValidator),
+  PtpHas: t.array(EdgeWithStatusValidator),
+  PtpInterface: t.array(InterfaceWithStatusValidator),
+  PtpLink: t.array(Edge),
+});
+
+const ChangeSynceDiff = t.type({
+  SynceDevice: t.array(ChangedDevice),
+  SynceHas: t.array(ChangedEdgeWithStatusValidator),
+  SynceInterface: t.array(ChangedInterface),
+  SynceLink: t.array(ChangedEdge),
+});
+
+const SynceDiff = t.type({
+  SynceDevice: t.array(DeviceValidator),
+  SynceHas: t.array(EdgeWithStatusValidator),
+  SynceInterface: t.array(InterfaceWithStatusValidator),
+  SynceLink: t.array(Edge),
+});
+
+const ChangeNetDiff = t.type({
+  NetDevice: t.array(ChangedDevice),
+  NetHas: t.array(ChangedEdgeWithStatusValidator),
+  NetInterface: t.array(ChangedInterface),
+  NetLink: t.array(ChangedEdge),
+});
+
+const NetDiff = t.type({
+  NetDevice: t.array(DeviceValidator),
+  NetHas: t.array(EdgeWithStatusValidator),
+  NetInterface: t.array(InterfaceWithStatusValidator),
+  NetLink: t.array(Edge),
+});
+
 const TopologyDiffOutputValidator = t.type({
-  added: Diff,
-  changed: ChangeDiff,
-  deleted: Diff,
+  added: t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]),
+  changed: t.union([ChangePhyDiff, ChangePtpDiff, ChangeSynceDiff, ChangeNetDiff]),
+  deleted: t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]),
 });
 
 export type TopologyDiffOutput = t.TypeOf<typeof TopologyDiffOutputValidator>;
