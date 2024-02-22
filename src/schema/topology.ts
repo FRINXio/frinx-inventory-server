@@ -89,7 +89,8 @@ export const GraphNode = objectType({
   name: 'GraphNode',
   definition: (t) => {
     t.implements(BaseGraphNode);
-    t.nonNull.field('device', { type: 'Device' });
+    t.nonNull.string('name');
+    t.field('device', { type: 'Device' });
   },
 });
 
@@ -168,7 +169,6 @@ export const TopologyQuery = extendType({
         const { filter } = args;
 
         const topologyDevices = await topologyDiscoveryGraphQLAPI?.getTopologyDevices();
-        // console.log(JSON.stringify(topologyDevices, null, 2));
         const labels = filter?.labels ?? [];
         const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
         const labelIds = dbLabels.map((l) => l.id);
@@ -179,6 +179,52 @@ export const TopologyQuery = extendType({
           nodes: makeTopologyNodes(dbDevices, topologyDevices),
           edges: makeTopologyEdges(topologyDevices),
         };
+      },
+    });
+  },
+});
+
+export const PtpDiffSynceNode = objectType({
+  name: 'PtpDiffSynceNode',
+  definition: (t) => {
+    t.nonNull.string('id');
+  },
+});
+
+export const PtpDiffSynceEdges = objectType({
+  name: 'PtpDiffSynceEdges',
+  definition: (t) => {
+    t.nonNull.field('node', { type: PtpDiffSynceNode });
+  },
+});
+
+export const PtpDiffSynce = objectType({
+  name: 'PtpDiffSynce',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('edges', { type: PtpDiffSynceEdges });
+  },
+});
+
+export const PtpDiffSynceQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('ptpDiffSynce', {
+      type: PtpDiffSynce,
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        const data = await topologyDiscoveryGraphQLAPI?.getPtpDiffSynce();
+
+        if (!data || !data.ptpDiffSynce.edges) {
+          return { edges: [] };
+        }
+
+        const nodes = data.ptpDiffSynce.edges
+          .map((e) => {
+            const node = e?.node ? { node: { id: e.node.id } } : null;
+            return node;
+          })
+          .filter(omitNullValue);
+
+        return { edges: nodes };
       },
     });
   },

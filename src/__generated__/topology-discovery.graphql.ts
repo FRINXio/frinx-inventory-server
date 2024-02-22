@@ -1184,6 +1184,11 @@ export type TopologyDiffQueryVariables = Exact<{
 
 export type TopologyDiffQuery = { __typename?: 'Query', topologyDiff: { __typename?: 'TopologyResponse', diff_data: any | null } };
 
+export type PtpDiffSynceQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PtpDiffSynceQuery = { __typename?: 'Query', ptpDiffSynce: { __typename?: 'PtpDiffSynceConnection', edges: Array<{ __typename?: 'PtpDiffSynceEdge', node: { __typename?: 'PtpDiffSynce', id: string } | null } | null> | null } };
+
 export type GetCommonNodesQueryVariables = Exact<{
   selectedNodes: Array<Scalars['String']> | Scalars['String'];
 }>;

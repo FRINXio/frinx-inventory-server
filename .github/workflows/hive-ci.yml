@@ -2,7 +2,7 @@ name: Hive Check
 
 on:
   pull_request:
-    branches: [story-new-graphql-proxy]
+    branches: [master]
 
 jobs:
   hive-check:
@@ -14,7 +14,7 @@ jobs:
       - name: schema check
         env:
           HIVE_TOKEN: ${{ secrets.HIVE_TOKEN_DEVELOPMENT }}
-          SCHEMA_PATH: "src/schema/api.graphql"
+          SCHEMA_PATH: 'src/schema/api.graphql'
         run: |
           curl -sSL https://graphql-hive.com/install.sh | sh
           hive schema:check "${{ env.SCHEMA_PATH }}" \

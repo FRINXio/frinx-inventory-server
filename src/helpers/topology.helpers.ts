@@ -1,10 +1,7 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
-  NetDevice,
   NetTopologyQuery,
   PhyDevice,
-  PhyLinkConnection,
-  PhyLinkEdge,
   PtpTopologyQuery,
   SynceTopologyQuery,
   TopologyDevicesQuery,
@@ -108,8 +105,8 @@ export function getEdgesFromTopologyQuery(query: TopologyDevicesQuery): ArangoEd
       e?.node?.phyInterfaces.edges
         ?.map((i) => i?.node)
         .filter(omitNullValue)
-        .flatMap((i) => {
-          return i.phyLinks.edges?.map((phyLinkEdge) => {
+        .flatMap((i) =>
+          i.phyLinks.edges?.map((phyLinkEdge) => {
             if (!phyLinkEdge?.link || !phyLinkEdge?.node) {
               return null;
             }
@@ -119,11 +116,10 @@ export function getEdgesFromTopologyQuery(query: TopologyDevicesQuery): ArangoEd
               _from: i.id,
               _to: phyLinkEdge.node.id,
             };
-          });
-        })
+          }),
+        )
         .filter(omitNullValue) ?? [],
   );
-  console.log(currentEdges);
   return currentEdges ?? [];
 }
 
@@ -241,15 +237,24 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
   if (!topologyDevices) {
     return [];
   }
-  const nodes = dbDevices
-    .map((device) => {
-      const node = topologyDevices?.phyDevices.edges?.find((e) => e?.node?.name === device.name)?.node;
-      if (node != null) {
+
+  // hashmap used to map topology device with device inventory id via its name
+  const dbDevicesMap = new Map(dbDevices.map((d) => [d.name, d]));
+
+  const nodes =
+    topologyDevices.phyDevices.edges
+      ?.map((edge) => {
+        if (!edge || !edge.node) {
+          return null;
+        }
+        const { node } = edge;
+
         return {
           id: toGraphId('GraphNode', node.id),
+          name: node.name,
           deviceType: node.details.device_type ?? null,
           softwareVersion: node.details.sw_version ?? null,
-          device,
+          device: dbDevicesMap.get(node.name) ?? null,
           interfaces:
             node.phyInterfaces.edges?.map((e) => ({
               id: unwrap(e?.node?.id),
@@ -258,10 +263,8 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
             })) ?? [],
           coordinates: node.coordinates,
         };
-      }
-      return null;
-    })
-    .filter(omitNullValue);
+      })
+      .filter(omitNullValue) ?? [];
   return nodes;
 }
 
@@ -332,8 +335,6 @@ export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery): Nexus
           };
         })
         .filter(omitNullValue) ?? [];
-
-    console.log(JSON.stringify(links, null, 2));
 
     return links;
   });
@@ -541,7 +542,6 @@ export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
       })
       .filter(omitNullValue) ?? [];
 
-  console.log(JSON.stringify(edges, null, 2));
   return edges;
 }
 

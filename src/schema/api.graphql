@@ -307,10 +307,11 @@ enum GraphEdgeStatus {
 
 type GraphNode implements BaseGraphNode {
   coordinates: GraphNodeCoordinates!
-  device: Device!
+  device: Device
   deviceType: String
   id: ID!
   interfaces: [GraphNodeInterface!]!
+  name: String!
   softwareVersion: String
 }
 
@@ -488,6 +489,18 @@ type PtpDeviceDetails {
   userPriority: Int
 }
 
+type PtpDiffSynce {
+  edges: [PtpDiffSynceEdges!]!
+}
+
+type PtpDiffSynceEdges {
+  node: PtpDiffSynceNode!
+}
+
+type PtpDiffSynceNode {
+  id: String!
+}
+
 type PtpGraphNode {
   coordinates: GraphNodeCoordinates!
   id: ID!
@@ -521,6 +534,7 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!): Node
+  ptpDiffSynce: PtpDiffSynce!
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!

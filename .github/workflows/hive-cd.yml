@@ -2,7 +2,7 @@ name: Hive Publish
 
 on:
   push:
-    branches: [story-new-graphql-proxy]
+    branches: [master]
 
 jobs:
   hive-publish:
@@ -14,7 +14,7 @@ jobs:
         env:
           HIVE_TOKEN: ${{ secrets.HIVE_TOKEN_DEVELOPMENT }}
           # HIVE_ENDPOINT: ${{ secrets.HIVE_ENDPOINT }}
-          SCHEMA_PATH: "src/schema/api.graphql"
+          SCHEMA_PATH: 'src/schema/api.graphql'
         run: |
           curl -sSL https://graphql-hive.com/install.sh | sh
           hive schema:publish "${{ env.SCHEMA_PATH }}" \
