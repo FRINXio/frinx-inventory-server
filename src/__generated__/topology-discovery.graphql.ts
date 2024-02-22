@@ -1109,6 +1109,7 @@ export type GetBackupsQuery = { __typename?: 'Query', backups: Array<string> };
 export type TopologyDiffQueryVariables = Exact<{
   new_db: Scalars['String'];
   old_db: Scalars['String'];
+  collection_type: TopologyDiffCollectionTypes;
 }>;
 
 
@@ -1119,19 +1120,10 @@ export type PtpDiffSynceQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type PtpDiffSynceQuery = { __typename?: 'Query', ptpDiffSynce: { __typename?: 'PtpDiffSynceConnection', edges: Array<{ __typename?: 'PtpDiffSynceEdge', node: { __typename?: 'PtpDiffSynce', id: string } | null } | null> | null } };
 
-export type GetLinksAndDevicesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetLinksAndDevicesQuery = { __typename?: 'Query', phyLinksAndDevices: { __typename?: 'PhyLinksAndDevicesResponse', phy_links_and_devices_data: any } };
-
-export type GetHasAndInterfacesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetHasAndInterfacesQuery = { __typename?: 'Query', phyHasAndInterfaces: { __typename?: 'PhyHasAndInterfacesResponse', phy_has_and_interfaces_data: any } };
-
 export type GetCommonNodesQueryVariables = Exact<{
   selectedNodes: Array<Scalars['String']> | Scalars['String'];
 }>;
+
 
 export type GetCommonNodesQuery = { __typename?: 'Query', commonNodes: { __typename?: 'CommonNodesResponse', common_nodes: Array<string> } };
 
@@ -1144,13 +1136,16 @@ export type UpdateCoordinatesMutationVariables = Exact<{
 export type UpdateCoordinatesMutation = { __typename?: 'Mutation', updateCoordinates: { __typename?: 'CoordinatesResponse', updated: Array<string> } };
 
 export type PtpDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string, domain: number, ptp_profile: string, clock_id: string, parent_clock_id: string, gm_clock_id: string, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null } | null } | null } | null> | null } };
+
 export type PtpInterfaceDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } };
 
 export type PtpInterfacePartsFragment = { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, status: NodeStatus, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null } | null };
+
 export type PtpTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type PtpTopologyQuery = { __typename?: 'Query', ptpDevices: { __typename?: 'PtpDeviceConnection', edges: Array<{ __typename?: 'PtpDeviceEdge', cursor: string, node: { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string, domain: number, ptp_profile: string, clock_id: string, parent_clock_id: string, gm_clock_id: string, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string, ptpLink: { __typename?: 'PtpInterface', id: string, idLink: string | null, name: string } | null } | null } | null> | null } } | null } | null } | null } | null> | null } } | null } | null> | null } };
+
 export type PtpPathToGrandMasterQueryVariables = Exact<{
   deviceFrom: Scalars['ID'];
 }>;

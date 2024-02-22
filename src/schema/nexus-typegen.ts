@@ -129,6 +129,11 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
+  TopologyVersionInputData: {
+    // input type
+    topologyType: NexusGenEnums['TopologyTypes']; // TopologyTypes!
+    version: string; // String!
+  };
   UpdateBlueprintInput: {
     // input type
     name?: string | null; // String
@@ -170,6 +175,7 @@ export interface NexusGenEnums {
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
   TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
+  TopologyTypes: 'net' | 'phy' | 'ptp' | 'synce';
 }
 
 export interface NexusGenScalars {
@@ -1889,7 +1895,7 @@ export interface NexusGenArgTypes {
     };
     topologyVersionData: {
       // args
-      version: string; // String!
+      input: NexusGenInputs['TopologyVersionInputData']; // TopologyVersionInputData!
     };
     zones: {
       // args

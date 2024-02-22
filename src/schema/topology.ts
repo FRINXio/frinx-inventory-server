@@ -268,13 +268,28 @@ export const TopologyCommonNodesQuery = extendType({
   },
 });
 
+export const TopologyTypes = enumType({
+  name: 'TopologyTypes',
+  members: ['phy', 'net', 'ptp', 'synce'],
+});
+
+export const TopologyVersionInputData = inputObjectType({
+  name: 'TopologyVersionInputData',
+  definition: (t) => {
+    t.nonNull.string('version');
+    t.nonNull.field('topologyType', {
+      type: TopologyTypes,
+    });
+  },
+});
+
 export const TopologyVersionDataQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('topologyVersionData', {
       type: TopologyVersionData,
       args: {
-        version: nonNull(stringArg()),
+        input: nonNull(TopologyVersionInputData),
       },
       resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
@@ -292,8 +307,8 @@ export const TopologyVersionDataQuery = extendType({
         const interfaces = getTopologyInterfaces(topologyDevicesResult);
         const interfaceEdges = getDeviceInterfaceEdges(topologyDevicesResult);
 
-        const { version } = args;
-        const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version);
+        const { input } = args;
+        const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(input.version, input.topologyType);
         const oldDevices = getOldTopologyDevices(currentNodes, result);
 
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);

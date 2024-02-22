@@ -542,7 +542,7 @@ type Query {
   synceTopology: SynceTopology
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
-  topologyVersionData(version: String!): TopologyVersionData!
+  topologyVersionData(input: TopologyVersionInputData!): TopologyVersionData!
   topologyVersions: [String!]
   transactions: [Transaction!]!
   uniconfigShellSession: String
@@ -616,9 +616,21 @@ enum TopologyLayer {
   PtpTopology
 }
 
+enum TopologyTypes {
+  net
+  phy
+  ptp
+  synce
+}
+
 type TopologyVersionData {
   edges: [GraphVersionEdge!]!
   nodes: [GraphVersionNode!]!
+}
+
+input TopologyVersionInputData {
+  topologyType: TopologyTypes!
+  version: String!
 }
 
 type Transaction {
