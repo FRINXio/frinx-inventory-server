@@ -5,7 +5,7 @@ on:
   push:
     # Publish `master` as Docker `latest` image.
     branches:
-      - story-new-graphql-proxy
+      - master
 
     # Publish `v1.2.3` tags as releases.
     tags:
@@ -41,21 +41,21 @@ jobs:
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `graphql_proxy` tag convention
-          [ "$VERSION" == "story-new-graphql-proxy" ] && VERSION=graphql_proxy
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=master
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          # Add graphql_proxy tag if we are on story-new-graphql-proxy and github.ref points to a tag
+          # Add lattest tag if we are on master and github.ref points to a tag
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            MASTER=$(git show-ref --hash origin/story-new-graphql-proxy)
+            MASTER=$(git show-ref --hash origin/master)
             echo "master: $MASTER"
             HEAD=$(git rev-parse HEAD)
             echo "head: $HEAD"
             echo "github.ref ${{ github.ref }}"
             if [[ $MASTER == $HEAD ]]; then
-              VERSION=graphql_proxy
+              VERSION=latest
               echo VERSION=$VERSION
               docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
               docker push $IMAGE_ID:$VERSION
