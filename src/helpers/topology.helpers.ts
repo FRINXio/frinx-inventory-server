@@ -538,8 +538,7 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
                   status: getStatus(interfaceNode.status),
                   interface:
                     interfaceNode.synceDevice?.synceInterfaces.edges?.map((n) => {
-                      const node = n?.node;
-                      if (!node) {
+                      if (!n?.node) {
                         return null;
                       }
                       if (n.node && n.node.details) {

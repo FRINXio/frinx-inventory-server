@@ -77,6 +77,15 @@ export const SynceGraphNodeInterfaceDetails = objectType({
   },
 });
 
+export const SynceNodeInterface = objectType({
+  name: 'SynceNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
+    t.nonNull.field('details', { type: SynceGraphNodeInterfaceDetails });
+  },
+});
+
 export const GraphSynceNodeInterface = objectType({
   name: 'GraphSynceNodeInterface',
   definition: (t) => {
@@ -87,14 +96,7 @@ export const GraphSynceNodeInterface = objectType({
   },
 });
 
-export const SynceNodeInterface = objectType({
-  name: 'SynceNodeInterface',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.string('name');
-    t.nonNull.field('details', { type: SynceGraphNodeInterfaceDetails });
-  },
-});
+
 
 export const GraphNodeCoordinates = objectType({
   name: 'GraphNodeCoordinates',
