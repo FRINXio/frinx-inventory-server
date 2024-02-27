@@ -19,6 +19,7 @@ import {
   getOldTopologyConnectedEdges,
   getOldTopologyDevices,
   getOldTopologyInterfaceEdges,
+  getTopologyDiffInterfaces,
   getTopologyInterfaces,
   makeInterfaceDeviceMap,
   makeInterfaceMap,
@@ -314,13 +315,7 @@ export const TopologyVersionDataQuery = extendType({
         const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
         const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
         const interfaceNameMap = makeInterfaceNameMap(
-          [
-            ...interfaces,
-            ...result.deleted.PhyInterface,
-            ...result.added.PhyInterface,
-            ...result.changed.PhyInterface.map((i) => i.new),
-            ...result.changed.PhyInterface.map((i) => i.old),
-          ],
+          [...interfaces, ...getTopologyDiffInterfaces(result)],
           (i) => i.name,
         );
         const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);

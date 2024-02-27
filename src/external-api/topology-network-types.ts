@@ -163,10 +163,37 @@ const NetDiff = t.type({
   NetLink: t.array(Edge),
 });
 
+const TopologyDiff = t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]);
+const ChangeTopologyDiff = t.union([ChangePhyDiff, ChangePtpDiff, ChangeSynceDiff, ChangeNetDiff]);
+
+export type PhyTopologyDiffType = {
+  added: t.TypeOf<typeof PhyDiff>;
+  changed: t.TypeOf<typeof ChangePhyDiff>;
+  deleted: t.TypeOf<typeof PhyDiff>;
+};
+
+export type PtpTopologyDiffType = {
+  added: t.TypeOf<typeof PtpDiff>;
+  changed: t.TypeOf<typeof ChangePtpDiff>;
+  deleted: t.TypeOf<typeof PtpDiff>;
+};
+
+export type SynceTopologyDiffType = {
+  added: t.TypeOf<typeof SynceDiff>;
+  changed: t.TypeOf<typeof ChangeSynceDiff>;
+  deleted: t.TypeOf<typeof SynceDiff>;
+};
+
+export type NetTopologyDiffType = {
+  added: t.TypeOf<typeof NetDiff>;
+  changed: t.TypeOf<typeof ChangeNetDiff>;
+  deleted: t.TypeOf<typeof NetDiff>;
+};
+
 const TopologyDiffOutputValidator = t.type({
-  added: t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]),
-  changed: t.union([ChangePhyDiff, ChangePtpDiff, ChangeSynceDiff, ChangeNetDiff]),
-  deleted: t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]),
+  added: TopologyDiff,
+  changed: ChangeTopologyDiff,
+  deleted: TopologyDiff,
 });
 
 export type TopologyDiffOutput = t.TypeOf<typeof TopologyDiffOutputValidator>;
