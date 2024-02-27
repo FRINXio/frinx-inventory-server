@@ -96,8 +96,6 @@ export const GraphSynceNodeInterface = objectType({
   },
 });
 
-
-
 export const GraphNodeCoordinates = objectType({
   name: 'GraphNodeCoordinates',
   definition: (t) => {
