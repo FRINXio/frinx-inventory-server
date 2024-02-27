@@ -156,7 +156,7 @@ const GET_BACKUPS = gql`
 
 const GET_TOPOLOGY_DIFF = gql`
   query topologyDiff($new_db: String!, $old_db: String!) {
-    topologyDiff(new_db: $new_db, old_db: $old_db, collection_type: phy) {
+    topologyDiff(new_db: $new_db, old_db: $old_db, collection_type: PhysicalTopology) {
       diff_data
     }
   }

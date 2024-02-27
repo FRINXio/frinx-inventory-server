@@ -153,7 +153,7 @@ export type MutationUpdateCoordinatesArgs = {
 export type MutationUpdateNodeStatusArgs = {
   device_name: Scalars['String'];
   interface_name?: InputMaybe<Scalars['String']>;
-  status: Scalars['String'];
+  status: NodeStatus;
   topology_type?: InputMaybe<TopologyType>;
 };
 
@@ -892,7 +892,7 @@ export type QuerySyncePathToGmArgs = {
 
 
 export type QueryTopologyDiffArgs = {
-  collection_type: TopologyDiffCollectionTypes;
+  collection_type: TopologyType;
   new_db: Scalars['String'];
   old_db: Scalars['String'];
 };
@@ -1121,17 +1121,6 @@ export type SyncePathOutputCollections =
   /** Include SynceInterface nodes in the returned path. */
   | 'SynceInterface';
 
-/** Type of the topology from which the diff is created. */
-export type TopologyDiffCollectionTypes =
-  /** Network topology. */
-  | 'net'
-  /** Physical topology. */
-  | 'phy'
-  /** PTP topology. */
-  | 'ptp'
-  /** SyncE topology. */
-  | 'synce';
-
 /** Response from the topologyDiff query that contains diff between two databases. */
 export type TopologyResponse = {
   __typename?: 'TopologyResponse';
@@ -1149,6 +1138,7 @@ export type TopologyResponse = {
 /** Present topology types. */
 export type TopologyType =
   | 'EthTopology'
+  | 'NetworkTopology'
   | 'PhysicalTopology'
   | 'PtpTopology';
 
