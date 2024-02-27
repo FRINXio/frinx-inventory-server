@@ -357,8 +357,8 @@ export interface NexusGenObjects {
   };
   GraphSynceNodeInterface: {
     // root type
-    details?: NexusGenRootTypes['synceDeviceInterfaces'] | null; // synceDeviceInterfaces
     id: string; // String!
+    interface: Array<NexusGenRootTypes['SynceNodeInterface'] | null>; // [SynceNodeInterface]!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
@@ -380,21 +380,6 @@ export interface NexusGenObjects {
   InstallDevicePayload: {
     // root type
     device: NexusGenRootTypes['Device']; // Device!
-  };
-  Interface: {
-    // root type
-    notQualifiedDueTo?: string | null; // String
-    notSelectedDueTo?: string | null; // String
-    qualifiedForUse?: string | null; // String
-    rxQualityLevel?: string | null; // String
-    synceEnabled?: boolean | null; // Boolean
-  };
-  Interfaces: {
-    // root type
-    id: string; // String!
-    name: string; // String!
-    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
-    synceDevice: NexusGenRootTypes['SynceDevice']; // SynceDevice!
   };
   IsOkResponse: {
     // root type
@@ -529,24 +514,34 @@ export interface NexusGenObjects {
     // root type
     dataStore?: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
-  SynceDevice: {
-    // root type
-    synceDeviceInterfaces: Array<NexusGenRootTypes['synceDeviceInterfaces'] | null>; // [synceDeviceInterfaces]!
-  };
   SynceDeviceDetails: {
     // root type
     selectedForUse?: string | null; // String
   };
   SynceGraphNode: {
     // root type
+    SynceGraphNodeInterfaces: NexusGenRootTypes['GraphSynceNodeInterface'][]; // [GraphSynceNodeInterface!]!
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
     id: string; // ID!
-    interfaces: NexusGenRootTypes['Interfaces'][]; // [Interfaces!]!
     labels?: string[] | null; // [String!]
     name: string; // String!
     nodeId: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
     synceDeviceDetails: NexusGenRootTypes['SynceDeviceDetails']; // SynceDeviceDetails!
+  };
+  SynceGraphNodeInterfaceDetails: {
+    // root type
+    notQualifiedDueTo?: string | null; // String
+    notSelectedDueTo?: string | null; // String
+    qualifiedForUse?: string | null; // String
+    rxQualityLevel?: string | null; // String
+    synceEnabled?: boolean | null; // Boolean
+  };
+  SynceNodeInterface: {
+    // root type
+    details: NexusGenRootTypes['SynceGraphNodeInterfaceDetails']; // SynceGraphNodeInterfaceDetails!
+    id: string; // String!
+    name: string; // String!
   };
   SynceTopology: {
     // root type
@@ -619,12 +614,6 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['ZoneEdge'][]; // [ZoneEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount: number; // Int!
-  };
-  synceDeviceInterfaces: {
-    // root type
-    id: string; // String!
-    interface: NexusGenRootTypes['Interface']; // Interface!
-    name: string; // String!
   };
 }
 
@@ -857,8 +846,8 @@ export interface NexusGenFieldTypes {
   };
   GraphSynceNodeInterface: {
     // field return type
-    details: NexusGenRootTypes['synceDeviceInterfaces'] | null; // synceDeviceInterfaces
     id: string; // String!
+    interface: Array<NexusGenRootTypes['SynceNodeInterface'] | null>; // [SynceNodeInterface]!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
@@ -880,21 +869,6 @@ export interface NexusGenFieldTypes {
   InstallDevicePayload: {
     // field return type
     device: NexusGenRootTypes['Device']; // Device!
-  };
-  Interface: {
-    // field return type
-    notQualifiedDueTo: string | null; // String
-    notSelectedDueTo: string | null; // String
-    qualifiedForUse: string | null; // String
-    rxQualityLevel: string | null; // String
-    synceEnabled: boolean | null; // Boolean
-  };
-  Interfaces: {
-    // field return type
-    id: string; // String!
-    name: string; // String!
-    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
-    synceDevice: NexusGenRootTypes['SynceDevice']; // SynceDevice!
   };
   IsOkResponse: {
     // field return type
@@ -1097,24 +1071,34 @@ export interface NexusGenFieldTypes {
     // field return type
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
   };
-  SynceDevice: {
-    // field return type
-    synceDeviceInterfaces: Array<NexusGenRootTypes['synceDeviceInterfaces'] | null>; // [synceDeviceInterfaces]!
-  };
   SynceDeviceDetails: {
     // field return type
     selectedForUse: string | null; // String
   };
   SynceGraphNode: {
     // field return type
+    SynceGraphNodeInterfaces: NexusGenRootTypes['GraphSynceNodeInterface'][]; // [GraphSynceNodeInterface!]!
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
     id: string; // ID!
-    interfaces: NexusGenRootTypes['Interfaces'][]; // [Interfaces!]!
     labels: string[] | null; // [String!]
     name: string; // String!
     nodeId: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
     synceDeviceDetails: NexusGenRootTypes['SynceDeviceDetails']; // SynceDeviceDetails!
+  };
+  SynceGraphNodeInterfaceDetails: {
+    // field return type
+    notQualifiedDueTo: string | null; // String
+    notSelectedDueTo: string | null; // String
+    qualifiedForUse: string | null; // String
+    rxQualityLevel: string | null; // String
+    synceEnabled: boolean | null; // Boolean
+  };
+  SynceNodeInterface: {
+    // field return type
+    details: NexusGenRootTypes['SynceGraphNodeInterfaceDetails']; // SynceGraphNodeInterfaceDetails!
+    id: string; // String!
+    name: string; // String!
   };
   SynceTopology: {
     // field return type
@@ -1193,12 +1177,6 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['ZoneEdge'][]; // [ZoneEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount: number; // Int!
-  };
-  synceDeviceInterfaces: {
-    // field return type
-    id: string; // String!
-    interface: NexusGenRootTypes['Interface']; // Interface!
-    name: string; // String!
   };
   BaseGraphNode: {
     // field return type
@@ -1426,8 +1404,8 @@ export interface NexusGenFieldTypeNames {
   };
   GraphSynceNodeInterface: {
     // field return type name
-    details: 'synceDeviceInterfaces';
     id: 'String';
+    interface: 'SynceNodeInterface';
     name: 'String';
     status: 'GraphEdgeStatus';
   };
@@ -1449,21 +1427,6 @@ export interface NexusGenFieldTypeNames {
   InstallDevicePayload: {
     // field return type name
     device: 'Device';
-  };
-  Interface: {
-    // field return type name
-    notQualifiedDueTo: 'String';
-    notSelectedDueTo: 'String';
-    qualifiedForUse: 'String';
-    rxQualityLevel: 'String';
-    synceEnabled: 'Boolean';
-  };
-  Interfaces: {
-    // field return type name
-    id: 'String';
-    name: 'String';
-    status: 'GraphEdgeStatus';
-    synceDevice: 'SynceDevice';
   };
   IsOkResponse: {
     // field return type name
@@ -1666,24 +1629,34 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     dataStore: 'DataStore';
   };
-  SynceDevice: {
-    // field return type name
-    synceDeviceInterfaces: 'synceDeviceInterfaces';
-  };
   SynceDeviceDetails: {
     // field return type name
     selectedForUse: 'String';
   };
   SynceGraphNode: {
     // field return type name
+    SynceGraphNodeInterfaces: 'GraphSynceNodeInterface';
     coordinates: 'GraphNodeCoordinates';
     id: 'ID';
-    interfaces: 'Interfaces';
     labels: 'String';
     name: 'String';
     nodeId: 'String';
     status: 'GraphEdgeStatus';
     synceDeviceDetails: 'SynceDeviceDetails';
+  };
+  SynceGraphNodeInterfaceDetails: {
+    // field return type name
+    notQualifiedDueTo: 'String';
+    notSelectedDueTo: 'String';
+    qualifiedForUse: 'String';
+    rxQualityLevel: 'String';
+    synceEnabled: 'Boolean';
+  };
+  SynceNodeInterface: {
+    // field return type name
+    details: 'SynceGraphNodeInterfaceDetails';
+    id: 'String';
+    name: 'String';
   };
   SynceTopology: {
     // field return type name
@@ -1762,12 +1735,6 @@ export interface NexusGenFieldTypeNames {
     edges: 'ZoneEdge';
     pageInfo: 'PageInfo';
     totalCount: 'Int';
-  };
-  synceDeviceInterfaces: {
-    // field return type name
-    id: 'String';
-    interface: 'Interface';
-    name: 'String';
   };
   BaseGraphNode: {
     // field return type name

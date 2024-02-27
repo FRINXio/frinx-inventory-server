@@ -525,7 +525,7 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
           synceDeviceDetails: makeSynceDeviceDetails(node),
           status: getStatus(node.status),
           labels: node.labels?.map((l) => l) ?? [],
-          interfaces:
+          SynceGraphNodeInterfaces:
             node.synceInterfaces.edges
               ?.map((i) => {
                 const interfaceNode = i?.node;
@@ -534,32 +534,29 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
                 }
                 return {
                   id: interfaceNode.id,
-                  status: interfaceNode.status,
                   name: interfaceNode.name,
-                  synceDevice: {
-                    id: interfaceNode.id,
-                    name: interfaceNode.name,
-                    status: interfaceNode.status,
-                    synceDeviceInterfaces:
-                      interfaceNode.synceDevice?.synceInterfaces.edges
-                        ?.map((synceInterface) => {
-                          if (!synceInterface?.node) {
-                            return null;
-                          }
-                          return {
-                            id: synceInterface.node.id,
-                            name: synceInterface.node.name,
-                            interface: {
-                              synceEnabled: synceInterface?.node?.details?.synce_enabled,
-                              rxQualityLevel: synceInterface?.node?.details?.rx_quality_level,
-                              qualifiedForUse: synceInterface?.node?.details?.qualified_for_use,
-                              notSelectedDueTo: synceInterface?.node?.details?.not_selected_due_to,
-                              notQualifiedDueTo: synceInterface.node.details?.not_qualified_due_to,
-                            },
-                          };
-                        })
-                        .filter(omitNullValue) ?? [],
-                  },
+                  status: getStatus(interfaceNode.status),
+                  interface:
+                    interfaceNode.synceDevice?.synceInterfaces.edges?.map((n) => {
+                      const node = n?.node;
+                      if (!node) {
+                        return null;
+                      }
+                      if (n.node && n.node.details) {
+                        return {
+                          id: n.node.id,
+                          name: n.node.name,
+                          details: {
+                            synceEnabled: n.node.details.synce_enabled,
+                            rxQualityLevel: n.node.details.rx_quality_level,
+                            qualifiedForUse: n.node.details.qualified_for_use,
+                            notQualifiedDueTo: n.node.details.not_qualified_due_to,
+                            notSelectedDueTo: n.node.details.not_selected_due_to,
+                          },
+                        };
+                      }
+                      return null;
+                    }) || [],
                 };
               })
               .filter(omitNullValue) ?? [],

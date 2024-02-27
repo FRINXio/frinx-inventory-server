@@ -340,8 +340,8 @@ type GraphNodeInterfaceDetails {
 }
 
 type GraphSynceNodeInterface {
-  details: synceDeviceInterfaces
   id: String!
+  interface: [SynceNodeInterface]!
   name: String!
   status: GraphEdgeStatus!
 }
@@ -363,21 +363,6 @@ type GraphVersionNode implements BaseGraphNode {
 
 type InstallDevicePayload {
   device: Device!
-}
-
-type Interface {
-  notQualifiedDueTo: String
-  notSelectedDueTo: String
-  qualifiedForUse: String
-  rxQualityLevel: String
-  synceEnabled: Boolean
-}
-
-type Interfaces {
-  id: String!
-  name: String!
-  status: GraphEdgeStatus!
-  synceDevice: SynceDevice!
 }
 
 type IsOkResponse {
@@ -603,23 +588,33 @@ type SyncFromNetworkPayload {
   dataStore: DataStore
 }
 
-type SynceDevice {
-  synceDeviceInterfaces: [synceDeviceInterfaces]!
-}
-
 type SynceDeviceDetails {
   selectedForUse: String
 }
 
 type SynceGraphNode {
+  SynceGraphNodeInterfaces: [GraphSynceNodeInterface!]!
   coordinates: GraphNodeCoordinates!
   id: ID!
-  interfaces: [Interfaces!]!
   labels: [String!]
   name: String!
   nodeId: String!
   status: GraphEdgeStatus!
   synceDeviceDetails: SynceDeviceDetails!
+}
+
+type SynceGraphNodeInterfaceDetails {
+  notQualifiedDueTo: String
+  notSelectedDueTo: String
+  qualifiedForUse: String
+  rxQualityLevel: String
+  synceEnabled: Boolean
+}
+
+type SynceNodeInterface {
+  details: SynceGraphNodeInterfaceDetails!
+  id: String!
+  name: String!
 }
 
 type SynceTopology {
@@ -740,10 +735,4 @@ type ZonesConnection {
   edges: [ZoneEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
-}
-
-type synceDeviceInterfaces {
-  id: String!
-  interface: Interface!
-  name: String!
 }

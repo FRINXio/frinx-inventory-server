@@ -66,8 +66,8 @@ export const GraphNodeInterface = objectType({
   },
 });
 
-export const Interface = objectType({
-  name: 'Interface',
+export const SynceGraphNodeInterfaceDetails = objectType({
+  name: 'SynceGraphNodeInterfaceDetails',
   definition: (t) => {
     t.boolean('synceEnabled');
     t.string('rxQualityLevel');
@@ -77,22 +77,22 @@ export const Interface = objectType({
   },
 });
 
-export const SynceDeviceInterfaces = objectType({
-  name: 'synceDeviceInterfaces',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.string('name');
-    t.nonNull.field('interface', { type: Interface });
-  },
-});
-
 export const GraphSynceNodeInterface = objectType({
   name: 'GraphSynceNodeInterface',
   definition: (t) => {
     t.nonNull.string('id');
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.nonNull.string('name');
-    t.field('details', { type: SynceDeviceInterfaces });
+    t.nonNull.list.field('interface', { type: SynceNodeInterface });
+  },
+});
+
+export const SynceNodeInterface = objectType({
+  name: 'SynceNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
+    t.nonNull.field('details', { type: SynceGraphNodeInterfaceDetails });
   },
 });
 
@@ -607,23 +607,6 @@ export const SynceDeviceDetails = objectType({
   },
 });
 
-export const SynceDevice = objectType({
-  name: 'SynceDevice',
-  definition: (t) => {
-    t.nonNull.list.field('synceDeviceInterfaces', { type: SynceDeviceInterfaces });
-  },
-});
-
-export const Interfaces = objectType({
-  name: 'Interfaces',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.string('name');
-    t.nonNull.field('status', { type: GraphInterfaceStatus });
-    t.nonNull.field('synceDevice', { type: SynceDevice });
-  },
-});
-
 export const SynceGraphNode = objectType({
   name: 'SynceGraphNode',
   definition: (t) => {
@@ -633,7 +616,7 @@ export const SynceGraphNode = objectType({
     t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.list.nonNull.string('labels');
-    t.nonNull.list.field('interfaces', { type: nonNull(Interfaces) });
+    t.nonNull.list.nonNull.field('SynceGraphNodeInterfaces', { type: nonNull(GraphSynceNodeInterface) });
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
