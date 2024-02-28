@@ -993,8 +993,8 @@ export function makeTopologyDiff(
       name: device.name,
       interfaces: interfaceMap[device._id] ?? [],
       coordinates: device.coordinates,
-      deviceType: device.details.device_type ?? null,
-      softwareVersion: device.details.sw_version ?? null,
+      deviceType: String(device.details.device_type) ?? null,
+      softwareVersion: String(device.details.sw_version) ?? null,
     })),
     edges: oldEdges,
   };
