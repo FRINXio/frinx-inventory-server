@@ -52,10 +52,7 @@ const DeviceValidator = t.intersection([
   InterfaceWithStatusValidator,
   t.type({
     labels: t.array(t.string),
-    details: t.type({
-      device_type: optional(t.string),
-      sw_version: optional(t.string),
-    }),
+    details: t.record(t.string, t.unknown),
     coordinates: CoordinatesValidator,
   }),
 ]);

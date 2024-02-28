@@ -518,6 +518,9 @@ type PtpTopology {
 }
 
 type Query {
+  PhyTopologyVersionData(version: String!): TopologyVersionData!
+  PtpTopologyVersionData(version: String!): TopologyVersionData!
+  SynceTopologyVersionData(version: String!): TopologyVersionData!
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
@@ -542,7 +545,6 @@ type Query {
   synceTopology: SynceTopology
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
-  topologyVersionData(input: TopologyVersionInputData!): TopologyVersionData!
   topologyVersions: [String!]
   transactions: [Transaction!]!
   uniconfigShellSession: String
@@ -616,21 +618,9 @@ enum TopologyLayer {
   PtpTopology
 }
 
-enum TopologyTypes {
-  net
-  phy
-  ptp
-  synce
-}
-
 type TopologyVersionData {
   edges: [GraphVersionEdge!]!
   nodes: [GraphVersionNode!]!
-}
-
-input TopologyVersionInputData {
-  topologyType: TopologyTypes!
-  version: String!
 }
 
 type Transaction {

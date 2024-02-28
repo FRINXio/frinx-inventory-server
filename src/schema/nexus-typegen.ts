@@ -129,11 +129,6 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
-  TopologyVersionInputData: {
-    // input type
-    topologyType: NexusGenEnums['TopologyTypes']; // TopologyTypes!
-    version: string; // String!
-  };
   UpdateBlueprintInput: {
     // input type
     name?: string | null; // String
@@ -175,7 +170,6 @@ export interface NexusGenEnums {
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
   TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
-  TopologyTypes: 'net' | 'phy' | 'ptp' | 'synce';
 }
 
 export interface NexusGenScalars {
@@ -1005,6 +999,9 @@ export interface NexusGenFieldTypes {
   };
   Query: {
     // field return type
+    PhyTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
+    PtpTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
+    SynceTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
@@ -1022,7 +1019,6 @@ export interface NexusGenFieldTypes {
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
-    topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
@@ -1542,6 +1538,9 @@ export interface NexusGenFieldTypeNames {
   };
   Query: {
     // field return type name
+    PhyTopologyVersionData: 'TopologyVersionData';
+    PtpTopologyVersionData: 'TopologyVersionData';
+    SynceTopologyVersionData: 'TopologyVersionData';
     blueprints: 'BlueprintConnection';
     calculatedDiff: 'CalculatedDiffPayload';
     countries: 'CountryConnection';
@@ -1559,7 +1558,6 @@ export interface NexusGenFieldTypeNames {
     synceTopology: 'SynceTopology';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
-    topologyVersionData: 'TopologyVersionData';
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
@@ -1820,6 +1818,18 @@ export interface NexusGenArgTypes {
     };
   };
   Query: {
+    PhyTopologyVersionData: {
+      // args
+      version: string; // String!
+    };
+    PtpTopologyVersionData: {
+      // args
+      version: string; // String!
+    };
+    SynceTopologyVersionData: {
+      // args
+      version: string; // String!
+    };
     blueprints: {
       // args
       after?: string | null; // String
@@ -1892,10 +1902,6 @@ export interface NexusGenArgTypes {
     topologyCommonNodes: {
       // args
       nodes: string[]; // [String!]!
-    };
-    topologyVersionData: {
-      // args
-      input: NexusGenInputs['TopologyVersionInputData']; // TopologyVersionInputData!
     };
     zones: {
       // args

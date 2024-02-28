@@ -9,28 +9,27 @@ import {
   interfaceType,
   queryField,
 } from 'nexus';
+import { omit } from 'lodash';
 import config from '../config';
-import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { fromGraphId } from '../helpers/id-helper';
 import {
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
   getNodesFromTopologyQuery,
-  getOldTopologyConnectedEdges,
-  getOldTopologyDevices,
-  getOldTopologyInterfaceEdges,
-  getTopologyDiffInterfaces,
+  getPtpDeviceInterfaceEdges,
+  getPtpTopologyInterfaces,
+  getStatus,
+  getSynceDeviceInterfaceEdges,
+  getSynceTopologyInterfaces,
   getTopologyInterfaces,
-  makeInterfaceDeviceMap,
-  makeInterfaceMap,
-  makeInterfaceNameMap,
   makeNetTopologyEdges,
   makeNetTopologyNodes,
-  makeNodesMap,
   makePtpTopologyEdges,
   makePtpTopologyNodes,
   makeSynceTopologyEdges,
   makeSynceTopologyNodes,
+  makeTopologyDiff,
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
@@ -269,28 +268,13 @@ export const TopologyCommonNodesQuery = extendType({
   },
 });
 
-export const TopologyTypes = enumType({
-  name: 'TopologyTypes',
-  members: ['phy', 'net', 'ptp', 'synce'],
-});
-
-export const TopologyVersionInputData = inputObjectType({
-  name: 'TopologyVersionInputData',
-  definition: (t) => {
-    t.nonNull.string('version');
-    t.nonNull.field('topologyType', {
-      type: TopologyTypes,
-    });
-  },
-});
-
-export const TopologyVersionDataQuery = extendType({
+export const PhyTopologyVersionDataQuery = extendType({
   type: 'Query',
   definition: (t) => {
-    t.nonNull.field('topologyVersionData', {
+    t.nonNull.field('PhyTopologyVersionData', {
       type: TopologyVersionData,
       args: {
-        input: nonNull(TopologyVersionInputData),
+        version: nonNull(stringArg()),
       },
       resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
         if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
@@ -305,47 +289,105 @@ export const TopologyVersionDataQuery = extendType({
         const currentNodes = getNodesFromTopologyQuery(topologyDevicesResult);
         const currentEdges = getEdgesFromTopologyQuery(topologyDevicesResult);
 
-        const interfaces = getTopologyInterfaces(topologyDevicesResult);
+        const interfaces = getTopologyInterfaces(topologyDevicesResult).map((i) => {
+          if (i.status === 'ok') {
+            return { ...i, _key: i.id, status: getStatus(i.status) };
+          }
+
+          return { ...i, _key: i.id, status: getStatus(i.status) };
+        });
         const interfaceEdges = getDeviceInterfaceEdges(topologyDevicesResult);
 
         const { input } = args;
-        const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(input.version, input.topologyType);
-        const oldDevices = getOldTopologyDevices(currentNodes, result);
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(input.version, input.topologyType);
 
-        const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
-        const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
-        const interfaceNameMap = makeInterfaceNameMap(
-          [...interfaces, ...getTopologyDiffInterfaces(result)],
-          (i) => i.name,
-        );
-        const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);
-        const nodesMap = makeNodesMap(oldDevices, (d) => d.name);
+        return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
+      },
+    });
+  },
+});
 
-        const oldEdges = getOldTopologyConnectedEdges(currentEdges, result)
-          .map((e) => ({
-            id: e._id,
-            source: {
-              interface: e._from,
-              nodeId: nodesMap[interfaceDeviceMap[e._from]],
-            },
-            target: {
-              interface: e._to,
-              nodeId: nodesMap[interfaceDeviceMap[e._to]],
-            },
-          }))
-          .filter((e) => e.source.nodeId != null && e.target.nodeId != null);
+export const PtpTopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('PtpTopologyVersionData', {
+      type: TopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
 
-        return {
-          nodes: oldDevices.map((device) => ({
-            id: toGraphId('GraphNode', device._id),
-            name: device.name,
-            interfaces: interfaceMap[device._id] ?? [],
-            coordinates: device.coordinates,
-            deviceType: device.details.device_type ?? null,
-            softwareVersion: device.details.sw_version ?? null,
-          })),
-          edges: oldEdges,
-        };
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getPtpTopology();
+
+        const currentNodes = makePtpTopologyNodes(topologyDevicesResult).map((n) => ({
+          ...omit(n, ['ptpDeviceDetails']),
+          _id: n.id,
+          _key: n.id,
+          details: n.ptpDeviceDetails,
+        }));
+        const currentEdges = makePtpTopologyEdges(topologyDevicesResult).map((e) => ({
+          _id: e.id,
+          _key: e.id,
+          _from: e.source.nodeId,
+          _to: e.target.nodeId,
+        }));
+
+        const interfaces = getPtpTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getPtpDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { input } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(input.version, input.topologyType);
+
+        return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
+      },
+    });
+  },
+});
+
+export const TopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('SynceTopologyVersionData', {
+      type: TopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
+
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getSynceTopology();
+
+        const currentNodes = makeSynceTopologyNodes(topologyDevicesResult).map((n) => ({
+          ...omit(n, ['synceDeviceDetails']),
+          _id: n.id,
+          _key: n.id,
+          details: n.synceDeviceDetails,
+        }));
+        const currentEdges = makeSynceTopologyEdges(topologyDevicesResult).map((e) => ({
+          _id: e.id,
+          _key: e.id,
+          _from: e.source.nodeId,
+          _to: e.target.nodeId,
+        }));
+
+        const interfaces = getSynceTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getSynceDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { input } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(input.version, input.topologyType);
+
+        return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
     });
   },
