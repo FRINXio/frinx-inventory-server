@@ -536,6 +536,13 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
                   id: interfaceNode.id,
                   name: interfaceNode.name,
                   status: getStatus(interfaceNode.status),
+                  details: {
+                    synceEnabled: interfaceNode.details?.synce_enabled,
+                    rxQualityLevel: interfaceNode.details?.rx_quality_level,
+                    qualifiedForUse: interfaceNode.details?.qualified_for_use,
+                    notSelectedDueTo: interfaceNode.details?.not_selected_due_to,
+                    notQualifiedDueTo: interfaceNode.details?.not_qualified_due_to,
+                  },
                 };
               })
               .filter(omitNullValue) ?? [],
