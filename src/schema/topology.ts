@@ -66,36 +66,6 @@ export const GraphNodeInterface = objectType({
   },
 });
 
-export const Interface = objectType({
-  name: 'Interface',
-  definition: (t) => {
-    t.boolean('synceEnabled');
-    t.string('rxQualityLevel');
-    t.string('qualifiedForUse');
-    t.string('notQualifiedDueTo');
-    t.string('notSelectedDueTo');
-  },
-});
-
-export const SynceDeviceInterfaces = objectType({
-  name: 'synceDeviceInterfaces',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.string('name');
-    t.nonNull.field('interface', { type: Interface });
-  },
-});
-
-export const GraphSynceNodeInterface = objectType({
-  name: 'GraphSynceNodeInterface',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.field('status', { type: GraphInterfaceStatus });
-    t.nonNull.string('name');
-    t.field('details', { type: SynceDeviceInterfaces });
-  },
-});
-
 export const GraphNodeCoordinates = objectType({
   name: 'GraphNodeCoordinates',
   definition: (t) => {
