@@ -296,6 +296,13 @@ const SYNCE_TOPOLOGY = gql`
         cursor
         node {
           ...SynceInterfaceParts
+          details {
+            synce_enabled
+            rx_quality_level
+            qualified_for_use
+            not_qualified_due_to
+            not_selected_due_to
+          }
         }
       }
     }
@@ -313,13 +320,6 @@ const SYNCE_TOPOLOGY = gql`
         node {
           id
           idLink
-          details {
-            synce_enabled
-            rx_quality_level
-            qualified_for_use
-            not_qualified_due_to
-            not_selected_due_to
-          }
           name
           synceLink {
             id

@@ -518,7 +518,7 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
         if (!node) {
           return null;
         }
-        const topologyNodes = {
+        return {
           id: toGraphId('GraphNode', node.id),
           nodeId: node.id,
           name: node.name,
@@ -534,39 +534,20 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
                 }
                 return {
                   id: interfaceNode.id,
-                  status: interfaceNode.status,
                   name: interfaceNode.name,
-                  synceDevice: {
-                    id: interfaceNode.id,
-                    name: interfaceNode.name,
-                    status: interfaceNode.status,
-                    synceDeviceInterfaces:
-                      interfaceNode.synceDevice?.synceInterfaces.edges
-                        ?.map((synceInterface) => {
-                          if (!synceInterface?.node) {
-                            return null;
-                          }
-                          return {
-                            id: synceInterface.node.id,
-                            name: synceInterface.node.name,
-                            interface: {
-                              synceEnabled: synceInterface?.node?.details?.synce_enabled,
-                              rxQualityLevel: synceInterface?.node?.details?.rx_quality_level,
-                              qualifiedForUse: synceInterface?.node?.details?.qualified_for_use,
-                              notSelectedDueTo: synceInterface?.node?.details?.not_selected_due_to,
-                              notQualifiedDueTo: synceInterface.node.details?.not_qualified_due_to,
-                            },
-                          };
-                        })
-                        .filter(omitNullValue) ?? [],
+                  status: getStatus(interfaceNode.status),
+                  details: {
+                    synceEnabled: interfaceNode.details?.synce_enabled,
+                    rxQualityLevel: interfaceNode.details?.rx_quality_level,
+                    qualifiedForUse: interfaceNode.details?.qualified_for_use,
+                    notSelectedDueTo: interfaceNode.details?.not_selected_due_to,
+                    notQualifiedDueTo: interfaceNode.details?.not_qualified_due_to,
                   },
                 };
               })
               .filter(omitNullValue) ?? [],
           coordinates: node.coordinates ?? { x: 0, y: 0 },
         };
-
-        return topologyNodes;
       })
       .filter(omitNullValue) ?? []
   );

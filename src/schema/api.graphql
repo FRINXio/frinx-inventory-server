@@ -373,13 +373,6 @@ type Interface {
   synceEnabled: Boolean
 }
 
-type Interfaces {
-  id: String!
-  name: String!
-  status: GraphEdgeStatus!
-  synceDevice: SynceDevice!
-}
-
 type IsOkResponse {
   isOk: Boolean!
 }
@@ -603,10 +596,6 @@ type SyncFromNetworkPayload {
   dataStore: DataStore
 }
 
-type SynceDevice {
-  synceDeviceInterfaces: [synceDeviceInterfaces]!
-}
-
 type SynceDeviceDetails {
   selectedForUse: String
 }
@@ -614,12 +603,27 @@ type SynceDeviceDetails {
 type SynceGraphNode {
   coordinates: GraphNodeCoordinates!
   id: ID!
-  interfaces: [Interfaces!]!
+  interfaces: [SynceGraphNodeInterface!]!
   labels: [String!]
   name: String!
   nodeId: String!
   status: GraphEdgeStatus!
   synceDeviceDetails: SynceDeviceDetails!
+}
+
+type SynceGraphNodeInterface {
+  details: SynceGraphNodeInterfaceDetails
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+}
+
+type SynceGraphNodeInterfaceDetails {
+  notQualifiedDueTo: String
+  notSelectedDueTo: String
+  qualifiedForUse: String
+  rxQualityLevel: String
+  synceEnabled: Boolean
 }
 
 type SynceTopology {
