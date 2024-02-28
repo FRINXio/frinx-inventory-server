@@ -588,12 +588,27 @@ type SynceDeviceDetails {
 type SynceGraphNode {
   coordinates: GraphNodeCoordinates!
   id: ID!
-  interfaces: [GraphNodeInterface!]!
+  interfaces: [SynceGraphNodeInterface!]!
   labels: [String!]
   name: String!
   nodeId: String!
   status: GraphEdgeStatus!
   synceDeviceDetails: SynceDeviceDetails!
+}
+
+type SynceGraphNodeInterface {
+  details: SynceGraphNodeInterfaceDetails
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+}
+
+type SynceGraphNodeInterfaceDetails {
+  notQualifiedDueTo: String
+  notSelectedDueTo: String
+  qualifiedForUse: String
+  rxQualityLevel: String
+  synceEnabled: Boolean
 }
 
 type SynceTopology {
