@@ -577,17 +577,38 @@ export const SynceDeviceDetails = objectType({
   },
 });
 
+export const SynceGraphNodeInterfaceDetails = objectType({
+  name: 'SynceGraphNodeInterfaceDetails',
+  definition: (t) => {
+    t.boolean('synceEnabled');
+    t.string('rxQualityLevel');
+    t.string('qualifiedForUse');
+    t.string('notQualifiedDueTo');
+    t.string('notSelectedDueTo');
+  },
+});
+
+export const SynceGraphNodeInterface = objectType({
+  name: 'SynceGraphNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.nonNull.string('name');
+    t.field('details', { type: SynceGraphNodeInterfaceDetails });
+  },
+});
+
 export const SynceGraphNode = objectType({
   name: 'SynceGraphNode',
   definition: (t) => {
     t.nonNull.id('id');
-    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
-    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
     t.nonNull.string('nodeId');
     t.nonNull.string('name');
     t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.list.nonNull.string('labels');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(SynceGraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
 
