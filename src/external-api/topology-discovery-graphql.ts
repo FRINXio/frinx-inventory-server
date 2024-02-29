@@ -69,13 +69,17 @@ const GET_TOPOLOGY_DEVICES = gql`
                 id
                 name
                 status
-                phyLink {
-                  id
-                  idLink
-                  name
-                  phyDevice {
-                    id
-                    name
+                phyLinks {
+                  edges {
+                    link
+                    node {
+                      id
+                      name
+                      phyDevice {
+                        id
+                        name
+                      }
+                    }
                   }
                 }
               }
@@ -112,12 +116,16 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
                   id
                   routerId
                 }
-                netLink {
-                  id
-                  igp_metric
-                  netDevice {
-                    id
-                    routerId
+                netLinks {
+                  edges {
+                    node {
+                      id
+                      igp_metric
+                      netDevice {
+                        id
+                        routerId
+                      }
+                    }
                   }
                 }
               }
@@ -178,7 +186,11 @@ const GET_COMMON_NODES = gql`
 const UPDATE_COORDINATES = gql`
   mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!, $topology_type: TopologyType) {
     updateCoordinates(coordinates_list: $coordinates, topology_type: $topology_type) {
-      updated
+      not_installed
+      installed {
+        not_updated
+        updated
+      }
     }
   }
 `;
@@ -233,12 +245,15 @@ const PTP_TOPOLOGY = gql`
       edges {
         node {
           id
-          idLink
           name
-          ptpLink {
-            id
-            idLink
-            name
+          ptpLinks {
+            edges {
+              link
+              node {
+                id
+                name
+              }
+            }
           }
         }
       }
@@ -247,14 +262,17 @@ const PTP_TOPOLOGY = gql`
 
   fragment PtpInterfaceParts on PtpInterface {
     id
-    idLink
     name
     status
-    ptpLink {
-      id
-      idLink
-      ptpDevice {
-        ...PtpInterfaceDeviceParts
+    ptpLinks {
+      edges {
+        link
+        node {
+          id
+          ptpDevice {
+            ...PtpInterfaceDeviceParts
+          }
+        }
       }
     }
   }
@@ -297,6 +315,13 @@ const SYNCE_TOPOLOGY = gql`
         cursor
         node {
           ...SynceInterfaceParts
+          details {
+            synce_enabled
+            rx_quality_level
+            qualified_for_use
+            not_qualified_due_to
+            not_selected_due_to
+          }
         }
       }
     }
@@ -313,12 +338,15 @@ const SYNCE_TOPOLOGY = gql`
       edges {
         node {
           id
-          idLink
           name
-          synceLink {
-            id
-            idLink
-            name
+          synceLinks {
+            edges {
+              link
+              node {
+                id
+                name
+              }
+            }
           }
         }
       }
@@ -327,17 +355,20 @@ const SYNCE_TOPOLOGY = gql`
 
   fragment SynceInterfaceParts on SynceInterface {
     id
-    idLink
     name
     status
     synceDevice {
       ...SynceInterfaceDeviceParts
     }
-    synceLink {
-      id
-      idLink
-      synceDevice {
-        ...SynceInterfaceDeviceParts
+    synceLinks {
+      edges {
+        link
+        node {
+          id
+          synceDevice {
+            ...SynceInterfaceDeviceParts
+          }
+        }
       }
     }
   }
@@ -444,7 +475,7 @@ function getTopologyDiscoveryApi() {
       },
     );
 
-    return response.updateCoordinates.updated;
+    return response.updateCoordinates.installed.updated;
   }
 
   async function getPtpTopology(): Promise<PtpTopologyQuery> {
