@@ -40,7 +40,7 @@ jobs:
 
       - name: schema check
         env:
-          SCHEMA_PATH: "src/schema/api.graphql"
+          SCHEMA_PATH: 'src/schema/api.graphql'
         run: |
           curl -sSL https://graphql-hive.com/install.sh | sh
           hive schema:check ${{ env.SCHEMA_PATH }} \
