@@ -16,6 +16,7 @@ import {
 } from '../external-api/topology-network-types';
 import { omitNullValue, unwrap } from './utils.helpers';
 import { toGraphId } from './id-helper';
+import { NexusGenObjects } from '../schema/nexus-typegen';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -104,17 +105,19 @@ export function getEdgesFromTopologyQuery(query: TopologyDevicesQuery): ArangoEd
       e?.node?.phyInterfaces.edges
         ?.map((i) => i?.node)
         .filter(omitNullValue)
-        .map((i) => {
-          if (!i.phyLink?.idLink) {
-            return null;
-          }
-          return {
-            _id: i.phyLink.idLink,
-            _key: i.phyLink.idLink,
-            _from: i.id,
-            _to: i.phyLink.id,
-          };
-        })
+        .flatMap((i) =>
+          i.phyLinks.edges?.map((phyLinkEdge) => {
+            if (!phyLinkEdge?.link || !phyLinkEdge?.node) {
+              return null;
+            }
+            return {
+              _id: phyLinkEdge.link,
+              _key: phyLinkEdge.link,
+              _from: i.id,
+              _to: phyLinkEdge.node.id,
+            };
+          }),
+        )
         .filter(omitNullValue) ?? [],
   );
   return currentEdges ?? [];
@@ -275,7 +278,7 @@ export function getTopologyInterfaces(topologyDevices: TopologyDevicesQuery) {
       const nodeInterfaces = node.phyInterfaces.edges
         ?.map((ie) => {
           const inode = ie?.node;
-          if (!inode || !inode.phyLink) {
+          if (!inode || !inode.phyLinks) {
             return null;
           }
           return {
@@ -296,7 +299,8 @@ export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): 
       (d) =>
         d?.node?.phyInterfaces.edges?.map((i) => ({
           _id: `${d.node?.id}-${i?.node?.id}`,
-          _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
+          // _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
+          _key: 'some_id',
           _from: d.node?.id ?? '',
           _to: i?.node?.id ?? '',
           status: d.node?.status ?? 'unknown',
@@ -305,22 +309,35 @@ export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): 
   );
 }
 
-export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery) {
+export function makeTopologyEdges(topologyDevices?: TopologyDevicesQuery): NexusGenObjects['GraphVersionEdge'][] {
   if (!topologyDevices) {
     return [];
   }
 
-  return getTopologyInterfaces(topologyDevices).map((i) => ({
-    id: i.phyLink?.idLink ?? '',
-    source: {
-      interface: i.id,
-      nodeId: i.nodeId,
-    },
-    target: {
-      interface: unwrap(i.phyLink?.id),
-      nodeId: unwrap(i.phyLink?.phyDevice?.name),
-    },
-  }));
+  return getTopologyInterfaces(topologyDevices).flatMap((i) => {
+    const links =
+      i.phyLinks.edges
+        ?.map((phyLinkEdge) => {
+          if (!phyLinkEdge?.link || !phyLinkEdge?.node || !phyLinkEdge.node.phyDevice) {
+            return null;
+          }
+
+          return {
+            id: phyLinkEdge.link,
+            source: {
+              interface: i.id,
+              nodeId: i.nodeId,
+            },
+            target: {
+              interface: phyLinkEdge.node.id,
+              nodeId: phyLinkEdge.node.phyDevice?.name,
+            },
+          };
+        })
+        .filter(omitNullValue) ?? [];
+
+    return links;
+  });
 }
 
 export function makeNetTopologyNodes(netTopologyDevices?: NetTopologyQuery) {
@@ -379,24 +396,40 @@ function getEdgesFromTopologyDevices(topologyDevices: NetTopologyQuery['netDevic
         }
 
         return device.netInterfaces.edges
-          ?.map((i) => {
+          ?.flatMap((i) => {
             const deviceInterface = i?.node;
-            if (!deviceInterface || !deviceInterface.netDevice || !deviceInterface.netLink?.netDevice) {
+            if (!deviceInterface || !deviceInterface.netLinks) {
               return null;
             }
 
-            return {
-              id: `${deviceInterface.id}-${deviceInterface.netLink.id}`,
-              weight: deviceInterface?.netLink?.igp_metric ?? null,
-              source: {
-                interface: deviceInterface.id,
-                nodeId: deviceInterface.netDevice.routerId,
-              },
-              target: {
-                interface: deviceInterface.netLink.id,
-                nodeId: deviceInterface.netLink.netDevice.routerId,
-              },
-            };
+            return deviceInterface.netLinks.edges?.map((ne) => {
+              if (!ne?.node) {
+                return null;
+              }
+
+              const { node: netLinkNode } = ne;
+
+              if (!netLinkNode.netDevice) {
+                return null;
+              }
+
+              if (!deviceInterface.netDevice) {
+                return null;
+              }
+
+              return {
+                id: `${netLinkNode.id}-${netLinkNode.id}`,
+                weight: netLinkNode.igp_metric ?? null,
+                source: {
+                  interface: deviceInterface.id,
+                  nodeId: deviceInterface.netDevice.routerId,
+                },
+                target: {
+                  interface: netLinkNode.id,
+                  nodeId: netLinkNode.netDevice.routerId,
+                },
+              };
+            });
           })
           .filter(omitNullValue);
       })
@@ -469,7 +502,7 @@ export function makePtpTopologyNodes(ptpDevices?: PtpTopologyQuery) {
 }
 
 export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
-  return (
+  const edges =
     ptpDevices?.ptpDevices.edges
       ?.flatMap((e) => {
         const device = e?.node ?? null;
@@ -477,29 +510,39 @@ export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
           return [];
         }
 
-        return device.ptpInterfaces.edges
-          ?.map((i) => {
-            const deviceInterface = i?.node;
-            if (!deviceInterface || !deviceInterface.ptpLink || !deviceInterface.ptpLink.ptpDevice) {
+        return device.ptpInterfaces.edges?.flatMap((i) => {
+          const ptpInterface = i?.node;
+          if (!ptpInterface || !ptpInterface.ptpLinks) {
+            return null;
+          }
+
+          return ptpInterface.ptpLinks.edges?.map((pe) => {
+            if (!pe?.node) {
+              return null;
+            }
+
+            const { node: ptpLinkNode } = pe;
+            if (!ptpLinkNode.ptpDevice) {
               return null;
             }
 
             return {
-              id: `${deviceInterface.id}-${deviceInterface.ptpLink.id}`,
+              id: `${ptpInterface.id}-${ptpLinkNode.id}`,
               source: {
-                interface: deviceInterface.id,
+                interface: ptpInterface.id,
                 nodeId: device.name,
               },
               target: {
-                interface: deviceInterface.ptpLink.id,
-                nodeId: deviceInterface.ptpLink.ptpDevice.name,
+                interface: ptpLinkNode.id,
+                nodeId: ptpLinkNode.ptpDevice.name,
               },
             };
-          })
-          .filter(omitNullValue);
+          });
+        });
       })
-      .filter(omitNullValue) ?? []
-  );
+      .filter(omitNullValue) ?? [];
+
+  return edges;
 }
 
 export function makeSynceDeviceDetails(
@@ -563,28 +606,34 @@ export function makeSynceTopologyEdges(synceDevices?: SynceTopologyQuery) {
         }
 
         return device.synceInterfaces.edges
-          ?.map((i) => {
+          ?.flatMap((i) => {
             const deviceInterface = i?.node;
-            if (
-              !deviceInterface ||
-              !deviceInterface.synceLink ||
-              !deviceInterface.synceLink.synceDevice ||
-              !deviceInterface.synceDevice
-            ) {
+            if (!device || !deviceInterface?.synceLinks) {
               return null;
             }
 
-            return {
-              id: `${deviceInterface.id}-${deviceInterface.synceLink.id}`,
-              source: {
-                interface: deviceInterface.id,
-                nodeId: deviceInterface.synceDevice.name,
-              },
-              target: {
-                interface: deviceInterface.synceLink.id,
-                nodeId: deviceInterface.synceLink.synceDevice.name,
-              },
-            };
+            return deviceInterface.synceLinks.edges?.map((se) => {
+              if (!se?.node) {
+                return null;
+              }
+
+              const { node: synceLinkNode } = se;
+              if (!synceLinkNode.synceDevice) {
+                return null;
+              }
+
+              return {
+                id: `${deviceInterface.id}-${synceLinkNode.id}`,
+                source: {
+                  interface: deviceInterface.id,
+                  nodeId: device.name,
+                },
+                target: {
+                  interface: synceLinkNode.id,
+                  nodeId: synceLinkNode.synceDevice.name,
+                },
+              };
+            });
           })
           .filter(omitNullValue);
       })
