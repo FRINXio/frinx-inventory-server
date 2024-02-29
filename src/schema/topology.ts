@@ -299,7 +299,7 @@ export const PhyTopologyVersionDataQuery = extendType({
         const interfaceEdges = getDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'phy');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PhysicalTopology');
 
         return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -342,7 +342,7 @@ export const PtpTopologyVersionDataQuery = extendType({
         const interfaceEdges = getPtpDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'ptp');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PtpTopology');
 
         return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -385,7 +385,7 @@ export const TopologyVersionDataQuery = extendType({
         const interfaceEdges = getSynceDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'synce');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'EthTopology');
 
         return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -444,7 +444,9 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
           apiParams,
           input.layer ?? 'PhysicalTopology',
         );
-        return { deviceNames: response };
+        return {
+          deviceNames: response,
+        };
       },
     });
   },

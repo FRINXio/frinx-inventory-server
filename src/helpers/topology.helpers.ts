@@ -250,6 +250,8 @@ export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: 
   }
 
   if (isPtpTopologyDiff(diffData)) {
+    console.log(connected);
+
     oldConnected = connected
       // filter connected edges added to current topology
       .filter((e) => !diffData.added.PtpLink.find((c) => e._id === c._id))
@@ -553,7 +555,7 @@ export function getPtpTopologyInterfaces(topologyDevices: PtpTopologyQuery) {
       const nodeInterfaces = node.ptpInterfaces.edges
         ?.map((ie) => {
           const inode = ie?.node;
-          if (!inode || !inode.ptpLink) {
+          if (!inode || !inode.ptpLinks.edges) {
             return null;
           }
           return {
@@ -617,11 +619,44 @@ export function getNetTopologyInterfaces(topologyDevices: NetTopologyQuery) {
     }) ?? []
   );
 }
+
 export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): ArangoEdgeWithStatus[] {
   return (
     topologyDevices.phyDevices.edges?.flatMap(
       (d) =>
         d?.node?.phyInterfaces.edges?.map((i) => ({
+          _id: `${d.node?.id}-${i?.node?.id}`,
+          // _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
+          _key: 'some_id',
+          _from: d.node?.id ?? '',
+          _to: i?.node?.id ?? '',
+          status: d.node?.status ?? 'unknown',
+        })) ?? [],
+    ) ?? []
+  );
+}
+
+export function getPtpDeviceInterfaceEdges(topologyDevices: PtpTopologyQuery): ArangoEdgeWithStatus[] {
+  return (
+    topologyDevices.ptpDevices.edges?.flatMap(
+      (d) =>
+        d?.node?.ptpInterfaces.edges?.map((i) => ({
+          _id: `${d.node?.id}-${i?.node?.id}`,
+          // _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
+          _key: 'some_id',
+          _from: d.node?.id ?? '',
+          _to: i?.node?.id ?? '',
+          status: d.node?.status ?? 'unknown',
+        })) ?? [],
+    ) ?? []
+  );
+}
+
+export function getSynceDeviceInterfaceEdges(topologyDevices: SynceTopologyQuery): ArangoEdgeWithStatus[] {
+  return (
+    topologyDevices.synceDevices.edges?.flatMap(
+      (d) =>
+        d?.node?.synceInterfaces.edges?.map((i) => ({
           _id: `${d.node?.id}-${i?.node?.id}`,
           // _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
           _key: 'some_id',

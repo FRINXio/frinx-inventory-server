@@ -21,7 +21,6 @@ import {
   SynceTopologyQuery,
   SyncePathToGrandMasterQuery,
   SyncePathToGrandMasterQueryVariables,
-  TopologyDiffCollectionTypes,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -156,7 +155,7 @@ const GET_BACKUPS = gql`
 `;
 
 const GET_TOPOLOGY_DIFF = gql`
-  query topologyDiff($new_db: String!, $old_db: String!, $collection_type: TopologyDiffCollectionTypes!) {
+  query topologyDiff($new_db: String!, $old_db: String!, $collection_type: TopologyType!) {
     topologyDiff(new_db: $new_db, old_db: $old_db, collection_type: $collection_type) {
       diff_data
     }
@@ -432,10 +431,7 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
-  async function getTopologyDiff(
-    version: string,
-    collectionType: TopologyDiffCollectionTypes,
-  ): Promise<TopologyDiffOutput> {
+  async function getTopologyDiff(version: string, collectionType: TopologyType): Promise<TopologyDiffOutput> {
     const response = await client.request<TopologyDiffQuery, TopologyDiffQueryVariables>(GET_TOPOLOGY_DIFF, {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       new_db: 'current',
