@@ -112,6 +112,7 @@ export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterf
 
 export function convertPtpDeviceToArangoDevice(ptpDevice: PtpDeviceWithoutInterfaces): ArangoDevice {
   const { name, status, coordinates, details, labels } = ptpDevice;
+
   return {
     _id: ptpDevice.id,
     _key: ptpDevice.id,
@@ -968,47 +969,34 @@ export function makePtpTopologyNodes(ptpDevices?: PtpTopologyQuery) {
 }
 
 export function makePtpTopologyEdges(ptpDevices?: PtpTopologyQuery) {
-  const edges =
-    ptpDevices?.ptpDevices.edges
-      ?.flatMap((e) => {
-        const device = e?.node ?? null;
-        if (!device) {
-          return [];
-        }
+  if (!ptpDevices) {
+    return [];
+  }
 
-        return device.ptpInterfaces.edges?.flatMap((i) => {
-          const ptpInterface = i?.node;
-          if (!ptpInterface || !ptpInterface.ptpLinks) {
+  return getPtpTopologyInterfaces(ptpDevices).flatMap((i) => {
+    const links =
+      i.ptpLinks.edges
+        ?.map((ptpLinkEdge) => {
+          if (!ptpLinkEdge?.link || !ptpLinkEdge?.node || !ptpLinkEdge.node.ptpDevice) {
             return null;
           }
 
-          return ptpInterface.ptpLinks.edges?.map((pe) => {
-            if (!pe?.node) {
-              return null;
-            }
+          return {
+            id: ptpLinkEdge.link,
+            source: {
+              interface: i.id,
+              nodeId: i.nodeId,
+            },
+            target: {
+              interface: ptpLinkEdge.node.id,
+              nodeId: ptpLinkEdge.node.ptpDevice?.name,
+            },
+          };
+        })
+        .filter(omitNullValue) ?? [];
 
-            const { node: ptpLinkNode } = pe;
-            if (!ptpLinkNode.ptpDevice) {
-              return null;
-            }
-
-            return {
-              id: `${ptpInterface.id}-${ptpLinkNode.id}`,
-              source: {
-                interface: ptpInterface.id,
-                nodeId: device.name,
-              },
-              target: {
-                interface: ptpLinkNode.id,
-                nodeId: ptpLinkNode.ptpDevice.name,
-              },
-            };
-          });
-        });
-      })
-      .filter(omitNullValue) ?? [];
-
-  return edges;
+    return links;
+  });
 }
 
 export function makeSynceDeviceDetails(
@@ -1063,48 +1051,34 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
 }
 
 export function makeSynceTopologyEdges(synceDevices?: SynceTopologyQuery) {
-  return (
-    synceDevices?.synceDevices.edges
-      ?.flatMap((e) => {
-        const device = e?.node ?? null;
-        if (!device) {
-          return [];
-        }
+  if (!synceDevices) {
+    return [];
+  }
 
-        return device.synceInterfaces.edges
-          ?.flatMap((i) => {
-            const deviceInterface = i?.node;
-            if (!device || !deviceInterface?.synceLinks) {
-              return null;
-            }
+  return getSynceTopologyInterfaces(synceDevices).flatMap((i) => {
+    const links =
+      i.synceLinks?.edges
+        ?.map((synceLinkEdge) => {
+          if (!synceLinkEdge?.link || !synceLinkEdge?.node || !synceLinkEdge.node.synceDevice) {
+            return null;
+          }
 
-            return deviceInterface.synceLinks.edges?.map((se) => {
-              if (!se?.node) {
-                return null;
-              }
+          return {
+            id: synceLinkEdge.link,
+            source: {
+              interface: i.id,
+              nodeId: i.nodeId,
+            },
+            target: {
+              interface: synceLinkEdge.node.id,
+              nodeId: synceLinkEdge.node.synceDevice?.name,
+            },
+          };
+        })
+        .filter(omitNullValue) ?? [];
 
-              const { node: synceLinkNode } = se;
-              if (!synceLinkNode.synceDevice) {
-                return null;
-              }
-
-              return {
-                id: `${deviceInterface.id}-${synceLinkNode.id}`,
-                source: {
-                  interface: deviceInterface.id,
-                  nodeId: device.name,
-                },
-                target: {
-                  interface: synceLinkNode.id,
-                  nodeId: synceLinkNode.synceDevice.name,
-                },
-              };
-            });
-          })
-          .filter(omitNullValue);
-      })
-      .filter(omitNullValue) ?? []
-  );
+    return links;
+  });
 }
 
 export function makeTopologyDiff(
@@ -1145,8 +1119,9 @@ export function makeTopologyDiff(
       name: device.name,
       interfaces: interfaceMap[device._id] ?? [],
       coordinates: device.coordinates,
-      deviceType: String(device.details.device_type) ?? null,
-      softwareVersion: String(device.details.sw_version) ?? null,
+      details: device.details,
+      deviceType: device.details.device_type ? String(device.details.device_type) : null,
+      softwareVersion: device.details.sw_version ? String(device.details.sw_version) : null,
     })),
     edges: oldEdges,
   };
