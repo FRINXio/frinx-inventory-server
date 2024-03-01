@@ -1014,9 +1014,6 @@ export interface NexusGenFieldTypes {
   };
   Query: {
     // field return type
-    PhyTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
-    PtpTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
-    SynceTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     blueprints: NexusGenRootTypes['BlueprintConnection']; // BlueprintConnection!
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
@@ -1026,12 +1023,15 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    phyTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     ptpDiffSynce: NexusGenRootTypes['PtpDiffSynce']; // PtpDiffSynce!
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
+    ptpTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     syncePathToGrandMaster: string[] | null; // [String!]
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
+    synceTopologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
     topologyVersions: string[] | null; // [String!]
@@ -1568,9 +1568,6 @@ export interface NexusGenFieldTypeNames {
   };
   Query: {
     // field return type name
-    PhyTopologyVersionData: 'TopologyVersionData';
-    PtpTopologyVersionData: 'TopologyVersionData';
-    SynceTopologyVersionData: 'TopologyVersionData';
     blueprints: 'BlueprintConnection';
     calculatedDiff: 'CalculatedDiffPayload';
     countries: 'CountryConnection';
@@ -1580,12 +1577,15 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    phyTopologyVersionData: 'TopologyVersionData';
     ptpDiffSynce: 'PtpDiffSynce';
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
+    ptpTopologyVersionData: 'TopologyVersionData';
     shortestPath: 'NetRoutingPathNode';
     syncePathToGrandMaster: 'String';
     synceTopology: 'SynceTopology';
+    synceTopologyVersionData: 'TopologyVersionData';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
     topologyVersions: 'String';
@@ -1863,18 +1863,6 @@ export interface NexusGenArgTypes {
     };
   };
   Query: {
-    PhyTopologyVersionData: {
-      // args
-      version: string; // String!
-    };
-    PtpTopologyVersionData: {
-      // args
-      version: string; // String!
-    };
-    SynceTopologyVersionData: {
-      // args
-      version: string; // String!
-    };
     blueprints: {
       // args
       after?: string | null; // String
@@ -1927,9 +1915,17 @@ export interface NexusGenArgTypes {
       // args
       id: string; // ID!
     };
+    phyTopologyVersionData: {
+      // args
+      version: string; // String!
+    };
     ptpPathToGrandMaster: {
       // args
       deviceFrom: string; // String!
+    };
+    ptpTopologyVersionData: {
+      // args
+      version: string; // String!
     };
     shortestPath: {
       // args
@@ -1939,6 +1935,10 @@ export interface NexusGenArgTypes {
     syncePathToGrandMaster: {
       // args
       deviceFrom: string; // String!
+    };
+    synceTopologyVersionData: {
+      // args
+      version: string; // String!
     };
     topology: {
       // args

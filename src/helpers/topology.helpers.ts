@@ -2,7 +2,9 @@ import { device as PrismaDevice } from '@prisma/client';
 import {
   NetTopologyQuery,
   PhyDevice,
+  PtpDevice,
   PtpTopologyQuery,
+  SynceDevice,
   SynceTopologyQuery,
   TopologyDevicesQuery,
 } from '../__generated__/topology-discovery.graphql';
@@ -92,6 +94,8 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
 }
 
 type PhyDeviceWithoutInterfaces = Omit<PhyDevice, 'phyInterfaces' | 'netDevice'>;
+type PtpDeviceWithoutInterfaces = Omit<PtpDevice, 'ptpInterfaces' | 'netDevice'>;
+type SynceDeviceWithoutInterfaces = Omit<SynceDevice, 'synceInterfaces' | 'netDevice'>;
 
 export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterfaces): ArangoDevice {
   const { name, status, coordinates, details, labels } = phyDevice;
@@ -106,12 +110,56 @@ export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterf
   };
 }
 
+export function convertPtpDeviceToArangoDevice(ptpDevice: PtpDeviceWithoutInterfaces): ArangoDevice {
+  const { name, status, coordinates, details, labels } = ptpDevice;
+  return {
+    _id: ptpDevice.id,
+    _key: ptpDevice.id,
+    coordinates,
+    details,
+    labels: labels ?? [],
+    name,
+    status,
+  };
+}
+
+export function convertSynceDeviceToArangoDevice(synceDevice: SynceDeviceWithoutInterfaces): ArangoDevice {
+  const { name, status, coordinates, details, labels } = synceDevice;
+  return {
+    _id: synceDevice.id,
+    _key: synceDevice.id,
+    coordinates,
+    details,
+    labels: labels ?? [],
+    name,
+    status,
+  };
+}
+
 export function getNodesFromTopologyQuery(query: TopologyDevicesQuery): ArangoDevice[] {
   const nodes =
     query.phyDevices.edges
       ?.map((e) => e?.node)
       .filter(omitNullValue)
       .map(convertPhyDeviceToArangoDevice) ?? [];
+  return nodes;
+}
+
+export function getPtpNodesFromTopologyQuery(query: PtpTopologyQuery): ArangoDevice[] {
+  const nodes =
+    query.ptpDevices.edges
+      ?.map((e) => e?.node)
+      .filter(omitNullValue)
+      .map(convertPtpDeviceToArangoDevice) ?? [];
+  return nodes;
+}
+
+export function getSynceNodesFromTopologyQuery(query: SynceTopologyQuery): ArangoDevice[] {
+  const nodes =
+    query.synceDevices.edges
+      ?.map((e) => e?.node)
+      .filter(omitNullValue)
+      .map(convertSynceDeviceToArangoDevice) ?? [];
   return nodes;
 }
 
@@ -139,173 +187,232 @@ export function getEdgesFromTopologyQuery(query: TopologyDevicesQuery): ArangoEd
   return currentEdges ?? [];
 }
 
+export function getPtpEdgesFromTopologyQuery(query: PtpTopologyQuery): ArangoEdge[] {
+  const currentEdges = query.ptpDevices.edges?.flatMap(
+    (e) =>
+      e?.node?.ptpInterfaces.edges
+        ?.map((i) => i?.node)
+        .filter(omitNullValue)
+        .flatMap((i) =>
+          i.ptpLinks.edges?.map((ptpLinkEdge) => {
+            if (!ptpLinkEdge?.link || !ptpLinkEdge?.node) {
+              return null;
+            }
+            return {
+              _id: ptpLinkEdge.link,
+              _key: ptpLinkEdge.link,
+              _from: i.id,
+              _to: ptpLinkEdge.node.id,
+            };
+          }),
+        )
+        .filter(omitNullValue) ?? [],
+  );
+  return currentEdges ?? [];
+}
+
+export function getSynceEdgesFromTopologyQuery(query: SynceTopologyQuery): ArangoEdge[] {
+  const currentEdges = query.synceDevices.edges?.flatMap(
+    (e) =>
+      e?.node?.synceInterfaces.edges
+        ?.map((i) => i?.node)
+        .filter(omitNullValue)
+        .flatMap((i) =>
+          i.synceLinks?.edges?.map((synceLinkEdge) => {
+            if (!synceLinkEdge?.link || !synceLinkEdge?.node) {
+              return null;
+            }
+            return {
+              _id: synceLinkEdge.link,
+              _key: synceLinkEdge.link,
+              _from: i.id,
+              _to: synceLinkEdge.node.id,
+            };
+          }),
+        )
+        .filter(omitNullValue) ?? [],
+  );
+
+  return currentEdges ?? [];
+}
+
 export function getOldTopologyInterfaceEdges(
   interfaceEdges: ArangoEdgeWithStatus[],
   diffData: TopologyDiffOutput,
 ): ArangoEdgeWithStatus[] {
-  let oldInterfaceEdges: ArangoEdgeWithStatus[] = [];
-
   if (isPhyTopologyDiff(diffData)) {
-    oldInterfaceEdges = interfaceEdges
-      // filter has edges added to current topology
-      .filter((e) => !diffData.added.PhyHas.find((h) => e._id === h._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.PhyInterface.find((i) => e._to === i._id))
-      // filter edges pointing to added device
-      .filter((e) => !diffData.added.PhyDevice.find((d) => e._from === d._id))
-      // add has edges removed from current topology
-      .concat(diffData.deleted.PhyHas)
-      // change `PhyHas` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.PhyHas.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      interfaceEdges
+        // filter has edges added to current topology
+        .filter((e) => !diffData.added.PhyHas.find((h) => e._id === h._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.PhyInterface.find((i) => e._to === i._id))
+        // filter edges pointing to added device
+        .filter((e) => !diffData.added.PhyDevice.find((d) => e._from === d._id))
+        // add has edges removed from current topology
+        .concat(diffData.deleted.PhyHas)
+        // change `PhyHas` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.PhyHas.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
   if (isPtpTopologyDiff(diffData)) {
-    oldInterfaceEdges = interfaceEdges
-      // filter has edges added to current topology
-      .filter((e) => !diffData.added.PtpHas.find((h) => e._id === h._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.PtpInterface.find((i) => e._to === i._id))
-      // filter edges pointing to added device
-      .filter((e) => !diffData.added.PtpDevice.find((d) => e._from === d._id))
-      // add has edges removed from current topology
-      .concat(diffData.deleted.PtpHas)
-      // change `PtpHas` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.PtpHas.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      interfaceEdges
+        // filter has edges added to current topology
+        .filter((e) => !diffData.added.PtpHas.find((h) => e._id === h._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.PtpInterface.find((i) => e._to === i._id))
+        // filter edges pointing to added device
+        .filter((e) => !diffData.added.PtpDevice.find((d) => e._from === d._id))
+        // add has edges removed from current topology
+        .concat(diffData.deleted.PtpHas)
+        // change `PtpHas` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.PtpHas.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
   if (isSynceTopologyDiff(diffData)) {
-    oldInterfaceEdges = interfaceEdges
-      // filter has edges added to current topology
-      .filter((e) => !diffData.added.SynceHas.find((h) => e._id === h._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.SynceInterface.find((i) => e._to === i._id))
-      // filter edges pointing to added device
-      .filter((e) => !diffData.added.SynceDevice.find((d) => e._from === d._id))
-      // add has edges removed from current topology
-      .concat(diffData.deleted.SynceHas)
-      // change `SynceHas` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.SynceHas.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      interfaceEdges
+        // filter has edges added to current topology
+        .filter((e) => !diffData.added.SynceHas.find((h) => e._id === h._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.SynceInterface.find((i) => e._to === i._id))
+        // filter edges pointing to added device
+        .filter((e) => !diffData.added.SynceDevice.find((d) => e._from === d._id))
+        // add has edges removed from current topology
+        .concat(diffData.deleted.SynceHas)
+        // change `SynceHas` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.SynceHas.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
   if (isNetTopologyDiff(diffData)) {
-    oldInterfaceEdges = interfaceEdges
-      // filter has edges added to current topology
-      .filter((e) => !diffData.added.NetHas.find((h) => e._id === h._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.NetInterface.find((i) => e._to === i._id))
-      // filter edges pointing to added device
-      .filter((e) => !diffData.added.NetDevice.find((d) => e._from === d._id))
-      // add has edges removed from current topology
-      .concat(diffData.deleted.NetHas)
-      // change `NetHas` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.NetHas.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      interfaceEdges
+        // filter has edges added to current topology
+        .filter((e) => !diffData.added.NetHas.find((h) => e._id === h._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.NetInterface.find((i) => e._to === i._id))
+        // filter edges pointing to added device
+        .filter((e) => !diffData.added.NetDevice.find((d) => e._from === d._id))
+        // add has edges removed from current topology
+        .concat(diffData.deleted.NetHas)
+        // change `NetHas` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.NetHas.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
-  return oldInterfaceEdges;
+  return [];
 }
 
 export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: TopologyDiffOutput): ArangoEdge[] {
-  let oldConnected: ArangoEdge[] = [];
-
   if (isPhyTopologyDiff(diffData)) {
-    oldConnected = connected
-      // filter connected edges added to current topology
-      .filter((e) => !diffData.added.PhyLink.find((c) => e._id === c._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.PhyInterface.find((i) => e._to === i._id))
-      // add connected edges removed from current topology
-      .concat(diffData.deleted.PhyLink)
-      // change `PhyLink` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.PhyLink.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      connected
+        // filter connected edges added to current topology
+        .filter((e) => !diffData.added.PhyLink.find((c) => e._id === c._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.PhyInterface.find((i) => e._to === i._id))
+        // add connected edges removed from current topology
+        .concat(diffData.deleted.PhyLink)
+        // change `PhyLink` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.PhyLink.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
   if (isPtpTopologyDiff(diffData)) {
-    console.log(connected);
-
-    oldConnected = connected
-      // filter connected edges added to current topology
-      .filter((e) => !diffData.added.PtpLink.find((c) => e._id === c._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.PtpInterface.find((i) => e._to === i._id))
-      // add connected edges removed from current topology
-      .concat(diffData.deleted.PtpLink)
-      // change `PtpLink` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.PtpLink.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      connected
+        // filter connected edges added to current topology
+        .filter((e) => !diffData.added.PtpLink.find((c) => e._id === c._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.PtpInterface.find((i) => e._to === i._id))
+        // add connected edges removed from current topology
+        .concat(diffData.deleted.PtpLink)
+        // change `PtpLink` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.PtpLink.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
   if (isSynceTopologyDiff(diffData)) {
-    oldConnected = connected
-      // filter connected edges added to current topology
-      .filter((e) => !diffData.added.SynceLink.find((c) => e._id === c._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.SynceInterface.find((i) => e._to === i._id))
-      // add connected edges removed from current topology
-      .concat(diffData.deleted.SynceLink)
-      // change `SynceLink` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.SynceLink.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      connected
+        // filter connected edges added to current topology
+        .filter((e) => !diffData.added.SynceLink.find((c) => e._id === c._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.SynceInterface.find((i) => e._to === i._id))
+        // add connected edges removed from current topology
+        .concat(diffData.deleted.SynceLink)
+        // change `SynceLink` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.SynceLink.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
   if (isNetTopologyDiff(diffData)) {
-    oldConnected = connected
-      // filter connected edges added to current topology
-      .filter((e) => !diffData.added.NetLink.find((c) => e._id === c._id))
-      // filter edges pointing to added interfaces
-      .filter((e) => !diffData.added.NetInterface.find((i) => e._to === i._id))
-      // add connected edges removed from current topology
-      .concat(diffData.deleted.NetLink)
-      // change `NetLink` edges from old topology
-      .map((e) => {
-        const changedEdge = diffData.changed.NetLink.find((h) => h.old._id === e._id);
-        if (!changedEdge) {
-          return e;
-        }
-        return changedEdge.old;
-      });
+    return (
+      connected
+        // filter connected edges added to current topology
+        .filter((e) => !diffData.added.NetLink.find((c) => e._id === c._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.NetInterface.find((i) => e._to === i._id))
+        // add connected edges removed from current topology
+        .concat(diffData.deleted.NetLink)
+        // change `NetLink` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.NetLink.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
   }
 
-  return oldConnected;
+  return [];
 }
 
 export function getOldTopologyDevices(devices: ArangoDevice[], diffData: TopologyDiffOutput): ArangoDevice[] {
@@ -1008,8 +1115,8 @@ export function makeTopologyDiff(
   interfaceEdges: ArangoEdgeWithStatus[],
 ) {
   const oldDevices = getOldTopologyDevices(currentNodes, topologyDiff);
-
   const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, topologyDiff);
+
   const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
   const interfaceNameMap = makeInterfaceNameMap(
     [...interfaces, ...getTopologyDiffInterfaces(topologyDiff)],

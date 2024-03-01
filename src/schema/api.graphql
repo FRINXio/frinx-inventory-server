@@ -518,9 +518,6 @@ type PtpTopology {
 }
 
 type Query {
-  PhyTopologyVersionData(version: String!): TopologyVersionData!
-  PtpTopologyVersionData(version: String!): TopologyVersionData!
-  SynceTopologyVersionData(version: String!): TopologyVersionData!
   blueprints(after: String, before: String, first: Int, last: Int): BlueprintConnection!
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
@@ -537,12 +534,15 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!): Node
+  phyTopologyVersionData(version: String!): TopologyVersionData!
   ptpDiffSynce: PtpDiffSynce!
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
+  ptpTopologyVersionData(version: String!): TopologyVersionData!
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
   syncePathToGrandMaster(deviceFrom: String!): [String!]
   synceTopology: SynceTopology
+  synceTopologyVersionData(version: String!): TopologyVersionData!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersions: [String!]
