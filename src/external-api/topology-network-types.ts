@@ -27,11 +27,26 @@ export function decodeVersionsOutput(value: unknown): VersionsOutput {
   return extractResult(VersionsOutputValidator.decode(value));
 }
 
+const PtpInterfaceDetails = t.type({
+  ptp_status: t.string,
+  ptsf_unusable: t.string,
+  admin_oper_status: t.string,
+});
+const SynceInterfaceDetails = t.type({
+  synce_enabled: t.union([t.boolean, t.null]),
+  rx_quality_level: t.union([t.string, t.null]),
+  qualified_for_use: t.union([t.string, t.null]),
+  not_qualified_due_to: t.union([t.string, t.null]),
+  not_selected_due_to: t.union([t.string, t.null]),
+});
+
 const Interface = t.type({
   _id: t.string,
   _key: t.string,
   name: t.string,
 });
+const PtpInterface = t.intersection([Interface, t.type({ details: PtpInterfaceDetails })]);
+const SynceInterface = t.intersection([Interface, t.type({ details: SynceInterfaceDetails })]);
 const NetInterface = t.type({
   _id: t.string,
   _key: t.string,
@@ -44,6 +59,21 @@ const InterfaceWithStatusValidator = t.intersection([
     status: StatusValidator,
   }),
 ]);
+
+const PtpInterfaceWithStatusValidator = t.intersection([
+  PtpInterface,
+  t.type({
+    status: StatusValidator,
+  }),
+]);
+
+const SynceInterfaceWithStatusValidator = t.intersection([
+  SynceInterface,
+  t.type({
+    status: StatusValidator,
+  }),
+]);
+
 const CoordinatesValidator = t.type({
   x: t.number,
   y: t.number,
@@ -56,6 +86,37 @@ const DeviceValidator = t.intersection([
     coordinates: CoordinatesValidator,
   }),
 ]);
+const PtpDeviceValidator = t.intersection([
+  InterfaceWithStatusValidator,
+  t.type({
+    labels: t.array(t.string),
+    details: t.type({
+      clock_type: t.string,
+      domain: t.number,
+      ptp_profile: t.string,
+      clock_id: t.string,
+      parent_clock_id: t.string,
+      gm_clock_id: t.string,
+      clock_class: t.number,
+      clock_accuracy: t.string,
+      clock_variance: t.string,
+      time_recovery_status: t.string,
+      global_priority: t.number,
+      user_priority: t.number,
+    }),
+    coordinates: CoordinatesValidator,
+  }),
+]);
+const SynceDeviceValidator = t.intersection([
+  InterfaceWithStatusValidator,
+  t.type({
+    labels: t.array(t.string),
+    details: t.type({
+      selected_for_use: t.string,
+    }),
+    coordinates: CoordinatesValidator,
+  }),
+]);
 const NetDeviceValidator = t.type({
   _id: t.string,
   _key: t.string,
@@ -65,6 +126,8 @@ const NetDeviceValidator = t.type({
 });
 
 export type ArangoDevice = t.TypeOf<typeof DeviceValidator>;
+export type ArangoPtpDevice = t.TypeOf<typeof PtpDeviceValidator>;
+export type ArangoSynceDevice = t.TypeOf<typeof SynceDeviceValidator>;
 
 export type Status = t.TypeOf<typeof StatusValidator>;
 
@@ -91,6 +154,16 @@ const ChangedDevice = t.type({
   old: DeviceValidator,
 });
 
+const ChangedPtpDevice = t.type({
+  new: PtpDeviceValidator,
+  old: PtpDeviceValidator,
+});
+
+const ChangedSynceDevice = t.type({
+  new: SynceDeviceValidator,
+  old: SynceDeviceValidator,
+});
+
 const ChangedEdge = t.type({
   new: Edge,
   old: Edge,
@@ -102,6 +175,15 @@ const ChangedInterface = t.type({
 const ChangedEdgeWithStatusValidator = t.type({
   new: EdgeWithStatusValidator,
   old: EdgeWithStatusValidator,
+});
+
+const ChangedPtpInterface = t.type({
+  new: PtpInterfaceWithStatusValidator,
+  old: PtpInterfaceWithStatusValidator,
+});
+const ChangedSynceInterface = t.type({
+  new: SynceInterfaceWithStatusValidator,
+  old: SynceInterfaceWithStatusValidator,
 });
 
 const ChangePhyDiff = t.type({
@@ -119,30 +201,30 @@ const PhyDiff = t.type({
 });
 
 const ChangePtpDiff = t.type({
-  PtpDevice: t.array(ChangedDevice),
+  PtpDevice: t.array(ChangedPtpDevice),
   PtpHas: t.array(ChangedEdgeWithStatusValidator),
-  PtpInterface: t.array(ChangedInterface),
+  PtpInterface: t.array(ChangedPtpInterface),
   PtpLink: t.array(ChangedEdge),
 });
 
 const PtpDiff = t.type({
-  PtpDevice: t.array(DeviceValidator),
+  PtpDevice: t.array(PtpDeviceValidator),
   PtpHas: t.array(EdgeWithStatusValidator),
-  PtpInterface: t.array(InterfaceWithStatusValidator),
+  PtpInterface: t.array(PtpInterfaceWithStatusValidator),
   PtpLink: t.array(Edge),
 });
 
 const ChangeSynceDiff = t.type({
-  SynceDevice: t.array(ChangedDevice),
+  SynceDevice: t.array(ChangedSynceDevice),
   SynceHas: t.array(ChangedEdgeWithStatusValidator),
-  SynceInterface: t.array(ChangedInterface),
+  SynceInterface: t.array(ChangedSynceInterface),
   SynceLink: t.array(ChangedEdge),
 });
 
 const SynceDiff = t.type({
-  SynceDevice: t.array(DeviceValidator),
+  SynceDevice: t.array(SynceDeviceValidator),
   SynceHas: t.array(EdgeWithStatusValidator),
-  SynceInterface: t.array(InterfaceWithStatusValidator),
+  SynceInterface: t.array(SynceInterfaceWithStatusValidator),
   SynceLink: t.array(Edge),
 });
 
@@ -221,6 +303,8 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
 }
 
 export type InterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
+export type PtpInterfaceWithStatus = t.TypeOf<typeof PtpInterfaceWithStatusValidator>;
+export type SynceInterfaceWithStatus = t.TypeOf<typeof SynceInterfaceWithStatusValidator>;
 
 const HasAndInterfacesOutputValidator = t.type({
   has: t.array(EdgeWithStatusValidator),
