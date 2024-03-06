@@ -57,10 +57,26 @@ export async function getInstalledDevices(baseURL: string): Promise<InstalledDev
 }
 
 export async function installDevice(baseURL: string, params: unknown): Promise<UniconfigInstallOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-node'], params);
-  const data = decodeUniconfigInstallOutput(json);
+  const response = (await sendPostRequest(
+    [baseURL, '/operations/connection-manager:install-node'],
+    params,
+  )) as Response;
 
-  return data;
+  if (!response.ok) {
+    const errorResult = decodeUniconfigInstallOutput(response.body);
+    return {
+      output: {
+        status: 'fail',
+        'error-message': errorResult.errors.error.map((e) => e['error-message']).join('\n'), // eslint-disable-line @typescript-eslint/naming-convention
+      },
+    };
+  }
+
+  return {
+    output: {
+      status: 'complete',
+    },
+  };
 }
 
 export async function uninstallDevice(baseURL: string, params: UninstallDeviceInput): Promise<void> {

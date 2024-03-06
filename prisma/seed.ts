@@ -79,7 +79,7 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
       port: port_number,
       software: device_type,
       softwareVersion: version,
-      mountParameters: JSON.stringify(JSON.parse(parsedTemplate(device))),
+      mountParameters: JSON.parse(parsedTemplate(device)),
       source: 'IMPORTED' as const,
     };
   });
