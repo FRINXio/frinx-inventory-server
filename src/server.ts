@@ -78,6 +78,11 @@ apolloServer.start().then(() => {
       context: createContext,
     }),
   );
+
+  // Requests to `http://localhost:4000/health` now return "Okay!"
+  app.get('/health', (req, res) => {
+    res.status(200).send('Okay!');
+  });
 });
 
 export function runSyncZones(serverInstance?: Server): void {
