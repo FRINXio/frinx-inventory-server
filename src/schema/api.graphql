@@ -327,16 +327,9 @@ input GraphNodeCoordinatesInput {
 }
 
 type GraphNodeInterface {
-  details: GraphNodeInterfaceDetails
   id: String!
   name: String!
   status: GraphEdgeStatus!
-}
-
-type GraphNodeInterfaceDetails {
-  adminOperStatus: String
-  ptpStatus: String
-  ptsfUnusable: String
 }
 
 type GraphVersionEdge {
@@ -474,6 +467,11 @@ type PageInfo {
   startCursor: String
 }
 
+type PhyTopologyVersionData {
+  edges: [GraphVersionEdge!]!
+  nodes: [GraphVersionNode!]!
+}
+
 type PtpDeviceDetails {
   clockAccuracy: String
   clockClass: Int
@@ -504,7 +502,7 @@ type PtpDiffSynceNode {
 type PtpGraphNode {
   coordinates: GraphNodeCoordinates!
   id: ID!
-  interfaces: [GraphNodeInterface!]!
+  interfaces: [PtpGraphNodeInterface!]!
   labels: [String!]
   name: String!
   nodeId: String!
@@ -512,8 +510,26 @@ type PtpGraphNode {
   status: GraphEdgeStatus!
 }
 
+type PtpGraphNodeInterface {
+  details: PtpGraphNodeInterfaceDetails
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+}
+
+type PtpGraphNodeInterfaceDetails {
+  adminOperStatus: String!
+  ptpStatus: String!
+  ptsfUnusable: String!
+}
+
 type PtpTopology {
   edges: [GraphEdge!]!
+  nodes: [PtpGraphNode!]!
+}
+
+type PtpTopologyVersionData {
+  edges: [GraphVersionEdge!]!
   nodes: [PtpGraphNode!]!
 }
 
@@ -534,15 +550,15 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
   node(id: ID!): Node
-  phyTopologyVersionData(version: String!): TopologyVersionData!
+  phyTopologyVersionData(version: String!): PhyTopologyVersionData!
   ptpDiffSynce: PtpDiffSynce!
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
-  ptpTopologyVersionData(version: String!): TopologyVersionData!
+  ptpTopologyVersionData(version: String!): PtpTopologyVersionData!
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
   syncePathToGrandMaster(deviceFrom: String!): [String!]
   synceTopology: SynceTopology
-  synceTopologyVersionData(version: String!): TopologyVersionData!
+  synceTopologyVersionData(version: String!): SynceTopologyVersionData!
   topology(filter: FilterTopologyInput): Topology
   topologyCommonNodes(nodes: [String!]!): TopologyCommonNodes
   topologyVersions: [String!]
@@ -618,6 +634,11 @@ type SynceTopology {
   nodes: [SynceGraphNode!]!
 }
 
+type SynceTopologyVersionData {
+  edges: [GraphVersionEdge!]!
+  nodes: [SynceGraphNode!]!
+}
+
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
@@ -631,11 +652,6 @@ enum TopologyLayer {
   EthTopology
   PhysicalTopology
   PtpTopology
-}
-
-type TopologyVersionData {
-  edges: [GraphVersionEdge!]!
-  nodes: [GraphVersionNode!]!
 }
 
 type Transaction {
