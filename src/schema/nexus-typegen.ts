@@ -344,16 +344,9 @@ export interface NexusGenObjects {
   };
   GraphNodeInterface: {
     // root type
-    details?: NexusGenRootTypes['GraphNodeInterfaceDetails'] | null; // GraphNodeInterfaceDetails
     id: string; // String!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
-  };
-  GraphNodeInterfaceDetails: {
-    // root type
-    adminOperStatus?: string | null; // String
-    ptpStatus?: string | null; // String
-    ptsfUnusable?: string | null; // String
   };
   GraphVersionEdge: {
     // root type
@@ -445,6 +438,11 @@ export interface NexusGenObjects {
     hasPreviousPage: boolean; // Boolean!
     startCursor?: string | null; // String
   };
+  PhyTopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['GraphVersionNode'][]; // [GraphVersionNode!]!
+  };
   PtpDeviceDetails: {
     // root type
     clockAccuracy?: string | null; // String
@@ -476,16 +474,34 @@ export interface NexusGenObjects {
     // root type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
     id: string; // ID!
-    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    interfaces: NexusGenRootTypes['PtpGraphNodeInterface'][]; // [PtpGraphNodeInterface!]!
     labels?: string[] | null; // [String!]
     name: string; // String!
     nodeId: string; // String!
     ptpDeviceDetails: NexusGenRootTypes['PtpDeviceDetails']; // PtpDeviceDetails!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
+  PtpGraphNodeInterface: {
+    // root type
+    details?: NexusGenRootTypes['PtpGraphNodeInterfaceDetails'] | null; // PtpGraphNodeInterfaceDetails
+    id: string; // String!
+    name: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  PtpGraphNodeInterfaceDetails: {
+    // root type
+    adminOperStatus: string; // String!
+    ptpStatus: string; // String!
+    ptsfUnusable: string; // String!
+  };
   PtpTopology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['PtpGraphNode'][]; // [PtpGraphNode!]!
+  };
+  PtpTopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['PtpGraphNode'][]; // [PtpGraphNode!]!
   };
   Query: {};
@@ -542,6 +558,11 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
+  SynceTopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
+  };
   Topology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -550,11 +571,6 @@ export interface NexusGenObjects {
   TopologyCommonNodes: {
     // root type
     commonNodes: string[]; // [String!]!
-  };
-  TopologyVersionData: {
-    // root type
-    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
-    nodes: NexusGenRootTypes['GraphVersionNode'][]; // [GraphVersionNode!]!
   };
   Transaction: {
     // root type
@@ -827,16 +843,9 @@ export interface NexusGenFieldTypes {
   };
   GraphNodeInterface: {
     // field return type
-    details: NexusGenRootTypes['GraphNodeInterfaceDetails'] | null; // GraphNodeInterfaceDetails
     id: string; // String!
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
-  };
-  GraphNodeInterfaceDetails: {
-    // field return type
-    adminOperStatus: string | null; // String
-    ptpStatus: string | null; // String
-    ptsfUnusable: string | null; // String
   };
   GraphVersionEdge: {
     // field return type
@@ -969,6 +978,11 @@ export interface NexusGenFieldTypes {
     hasPreviousPage: boolean; // Boolean!
     startCursor: string | null; // String
   };
+  PhyTopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['GraphVersionNode'][]; // [GraphVersionNode!]!
+  };
   PtpDeviceDetails: {
     // field return type
     clockAccuracy: string | null; // String
@@ -1000,16 +1014,34 @@ export interface NexusGenFieldTypes {
     // field return type
     coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
     id: string; // ID!
-    interfaces: NexusGenRootTypes['GraphNodeInterface'][]; // [GraphNodeInterface!]!
+    interfaces: NexusGenRootTypes['PtpGraphNodeInterface'][]; // [PtpGraphNodeInterface!]!
     labels: string[] | null; // [String!]
     name: string; // String!
     nodeId: string; // String!
     ptpDeviceDetails: NexusGenRootTypes['PtpDeviceDetails']; // PtpDeviceDetails!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
+  PtpGraphNodeInterface: {
+    // field return type
+    details: NexusGenRootTypes['PtpGraphNodeInterfaceDetails'] | null; // PtpGraphNodeInterfaceDetails
+    id: string; // String!
+    name: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  PtpGraphNodeInterfaceDetails: {
+    // field return type
+    adminOperStatus: string; // String!
+    ptpStatus: string; // String!
+    ptsfUnusable: string; // String!
+  };
   PtpTopology: {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['PtpGraphNode'][]; // [PtpGraphNode!]!
+  };
+  PtpTopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['PtpGraphNode'][]; // [PtpGraphNode!]!
   };
   Query: {
@@ -1023,15 +1055,17 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     node: NexusGenRootTypes['Node'] | null; // Node
+    phyTopologyVersionData: NexusGenRootTypes['PhyTopologyVersionData']; // PhyTopologyVersionData!
     ptpDiffSynce: NexusGenRootTypes['PtpDiffSynce']; // PtpDiffSynce!
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
+    ptpTopologyVersionData: NexusGenRootTypes['PtpTopologyVersionData']; // PtpTopologyVersionData!
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     syncePathToGrandMaster: string[] | null; // [String!]
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
+    synceTopologyVersionData: NexusGenRootTypes['SynceTopologyVersionData']; // SynceTopologyVersionData!
     topology: NexusGenRootTypes['Topology'] | null; // Topology
     topologyCommonNodes: NexusGenRootTypes['TopologyCommonNodes'] | null; // TopologyCommonNodes
-    topologyVersionData: NexusGenRootTypes['TopologyVersionData']; // TopologyVersionData!
     topologyVersions: string[] | null; // [String!]
     transactions: NexusGenRootTypes['Transaction'][]; // [Transaction!]!
     uniconfigShellSession: string | null; // String
@@ -1093,6 +1127,11 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
+  SynceTopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
+  };
   Topology: {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1101,11 +1140,6 @@ export interface NexusGenFieldTypes {
   TopologyCommonNodes: {
     // field return type
     commonNodes: string[]; // [String!]!
-  };
-  TopologyVersionData: {
-    // field return type
-    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
-    nodes: NexusGenRootTypes['GraphVersionNode'][]; // [GraphVersionNode!]!
   };
   Transaction: {
     // field return type
@@ -1379,16 +1413,9 @@ export interface NexusGenFieldTypeNames {
   };
   GraphNodeInterface: {
     // field return type name
-    details: 'GraphNodeInterfaceDetails';
     id: 'String';
     name: 'String';
     status: 'GraphEdgeStatus';
-  };
-  GraphNodeInterfaceDetails: {
-    // field return type name
-    adminOperStatus: 'String';
-    ptpStatus: 'String';
-    ptsfUnusable: 'String';
   };
   GraphVersionEdge: {
     // field return type name
@@ -1521,6 +1548,11 @@ export interface NexusGenFieldTypeNames {
     hasPreviousPage: 'Boolean';
     startCursor: 'String';
   };
+  PhyTopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
+    nodes: 'GraphVersionNode';
+  };
   PtpDeviceDetails: {
     // field return type name
     clockAccuracy: 'String';
@@ -1552,16 +1584,34 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     coordinates: 'GraphNodeCoordinates';
     id: 'ID';
-    interfaces: 'GraphNodeInterface';
+    interfaces: 'PtpGraphNodeInterface';
     labels: 'String';
     name: 'String';
     nodeId: 'String';
     ptpDeviceDetails: 'PtpDeviceDetails';
     status: 'GraphEdgeStatus';
   };
+  PtpGraphNodeInterface: {
+    // field return type name
+    details: 'PtpGraphNodeInterfaceDetails';
+    id: 'String';
+    name: 'String';
+    status: 'GraphEdgeStatus';
+  };
+  PtpGraphNodeInterfaceDetails: {
+    // field return type name
+    adminOperStatus: 'String';
+    ptpStatus: 'String';
+    ptsfUnusable: 'String';
+  };
   PtpTopology: {
     // field return type name
     edges: 'GraphEdge';
+    nodes: 'PtpGraphNode';
+  };
+  PtpTopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
     nodes: 'PtpGraphNode';
   };
   Query: {
@@ -1575,15 +1625,17 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
     node: 'Node';
+    phyTopologyVersionData: 'PhyTopologyVersionData';
     ptpDiffSynce: 'PtpDiffSynce';
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
+    ptpTopologyVersionData: 'PtpTopologyVersionData';
     shortestPath: 'NetRoutingPathNode';
     syncePathToGrandMaster: 'String';
     synceTopology: 'SynceTopology';
+    synceTopologyVersionData: 'SynceTopologyVersionData';
     topology: 'Topology';
     topologyCommonNodes: 'TopologyCommonNodes';
-    topologyVersionData: 'TopologyVersionData';
     topologyVersions: 'String';
     transactions: 'Transaction';
     uniconfigShellSession: 'String';
@@ -1645,6 +1697,11 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphEdge';
     nodes: 'SynceGraphNode';
   };
+  SynceTopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
+    nodes: 'SynceGraphNode';
+  };
   Topology: {
     // field return type name
     edges: 'GraphEdge';
@@ -1653,11 +1710,6 @@ export interface NexusGenFieldTypeNames {
   TopologyCommonNodes: {
     // field return type name
     commonNodes: 'String';
-  };
-  TopologyVersionData: {
-    // field return type name
-    edges: 'GraphVersionEdge';
-    nodes: 'GraphVersionNode';
   };
   Transaction: {
     // field return type name
@@ -1911,9 +1963,17 @@ export interface NexusGenArgTypes {
       // args
       id: string; // ID!
     };
+    phyTopologyVersionData: {
+      // args
+      version: string; // String!
+    };
     ptpPathToGrandMaster: {
       // args
       deviceFrom: string; // String!
+    };
+    ptpTopologyVersionData: {
+      // args
+      version: string; // String!
     };
     shortestPath: {
       // args
@@ -1924,6 +1984,10 @@ export interface NexusGenArgTypes {
       // args
       deviceFrom: string; // String!
     };
+    synceTopologyVersionData: {
+      // args
+      version: string; // String!
+    };
     topology: {
       // args
       filter?: NexusGenInputs['FilterTopologyInput'] | null; // FilterTopologyInput
@@ -1931,10 +1995,6 @@ export interface NexusGenArgTypes {
     topologyCommonNodes: {
       // args
       nodes: string[]; // [String!]!
-    };
-    topologyVersionData: {
-      // args
-      version: string; // String!
     };
     zones: {
       // args

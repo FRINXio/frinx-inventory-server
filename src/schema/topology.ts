@@ -10,26 +10,31 @@ import {
   queryField,
 } from 'nexus';
 import config from '../config';
-import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { fromGraphId } from '../helpers/id-helper';
 import {
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
   getNodesFromTopologyQuery,
-  getOldTopologyConnectedEdges,
-  getOldTopologyDevices,
-  getOldTopologyInterfaceEdges,
+  getPtpDeviceInterfaceEdges,
+  getPtpEdgesFromTopologyQuery,
+  getPtpNodesFromTopologyQuery,
+  getPtpTopologyInterfaces,
+  getStatus,
+  getSynceDeviceInterfaceEdges,
+  getSynceEdgesFromTopologyQuery,
+  getSynceNodesFromTopologyQuery,
+  getSynceTopologyInterfaces,
   getTopologyInterfaces,
-  makeInterfaceDeviceMap,
-  makeInterfaceMap,
-  makeInterfaceNameMap,
   makeNetTopologyEdges,
   makeNetTopologyNodes,
-  makeNodesMap,
+  makePtpTopologyDiff,
   makePtpTopologyEdges,
   makePtpTopologyNodes,
+  makeSynceTopologyDiff,
   makeSynceTopologyEdges,
   makeSynceTopologyNodes,
+  makeTopologyDiff,
   makeTopologyEdges,
   makeTopologyNodes,
 } from '../helpers/topology.helpers';
@@ -47,12 +52,12 @@ export const GraphInterfaceStatus = enumType({
   members: ['ok', 'unknown'],
 });
 
-export const GraphNodeInterfaceDetails = objectType({
-  name: 'GraphNodeInterfaceDetails',
+export const PtpGraphNodeInterfaceDetails = objectType({
+  name: 'PtpGraphNodeInterfaceDetails',
   definition: (t) => {
-    t.string('ptpStatus');
-    t.string('adminOperStatus');
-    t.string('ptsfUnusable');
+    t.nonNull.string('ptpStatus');
+    t.nonNull.string('adminOperStatus');
+    t.nonNull.string('ptsfUnusable');
   },
 });
 
@@ -62,7 +67,16 @@ export const GraphNodeInterface = objectType({
     t.nonNull.string('id');
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.nonNull.string('name');
-    t.field('details', { type: GraphNodeInterfaceDetails });
+  },
+});
+
+export const PtpGraphNodeInterface = objectType({
+  name: 'PtpGraphNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.nonNull.string('name');
+    t.field('details', { type: PtpGraphNodeInterfaceDetails });
   },
 });
 
@@ -137,10 +151,100 @@ export const GraphVersionEdge = objectType({
   },
 });
 
-export const TopologyVersionData = objectType({
-  name: 'TopologyVersionData',
+export const PtpDeviceDetails = objectType({
+  name: 'PtpDeviceDetails',
+  definition: (t) => {
+    t.nonNull.string('clockType');
+    t.nonNull.int('domain');
+    t.nonNull.string('ptpProfile');
+    t.nonNull.string('clockId');
+    t.nonNull.string('parentClockId');
+    t.nonNull.string('gmClockId');
+    t.int('clockClass');
+    t.string('clockAccuracy');
+    t.string('clockVariance');
+    t.string('timeRecoveryStatus');
+    t.int('globalPriority');
+    t.int('userPriority');
+  },
+});
+
+export const PtpGraphNode = objectType({
+  name: 'PtpGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(PtpGraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
+    t.nonNull.field('ptpDeviceDetails', { type: PtpDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+  },
+});
+
+export const SynceDeviceDetails = objectType({
+  name: 'SynceDeviceDetails',
+  definition: (t) => {
+    t.string('selectedForUse');
+  },
+});
+
+export const SynceGraphNodeInterfaceDetails = objectType({
+  name: 'SynceGraphNodeInterfaceDetails',
+  definition: (t) => {
+    t.boolean('synceEnabled');
+    t.string('rxQualityLevel');
+    t.string('qualifiedForUse');
+    t.string('notQualifiedDueTo');
+    t.string('notSelectedDueTo');
+  },
+});
+
+export const SynceGraphNodeInterface = objectType({
+  name: 'SynceGraphNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.nonNull.string('name');
+    t.field('details', { type: SynceGraphNodeInterfaceDetails });
+  },
+});
+
+export const SynceGraphNode = objectType({
+  name: 'SynceGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
+    t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(SynceGraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+  },
+});
+
+export const PhyTopologyVersionData = objectType({
+  name: 'PhyTopologyVersionData',
   definition: (t) => {
     t.nonNull.list.field('nodes', { type: nonNull(GraphVersionNode) });
+    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
+export const PtpTopologyVersionData = objectType({
+  name: 'PtpTopologyVersionData',
+  definition: (t) => {
+    t.nonNull.list.field('nodes', { type: nonNull(PtpGraphNode) });
+    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
+export const SynceTopologyVersionData = objectType({
+  name: 'SynceTopologyVersionData',
+  definition: (t) => {
+    t.nonNull.list.field('nodes', { type: nonNull(SynceGraphNode) });
     t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
   },
 });
@@ -268,11 +372,11 @@ export const TopologyCommonNodesQuery = extendType({
   },
 });
 
-export const TopologyVersionDataQuery = extendType({
+export const PhyTopologyVersionDataQuery = extendType({
   type: 'Query',
   definition: (t) => {
-    t.nonNull.field('topologyVersionData', {
-      type: TopologyVersionData,
+    t.nonNull.field('phyTopologyVersionData', {
+      type: PhyTopologyVersionData,
       args: {
         version: nonNull(stringArg()),
       },
@@ -289,53 +393,83 @@ export const TopologyVersionDataQuery = extendType({
         const currentNodes = getNodesFromTopologyQuery(topologyDevicesResult);
         const currentEdges = getEdgesFromTopologyQuery(topologyDevicesResult);
 
-        const interfaces = getTopologyInterfaces(topologyDevicesResult);
+        const interfaces = getTopologyInterfaces(topologyDevicesResult).map((i) => ({
+          ...i,
+          _key: i.id,
+          status: getStatus(i.status),
+        }));
         const interfaceEdges = getDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const result = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version);
-        const oldDevices = getOldTopologyDevices(currentNodes, result);
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PhysicalTopology');
 
-        const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, result);
-        const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
-        const interfaceNameMap = makeInterfaceNameMap(
-          [
-            ...interfaces,
-            ...result.deleted.PhyInterface,
-            ...result.added.PhyInterface,
-            ...result.changed.PhyInterface.map((i) => i.new),
-            ...result.changed.PhyInterface.map((i) => i.old),
-          ],
-          (i) => i.name,
-        );
-        const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);
-        const nodesMap = makeNodesMap(oldDevices, (d) => d.name);
+        return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
+      },
+    });
+  },
+});
 
-        const oldEdges = getOldTopologyConnectedEdges(currentEdges, result)
-          .map((e) => ({
-            id: e._id,
-            source: {
-              interface: e._from,
-              nodeId: nodesMap[interfaceDeviceMap[e._from]],
-            },
-            target: {
-              interface: e._to,
-              nodeId: nodesMap[interfaceDeviceMap[e._to]],
-            },
-          }))
-          .filter((e) => e.source.nodeId != null && e.target.nodeId != null);
+export const PtpTopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('ptpTopologyVersionData', {
+      type: PtpTopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
 
-        return {
-          nodes: oldDevices.map((device) => ({
-            id: toGraphId('GraphNode', device._id),
-            name: device.name,
-            interfaces: interfaceMap[device._id] ?? [],
-            coordinates: device.coordinates,
-            deviceType: device.details.device_type ?? null,
-            softwareVersion: device.details.sw_version ?? null,
-          })),
-          edges: oldEdges,
-        };
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getPtpTopology();
+
+        const currentNodes = getPtpNodesFromTopologyQuery(topologyDevicesResult);
+        const currentEdges = getPtpEdgesFromTopologyQuery(topologyDevicesResult);
+
+        const interfaces = getPtpTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getPtpDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { version } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PtpTopology');
+
+        return makePtpTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
+      },
+    });
+  },
+});
+
+export const TopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('synceTopologyVersionData', {
+      type: SynceTopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
+
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getSynceTopology();
+
+        const currentNodes = getSynceNodesFromTopologyQuery(topologyDevicesResult);
+        const currentEdges = getSynceEdgesFromTopologyQuery(topologyDevicesResult);
+
+        const interfaces = getSynceTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getSynceDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { version } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'EthTopology');
+
+        return makeSynceTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
     });
   },
@@ -392,7 +526,9 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
           apiParams,
           input.layer ?? 'PhysicalTopology',
         );
-        return { deviceNames: response };
+        return {
+          deviceNames: response,
+        };
       },
     });
   },
@@ -515,38 +651,6 @@ export const PtpPathToGrandMasterQuery = queryField('ptpPathToGrandMaster', {
   },
 });
 
-export const PtpDeviceDetails = objectType({
-  name: 'PtpDeviceDetails',
-  definition: (t) => {
-    t.nonNull.string('clockType');
-    t.nonNull.int('domain');
-    t.nonNull.string('ptpProfile');
-    t.nonNull.string('clockId');
-    t.nonNull.string('parentClockId');
-    t.nonNull.string('gmClockId');
-    t.int('clockClass');
-    t.string('clockAccuracy');
-    t.string('clockVariance');
-    t.string('timeRecoveryStatus');
-    t.int('globalPriority');
-    t.int('userPriority');
-  },
-});
-
-export const PtpGraphNode = objectType({
-  name: 'PtpGraphNode',
-  definition: (t) => {
-    t.nonNull.id('id');
-    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(GraphNodeInterface) });
-    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
-    t.nonNull.string('nodeId');
-    t.nonNull.string('name');
-    t.nonNull.field('ptpDeviceDetails', { type: PtpDeviceDetails });
-    t.nonNull.field('status', { type: GraphInterfaceStatus });
-    t.list.nonNull.string('labels');
-  },
-});
-
 export const PtpTopology = objectType({
   name: 'PtpTopology',
   definition: (t) => {
@@ -567,48 +671,6 @@ export const PtpTopologyQuery = queryField('ptpTopology', {
       nodes,
       edges,
     };
-  },
-});
-
-export const SynceDeviceDetails = objectType({
-  name: 'SynceDeviceDetails',
-  definition: (t) => {
-    t.string('selectedForUse');
-  },
-});
-
-export const SynceGraphNodeInterfaceDetails = objectType({
-  name: 'SynceGraphNodeInterfaceDetails',
-  definition: (t) => {
-    t.boolean('synceEnabled');
-    t.string('rxQualityLevel');
-    t.string('qualifiedForUse');
-    t.string('notQualifiedDueTo');
-    t.string('notSelectedDueTo');
-  },
-});
-
-export const SynceGraphNodeInterface = objectType({
-  name: 'SynceGraphNodeInterface',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.field('status', { type: GraphInterfaceStatus });
-    t.nonNull.string('name');
-    t.field('details', { type: SynceGraphNodeInterfaceDetails });
-  },
-});
-
-export const SynceGraphNode = objectType({
-  name: 'SynceGraphNode',
-  definition: (t) => {
-    t.nonNull.id('id');
-    t.nonNull.string('nodeId');
-    t.nonNull.string('name');
-    t.nonNull.field('synceDeviceDetails', { type: SynceDeviceDetails });
-    t.nonNull.field('status', { type: GraphInterfaceStatus });
-    t.list.nonNull.string('labels');
-    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(SynceGraphNodeInterface) });
-    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
 

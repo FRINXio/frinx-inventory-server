@@ -1169,6 +1169,7 @@ export type GetBackupsQuery = { __typename?: 'Query', backups: Array<string> };
 export type TopologyDiffQueryVariables = Exact<{
   new_db: Scalars['String'];
   old_db: Scalars['String'];
+  collection_type: TopologyType;
 }>;
 
 
