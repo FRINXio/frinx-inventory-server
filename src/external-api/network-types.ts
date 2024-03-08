@@ -334,14 +334,25 @@ export function decodeUniconfigSyncOutput(value: unknown): UniconfigSyncOutput {
 }
 
 const UniconfigInstallOutputTypeValidator = t.type({
-  output: t.type({
-    'error-message': optional(t.string),
-    status: UniconfigStatusValidator,
+  errors: t.type({
+    error: t.array(
+      t.type({
+        'error-message': optional(t.string),
+      }),
+    ),
   }),
 });
-export type UniconfigInstallOutput = t.TypeOf<typeof UniconfigInstallOutputTypeValidator>;
 
-export function decodeUniconfigInstallOutput(value: unknown): UniconfigInstallOutput {
+export type UniconfigInstallOutput = {
+  output: {
+    'error-message'?: string;
+    status: 'complete' | 'fail';
+  };
+};
+
+export type UniconfigInstallErrorOutput = t.TypeOf<typeof UniconfigInstallOutputTypeValidator>;
+
+export function decodeUniconfigInstallOutput(value: unknown): UniconfigInstallErrorOutput {
   return extractResult(UniconfigInstallOutputTypeValidator.decode(value));
 }
 
@@ -355,7 +366,17 @@ export type CheckInstalledNodesInput = {
 
 const CheckInstalledNodesOutputValidator = t.type({
   output: t.type({
-    nodes: optional(t.array(t.string)),
+    'node-results': t.type({
+      'node-result': optional(
+        t.array(
+          t.type({
+            'node-id': t.string,
+            'uniconfig-layer': t.boolean,
+            'topology-id': t.string,
+          }),
+        ),
+      ),
+    }),
   }),
 });
 export type CheckInstalledNodesOutput = t.TypeOf<typeof CheckInstalledNodesOutputValidator>;
