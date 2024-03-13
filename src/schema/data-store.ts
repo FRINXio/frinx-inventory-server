@@ -2,7 +2,7 @@ import { arg, extendType, inputObjectType, list, nonNull, objectType, stringArg 
 import { ExternalApiError } from '../external-api/errors';
 import {
   decodeUniconfigConfigInput,
-  UniconfigCommitOutput,
+  // UniconfigCommitOutput,
   UniconfigDryRunCommitOutput,
   UniconfigSnapshotsOutput,
 } from '../external-api/network-types';
@@ -28,12 +28,12 @@ function getDryRunCommitOutputFromResponse(commitResponse: UniconfigDryRunCommit
   return null;
 }
 
-function getCommitOutputFromResponse(commitResponse: UniconfigCommitOutput) {
-  if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
-    return commitResponse.output;
-  }
-  return null;
-}
+// function getCommitOutputFromResponse(commitResponse: UniconfigCommitOutput) {
+//   if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
+//     return commitResponse.output;
+//   }
+//   return null;
+// }
 
 export const Snapshot = objectType({
   name: 'Snapshot',
@@ -213,18 +213,16 @@ export const CommitConfigMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
-        const params = {
-          input: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            'target-nodes': {
-              node: [dbDevice.name],
-            },
-          },
-        };
         const { shouldDryRun } = input;
-        // return { isOk: , output: JSON.stringify(result.output) };
+
         if (shouldDryRun) {
-          const dryRunResult = await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, params, transactionId);
+          const dryRunParams = {
+            input: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              'do-rollback': true,
+            },
+          };
+          const dryRunResult = await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, dryRunParams, transactionId);
           const output = getDryRunCommitOutputFromResponse(dryRunResult);
           const status = output?.['overall-status'];
           return {
@@ -235,14 +233,25 @@ export const CommitConfigMutation = extendType({
             },
           };
         }
-        const result = await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
-        const output = getCommitOutputFromResponse(result);
-        const status = output?.['overall-status'];
+
+        const params = {
+          input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'do-confirmed-commit': true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'do-rollback': true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'skip-unreachable-nodes': true,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'do-validate': true,
+          },
+        };
+        await uniconfigAPI.postCommitToNetwork(uniconfigURL, params, transactionId);
         return {
           output: {
             deviceId: args.input.deviceId,
             configuration: null,
-            message: status === 'fail' ? output?.['node-results']['node-result'][0]['error-message'] ?? null : null,
+            message: 'complete',
           },
         };
       },
@@ -280,17 +289,19 @@ export const ResetConfigMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.replaceConfig(uniconfigURL, params, args.transactionId);
-        if (result.output['overall-status'] === 'fail') {
+
+        try {
+          await uniconfigAPI.replaceConfig(uniconfigURL, params, args.transactionId);
+          return {
+            dataStore: {
+              $deviceName: dbDevice.name,
+              $uniconfigURL: uniconfigURL,
+              $transactionId: args.transactionId,
+            },
+          };
+        } catch {
           throw new Error('error replacing config');
         }
-        return {
-          dataStore: {
-            $deviceName: dbDevice.name,
-            $uniconfigURL: uniconfigURL,
-            $transactionId: args.transactionId,
-          },
-        };
       },
     });
   },
@@ -334,17 +345,21 @@ export const AddSnapshotMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.createSnapshot(uniconfigURL, params, args.transactionId);
-        if (result.output['overall-status'] === 'fail') {
+        try {
+          await uniconfigAPI.createSnapshot(uniconfigURL, params, args.transactionId);
+
+          return {
+            snapshot: {
+              name: args.input.name,
+              createdAt: new Date().toISOString(),
+            },
+          };
+        } catch {
           throw new Error('error saving snapshot');
         }
-
-        return {
-          snapshot: {
-            name: args.input.name,
-            createdAt: new Date().toISOString(),
-          },
-        };
+        // if (result.output['overall-status'] === 'fail') {
+        //   throw new Error('error saving snapshot');
+        // }
       },
     });
   },
@@ -404,7 +419,6 @@ export const ApplySnapshotPayload = objectType({
   name: 'ApplySnapshotPayload',
   definition: (t) => {
     t.nonNull.boolean('isOk');
-    t.nonNull.string('output');
   },
 });
 export const ApplySnapshotMutation = extendType({
@@ -432,12 +446,18 @@ export const ApplySnapshotMutation = extendType({
             },
           },
         };
-        const result = await uniconfigAPI.applySnapshot(uniconfigURL, params, args.transactionId);
 
-        return {
-          isOk: result.output['overall-status'] === 'complete',
-          output: JSON.stringify(result.output),
-        };
+        try {
+          await uniconfigAPI.applySnapshot(uniconfigURL, params, args.transactionId);
+
+          return {
+            isOk: true,
+          };
+        } catch {
+          return {
+            isOk: false,
+          };
+        }
       },
     });
   },
@@ -497,9 +517,6 @@ export const CalculatedDiffQuery = extendType({
           },
         };
         const result = await uniconfigAPI.getCalculatedDiff(uniconfigURL, params, args.transactionId);
-        if (result.output['overall-status'] === 'fail') {
-          throw new Error('error getting calculated diff');
-        }
         const [output] = result.output['node-results']['node-result'];
         return {
           result: {
@@ -539,24 +556,28 @@ export const SyncFromNetworkMutation = extendType({
         }
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
         const params = {
-          input: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            'target-nodes': {
-              node: [dbDevice.name],
+          snapshot: [
+            {
+              name: 'snapshot',
+              nodes: [dbDevice.name],
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              'creation-time': Date.now().toString(),
             },
-          },
+          ],
         };
-        const response = await uniconfigAPI.syncFromNetwork(uniconfigURL, params, args.transactionId);
-        if (response.output['overall-status'] === 'fail') {
+        try {
+          await uniconfigAPI.syncFromNetwork(uniconfigURL, params, args.transactionId);
+
+          return {
+            dataStore: {
+              $deviceName: dbDevice.name,
+              $uniconfigURL: uniconfigURL,
+              $transactionId: args.transactionId,
+            },
+          };
+        } catch {
           return { dataStore: null };
         }
-        return {
-          dataStore: {
-            $deviceName: dbDevice.name,
-            $uniconfigURL: uniconfigURL,
-            $transactionId: args.transactionId,
-          },
-        };
       },
     });
   },

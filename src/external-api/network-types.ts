@@ -73,53 +73,26 @@ export function decodeUniconfigConfigInput(value: unknown): UniconfigConfigInput
 
 const UniconfigCommitInputValidator = t.type({
   input: t.type({
-    'target-nodes': t.type({
-      node: t.array(t.string),
-    }),
+    'do-confirmed-commit': t.boolean,
+    'do-rollback': t.boolean,
+    'skip-unreachable-nodes': t.boolean,
+    'do-validate': t.boolean,
   }),
 });
 export type UniconfigCommitInput = t.TypeOf<typeof UniconfigCommitInputValidator>;
+
+const UniconfigDryRunCommitInputValidator = t.type({
+  input: t.type({
+    'do-rollback': t.boolean,
+  }),
+});
+export type UniconfigDryRunCommitInput = t.TypeOf<typeof UniconfigDryRunCommitInputValidator>;
 
 export function decodeUniconfigCommitInput(value: unknown): UniconfigCommitInput {
   return extractResult(UniconfigCommitInputValidator.decode(value));
 }
 
 const UniconfigStatusValidator = t.union([t.literal('complete'), t.literal('fail')]);
-const UniconfigCommitOutputValidator = t.type({
-  output: t.union([
-    t.type({}),
-    t.type({
-      'overall-status': t.literal('complete'),
-      'node-results': t.type({
-        'node-result': t.array(
-          t.type({
-            'node-id': t.string,
-            'configuration-status': t.literal('complete'),
-          }),
-        ),
-      }),
-    }),
-    t.type({
-      'overall-status': t.literal('fail'),
-      'node-results': t.type({
-        'node-result': t.array(
-          t.type({
-            'node-id': t.string,
-            'error-type': optional(t.string),
-            'error-message': optional(t.string),
-            'configuration-status': t.literal('fail'),
-            'rollback-status': optional(UniconfigStatusValidator),
-          }),
-        ),
-      }),
-    }),
-  ]),
-});
-export type UniconfigCommitOutput = t.TypeOf<typeof UniconfigCommitOutputValidator>;
-
-export function decodeUniconfigCommitOutput(value: unknown): UniconfigCommitOutput {
-  return extractResult(UniconfigCommitOutputValidator.decode(value));
-}
 
 const UniconfigDryRunCommitOutputValidator = t.type({
   output: t.union([
@@ -170,17 +143,6 @@ export function decodeUniconfigReplaceInput(value: unknown): UniconfigReplaceInp
   return extractResult(UniconfigReplaceInputValidator.decode(value));
 }
 
-const UniconfigReplaceOutputValidator = t.type({
-  output: t.type({
-    'overall-status': UniconfigStatusValidator,
-  }),
-});
-export type UniconfigReplaceOutput = t.TypeOf<typeof UniconfigReplaceOutputValidator>;
-
-export function decodeUniconfigReplaceOutput(value: unknown): UniconfigReplaceOutput {
-  return extractResult(UniconfigReplaceOutputValidator.decode(value));
-}
-
 const UniconfigSnapshotsOutputValidator = t.type({
   'snapshots-metadata': t.union([
     t.type({}),
@@ -214,16 +176,6 @@ export type UniconfigSnapshotInput = t.TypeOf<typeof UniconfigSnapshotInputValid
 export function decodeUniconfigSnapshotInput(value: unknown): UniconfigSnapshotInput {
   return extractResult(UniconfigSnapshotInputValidator.decode(value));
 }
-const UniconfigSnapshotOutputValidator = t.type({
-  output: t.type({
-    'overall-status': UniconfigStatusValidator,
-  }),
-});
-export type UniconfigSnapshotOutput = t.TypeOf<typeof UniconfigSnapshotOutputValidator>;
-
-export function decodeUniconfigSnapshotOutput(value: unknown): UniconfigSnapshotOutput {
-  return extractResult(UniconfigSnapshotOutputValidator.decode(value));
-}
 
 const UniconfigApplySnapshotInputValidator = t.type({
   input: t.type({
@@ -237,17 +189,6 @@ export type UniconfigApplySnapshotInput = t.TypeOf<typeof UniconfigApplySnapshot
 
 export function decodeUniconfigApplySnapshotInput(value: unknown): UniconfigApplySnapshotInput {
   return extractResult(UniconfigApplySnapshotInputValidator.decode(value));
-}
-
-const UniconfigApplySnapshotOutputValidator = t.type({
-  output: t.type({
-    'overall-status': UniconfigStatusValidator,
-  }),
-});
-export type UniconfigApplySnapshotOutput = t.TypeOf<typeof UniconfigApplySnapshotOutputValidator>;
-
-export function decodeUniconfigApplySnapshotOutput(value: unknown): UniconfigApplySnapshotOutput {
-  return extractResult(UniconfigApplySnapshotOutputValidator.decode(value));
 }
 
 const UniconfigDiffInputValidator = t.type({
@@ -284,12 +225,9 @@ const UniconfigDiffOutputValidator = t.type({
             ),
           ),
           'created-data': optional(t.array(DiffDataValidator)),
-          status: UniconfigStatusValidator,
         }),
       ),
     }),
-    'error-message': optional(t.string),
-    'overall-status': UniconfigStatusValidator,
   }),
 });
 export type UniconfigDiffOutput = t.TypeOf<typeof UniconfigDiffOutputValidator>;
@@ -298,39 +236,19 @@ export function decodeUniconfigDiffOuptut(value: unknown): UniconfigDiffOutput {
   return extractResult(UniconfigDiffOutputValidator.decode(value));
 }
 
+const SnapshotMetadata = t.type({
+  name: t.string,
+  nodes: t.array(t.string),
+  'creation-time': t.string,
+});
+
 const UniconfigSyncInputValidator = t.type({
-  input: t.type({
-    'target-nodes': t.type({
-      node: t.array(t.string),
-    }),
-  }),
+  snapshot: t.array(SnapshotMetadata),
 });
 export type UniconfigSyncInput = t.TypeOf<typeof UniconfigSyncInputValidator>;
 
 export function decodeUniconfigSyncInput(value: unknown): UniconfigSyncInput {
   return extractResult(UniconfigSyncInputValidator.decode(value));
-}
-
-const UniconfigSyncOutputValidator = t.type({
-  output: t.type({
-    'error-message': optional(t.string),
-    'overall-status': UniconfigStatusValidator,
-    'node-results': t.type({
-      'node-result': t.array(
-        t.type({
-          'node-id': t.string,
-          status: UniconfigStatusValidator,
-          'error-type': optional(t.union([t.literal('no-connection'), t.literal('processing-error')])),
-          'error-message': optional(t.string),
-        }),
-      ),
-    }),
-  }),
-});
-export type UniconfigSyncOutput = t.TypeOf<typeof UniconfigSyncOutputValidator>;
-
-export function decodeUniconfigSyncOutput(value: unknown): UniconfigSyncOutput {
-  return extractResult(UniconfigSyncOutputValidator.decode(value));
 }
 
 const UniconfigInstallOutputTypeValidator = t.type({
@@ -390,18 +308,6 @@ export type UniconfigDeleteSnapshotParams = {
     name: string;
   };
 };
-
-const UniconfigDeleteSnapshotOutputValidator = t.type({
-  output: t.type({
-    'error-message': optional(t.string),
-    'overall-status': UniconfigStatusValidator,
-  }),
-});
-export type UniconfigDeleteSnapshotOutput = t.TypeOf<typeof UniconfigDeleteSnapshotOutputValidator>;
-
-export function decodeUniconfigDeleteSnapshotOutput(value: unknown): UniconfigDeleteSnapshotOutput {
-  return extractResult(UniconfigDeleteSnapshotOutputValidator.decode(value));
-}
 
 const SuccessTransaction = t.type({
   'transaction-id': t.string,
