@@ -82,11 +82,8 @@ export async function getCheckInstalledDevices(
   return data;
 }
 
-export async function installMultipleDevices(baseURL: string, input: unknown): Promise<UniconfigMultipleNodesOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
-  const data = decodeUniconfigMultipleNodesOutput(json);
-
-  return data;
+export async function installMultipleDevices(baseURL: string, input: unknown): Promise<void> {
+  await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
 }
 
 export async function uninstallMultipleDevices(

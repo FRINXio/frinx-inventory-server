@@ -113,13 +113,12 @@ export async function installMultipleDevicesCache({
 }): Promise<void> {
   const uniconfigCache = UniconfigCache.getInstance();
   const url = await uniconfigURL;
-  const response = await installMultipleDevices(url, devicesToInstall);
 
-  response.output['node-results']?.forEach((nodeResult) => {
-    if (nodeResult.status === 'fail') {
-      throw new Error(nodeResult['error-message'] ?? 'could not install device');
-    }
-  });
+  try {
+    await installMultipleDevices(url, devicesToInstall);
+  } catch {
+    throw new Error('could not install device');
+  }
 
   deviceNames.forEach((deviceName) => uniconfigCache.delete(url, deviceName));
 }
