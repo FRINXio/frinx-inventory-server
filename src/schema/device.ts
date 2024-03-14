@@ -571,8 +571,7 @@ export const CSVImportMutation = extendType({
               port: dev.port_number,
               software: dev.device_type,
               softwareVersion: dev.version,
-              // we do this to remove whitespace
-              mountParameters: JSON.stringify(JSON.parse(parsedTemplate(dev))),
+              mountParameters: JSON.parse(parsedTemplate(dev)),
             };
           }),
         });
