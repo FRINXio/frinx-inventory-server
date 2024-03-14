@@ -6,44 +6,33 @@ import {
   CheckInstalledNodesOutput,
   decodeInstalledDevicesOutput,
   decodeInstalledNodeOutput,
-  decodeUniconfigApplySnapshotOutput,
-  decodeUniconfigCommitOutput,
   decodeUniconfigConfigOutput,
-  decodeUniconfigDeleteSnapshotOutput,
   decodeUniconfigDiffOuptut,
   decodeUniconfigDryRunCommitOutput,
   decodeUniconfigExternalStorageOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigMultipleNodesOutput,
-  decodeUniconfigReplaceOutput,
   decodeUniconfigRevertChangesOutput,
-  decodeUniconfigSnapshotOutput,
   decodeUniconfigSnapshotsOutput,
-  decodeUniconfigSyncOutput,
   decodeUniconfigTransactionLogOutput,
   InstalledDevicesOutput,
   RevertChangesInput,
   UniconfigApplySnapshotInput,
-  UniconfigApplySnapshotOutput,
   UniconfigCommitInput,
-  UniconfigCommitOutput,
   UniconfigConfigInput,
   UniconfigConfigOutput,
-  UniconfigDeleteSnapshotOutput,
   UniconfigDeleteSnapshotParams,
   UniconfigDiffInput,
   UniconfigDiffOutput,
+  UniconfigDryRunCommitInput,
   UniconfigDryRunCommitOutput,
   UniconfigInstallOutput,
   UniconfigMultipleNodesOutput,
   UniconfigReplaceInput,
-  UniconfigReplaceOutput,
   UniconfigRevertChangesOutput,
   UniconfigSnapshotInput,
-  UniconfigSnapshotOutput,
   UniconfigSnapshotsOutput,
   UniconfigSyncInput,
-  UniconfigSyncOutput,
   UniconfigTransactionLogOutput,
   UninstallDeviceInput,
   UninstallMultipleDevicesInput,
@@ -93,11 +82,8 @@ export async function getCheckInstalledDevices(
   return data;
 }
 
-export async function installMultipleDevices(baseURL: string, input: unknown): Promise<UniconfigMultipleNodesOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
-  const data = decodeUniconfigMultipleNodesOutput(json);
-
-  return data;
+export async function installMultipleDevices(baseURL: string, input: unknown): Promise<void> {
+  await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
 }
 
 export async function uninstallMultipleDevices(
@@ -172,17 +158,14 @@ export async function postCommitToNetwork(
   baseURL: string,
   params: UniconfigCommitInput,
   transactionId: string,
-): Promise<UniconfigCommitOutput> {
+): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:commit'], params, cookie);
-  const data = decodeUniconfigCommitOutput(json);
-
-  return data;
+  await sendPostRequest([baseURL, '/operations/uniconfig-manager:commit'], params, cookie);
 }
 
 export async function postDryRunCommitToNetwork(
   baseURL: string,
-  params: UniconfigCommitInput,
+  params: UniconfigDryRunCommitInput,
   transactionId: string,
 ): Promise<UniconfigDryRunCommitOutput> {
   const cookie = makeCookieFromTransactionId(transactionId);
@@ -196,16 +179,9 @@ export async function replaceConfig(
   baseURL: string,
   params: UniconfigReplaceInput,
   transactionId: string,
-): Promise<UniconfigReplaceOutput> {
+): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  const json = await sendPostRequest(
-    [baseURL, '/operations/uniconfig-manager:replace-config-with-operational'],
-    params,
-    cookie,
-  );
-  const data = decodeUniconfigReplaceOutput(json);
-
-  return data;
+  await sendPostRequest([baseURL, '/operations/uniconfig-manager:replace-config-with-operational'], params, cookie);
 }
 
 export async function getSnapshots(baseURL: string, transactionId: string): Promise<UniconfigSnapshotsOutput> {
@@ -220,28 +196,18 @@ export async function createSnapshot(
   baseURL: string,
   params: UniconfigSnapshotInput,
   transactionId: string,
-): Promise<UniconfigSnapshotOutput> {
+): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  const json = await sendPostRequest([baseURL, '/operations/snapshot-manager:create-snapshot'], params, cookie);
-  const data = decodeUniconfigSnapshotOutput(json);
-
-  return data;
+  await sendPostRequest([baseURL, '/operations/snapshot-manager:create-snapshot'], params, cookie);
 }
 
 export async function applySnapshot(
   baseURL: string,
   params: UniconfigApplySnapshotInput,
   transactionId: string,
-): Promise<UniconfigApplySnapshotOutput> {
+): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  const json = await sendPostRequest(
-    [baseURL, '/operations/snapshot-manager:replace-config-with-snapshot'],
-    params,
-    cookie,
-  );
-  const data = decodeUniconfigApplySnapshotOutput(json);
-
-  return data;
+  await sendPostRequest([baseURL, '/operations/snapshot-manager:replace-config-with-snapshot'], params, cookie);
 }
 
 export async function getCalculatedDiff(
@@ -260,24 +226,18 @@ export async function syncFromNetwork(
   baseURL: string,
   params: UniconfigSyncInput,
   transactionId: string,
-): Promise<UniconfigSyncOutput> {
+): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  const json = await sendPostRequest([baseURL, '/operations/uniconfig-manager:sync-from-network'], params, cookie);
-  const data = decodeUniconfigSyncOutput(json);
-
-  return data;
+  await sendPostRequest([baseURL, '/operations/uniconfig-manager:sync-from-network'], params, cookie);
 }
 
 export async function deleteSnapshot(
   baseURL: string,
   params: UniconfigDeleteSnapshotParams,
   transactionId: string,
-): Promise<UniconfigDeleteSnapshotOutput> {
+): Promise<void> {
   const cookie = makeCookieFromTransactionId(transactionId);
-  const json = await sendPostRequest([baseURL, 'operations/snapshot-manager:delete-snapshot'], params, cookie);
-  const data = decodeUniconfigDeleteSnapshotOutput(json);
-
-  return data;
+  await sendPostRequest([baseURL, 'operations/snapshot-manager:delete-snapshot'], params, cookie);
 }
 
 async function createTransaction(baseURL: string): Promise<string> {

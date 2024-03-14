@@ -205,7 +205,6 @@ export interface NexusGenObjects {
   ApplySnapshotPayload: {
     // root type
     isOk: boolean; // Boolean!
-    output: string; // String!
   };
   Blueprint: SourceTypes.Blueprint;
   BlueprintConnection: {
@@ -668,7 +667,6 @@ export interface NexusGenFieldTypes {
   ApplySnapshotPayload: {
     // field return type
     isOk: boolean; // Boolean!
-    output: string; // String!
   };
   Blueprint: {
     // field return type
@@ -1239,7 +1237,6 @@ export interface NexusGenFieldTypeNames {
   ApplySnapshotPayload: {
     // field return type name
     isOk: 'Boolean';
-    output: 'String';
   };
   Blueprint: {
     // field return type name

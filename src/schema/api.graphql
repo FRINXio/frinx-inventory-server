@@ -65,7 +65,6 @@ input ApplySnapshotInput {
 
 type ApplySnapshotPayload {
   isOk: Boolean!
-  output: String!
 }
 
 interface BaseGraphNode {
