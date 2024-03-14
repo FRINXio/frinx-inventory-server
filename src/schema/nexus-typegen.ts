@@ -796,6 +796,7 @@ export interface NexusGenFieldTypes {
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
     vendor: string | null; // String
+    version: string | null; // String
     zone: NexusGenRootTypes['Zone']; // Zone!
   };
   DeviceConnection: {
@@ -1366,6 +1367,7 @@ export interface NexusGenFieldTypeNames {
     source: 'DeviceSource';
     updatedAt: 'String';
     vendor: 'String';
+    version: 'String';
     zone: 'Zone';
   };
   DeviceConnection: {

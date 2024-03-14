@@ -229,6 +229,7 @@ type Device implements Node {
   source: DeviceSource!
   updatedAt: String!
   vendor: String
+  version: String
   zone: Zone!
 }
 
