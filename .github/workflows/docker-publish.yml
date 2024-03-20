@@ -3,9 +3,9 @@ name: Docker
 on:
   workflow_dispatch:
   push:
-    # Publish `master` and `stable` as Docker `latest` image.
+    # Publish `main` and `stable` as Docker `latest` image.
     branches:
-      - 'master'
+      - 'main'
       - '[0-9]+.X-stable'
 
     # Publish `v1.2.3` tags as releases.
@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set tag and hive token for latest image
-        if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/master')
+        if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/main')
         run: |
           echo "IMAGE_TAG=$(echo 'latest')" >> "$GITHUB_ENV"
           echo "HIVE_TOKEN=${{ secrets.HIVE_MASTER_LATEST_TOKEN }}" >> "$GITHUB_ENV"
@@ -63,7 +63,7 @@ jobs:
 
       - name: Hive publish
         env:
-          SCHEMA_PATH: "src/schema/api.graphql"
+          SCHEMA_PATH: 'src/schema/api.graphql'
         run: |
           curl -sSL https://graphql-hive.com/install.sh | sh
           hive schema:publish ${{ env.SCHEMA_PATH }} \

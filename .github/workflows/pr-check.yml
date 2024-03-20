@@ -2,7 +2,7 @@ name: PR check
 on:
   pull_request:
     branches:
-      - master
+      - main
       - story-new-conductor-api
       - story-new-graphql-proxy
 jobs:
