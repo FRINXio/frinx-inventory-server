@@ -12,7 +12,6 @@ import {
   decodeUniconfigExternalStorageOutput,
   decodeUniconfigInstallOutput,
   decodeUniconfigMultipleNodesOutput,
-  decodeUniconfigRevertChangesOutput,
   decodeUniconfigSnapshotsOutput,
   decodeUniconfigTransactionLogOutput,
   InstalledDevicesOutput,
@@ -29,7 +28,6 @@ import {
   UniconfigInstallOutput,
   UniconfigMultipleNodesOutput,
   UniconfigReplaceInput,
-  UniconfigRevertChangesOutput,
   UniconfigSnapshotInput,
   UniconfigSnapshotsOutput,
   UniconfigSyncInput,
@@ -266,11 +264,8 @@ async function getTransactionLog(baseURL: string): Promise<UniconfigTransactionL
   return data;
 }
 
-async function revertChanges(baseURL: string, params: RevertChangesInput): Promise<UniconfigRevertChangesOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/transaction-log:revert-changes'], params);
-  const data = decodeUniconfigRevertChangesOutput(json);
-
-  return data;
+async function revertChanges(baseURL: string, params: RevertChangesInput): Promise<void> {
+  await sendPostRequest([baseURL, '/operations/transaction-log:revert-changes'], params);
 }
 
 async function getExternalStorage(baseURL: string, path: string): Promise<Record<string, string>> {

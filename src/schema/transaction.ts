@@ -168,13 +168,16 @@ export const RevertChangesMutation = extendType({
           throw new Error('should not happen');
         }
         const uniconfigURL = makeUniconfigURL(dbZone.name);
-        const result = await uniconfigAPI.revertChanges(uniconfigURL, {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          input: { 'target-transactions': { transaction: [args.transactionId] }, 'ignore-non-existing-nodes': true },
-        });
-        const isOk = result.output['overall-status'] === 'complete';
+        try {
+          await uniconfigAPI.revertChanges(uniconfigURL, {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            input: { 'target-transactions': { transaction: [args.transactionId] }, 'ignore-non-existing-nodes': true },
+          });
 
-        return { isOk };
+          return { isOk: true };
+        } catch (e) {
+          return { isOk: false };
+        }
       },
     });
   },
