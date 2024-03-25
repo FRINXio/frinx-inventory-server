@@ -364,26 +364,6 @@ export type RevertChangesInput = {
   };
 };
 
-const UniconfigRevertChangesOutputValidator = t.type({
-  output: t.type({
-    'revert-output': t.type({
-      result: t.array(
-        t.type({
-          'transaction-id': t.string,
-          status: UniconfigStatusValidator,
-        }),
-      ),
-    }),
-    'overall-status': UniconfigStatusValidator,
-  }),
-});
-
-export type UniconfigRevertChangesOutput = t.TypeOf<typeof UniconfigRevertChangesOutputValidator>;
-
-export function decodeUniconfigRevertChangesOutput(value: unknown): UniconfigRevertChangesOutput {
-  return extractResult(UniconfigRevertChangesOutputValidator.decode(value));
-}
-
 const UniconfigExternalStorageOutputValidator = t.record(t.string, t.string);
 
 export type UniconfigExternalStorageOutput = t.TypeOf<typeof UniconfigExternalStorageOutputValidator>;
