@@ -6,13 +6,16 @@ import getTopologyDiscoveryApi, { TopologyDiscoveryGraphQLAPI } from './external
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
 import config from './config';
+import kafkaProducers, { KafkaProducer } from './external-api/kafka';
 
 export type Context = {
+  kafka: KafkaProducer | null;
   prisma: PrismaClient;
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
   topologyDiscoveryAPI: TopologyDiscoveryAPI;
   topologyDiscoveryGraphQLAPI?: TopologyDiscoveryGraphQLAPI;
+  inventoryKafka: typeof kafkaProducers;
 };
 
 function getTenantIdFromHeaders(headers: IncomingHttpHeaders): string {
@@ -25,17 +28,22 @@ function getTenantIdFromHeaders(headers: IncomingHttpHeaders): string {
   return headers['x-tenant-id'];
 }
 
+const kafka = new KafkaProducer();
+kafka.connect();
+
 export default async function createContext(context: ExpressContextFunctionArgument): Promise<Context> {
   const { req } = context;
   const { headers } = req;
   const tenantId = getTenantIdFromHeaders(headers);
 
   return {
+    kafka,
     prisma: prismaClient,
     tenantId,
     uniconfigAPI,
     topologyDiscoveryAPI,
     topologyDiscoveryGraphQLAPI: getTopologyDiscoveryApi(),
+    inventoryKafka: kafkaProducers,
   };
 }
 

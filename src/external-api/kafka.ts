@@ -1,8 +1,7 @@
 import { Kafka, logLevel, Producer } from 'kafkajs';
 import config from '../config';
 import { Device } from '../schema/source-types';
-import { decodeMetadataOutput } from '../helpers/device-types';
-import prismaClient from '../prisma-client';
+import { encodeDeviceForInventoryKafka } from '../helpers/device-helpers';
 
 const KAFKA_BROKER = config.kafkaBroker || '';
 const KAFKA_TOPIC = config.kafkaTopic || '';
@@ -45,6 +44,16 @@ class KafkaProducer {
     });
   }
 
+  public async isConnected(): Promise<boolean> {
+    try {
+      await this.producer.connect();
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   private static createProducer(logLvl: logLevel): Producer {
     const kafka = new Kafka({
       clientId: 'elisa-polystar-slovakia',
@@ -56,56 +65,52 @@ class KafkaProducer {
   }
 }
 
-async function produceDeviceRegistrationEvent(kafka: KafkaProducer, device: Device): Promise<void> {
-  await kafka.send(
-    {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      device_name: device.name,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      device_size: decodeMetadataOutput(device.metadata)?.deviceSize ?? 'MEDIUM',
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      device_type: device.deviceType,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      device_address: device.macAddress,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      device_port: device.port,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      zone_id: device.uniconfigZoneId,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      service_state: device.serviceState,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      mount_parameters: device.mountParameters,
-      vendor: device.vendor,
-      model: device.model,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      blueprint_id: device.blueprintId,
-      username: device.username,
-      password: device.password,
-      version: device.version,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      labels_ids: [],
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      geo_location: prismaClient.location.findUnique({ where: { id: device.locationId ?? undefined } }),
-    },
-    { type: 'device_registration' },
-  );
+async function produceDeviceRegistrationEvent(
+  kafka: Omit<KafkaProducer, 'connect'> | null,
+  device: Device,
+  coordinates: [number, number],
+  labelIds: string[],
+): Promise<void> {
+  if (kafka == null) {
+    throw new Error('Kafka producer is not initialized');
+  }
+
+  await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    type: 'device_registration',
+  });
 }
 
-async function produceDeviceRemovalEvent(kafka: KafkaProducer, deviceName: string): Promise<void> {
+async function produceDeviceRemovalEvent(
+  kafka: Omit<KafkaProducer, 'connect'> | null,
+  deviceName: string,
+): Promise<void> {
+  if (kafka == null) {
+    throw new Error('Kafka producer is not initialized');
+  }
+
   // eslint-disable-next-line @typescript-eslint/naming-convention
   await kafka.send({ device_name: deviceName }, { type: 'device_removal' });
 }
 
-async function produceDeviceUpdateEvent(kafka: KafkaProducer, device: Device): Promise<void> {
-  await kafka.send(device, { type: 'device_update' });
+async function produceDeviceUpdateEvent(
+  kafka: Omit<KafkaProducer, 'connect'> | null,
+  device: Device,
+  coordinates: [number, number],
+  labelIds: string[],
+): Promise<void> {
+  if (kafka == null) {
+    throw new Error('Kafka producer is not initialized');
+  }
+
+  await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    type: 'device_update',
+  });
 }
 
 const kafkaProducers = {
-  deviceInventory: {
-    produceDeviceRegistrationEvent,
-    produceDeviceRemovalEvent,
-    produceDeviceUpdateEvent,
-  },
+  produceDeviceRegistrationEvent,
+  produceDeviceRemovalEvent,
+  produceDeviceUpdateEvent,
 };
 
 export default kafkaProducers;

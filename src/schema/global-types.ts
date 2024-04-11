@@ -1,5 +1,5 @@
 import countries from 'i18n-iso-countries';
-import { enumType, extendType, idArg, intArg, interfaceType, nonNull, objectType, stringArg } from 'nexus';
+import { enumType, extendType, idArg, intArg, interfaceType, nonNull, objectType, queryField, stringArg } from 'nexus';
 import { fromGraphId, getType } from '../helpers/id-helper';
 
 export const Node = interfaceType({
@@ -114,4 +114,27 @@ export const IsOkResponse = objectType({
 export const SortDirection = enumType({
   name: 'SortDirection',
   members: ['ASC', 'DESC'],
+});
+
+export const KafkaHealthCheckQuery = queryField('kafkaHealthCheck', {
+  type: IsOkResponse,
+  resolve: async (root, _, { kafka }) => {
+    const isOk = await kafka?.isConnected();
+
+    return { isOk: isOk ?? false };
+  },
+});
+
+export const ReconnectKafkaMutation = queryField('reconnectKafka', {
+  type: IsOkResponse,
+  resolve: async (root, _, { kafka }) => {
+    if (kafka == null) {
+      return { isOk: false };
+    }
+
+    await kafka.disconnect();
+    await kafka.connect();
+
+    return { isOk: true };
+  },
 });

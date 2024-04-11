@@ -255,7 +255,7 @@ export const AddDeviceMutation = extendType({
       args: {
         input: nonNull(arg({ type: AddDeviceInput })),
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const { input } = args;
         const nativeZoneId = fromGraphId('Zone', input.zoneId);
         const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
@@ -290,6 +290,18 @@ export const AddDeviceMutation = extendType({
               },
             },
           });
+
+          const deviceLocation = await prisma.location.findFirst({
+            where: { id: device.locationId ?? undefined },
+          });
+
+          inventoryKafka.produceDeviceRegistrationEvent(
+            kafka,
+            device,
+            [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
+            labelIds ?? [],
+          );
+
           return { device };
         } catch (e) {
           if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -341,7 +353,7 @@ export const UpdateDeviceMutation = extendType({
         id: nonNull(stringArg()),
         input: nonNull(arg({ type: UpdateDeviceInput })),
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
           where: { id: nativeId, tenantId },
@@ -393,6 +405,18 @@ export const UpdateDeviceMutation = extendType({
             }),
           },
         });
+
+        const deviceLocation = await prisma.location.findFirst({
+          where: { id: updatedDevice.locationId ?? undefined },
+        });
+
+        inventoryKafka.produceDeviceUpdateEvent(
+          kafka,
+          updatedDevice,
+          [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
+          labelIds,
+        );
+
         return { device: updatedDevice };
       },
     });
@@ -420,7 +444,7 @@ export const DeleteDeviceMutation = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
@@ -434,6 +458,9 @@ export const DeleteDeviceMutation = extendType({
           throw new Error('device is installed in UniConfig');
         }
         const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
+
+        inventoryKafka.produceDeviceRemovalEvent(kafka, deletedDevice.name);
+
         return { device: deletedDevice };
       },
     });
