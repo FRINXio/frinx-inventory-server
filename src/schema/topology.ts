@@ -15,6 +15,10 @@ import {
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
+  getNetDeviceInterfaceEdges,
+  getNetEdgesFromTopologyQuery,
+  getNetNodesFromTopologyQuery,
+  getNetTopologyInterfaces,
   getNodesFromTopologyQuery,
   getPtpDeviceInterfaceEdges,
   getPtpEdgesFromTopologyQuery,
@@ -26,6 +30,7 @@ import {
   getSynceNodesFromTopologyQuery,
   getSynceTopologyInterfaces,
   getTopologyInterfaces,
+  makeNetTopologyDiff,
   makeNetTopologyEdges,
   makeNetTopologyNodes,
   makePtpTopologyDiff,
@@ -245,6 +250,22 @@ export const SynceTopologyVersionData = objectType({
   name: 'SynceTopologyVersionData',
   definition: (t) => {
     t.nonNull.list.field('nodes', { type: nonNull(SynceGraphNode) });
+    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
+export const NetInterface = objectType({
+  name: 'NetInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
+  },
+});
+
+export const NetTopologyVersionData = objectType({
+  name: 'NetTopologyVersionData',
+  definition: (t) => {
+    t.nonNull.list.field('nodes', { type: nonNull(NetNode) });
     t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
   },
 });
@@ -475,6 +496,39 @@ export const TopologyVersionDataQuery = extendType({
   },
 });
 
+export const NetTopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('netTopologyVersionData', {
+      type: NetTopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
+
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getNetTopologyDevices();
+
+        const currentNodes = getNetNodesFromTopologyQuery(topologyDevicesResult);
+        const currentEdges = getNetEdgesFromTopologyQuery(topologyDevicesResult);
+
+        const interfaces = getNetTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getNetDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { version } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'NetworkTopology');
+
+        return makeNetTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
+      },
+    });
+  },
+});
+
 export const GraphNodeCoordinatesInput = inputObjectType({
   name: 'GraphNodeCoordinatesInput',
   definition: (t) => {
@@ -534,13 +588,7 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
   },
 });
 
-export const NetInterface = objectType({
-  name: 'NetInterface',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.string('name');
-  },
-});
+
 
 export const NetNetwork = objectType({
   name: 'NetNetwork',
@@ -550,6 +598,8 @@ export const NetNetwork = objectType({
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
+
+
 
 export const NetNode = objectType({
   name: 'NetNode',
@@ -562,6 +612,8 @@ export const NetNode = objectType({
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
+
+
 
 export const NetTopology = objectType({
   name: 'NetTopology',

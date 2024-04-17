@@ -456,6 +456,11 @@ type NetTopology {
   nodes: [NetNode!]!
 }
 
+type NetTopologyVersionData {
+  edges: [GraphVersionEdge!]!
+  nodes: [NetNode!]!
+}
+
 interface Node {
   id: ID!
 }
@@ -549,6 +554,7 @@ type Query {
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   netTopology: NetTopology
+  netTopologyVersionData(version: String!): NetTopologyVersionData!
   node(id: ID!): Node
   phyTopologyVersionData(version: String!): PhyTopologyVersionData!
   ptpDiffSynce: PtpDiffSynce!

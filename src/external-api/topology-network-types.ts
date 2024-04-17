@@ -60,6 +60,12 @@ const InterfaceWithStatusValidator = t.intersection([
   }),
 ]);
 
+const NetInterfaceWithStatusValidator = t.type({
+  _id: t.string,
+  _key: t.string,
+  status: StatusValidator,
+});
+
 const PtpInterfaceWithStatusValidator = t.intersection([
   PtpInterface,
   t.type({
@@ -86,6 +92,7 @@ const DeviceValidator = t.intersection([
     coordinates: CoordinatesValidator,
   }),
 ]);
+
 const PtpDeviceValidator = t.intersection([
   InterfaceWithStatusValidator,
   t.type({
@@ -236,9 +243,9 @@ const ChangeNetDiff = t.type({
 });
 
 const NetDiff = t.type({
-  NetDevice: t.array(DeviceValidator),
-  NetHas: t.array(EdgeWithStatusValidator),
-  NetInterface: t.array(InterfaceWithStatusValidator),
+  // NetDevice: t.array(NetDeviceValidator),
+  // NetHas: t.array(EdgeWithStatusValidator),
+  // NetInterface: t.array(InterfaceWithStatusValidator),
   NetLink: t.array(Edge),
 });
 
@@ -278,7 +285,8 @@ const TopologyDiffOutputValidator = t.type({
 export type TopologyDiffOutput = t.TypeOf<typeof TopologyDiffOutputValidator>;
 
 export function decodeTopologyDiffOutput(value: unknown): TopologyDiffOutput {
-  return extractResult(TopologyDiffOutputValidator.decode(value));
+  const result = extractResult(TopologyDiffOutputValidator.decode(value));
+  return result;
 }
 
 const TopologyCommonNodesOutputValidator = t.type({
@@ -305,6 +313,7 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
 export type InterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
 export type PtpInterfaceWithStatus = t.TypeOf<typeof PtpInterfaceWithStatusValidator>;
 export type SynceInterfaceWithStatus = t.TypeOf<typeof SynceInterfaceWithStatusValidator>;
+export type NetInterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
 
 const HasAndInterfacesOutputValidator = t.type({
   has: t.array(EdgeWithStatusValidator),

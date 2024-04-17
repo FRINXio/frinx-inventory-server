@@ -99,6 +99,13 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
           routerId
           phyDevice {
             id
+            name
+            status
+            details {
+              device_type
+              sw_version
+            }
+            labels
             routerId
             coordinates {
               x
@@ -117,6 +124,7 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
                 }
                 netLinks {
                   edges {
+                    link
                     node {
                       id
                       igp_metric
