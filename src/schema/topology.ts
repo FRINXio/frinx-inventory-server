@@ -262,14 +262,6 @@ export const NetInterface = objectType({
   },
 });
 
-export const NetTopologyVersionData = objectType({
-  name: 'NetTopologyVersionData',
-  definition: (t) => {
-    t.nonNull.list.field('nodes', { type: nonNull(NetNode) });
-    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
-  },
-});
-
 export const TopologyCommonNodes = objectType({
   name: 'TopologyCommonNodes',
   definition: (t) => {
@@ -496,39 +488,6 @@ export const TopologyVersionDataQuery = extendType({
   },
 });
 
-export const NetTopologyVersionDataQuery = extendType({
-  type: 'Query',
-  definition: (t) => {
-    t.nonNull.field('netTopologyVersionData', {
-      type: NetTopologyVersionData,
-      args: {
-        version: nonNull(stringArg()),
-      },
-      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
-        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
-          return {
-            nodes: [],
-            edges: [],
-          };
-        }
-
-        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getNetTopologyDevices();
-
-        const currentNodes = getNetNodesFromTopologyQuery(topologyDevicesResult);
-        const currentEdges = getNetEdgesFromTopologyQuery(topologyDevicesResult);
-
-        const interfaces = getNetTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
-        const interfaceEdges = getNetDeviceInterfaceEdges(topologyDevicesResult);
-
-        const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'NetworkTopology');
-
-        return makeNetTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
-      },
-    });
-  },
-});
-
 export const GraphNodeCoordinatesInput = inputObjectType({
   name: 'GraphNodeCoordinatesInput',
   definition: (t) => {
@@ -588,8 +547,6 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
   },
 });
 
-
-
 export const NetNetwork = objectType({
   name: 'NetNetwork',
   definition: (t) => {
@@ -598,8 +555,6 @@ export const NetNetwork = objectType({
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
-
-
 
 export const NetNode = objectType({
   name: 'NetNode',
@@ -612,8 +567,6 @@ export const NetNode = objectType({
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
-
-
 
 export const NetTopology = objectType({
   name: 'NetTopology',
@@ -639,6 +592,47 @@ export const NetTopologyQuery = extendType({
           nodes: makeNetTopologyNodes(netDevices),
           edges: makeNetTopologyEdges(netDevices),
         };
+      },
+    });
+  },
+});
+
+export const NetTopologyVersionData = objectType({
+  name: 'NetTopologyVersionData',
+  definition: (t) => {
+    t.nonNull.list.field('nodes', { type: nonNull(NetNode) });
+    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
+export const NetTopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('netTopologyVersionData', {
+      type: NetTopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
+
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getNetTopologyDevices();
+
+        const currentNodes = getNetNodesFromTopologyQuery(topologyDevicesResult);
+        const currentEdges = getNetEdgesFromTopologyQuery(topologyDevicesResult);
+
+        const interfaces = getNetTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getNetDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { version } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'NetworkTopology');
+
+        return makeNetTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
     });
   },

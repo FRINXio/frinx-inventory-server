@@ -504,6 +504,13 @@ export function getOldTopologyInterfaceEdges(
     );
   }
 
+  return [];
+}
+
+export function getOldNetTopologyInterfaceEdges(
+  interfaceEdges: ArangoEdge[],
+  diffData: TopologyDiffOutput,
+): ArangoEdge[] {
   if (isNetTopologyDiff(diffData)) {
     return (
       interfaceEdges
