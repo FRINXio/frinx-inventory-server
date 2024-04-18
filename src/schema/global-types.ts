@@ -119,9 +119,13 @@ export const SortDirection = enumType({
 export const KafkaHealthCheckQuery = queryField('kafkaHealthCheck', {
   type: IsOkResponse,
   resolve: async (root, _, { kafka }) => {
-    const isOk = await kafka?.isConnected();
+    if (kafka == null) {
+      return { isOk: false };
+    }
 
-    return { isOk: isOk ?? false };
+    await kafka.connect();
+    const isOk = await kafka.isHealthy();
+    return { isOk };
   },
 });
 

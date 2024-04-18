@@ -1,16 +1,20 @@
-import { Kafka, logLevel, Producer } from 'kafkajs';
+import { Consumer, Kafka, Producer } from 'kafkajs';
 import config from '../config';
 import { Device } from '../schema/source-types';
 import { encodeDeviceForInventoryKafka } from '../helpers/device-helpers';
 
 const KAFKA_BROKER = config.kafkaBroker || '';
 const KAFKA_TOPIC = config.kafkaTopic || '';
+const SESSION_TIMEOUT = 30000;
 
 class KafkaProducer {
   private producer: Producer;
 
-  constructor(logLvl: logLevel = logLevel.NOTHING) {
-    this.producer = KafkaProducer.createProducer(logLvl);
+  private consumer: Consumer;
+
+  constructor() {
+    this.producer = KafkaProducer.createProducer();
+    this.consumer = KafkaProducer.createConsumer();
   }
 
   public async connect(): Promise<void> {
@@ -27,7 +31,13 @@ class KafkaProducer {
     await this.producer.disconnect();
   }
 
-  public async send(msg: Record<string, unknown>, headers: Record<string, string>, timeout?: number): Promise<void> {
+  public async send(msg: Record<string, unknown>, headers: Record<string, string>): Promise<void> {
+    try {
+      await this.connect();
+    } catch (error) {
+      console.log(`Error connecting to Kafka: ${error}`);
+    }
+
     await this.producer.send({
       messages: [
         {
@@ -40,28 +50,48 @@ class KafkaProducer {
         },
       ],
       topic: KAFKA_TOPIC,
-      timeout,
     });
+    await this.disconnect();
   }
 
-  public async isConnected(): Promise<boolean> {
-    try {
-      await this.producer.connect();
-
+  isHealthy = async () => {
+    const { HEARTBEAT } = this.consumer.events;
+    let lastHeartbeat = 0;
+    this.consumer.on(HEARTBEAT, ({ timestamp }) => {
+      lastHeartbeat = timestamp;
+    });
+    // Consumer has heartbeat within the session timeout,
+    // so it is healthy
+    if (Date.now() - lastHeartbeat < SESSION_TIMEOUT) {
       return true;
-    } catch (error) {
+    }
+
+    // Consumer has not heartbeat, but maybe it's because the group is currently rebalancing
+    try {
+      const { state } = await this.consumer.describeGroup();
+
+      return ['CompletingRebalance', 'PreparingRebalance'].includes(state.toString());
+    } catch (err) {
       return false;
     }
-  }
+  };
 
-  private static createProducer(logLvl: logLevel): Producer {
+  private static createProducer(): Producer {
     const kafka = new Kafka({
-      clientId: 'elisa-polystar-slovakia',
       brokers: [KAFKA_BROKER],
-      logLevel: logLvl,
     });
 
     return kafka.producer();
+  }
+
+  private static createConsumer(): Consumer {
+    const kafka = new Kafka({
+      brokers: [KAFKA_BROKER],
+    });
+
+    return kafka.consumer({
+      groupId: 'inventory-service',
+    });
   }
 }
 
@@ -75,9 +105,14 @@ async function produceDeviceRegistrationEvent(
     throw new Error('Kafka producer is not initialized');
   }
 
-  await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
-    type: 'device_registration',
-  });
+  try {
+    await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+      type: 'device_registration',
+    });
+  } catch (error) {
+    console.log('Error sending device registration event to Kafka:', error);
+    throw error;
+  }
 }
 
 async function produceDeviceRemovalEvent(
@@ -88,8 +123,13 @@ async function produceDeviceRemovalEvent(
     throw new Error('Kafka producer is not initialized');
   }
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  await kafka.send({ device_name: deviceName }, { type: 'device_removal' });
+  try {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    await kafka.send({ device_name: deviceName }, { type: 'device_removal' });
+  } catch (error) {
+    console.log('Error sending device removal event to Kafka:', error);
+    throw error;
+  }
 }
 
 async function produceDeviceUpdateEvent(
@@ -102,9 +142,14 @@ async function produceDeviceUpdateEvent(
     throw new Error('Kafka producer is not initialized');
   }
 
-  await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
-    type: 'device_update',
-  });
+  try {
+    await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+      type: 'device_update',
+    });
+  } catch (error) {
+    console.log('Error sending device update event to Kafka:', error);
+    throw error;
+  }
 }
 
 const kafkaProducers = {

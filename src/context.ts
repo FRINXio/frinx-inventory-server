@@ -28,13 +28,11 @@ function getTenantIdFromHeaders(headers: IncomingHttpHeaders): string {
   return headers['x-tenant-id'];
 }
 
-const kafka = new KafkaProducer();
-kafka.connect();
-
 export default async function createContext(context: ExpressContextFunctionArgument): Promise<Context> {
   const { req } = context;
   const { headers } = req;
   const tenantId = getTenantIdFromHeaders(headers);
+  const kafka = new KafkaProducer();
 
   return {
     kafka,
