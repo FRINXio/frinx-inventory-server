@@ -52,6 +52,7 @@ const NetInterface = t.type({
   _key: t.string,
   ip_address: t.string,
 });
+export type NetInterface = t.TypeOf<typeof NetInterface>;
 const StatusValidator = t.union([t.literal('ok'), t.literal('unknown')]);
 const InterfaceWithStatusValidator = t.intersection([
   Interface,
@@ -124,18 +125,40 @@ const SynceDeviceValidator = t.intersection([
     coordinates: CoordinatesValidator,
   }),
 ]);
+
+const NetworkValidator = t.type({
+  _id: t.string,
+  _key: t.string,
+  coordinates: CoordinatesValidator,
+  subnet: t.string,
+  ospf_route_type: t.number,
+});
+
+const ChangedNetNetwork = t.type({
+  new: NetworkValidator,
+  old: NetworkValidator,
+});
+
 const NetDeviceValidator = t.type({
   _id: t.string,
   _key: t.string,
-  _rev: t.string,
+  _rev: optional(t.string),
   router_id: t.string,
   coordinates: CoordinatesValidator,
   ospf_area_id: t.string,
 });
 
+const DeviceWithNetworksValidator = t.intersection([
+  NetDeviceValidator,
+  t.type({
+    netNetworks: t.array(NetworkValidator),
+  }),
+]);
+
 export type ArangoDevice = t.TypeOf<typeof DeviceValidator>;
 export type ArangoPtpDevice = t.TypeOf<typeof PtpDeviceValidator>;
 export type ArangoSynceDevice = t.TypeOf<typeof SynceDeviceValidator>;
+export type ArangoNetDevice = t.TypeOf<typeof DeviceWithNetworksValidator>;
 
 export type Status = t.TypeOf<typeof StatusValidator>;
 
@@ -250,6 +273,7 @@ const ChangeNetDiff = t.type({
   NetHas: t.array(ChangedEdge),
   NetInterface: t.array(ChangedNetInterface),
   NetLink: t.array(ChangedEdge),
+  NetNetwork: t.array(ChangedNetNetwork),
 });
 
 const NetDiff = t.type({
@@ -257,6 +281,7 @@ const NetDiff = t.type({
   NetHas: t.array(Edge),
   NetInterface: t.array(NetInterfaceValidator),
   NetLink: t.array(Edge),
+  NetNetwork: t.array(NetworkValidator),
 });
 
 const TopologyDiff = t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]);
@@ -323,7 +348,6 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
 export type InterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
 export type PtpInterfaceWithStatus = t.TypeOf<typeof PtpInterfaceWithStatusValidator>;
 export type SynceInterfaceWithStatus = t.TypeOf<typeof SynceInterfaceWithStatusValidator>;
-export type NetInterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
 
 const HasAndInterfacesOutputValidator = t.type({
   has: t.array(EdgeWithStatusValidator),
@@ -373,12 +397,6 @@ const AdvertiseValidator = t.type({
   _from: t.string,
   _id: t.string,
   _to: t.string,
-});
-const NetworkValidator = t.type({
-  _id: t.string,
-  _key: t.string,
-  coordinates: CoordinatesValidator,
-  subnet: t.string,
 });
 
 export type NetNetwork = t.TypeOf<typeof NetworkValidator>;

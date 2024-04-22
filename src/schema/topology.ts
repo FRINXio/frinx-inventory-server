@@ -626,7 +626,12 @@ export const NetTopologyVersionDataQuery = extendType({
         const currentNodes = getNetNodesFromTopologyQuery(topologyDevicesResult);
         const currentEdges = getNetEdgesFromTopologyQuery(topologyDevicesResult);
 
-        const interfaces = getNetTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaces = getNetTopologyInterfaces(topologyDevicesResult).map((i) => ({
+          ...i,
+          _key: i.id,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          ip_address: i.ipAddress,
+        }));
         const interfaceEdges = getNetDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;

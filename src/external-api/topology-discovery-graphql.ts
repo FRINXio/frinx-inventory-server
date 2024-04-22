@@ -94,9 +94,11 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
   query NetTopology {
     netDevices {
       edges {
+        cursor
         node {
           id
           routerId
+          ospfAreaId
           phyDevice {
             id
             name
@@ -140,14 +142,20 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
           }
           netNetworks {
             edges {
+              cursor
               node {
                 id
                 subnet
+                ospfRouteType
                 coordinates {
                   x
                   y
                 }
               }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
             }
           }
         }

@@ -1,9 +1,7 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
-  NetDevice,
   NetTopologyQuery,
   PhyDevice,
-  PhyDeviceDetails,
   PtpDevice,
   PtpTopologyQuery,
   SynceDevice,
@@ -24,7 +22,8 @@ import {
   InterfaceWithStatus,
   PtpInterfaceWithStatus,
   SynceInterfaceWithStatus,
-  NetInterfaceWithStatus,
+  ArangoNetDevice,
+  NetInterface,
 } from '../external-api/topology-network-types';
 import { omitNullValue, unwrap } from './utils.helpers';
 import { toGraphId } from './id-helper';
@@ -98,27 +97,47 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
   };
 }
 
+type QueryNetDevice = NonNullable<NonNullable<NonNullable<NetTopologyQuery['netDevices']['edges']>[0]>['node']>;
 type PhyDeviceWithoutInterfaces = Omit<PhyDevice, 'phyInterfaces' | 'netDevice'>;
 type PtpDeviceWithoutInterfaces = Omit<PtpDevice, 'ptpInterfaces' | 'netDevice'>;
 type SynceDeviceWithoutInterfaces = Omit<SynceDevice, 'synceInterfaces' | 'netDevice'>;
-type NetDeviceWithoutInterfaces = Omit<NetDevice, 'netInterfaces' | 'netDevice'>;
 
-export function convertNetDeviceToArangoDevice(netDevice: NetDeviceWithoutInterfaces): ArangoNetDevice {
-  const { name, status, coordinates, labels } = netDevice.phyDevice;
+export function convertNetDeviceToArangoDevice(netDevice: QueryNetDevice): ArangoNetDevice | null {
   if (!netDevice.phyDevice) {
     return null;
   }
+
+  const { coordinates } = netDevice.phyDevice;
+
   return {
     _id: netDevice.id,
     _key: netDevice.id,
+    _rev: netDevice.id,
     coordinates,
-    labels: labels ?? [],
-    name,
-    status,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    ospf_area_id: netDevice.ospfAreaId,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    router_id: netDevice.routerId,
+    netNetworks:
+      netDevice.netNetworks.edges
+        ?.filter(omitNullValue)
+        .map((n) => {
+          if (!n?.node) {
+            return null;
+          }
+
+          return {
+            _id: n.node.id,
+            _key: n.node.id,
+            coordinates: n.node.coordinates,
+            subnet: n.node.subnet,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            ospf_route_type: n.node.ospfRouteType,
+          };
+        })
+        .filter(omitNullValue) ?? [],
   };
 }
-
-export type ArangoNetDevice = Omit<ArangoDevice & { netDeviceDetails: PhyDeviceDetails }, 'details'>;
 
 export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterfaces): ArangoDevice {
   const { name, status, coordinates, details, labels } = phyDevice;
@@ -294,18 +313,14 @@ export function convertSynceDeviceToArangoDevice(synceDevice: SynceDeviceWithout
   };
 }
 
-export function getNetNodesFromTopologyQuery(query: NetTopologyQuery): ArangoDevice[] {
+export function getNetNodesFromTopologyQuery(query: NetTopologyQuery): ArangoNetDevice[] {
   const nodes =
     query.netDevices.edges
-      ?.map((e) => {
-        // TODO: ADD COORDINATES ON NET-DEVICE LEVEL AND DO NOT OMIT IF PHY-DEVICE IS NULL
-        if (e?.node?.phyDevice === null) {
-          return null;
-        }
-        return e?.node?.phyDevice;
-      })
+      ?.map((e) => e?.node)
       .filter(omitNullValue)
-      .map(convertPhyDeviceToArangoDevice) ?? [];
+      .map(convertNetDeviceToArangoDevice)
+      .filter(omitNullValue) ?? [];
+
   return nodes;
 }
 
@@ -639,22 +654,6 @@ export function getOldTopologyDevices(devices: ArangoDevice[], diffData: Topolog
       });
   }
 
-  if (isNetTopologyDiff(diffData)) {
-    oldDevices = devices
-      // filter devices added to current topology
-      .filter((n) => !diffData.added.NetDevice.find((d) => n._id === d._id))
-      // add devices removed from current topology
-      .concat(diffData.deleted.NetDevice)
-      // change devices from old topology
-      .map((n) => {
-        const changedDevice = diffData.changed.NetDevice.find((d) => d.old._id === n._id);
-        if (!changedDevice) {
-          return n;
-        }
-        return changedDevice.old;
-      });
-  }
-
   return oldDevices;
 }
 
@@ -741,28 +740,20 @@ export function getOldSynceDevicesTopology(
   return oldDevices;
 }
 
-export function getOldNetDevicesTopology(devices: ArangoDevice[], diffData: TopologyDiffOutput): ArangoDevice[] {
-  let oldDevices: ArangoDevice[] = [];
+export function getOldNetDevicesTopology(devices: ArangoNetDevice[], diffData: TopologyDiffOutput): ArangoNetDevice[] {
+  let oldDevices: ArangoNetDevice[] = [];
+
+  const deviceNetworkTuple = new Map(devices.map((d) => [d._id, d.netNetworks.map((n) => n._id)]));
 
   if (isNetTopologyDiff(diffData)) {
     oldDevices = devices
-      .map((d) => ({
-        ...d,
-        netDeviceDetails: {
-          deviceType: d.details.device_type,
-          swVersion: d.details.sw_version,
-        },
-      }))
       // filter devices added to current topology
       .filter((n) => !diffData.added.NetDevice.find((d) => n._id === d._id))
       // add devices removed from current topology
       .concat(
         diffData.deleted.NetDevice.map((d) => ({
           ...d,
-          netDeviceDetails: {
-            deviceType: d.details.device_type,
-            swVersion: d.details.sw_version,
-          },
+          netNetworks: diffData.deleted.NetNetwork.filter((n) => deviceNetworkTuple.get(d._id)?.includes(n._id)),
         })),
       )
       // change devices from old topology
@@ -771,15 +762,13 @@ export function getOldNetDevicesTopology(devices: ArangoDevice[], diffData: Topo
         if (!changedDevice) {
           return {
             ...n,
-            netDeviceDetails: { deviceType: n.netDeviceDetails.deviceType, swVersion: n.netDeviceDetails.swVersion },
           };
         }
         return {
           ...changedDevice.old,
-          netDeviceDetails: {
-            deviceType: changedDevice.old.details.deviceType,
-            swVersion: changedDevice.old.details.swVersion,
-          },
+          netNetworks: diffData.changed.NetNetwork.filter((network) =>
+            deviceNetworkTuple.get(changedDevice.old._id)?.includes(network.old._id),
+          ).map((network) => network.old),
         };
       });
   }
@@ -825,6 +814,10 @@ export function getTopologyDiffInterfaces(diffData: TopologyDiffOutput): Interfa
     ];
   }
 
+  return [];
+}
+
+export function getTopologyDiffNetInterfaces(diffData: TopologyDiffOutput): NetInterface[] {
   if (isNetTopologyDiff(diffData)) {
     return [
       ...diffData.added.NetInterface,
@@ -1500,9 +1493,9 @@ export function makeSynceTopologyDiff(
 
 export function makeNetTopologyDiff(
   topologyDiff: TopologyDiffOutput,
-  currentNodes: ArangoDevice[],
+  currentNodes: ArangoNetDevice[],
   currentEdges: ArangoEdge[],
-  interfaces: NetInterfaceWithStatus[],
+  interfaces: NetInterface[],
   interfaceEdges: ArangoEdgeWithStatus[],
 ) {
   const oldDevices = getOldNetDevicesTopology(currentNodes, topologyDiff);
@@ -1510,11 +1503,11 @@ export function makeNetTopologyDiff(
 
   const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
   const interfaceNameMap = makeInterfaceNameMap(
-    [...interfaces, ...getTopologyDiffInterfaces(topologyDiff)],
-    (i) => i.name,
+    [...interfaces, ...getTopologyDiffNetInterfaces(topologyDiff)],
+    (i) => i.ip_address,
   );
   const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);
-  const nodesMap = makeNodesMap(oldDevices, (d) => d.name);
+  const nodesMap = makeNodesMap(oldDevices, (d) => d.router_id);
 
   const oldEdges = getOldTopologyConnectedEdges(currentEdges, topologyDiff)
     .map((e) => ({
@@ -1534,8 +1527,8 @@ export function makeNetTopologyDiff(
     nodes: oldDevices.map((device) => ({
       id: toGraphId('GraphNode', device._id),
       nodeId: device._id,
-      name: device.name,
-      networks: device.networks,
+      name: device.router_id,
+      networks: device.netNetworks.map((n) => ({ ...n, id: n._id })),
       interfaces:
         interfaceMap[device._id]?.map((intf) => ({
           ...intf,
