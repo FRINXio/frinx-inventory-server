@@ -31,17 +31,19 @@ class KafkaProducer {
     await this.producer.disconnect();
   }
 
-  public async send(msg: Record<string, unknown>, headers: Record<string, string>): Promise<void> {
+  public async send(key: string, value: Record<string, unknown>, headers: Record<string, string>): Promise<void> {
     try {
       await this.connect();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(`Error connecting to Kafka: ${error}`);
     }
 
     await this.producer.send({
       messages: [
         {
-          value: JSON.stringify(msg),
+          key,
+          value: JSON.stringify(value),
           headers: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             'content-type': 'application/json',
@@ -106,10 +108,11 @@ async function produceDeviceRegistrationEvent(
   }
 
   try {
-    await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
       type: 'device_registration',
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('Error sending device registration event to Kafka:', error);
     throw error;
   }
@@ -125,8 +128,9 @@ async function produceDeviceRemovalEvent(
 
   try {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    await kafka.send({ device_name: deviceName }, { type: 'device_removal' });
+    await kafka.send(deviceName, { device_name: deviceName }, { type: 'device_removal' });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('Error sending device removal event to Kafka:', error);
     throw error;
   }
@@ -143,10 +147,11 @@ async function produceDeviceUpdateEvent(
   }
 
   try {
-    await kafka.send(encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
       type: 'device_update',
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log('Error sending device update event to Kafka:', error);
     throw error;
   }
