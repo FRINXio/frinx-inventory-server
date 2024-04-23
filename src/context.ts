@@ -6,10 +6,10 @@ import getTopologyDiscoveryApi, { TopologyDiscoveryGraphQLAPI } from './external
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
 import config from './config';
-import kafkaProducers, { KafkaProducer } from './external-api/kafka';
+import kafkaProducers, { KafkaService } from './external-api/kafka';
 
 export type Context = {
-  kafka: KafkaProducer | null;
+  kafka: KafkaService | null;
   prisma: PrismaClient;
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
@@ -32,7 +32,7 @@ export default async function createContext(context: ExpressContextFunctionArgum
   const { req } = context;
   const { headers } = req;
   const tenantId = getTenantIdFromHeaders(headers);
-  const kafka = new KafkaProducer();
+  const kafka = new KafkaService();
 
   return {
     kafka,

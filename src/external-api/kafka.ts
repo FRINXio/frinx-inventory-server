@@ -5,19 +5,23 @@ import { encodeDeviceForInventoryKafka } from '../helpers/device-helpers';
 
 const KAFKA_BROKER = config.kafkaBroker || '';
 const KAFKA_TOPIC = config.kafkaTopic || '';
-const SESSION_TIMEOUT = 30000;
 
-class KafkaProducer {
+class KafkaService {
+  private kafka: Kafka;
+
   private producer: Producer;
 
   private consumer: Consumer;
 
   constructor() {
-    this.producer = KafkaProducer.createProducer();
-    this.consumer = KafkaProducer.createConsumer();
+    this.kafka = new Kafka({
+      brokers: [KAFKA_BROKER],
+    });
+    this.producer = KafkaService.createProducer(this.kafka);
+    this.consumer = KafkaService.createConsumer(this.kafka);
   }
 
-  public async connect(): Promise<void> {
+  public async producerConnect(): Promise<void> {
     try {
       await this.producer.connect();
     } catch (error) {
@@ -27,13 +31,27 @@ class KafkaProducer {
     }
   }
 
-  public async disconnect(): Promise<void> {
+  public async consumerConnect(): Promise<void> {
+    try {
+      await this.consumer.connect();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error connecting to Kafka:', error);
+      throw error;
+    }
+  }
+
+  public async producerDisconnect(): Promise<void> {
     await this.producer.disconnect();
+  }
+
+  public async consumerDisconnect(): Promise<void> {
+    await this.consumer.disconnect();
   }
 
   public async send(key: string, value: Record<string, unknown>, headers: Record<string, string>): Promise<void> {
     try {
-      await this.connect();
+      await this.producerConnect();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(`Error connecting to Kafka: ${error}`);
@@ -53,44 +71,29 @@ class KafkaProducer {
       ],
       topic: KAFKA_TOPIC,
     });
-    await this.disconnect();
+    await this.producerDisconnect();
   }
 
   isHealthy = async () => {
-    const { HEARTBEAT } = this.consumer.events;
-    let lastHeartbeat = 0;
-    this.consumer.on(HEARTBEAT, ({ timestamp }) => {
-      lastHeartbeat = timestamp;
-    });
-    // Consumer has heartbeat within the session timeout,
-    // so it is healthy
-    if (Date.now() - lastHeartbeat < SESSION_TIMEOUT) {
-      return true;
-    }
-
-    // Consumer has not heartbeat, but maybe it's because the group is currently rebalancing
+    const admin = this.kafka.admin();
     try {
-      const { state } = await this.consumer.describeGroup();
+      await admin.connect();
+      const topics = await admin.listTopics();
 
-      return ['CompletingRebalance', 'PreparingRebalance'].includes(state.toString());
-    } catch (err) {
+      return topics.length > 0 && topics.includes(KAFKA_TOPIC);
+    } catch (error) {
       return false;
+      // Handle error appropriately, e.g., raise an alert or retry
+    } finally {
+      await admin.disconnect();
     }
   };
 
-  private static createProducer(): Producer {
-    const kafka = new Kafka({
-      brokers: [KAFKA_BROKER],
-    });
-
+  private static createProducer(kafka: Kafka): Producer {
     return kafka.producer();
   }
 
-  private static createConsumer(): Consumer {
-    const kafka = new Kafka({
-      brokers: [KAFKA_BROKER],
-    });
-
+  private static createConsumer(kafka: Kafka): Consumer {
     return kafka.consumer({
       groupId: 'inventory-service',
     });
@@ -98,7 +101,7 @@ class KafkaProducer {
 }
 
 async function produceDeviceRegistrationEvent(
-  kafka: Omit<KafkaProducer, 'connect'> | null,
+  kafka: Omit<KafkaService, 'connect'> | null,
   device: Device,
   coordinates: [number, number],
   labelIds: string[],
@@ -119,7 +122,7 @@ async function produceDeviceRegistrationEvent(
 }
 
 async function produceDeviceRemovalEvent(
-  kafka: Omit<KafkaProducer, 'connect'> | null,
+  kafka: Omit<KafkaService, 'connect'> | null,
   deviceName: string,
 ): Promise<void> {
   if (kafka == null) {
@@ -137,7 +140,7 @@ async function produceDeviceRemovalEvent(
 }
 
 async function produceDeviceUpdateEvent(
-  kafka: Omit<KafkaProducer, 'connect'> | null,
+  kafka: Omit<KafkaService, 'connect'> | null,
   device: Device,
   coordinates: [number, number],
   labelIds: string[],
@@ -164,4 +167,4 @@ const kafkaProducers = {
 };
 
 export default kafkaProducers;
-export { KafkaProducer };
+export { KafkaService };

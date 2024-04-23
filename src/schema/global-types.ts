@@ -123,8 +123,9 @@ export const KafkaHealthCheckQuery = queryField('kafkaHealthCheck', {
       return { isOk: false };
     }
 
-    await kafka.connect();
+    await kafka.consumerConnect();
     const isOk = await kafka.isHealthy();
+    await kafka.consumerDisconnect();
     return { isOk };
   },
 });
@@ -136,8 +137,8 @@ export const ReconnectKafkaMutation = queryField('reconnectKafka', {
       return { isOk: false };
     }
 
-    await kafka.disconnect();
-    await kafka.connect();
+    await kafka.producerDisconnect();
+    await kafka.producerConnect();
 
     return { isOk: true };
   },
