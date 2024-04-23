@@ -8,6 +8,7 @@ import { Server } from 'http';
 import { join } from 'path';
 import prismaClient from '../prisma-client';
 import { server } from '../server';
+import kafkaProducers, { KafkaService } from '../external-api/kafka';
 
 type TestContext = {
   client: GraphQLClient;
@@ -52,23 +53,41 @@ function prismaTestContext() {
   };
 }
 
+function kafkaTestContext() {
+  const kafka = new KafkaService();
+  return {
+    async before() {
+      return kafka;
+    },
+    async after() {
+      // await kafka.producerDisconnect();
+      // await kafka.consumerDisconnect();
+    },
+  };
+}
+
 export function createTestContext(): TestContext {
   const ctx = {} as TestContext;
   const graphqlCtx = graphqlTestContext();
   const prismaCtx = prismaTestContext();
+  const kafkaCtx = kafkaTestContext();
 
   beforeEach(async () => {
     const client = await graphqlCtx.before();
     const db = await prismaCtx.before();
+    const kafka = await kafkaCtx.before();
     Object.assign(ctx, {
       client,
       db,
+      kafka,
+      ...kafkaProducers,
     });
   });
 
   afterEach(async () => {
     await graphqlCtx.after();
     await prismaCtx.after();
+    await kafkaCtx.after();
   });
   return ctx;
 }

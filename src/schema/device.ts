@@ -295,7 +295,7 @@ export const AddDeviceMutation = extendType({
             where: { id: device.locationId ?? undefined },
           });
 
-          inventoryKafka.produceDeviceRegistrationEvent(
+          await inventoryKafka.produceDeviceRegistrationEvent(
             kafka,
             device,
             [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
@@ -413,7 +413,7 @@ export const UpdateDeviceMutation = extendType({
             where: { id: updatedDevice.locationId ?? undefined },
           });
 
-          inventoryKafka.produceDeviceUpdateEvent(
+          await inventoryKafka.produceDeviceUpdateEvent(
             kafka,
             updatedDevice,
             [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
@@ -467,7 +467,7 @@ export const DeleteDeviceMutation = extendType({
         try {
           const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
 
-          inventoryKafka.produceDeviceRemovalEvent(kafka, deletedDevice.name);
+          await inventoryKafka.produceDeviceRemovalEvent(kafka, deletedDevice.name);
 
           return { device: deletedDevice };
         } catch (error) {
