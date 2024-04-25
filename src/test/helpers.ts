@@ -8,12 +8,103 @@ import { Server } from 'http';
 import { join } from 'path';
 import prismaClient from '../prisma-client';
 import { server } from '../server';
-import kafkaProducers, { KafkaService } from '../external-api/kafka';
+import { Device } from '../schema/source-types';
+import { encodeDeviceForInventoryKafka } from '../helpers/device-helpers';
 
 type TestContext = {
   client: GraphQLClient;
   db: PrismaClient;
+  kafka: KafkaMockService;
+  inventoryKafka: {
+    produceDeviceRegistrationEvent: (
+      device: Device,
+      coordinates: [number, number],
+      labelIds: string[],
+    ) => Promise<void>;
+    produceDeviceRemovalEvent: (deviceName: string) => Promise<void>;
+    produceDeviceUpdateEvent: (device: Device, coordinates: [number, number], labelIds: string[]) => Promise<void>;
+  };
 };
+
+class KafkaMockService {
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
+  public async producerConnect(): Promise<void> {}
+
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
+  public async consumerConnect(): Promise<void> {}
+
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
+  public async producerDisconnect(): Promise<void> {}
+
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
+  public async consumerDisconnect(): Promise<void> {}
+
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  public async send(_key: string, _value: Record<string, unknown>, _headers: Record<string, string>): Promise<void> {}
+
+  // eslint-disable-next-line class-methods-use-this
+  isHealthy = async () => true;
+}
+
+async function produceDeviceRegistrationEventMock(
+  kafka: Omit<KafkaMockService, 'connect'> | null,
+  device: Device,
+  coordinates: [number, number],
+  labelIds: string[],
+): Promise<void> {
+  if (kafka == null) {
+    throw new Error('Kafka producer is not initialized');
+  }
+
+  try {
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+      type: 'device_registration',
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error sending device registration event to Kafka:', error);
+    throw error;
+  }
+}
+
+async function produceDeviceRemovalEventMock(
+  kafka: Omit<KafkaMockService, 'connect'> | null,
+  deviceName: string,
+): Promise<void> {
+  if (kafka == null) {
+    throw new Error('Kafka producer is not initialized');
+  }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    await kafka.send(deviceName, { device_name: deviceName }, { type: 'device_removal' });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error sending device removal event to Kafka:', error);
+    throw error;
+  }
+}
+
+async function produceDeviceUpdateEventMock(
+  kafka: Omit<KafkaMockService, 'connect'> | null,
+  device: Device,
+  coordinates: [number, number],
+  labelIds: string[],
+): Promise<void> {
+  if (kafka == null) {
+    throw new Error('Kafka producer is not initialized');
+  }
+
+  try {
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+      type: 'device_update',
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error sending device update event to Kafka:', error);
+    throw error;
+  }
+}
 
 function graphqlTestContext() {
   let serverInstance: Server | null = null;
@@ -53,41 +144,30 @@ function prismaTestContext() {
   };
 }
 
-function kafkaTestContext() {
-  const kafka = new KafkaService();
-  return {
-    async before() {
-      return kafka;
-    },
-    async after() {
-      // await kafka.producerDisconnect();
-      // await kafka.consumerDisconnect();
-    },
-  };
-}
-
 export function createTestContext(): TestContext {
   const ctx = {} as TestContext;
   const graphqlCtx = graphqlTestContext();
   const prismaCtx = prismaTestContext();
-  const kafkaCtx = kafkaTestContext();
+  const kafka = new KafkaMockService();
 
   beforeEach(async () => {
     const client = await graphqlCtx.before();
     const db = await prismaCtx.before();
-    const kafka = await kafkaCtx.before();
     Object.assign(ctx, {
       client,
       db,
       kafka,
-      ...kafkaProducers,
+      inventoryKafka: {
+        produceDeviceRegistrationEvent: produceDeviceRegistrationEventMock.bind(null, kafka),
+        produceDeviceRemovalEvent: produceDeviceRemovalEventMock.bind(null, kafka),
+        produceDeviceUpdateEvent: produceDeviceUpdateEventMock.bind(null, kafka),
+      },
     });
   });
 
   afterEach(async () => {
     await graphqlCtx.after();
     await prismaCtx.after();
-    await kafkaCtx.after();
   });
   return ctx;
 }

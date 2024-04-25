@@ -28,6 +28,7 @@ class KafkaService {
       // eslint-disable-next-line no-console
       console.log('Error connecting to Kafka:', error);
       throw error;
+      null;
     }
   }
 
