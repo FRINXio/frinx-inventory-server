@@ -1060,6 +1060,7 @@ export interface NexusGenFieldTypes {
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
+    kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
@@ -1070,6 +1071,7 @@ export interface NexusGenFieldTypes {
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     ptpTopologyVersionData: NexusGenRootTypes['PtpTopologyVersionData']; // PtpTopologyVersionData!
+    reconnectKafka: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     syncePathToGrandMaster: string[] | null; // [String!]
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
@@ -1636,6 +1638,7 @@ export interface NexusGenFieldTypeNames {
     countries: 'CountryConnection';
     dataStore: 'DataStore';
     devices: 'DeviceConnection';
+    kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
@@ -1646,6 +1649,7 @@ export interface NexusGenFieldTypeNames {
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
     ptpTopologyVersionData: 'PtpTopologyVersionData';
+    reconnectKafka: 'IsOkResponse';
     shortestPath: 'NetRoutingPathNode';
     syncePathToGrandMaster: 'String';
     synceTopology: 'SynceTopology';
