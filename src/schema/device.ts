@@ -255,7 +255,7 @@ export const AddDeviceMutation = extendType({
       args: {
         input: nonNull(arg({ type: AddDeviceInput })),
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const { input } = args;
         const nativeZoneId = fromGraphId('Zone', input.zoneId);
         const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
@@ -290,6 +290,18 @@ export const AddDeviceMutation = extendType({
               },
             },
           });
+
+          const deviceLocation = await prisma.location.findFirst({
+            where: { id: device.locationId ?? undefined },
+          });
+
+          await inventoryKafka.produceDeviceRegistrationEvent(
+            kafka,
+            device,
+            [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
+            labelIds ?? [],
+          );
+
           return { device };
         } catch (e) {
           if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -341,7 +353,7 @@ export const UpdateDeviceMutation = extendType({
         id: nonNull(stringArg()),
         input: nonNull(arg({ type: UpdateDeviceInput })),
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
           where: { id: nativeId, tenantId },
@@ -359,41 +371,59 @@ export const UpdateDeviceMutation = extendType({
           input.mountParameters != null ? JSON.parse(input.mountParameters) : input.mountParameters;
         const labelIds = input.labelIds ?? [];
 
-        await prisma.$transaction([
-          prisma.deviceLabel.deleteMany({ where: { deviceId: nativeId } }),
-          prisma.deviceLabel.createMany({
-            data: labelIds.map((lId) => {
-              const nativeLabelId = fromGraphId('Label', lId);
-              return { labelId: nativeLabelId, deviceId: nativeId };
+        try {
+          await prisma.$transaction([
+            prisma.deviceLabel.deleteMany({ where: { deviceId: nativeId } }),
+            prisma.deviceLabel.createMany({
+              data: labelIds.map((lId) => {
+                const nativeLabelId = fromGraphId('Label', lId);
+                return { labelId: nativeLabelId, deviceId: nativeId };
+              }),
             }),
-          }),
-        ]);
-        const oldMetadata = decodeMetadataOutput(dbDevice.metadata);
-        const newMetadata = {
-          ...oldMetadata,
-          deviceSize: input.deviceSize,
-        };
-        const updatedDevice = await prisma.device.update({
-          where: { id: nativeId },
-          data: {
-            model: input.model,
-            vendor: input.vendor,
-            managementIp: input.address,
-            mountParameters: deviceMountParameters,
-            deviceType: input.deviceType,
-            version: input.version,
-            username: input.username,
-            password: input.password,
-            port: input.port,
-            serviceState: input.serviceState ?? undefined,
-            location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
-            blueprint: input.blueprintId ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } } : undefined,
-            ...(input.deviceSize != null && {
-              metadata: newMetadata,
-            }),
-          },
-        });
-        return { device: updatedDevice };
+          ]);
+          const oldMetadata = decodeMetadataOutput(dbDevice.metadata);
+          const newMetadata = {
+            ...oldMetadata,
+            deviceSize: input.deviceSize,
+          };
+          const updatedDevice = await prisma.device.update({
+            where: { id: nativeId },
+            data: {
+              model: input.model,
+              vendor: input.vendor,
+              managementIp: input.address,
+              mountParameters: deviceMountParameters,
+              deviceType: input.deviceType,
+              version: input.version,
+              username: input.username,
+              password: input.password,
+              port: input.port,
+              serviceState: input.serviceState ?? undefined,
+              location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
+              blueprint: input.blueprintId
+                ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } }
+                : undefined,
+              ...(input.deviceSize != null && {
+                metadata: newMetadata,
+              }),
+            },
+          });
+
+          const deviceLocation = await prisma.location.findFirst({
+            where: { id: updatedDevice.locationId ?? undefined },
+          });
+
+          await inventoryKafka.produceDeviceUpdateEvent(
+            kafka,
+            updatedDevice,
+            [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
+            labelIds,
+          );
+
+          return { device: updatedDevice };
+        } catch (error) {
+          throw new Error('Error updating device');
+        }
       },
     });
   },
@@ -420,7 +450,7 @@ export const DeleteDeviceMutation = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve: async (_, args, { prisma, tenantId }) => {
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const nativeId = fromGraphId('Device', args.id);
         const dbDevice = await prisma.device.findFirst({
           where: { id: nativeId, AND: { tenantId } },
@@ -433,8 +463,16 @@ export const DeleteDeviceMutation = extendType({
         if (isInstalled) {
           throw new Error('device is installed in UniConfig');
         }
-        const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
-        return { device: deletedDevice };
+
+        try {
+          const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
+
+          await inventoryKafka.produceDeviceRemovalEvent(kafka, deletedDevice.name);
+
+          return { device: deletedDevice };
+        } catch (error) {
+          throw new Error('Error deleting device');
+        }
       },
     });
   },
