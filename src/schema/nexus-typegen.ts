@@ -926,6 +926,7 @@ export interface NexusGenFieldTypes {
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
+    reconnectKafka: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     resetConfig: NexusGenRootTypes['ResetConfigPayload']; // ResetConfigPayload!
     revertChanges: NexusGenRootTypes['RevertChangesPayload']; // RevertChangesPayload!
     syncFromNetwork: NexusGenRootTypes['SyncFromNetworkPayload']; // SyncFromNetworkPayload!
@@ -1060,7 +1061,6 @@ export interface NexusGenFieldTypes {
     ptpPathToGrandMaster: string[] | null; // [String!]
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     ptpTopologyVersionData: NexusGenRootTypes['PtpTopologyVersionData']; // PtpTopologyVersionData!
-    reconnectKafka: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
     syncePathToGrandMaster: string[] | null; // [String!]
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
@@ -1498,6 +1498,7 @@ export interface NexusGenFieldTypeNames {
     deleteSnapshot: 'DeleteSnapshotPayload';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
+    reconnectKafka: 'IsOkResponse';
     resetConfig: 'ResetConfigPayload';
     revertChanges: 'RevertChangesPayload';
     syncFromNetwork: 'SyncFromNetworkPayload';
@@ -1632,7 +1633,6 @@ export interface NexusGenFieldTypeNames {
     ptpPathToGrandMaster: 'String';
     ptpTopology: 'PtpTopology';
     ptpTopologyVersionData: 'PtpTopologyVersionData';
-    reconnectKafka: 'IsOkResponse';
     shortestPath: 'NetRoutingPathNode';
     syncePathToGrandMaster: 'String';
     synceTopology: 'SynceTopology';
