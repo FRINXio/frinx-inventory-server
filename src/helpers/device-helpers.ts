@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { Device } from '../schema/source-types';
+import { decodeMetadataOutput } from './device-types';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -64,4 +65,45 @@ export function makeZonesWithDevicesFromDevices(devices: Device[]) {
   });
 
   return zonesWithDevices;
+}
+
+type DeviceLocation = {
+  type: 'Point';
+  coordinates: [number, number];
+};
+
+export function encodeDeviceForInventoryKafka(
+  device: Device,
+  deviceLocation: DeviceLocation,
+  deviceLabelsIds: string[] = [],
+) {
+  return {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    device_name: device.name,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    device_size: decodeMetadataOutput(device.metadata)?.deviceSize ?? 'MEDIUM',
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    device_type: device.deviceType,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    device_address: device.macAddress,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    device_port: device.port,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    zone_id: device.uniconfigZoneId,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    service_state: device.serviceState,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    mount_parameters: device.mountParameters,
+    vendor: device.vendor,
+    model: device.model,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    blueprint_id: device.blueprintId,
+    username: device.username,
+    password: device.password,
+    version: device.version,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    labels_ids: deviceLabelsIds,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    geo_location: deviceLocation,
+  };
 }
