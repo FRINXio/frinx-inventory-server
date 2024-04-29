@@ -1503,14 +1503,14 @@ export function makeNetTopologyDiff(
   interfaceEdges: ArangoEdgeWithStatus[],
 ) {
   const oldDevices = getOldNetDevicesTopology(currentNodes, topologyDiff);
-  const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, topologyDiff);
+  const oldInterfaceEdges = getOldNetTopologyInterfaceEdges(interfaceEdges, topologyDiff);
 
   const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
   const interfaceNameMap = makeInterfaceNameMap(
     [...interfaces, ...getTopologyDiffNetInterfaces(topologyDiff)],
     (i) => i.ip_address,
   );
-  const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);
+  const interfaceMap = makeNetInterfaceMap(oldInterfaceEdges, interfaceNameMap);
   const nodesMap = makeNodesMap(oldDevices, (d) => d.router_id);
 
   const oldEdges = getOldTopologyConnectedEdges(currentEdges, topologyDiff)
