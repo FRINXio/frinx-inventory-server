@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.9.4",
-    "@devoxa/prisma-relay-cursor-connection": "3.1.0",
+    "@devoxa/prisma-relay-cursor-connection": "3.1.1",
     "@graphql-tools/schema": "^9.0.9",
     "@prisma/client": "5.1.1",
     "@types/cors": "^2.8.14",
