@@ -74,6 +74,8 @@ const config = {
   uniconfigListURL: envString('UNICONFIG_LIST_URL'),
   defaultTenantId: envString('X_TENANT_ID'),
   shellHost: envString('SHELL_HOST'),
+  kafkaBroker: envString('KAFKA_BROKER'),
+  kafkaTopic: envString('KAFKA_TOPIC'),
   ...getTopologyConfig(),
 };
 

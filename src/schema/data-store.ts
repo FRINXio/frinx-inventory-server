@@ -2,6 +2,7 @@ import { arg, extendType, inputObjectType, list, nonNull, objectType, stringArg 
 import { ExternalApiError } from '../external-api/errors';
 import {
   decodeUniconfigConfigInput,
+  UniconfigDryRunCommitError,
   // UniconfigCommitOutput,
   UniconfigDryRunCommitOutput,
   UniconfigSnapshotsOutput,
@@ -22,10 +23,14 @@ function getSnapshotsFromResponse(snapshotResponse: UniconfigSnapshotsOutput, de
 }
 
 function getDryRunCommitOutputFromResponse(commitResponse: UniconfigDryRunCommitOutput) {
-  if ('overall-status' in commitResponse.output && 'node-results' in commitResponse.output) {
+  if ('node-results' in commitResponse.output) {
     return commitResponse.output;
   }
   return null;
+}
+
+function getDryRunCommitErrorFromResponse(commitResponse: UniconfigDryRunCommitError) {
+  return commitResponse.errors;
 }
 
 // function getCommitOutputFromResponse(commitResponse: UniconfigCommitOutput) {
@@ -222,16 +227,31 @@ export const CommitConfigMutation = extendType({
               'do-rollback': true,
             },
           };
-          const dryRunResult = await uniconfigAPI.postDryRunCommitToNetwork(uniconfigURL, dryRunParams, transactionId);
-          const output = getDryRunCommitOutputFromResponse(dryRunResult);
-          const status = output?.['overall-status'];
-          return {
-            output: {
-              deviceId: args.input.deviceId,
-              configuration: status === 'complete' ? output?.['node-results']['node-result'][0].configuration : null,
-              message: status === 'fail' ? output?.['node-results']['node-result'][0]['error-message'] ?? null : null,
-            },
-          };
+
+          try {
+            const dryRunResult = await uniconfigAPI.postDryRunCommitToNetwork(
+              uniconfigURL,
+              dryRunParams,
+              transactionId,
+            );
+            const output = getDryRunCommitOutputFromResponse(dryRunResult);
+            return {
+              output: {
+                deviceId: args.input.deviceId,
+                configuration: output?.['node-results']['node-result'][0].configuration,
+                message: null,
+              },
+            };
+          } catch (e) {
+            const uniconfigErrors = getDryRunCommitErrorFromResponse(e as UniconfigDryRunCommitError);
+            return {
+              output: {
+                deviceId: args.input.deviceId,
+                configuration: null,
+                message: uniconfigErrors.error.map((ue) => ue['error-message']).join('\n'),
+              },
+            };
+          }
         }
 
         const params = {

@@ -95,39 +95,41 @@ export function decodeUniconfigCommitInput(value: unknown): UniconfigCommitInput
 const UniconfigStatusValidator = t.union([t.literal('complete'), t.literal('fail')]);
 
 const UniconfigDryRunCommitOutputValidator = t.type({
-  output: t.union([
-    t.type({}),
-    t.type({
-      'overall-status': t.literal('complete'),
-      'node-results': t.type({
-        'node-result': t.array(
-          t.type({
-            'node-id': t.string,
-            configuration: t.string,
-            'configuration-status': t.literal('complete'),
-          }),
-        ),
-      }),
+  output: t.type({
+    'node-results': t.type({
+      'node-result': t.array(
+        t.type({
+          'node-id': t.string,
+          configuration: t.string,
+        }),
+      ),
     }),
-    t.type({
-      'overall-status': t.literal('fail'),
-      'node-results': t.type({
-        'node-result': t.array(
-          t.type({
-            'node-id': t.string,
-            'error-type': optional(t.string),
-            'error-message': optional(t.string),
-            'configuration-status': t.literal('fail'),
-          }),
-        ),
-      }),
-    }),
-  ]),
+  }),
 });
+
 export type UniconfigDryRunCommitOutput = t.TypeOf<typeof UniconfigDryRunCommitOutputValidator>;
 
 export function decodeUniconfigDryRunCommitOutput(value: unknown): UniconfigDryRunCommitOutput {
   return extractResult(UniconfigDryRunCommitOutputValidator.decode(value));
+}
+
+const UniconfigDryRunCommitErrorValidator = t.type({
+  errors: t.type({
+    error: t.array(
+      t.type({
+        'error-message': t.string,
+        'error-info': t.type({
+          'node-id': t.string,
+        }),
+      }),
+    ),
+  }),
+});
+
+export type UniconfigDryRunCommitError = t.TypeOf<typeof UniconfigDryRunCommitErrorValidator>;
+
+export function decodeUniconfigDryRunCommitErrorOutput(value: unknown): UniconfigDryRunCommitError {
+  return extractResult(UniconfigDryRunCommitErrorValidator.decode(value));
 }
 
 const UniconfigReplaceInputValidator = t.type({
@@ -361,26 +363,6 @@ export type RevertChangesInput = {
     'ignore-non-existing-nodes': boolean;
   };
 };
-
-const UniconfigRevertChangesOutputValidator = t.type({
-  output: t.type({
-    'revert-output': t.type({
-      result: t.array(
-        t.type({
-          'transaction-id': t.string,
-          status: UniconfigStatusValidator,
-        }),
-      ),
-    }),
-    'overall-status': UniconfigStatusValidator,
-  }),
-});
-
-export type UniconfigRevertChangesOutput = t.TypeOf<typeof UniconfigRevertChangesOutputValidator>;
-
-export function decodeUniconfigRevertChangesOutput(value: unknown): UniconfigRevertChangesOutput {
-  return extractResult(UniconfigRevertChangesOutputValidator.decode(value));
-}
 
 const UniconfigExternalStorageOutputValidator = t.record(t.string, t.string);
 
