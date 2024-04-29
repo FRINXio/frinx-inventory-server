@@ -3,7 +3,7 @@ name: Hive Check
 on:
   pull_request:
     branches:
-      - 'master'
+      - 'main'
       - '[0-9]+.X-stable'
 
     tags:
@@ -24,7 +24,7 @@ jobs:
           echo "HIVE_TOKEN=${{ secrets.HIVE_STABLE_LATEST_TOKEN }}" >> "$GITHUB_ENV"
 
       - name: Master token
-        if: github.ref_type == 'branch' && github.base_ref == 'master'
+        if: github.ref_type == 'branch' && github.base_ref == 'main'
         run: |
           echo "HIVE_TOKEN=${{ secrets.HIVE_MASTER_LATEST_TOKEN }}" >> "$GITHUB_ENV"
 
