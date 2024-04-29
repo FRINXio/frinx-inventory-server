@@ -1221,7 +1221,7 @@ function getEdgesFromTopologyDevices(topologyDevices: NetTopologyQuery['netDevic
                 return null;
               }
 
-              if(!ne.link){
+              if (!ne.link) {
                 return null;
               }
 
