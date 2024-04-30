@@ -309,9 +309,19 @@ export interface NexusGenObjects {
     cursor: string; // String!
     node: NexusGenRootTypes['Device']; // Device!
   };
+  DeviceListUsage: {
+    // root type
+    devicesUsage: Array<NexusGenRootTypes['DevicesUsage'] | null>; // [DevicesUsage]!
+  };
   DeviceUsage: {
     // root type
     cpuLoad: number; // Float!
+    memoryLoad: number; // Float!
+  };
+  DevicesUsage: {
+    // root type
+    cpuLoad: number; // Float!
+    deviceName: string; // String!
     memoryLoad: number; // Float!
   };
   DiffData: {
@@ -813,9 +823,19 @@ export interface NexusGenFieldTypes {
     cursor: string; // String!
     node: NexusGenRootTypes['Device']; // Device!
   };
+  DeviceListUsage: {
+    // field return type
+    devicesUsage: Array<NexusGenRootTypes['DevicesUsage'] | null>; // [DevicesUsage]!
+  };
   DeviceUsage: {
     // field return type
     cpuLoad: number; // Float!
+    memoryLoad: number; // Float!
+  };
+  DevicesUsage: {
+    // field return type
+    cpuLoad: number; // Float!
+    deviceName: string; // String!
     memoryLoad: number; // Float!
   };
   DiffData: {
@@ -1098,6 +1118,7 @@ export interface NexusGenFieldTypes {
   Subscription: {
     // field return type
     deviceUsage: NexusGenRootTypes['DeviceUsage'] | null; // DeviceUsage
+    devicesUsage: NexusGenRootTypes['DeviceListUsage'] | null; // DeviceListUsage
     uniconfigShell: string | null; // String
   };
   SyncFromNetworkPayload: {
@@ -1391,9 +1412,19 @@ export interface NexusGenFieldTypeNames {
     cursor: 'String';
     node: 'Device';
   };
+  DeviceListUsage: {
+    // field return type name
+    devicesUsage: 'DevicesUsage';
+  };
   DeviceUsage: {
     // field return type name
     cpuLoad: 'Float';
+    memoryLoad: 'Float';
+  };
+  DevicesUsage: {
+    // field return type name
+    cpuLoad: 'Float';
+    deviceName: 'String';
     memoryLoad: 'Float';
   };
   DiffData: {
@@ -1676,6 +1707,7 @@ export interface NexusGenFieldTypeNames {
   Subscription: {
     // field return type name
     deviceUsage: 'DeviceUsage';
+    devicesUsage: 'DeviceListUsage';
     uniconfigShell: 'String';
   };
   SyncFromNetworkPayload: {
@@ -2029,6 +2061,11 @@ export interface NexusGenArgTypes {
     deviceUsage: {
       // args
       deviceName: string; // String!
+      refreshEverySec?: number | null; // Int
+    };
+    devicesUsage: {
+      // args
+      deviceNames: string[]; // [String!]!
       refreshEverySec?: number | null; // Int
     };
     uniconfigShell: {

@@ -1,8 +1,4 @@
-export async function* asyncGenerator<T extends Record<string, unknown>>(
-  timeout: number,
-  fn: () => Promise<T>,
-  repeatTill: () => boolean,
-) {
+export async function* asyncGenerator<T>(timeout: number, fn: () => Promise<T>, repeatTill: () => boolean) {
   do {
     // eslint-disable-next-line no-await-in-loop
     const data = await fn();
