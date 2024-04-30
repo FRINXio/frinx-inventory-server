@@ -266,6 +266,11 @@ enum DeviceSource {
   MANUAL
 }
 
+type DeviceUsage {
+  cpuLoad: Float!
+  memoryLoad: Float!
+}
+
 type DiffData {
   data: String!
   path: String!
@@ -594,6 +599,7 @@ enum SortDirection {
 }
 
 type Subscription {
+  deviceUsage(deviceName: String!, refreshEverySec: Int): DeviceUsage
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 
