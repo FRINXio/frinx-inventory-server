@@ -1,5 +1,16 @@
 import countries from 'i18n-iso-countries';
-import { enumType, extendType, idArg, intArg, interfaceType, nonNull, objectType, queryField, stringArg } from 'nexus';
+import {
+  enumType,
+  extendType,
+  idArg,
+  intArg,
+  interfaceType,
+  mutationField,
+  nonNull,
+  objectType,
+  queryField,
+  stringArg,
+} from 'nexus';
 import { fromGraphId, getType } from '../helpers/id-helper';
 
 export const Node = interfaceType({
@@ -130,7 +141,7 @@ export const KafkaHealthCheckQuery = queryField('kafkaHealthCheck', {
   },
 });
 
-export const ReconnectKafkaMutation = queryField('reconnectKafka', {
+export const ReconnectKafkaMutation = mutationField('reconnectKafka', {
   type: IsOkResponse,
   resolve: async (root, _, { kafka }) => {
     if (kafka == null) {
