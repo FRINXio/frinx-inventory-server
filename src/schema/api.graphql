@@ -411,6 +411,7 @@ type Mutation {
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
+  reconnectKafka: IsOkResponse
   resetConfig(deviceId: String!, transactionId: String!): ResetConfigPayload!
   revertChanges(transactionId: String!): RevertChangesPayload!
   syncFromNetwork(deviceId: String!, transactionId: String!): SyncFromNetworkPayload!
@@ -562,7 +563,6 @@ type Query {
   ptpPathToGrandMaster(deviceFrom: String!): [String!]
   ptpTopology: PtpTopology
   ptpTopologyVersionData(version: String!): PtpTopologyVersionData!
-  reconnectKafka: IsOkResponse
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
   syncePathToGrandMaster(deviceFrom: String!): [String!]
   synceTopology: SynceTopology
