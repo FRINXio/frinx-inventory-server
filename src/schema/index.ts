@@ -3,6 +3,7 @@ import { join } from 'path';
 import * as blueprint from './blueprint';
 import * as dataStore from './data-store';
 import * as device from './device';
+import * as stream from './stream';
 import * as globalTypes from './global-types';
 import * as label from './label';
 import * as location from './location';
@@ -26,7 +27,7 @@ export default makeSchema({
     schema: join(__dirname, './api.graphql'),
   },
   shouldExitAfterGenerateArtifacts: Boolean(process.env.NEXUS_SHOULD_EXIT_AFTER_REFLECTION),
-  types: [globalTypes, device, zone, dataStore, label, location, blueprint, transaction, topology],
+  types: [globalTypes, device, stream, zone, dataStore, label, location, blueprint, transaction, topology],
   sourceTypes: {
     modules: [
       {

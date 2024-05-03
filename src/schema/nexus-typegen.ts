@@ -64,6 +64,11 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     name: string; // String!
   };
+  AddStreamInput: {
+    // input type
+    deviceName: string; // String!
+    streamName: string; // String!
+  };
   AddZoneInput: {
     // input type
     name: string; // String!
@@ -115,6 +120,10 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  FilterStreamsInput: {
+    // input type
+    streamName?: string | null; // String
+  };
   FilterTopologyInput: {
     // input type
     labels?: string[] | null; // [String!]
@@ -128,6 +137,11 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
+  };
+  StreamOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortStreamBy']; // SortStreamBy!
   };
   UpdateBlueprintInput: {
     // input type
@@ -169,6 +183,7 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
+  SortStreamBy: 'createdAt' | 'streamName';
   TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
@@ -197,6 +212,10 @@ export interface NexusGenObjects {
   AddSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  AddStreamPayload: {
+    // root type
+    stream: NexusGenRootTypes['Stream']; // Stream!
   };
   AddZonePayload: {
     // root type
@@ -517,6 +536,18 @@ export interface NexusGenObjects {
     createdAt: string; // String!
     name: string; // String!
   };
+  Stream: SourceTypes.Stream;
+  StreamConnection: {
+    // root type
+    edges: NexusGenRootTypes['StreamEdge'][]; // [StreamEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  StreamEdge: {
+    // root type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Stream']; // Stream!
+  };
   Subscription: {};
   SyncFromNetworkPayload: {
     // root type
@@ -634,6 +665,7 @@ export interface NexusGenInterfaces {
     | core.Discriminate<'Device', 'required'>
     | core.Discriminate<'Label', 'required'>
     | core.Discriminate<'Location', 'required'>
+    | core.Discriminate<'Stream', 'required'>
     | core.Discriminate<'Zone', 'required'>;
 }
 
@@ -659,6 +691,10 @@ export interface NexusGenFieldTypes {
   AddSnapshotPayload: {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
+  };
+  AddStreamPayload: {
+    // field return type
+    stream: NexusGenRootTypes['Stream']; // Stream!
   };
   AddZonePayload: {
     // field return type
@@ -912,6 +948,7 @@ export interface NexusGenFieldTypes {
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
     addLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
     addSnapshot: NexusGenRootTypes['AddSnapshotPayload'] | null; // AddSnapshotPayload
+    addStream: NexusGenRootTypes['AddStreamPayload']; // AddStreamPayload!
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     bulkInstallDevices: NexusGenRootTypes['BulkInstallDevicePayload']; // BulkInstallDevicePayload!
@@ -1062,6 +1099,7 @@ export interface NexusGenFieldTypes {
     ptpTopology: NexusGenRootTypes['PtpTopology'] | null; // PtpTopology
     ptpTopologyVersionData: NexusGenRootTypes['PtpTopologyVersionData']; // PtpTopologyVersionData!
     shortestPath: NexusGenRootTypes['NetRoutingPathNode'][]; // [NetRoutingPathNode!]!
+    streams: NexusGenRootTypes['StreamConnection']; // StreamConnection!
     syncePathToGrandMaster: string[] | null; // [String!]
     synceTopology: NexusGenRootTypes['SynceTopology'] | null; // SynceTopology
     synceTopologyVersionData: NexusGenRootTypes['SynceTopologyVersionData']; // SynceTopologyVersionData!
@@ -1084,6 +1122,25 @@ export interface NexusGenFieldTypes {
     // field return type
     createdAt: string; // String!
     name: string; // String!
+  };
+  Stream: {
+    // field return type
+    createdAt: string; // String!
+    deviceName: string; // String!
+    id: string; // ID!
+    streamName: string; // String!
+    updatedAt: string; // String!
+  };
+  StreamConnection: {
+    // field return type
+    edges: NexusGenRootTypes['StreamEdge'][]; // [StreamEdge!]!
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number; // Int!
+  };
+  StreamEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Stream']; // Stream!
   };
   Subscription: {
     // field return type
@@ -1231,6 +1288,10 @@ export interface NexusGenFieldTypeNames {
   AddSnapshotPayload: {
     // field return type name
     snapshot: 'Snapshot';
+  };
+  AddStreamPayload: {
+    // field return type name
+    stream: 'Stream';
   };
   AddZonePayload: {
     // field return type name
@@ -1484,6 +1545,7 @@ export interface NexusGenFieldTypeNames {
     addDevice: 'AddDevicePayload';
     addLocation: 'AddLocationPayload';
     addSnapshot: 'AddSnapshotPayload';
+    addStream: 'AddStreamPayload';
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     bulkInstallDevices: 'BulkInstallDevicePayload';
@@ -1634,6 +1696,7 @@ export interface NexusGenFieldTypeNames {
     ptpTopology: 'PtpTopology';
     ptpTopologyVersionData: 'PtpTopologyVersionData';
     shortestPath: 'NetRoutingPathNode';
+    streams: 'StreamConnection';
     syncePathToGrandMaster: 'String';
     synceTopology: 'SynceTopology';
     synceTopologyVersionData: 'SynceTopologyVersionData';
@@ -1656,6 +1719,25 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     createdAt: 'String';
     name: 'String';
+  };
+  Stream: {
+    // field return type name
+    createdAt: 'String';
+    deviceName: 'String';
+    id: 'ID';
+    streamName: 'String';
+    updatedAt: 'String';
+  };
+  StreamConnection: {
+    // field return type name
+    edges: 'StreamEdge';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
+  };
+  StreamEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'Stream';
   };
   Subscription: {
     // field return type name
@@ -1814,6 +1896,10 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['AddSnapshotInput']; // AddSnapshotInput!
       transactionId: string; // String!
+    };
+    addStream: {
+      // args
+      input: NexusGenInputs['AddStreamInput']; // AddStreamInput!
     };
     addZone: {
       // args
@@ -1983,6 +2069,15 @@ export interface NexusGenArgTypes {
       from: string; // String!
       to: string; // String!
     };
+    streams: {
+      // args
+      after?: string | null; // String
+      before?: string | null; // String
+      filter?: NexusGenInputs['FilterStreamsInput'] | null; // FilterStreamsInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+      orderBy?: NexusGenInputs['StreamOrderByInput'] | null; // StreamOrderByInput
+    };
     syncePathToGrandMaster: {
       // args
       deviceFrom: string; // String!
@@ -2020,7 +2115,7 @@ export interface NexusGenArgTypes {
 
 export interface NexusGenAbstractTypeMembers {
   BaseGraphNode: 'GraphNode' | 'GraphVersionNode';
-  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Zone';
+  Node: 'Blueprint' | 'Country' | 'Device' | 'Label' | 'Location' | 'Stream' | 'Zone';
 }
 
 export interface NexusGenTypeInterfaces {
@@ -2031,6 +2126,7 @@ export interface NexusGenTypeInterfaces {
   GraphVersionNode: 'BaseGraphNode';
   Label: 'Node';
   Location: 'Node';
+  Stream: 'Node';
   Zone: 'Node';
 }
 
