@@ -10,8 +10,8 @@
     "skipLibCheck": true,
     "types": ["node", "jest"],
     "outDir": "build",
-    "rootDir": "src"
+    "rootDirs": ["src", "prisma"]
   },
-  "include": ["src"],
+  "include": ["src", "prisma"],
   "exclude": [".eslintrc.js"]
 }
