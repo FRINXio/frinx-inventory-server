@@ -15,6 +15,10 @@ import {
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
+  getNetDeviceInterfaceEdges,
+  getNetEdgesFromTopologyQuery,
+  getNetNodesFromTopologyQuery,
+  getNetTopologyInterfaces,
   getNodesFromTopologyQuery,
   getPtpDeviceInterfaceEdges,
   getPtpEdgesFromTopologyQuery,
@@ -26,6 +30,7 @@ import {
   getSynceNodesFromTopologyQuery,
   getSynceTopologyInterfaces,
   getTopologyInterfaces,
+  makeNetTopologyDiff,
   makeNetTopologyEdges,
   makeNetTopologyNodes,
   makePtpTopologyDiff,
@@ -246,6 +251,14 @@ export const SynceTopologyVersionData = objectType({
   definition: (t) => {
     t.nonNull.list.field('nodes', { type: nonNull(SynceGraphNode) });
     t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
+export const NetInterface = objectType({
+  name: 'NetInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.string('name');
   },
 });
 
@@ -534,14 +547,6 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
   },
 });
 
-export const NetInterface = objectType({
-  name: 'NetInterface',
-  definition: (t) => {
-    t.nonNull.string('id');
-    t.nonNull.string('name');
-  },
-});
-
 export const NetNetwork = objectType({
   name: 'NetNetwork',
   definition: (t) => {
@@ -587,6 +592,52 @@ export const NetTopologyQuery = extendType({
           nodes: makeNetTopologyNodes(netDevices),
           edges: makeNetTopologyEdges(netDevices),
         };
+      },
+    });
+  },
+});
+
+export const NetTopologyVersionData = objectType({
+  name: 'NetTopologyVersionData',
+  definition: (t) => {
+    t.nonNull.list.field('nodes', { type: nonNull(NetNode) });
+    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
+export const NetTopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('netTopologyVersionData', {
+      type: NetTopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
+
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getNetTopologyDevices();
+
+        const currentNodes = getNetNodesFromTopologyQuery(topologyDevicesResult);
+        const currentEdges = getNetEdgesFromTopologyQuery(topologyDevicesResult);
+
+        const interfaces = getNetTopologyInterfaces(topologyDevicesResult).map((i) => ({
+          ...i,
+          _key: i.id,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          ip_address: i.ipAddress,
+        }));
+        const interfaceEdges = getNetDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { version } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'NetworkTopology');
+
+        return makeNetTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
     });
   },
