@@ -50,6 +50,15 @@ type AddSnapshotPayload {
   snapshot: Snapshot
 }
 
+input AddStreamInput {
+  deviceName: String!
+  streamName: String!
+}
+
+type AddStreamPayload {
+  stream: Stream!
+}
+
 input AddZoneInput {
   name: String!
 }
@@ -285,6 +294,10 @@ input FilterLabelsInput {
   name: String!
 }
 
+input FilterStreamsInput {
+  streamName: String
+}
+
 input FilterTopologyInput {
   labels: [String!]
 }
@@ -397,6 +410,7 @@ type Mutation {
   addDevice(input: AddDeviceInput!): AddDevicePayload!
   addLocation(input: AddLocationInput!): AddLocationPayload!
   addSnapshot(input: AddSnapshotInput!, transactionId: String!): AddSnapshotPayload
+  addStream(input: AddStreamInput!): AddStreamPayload!
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
   bulkInstallDevices(input: BulkInstallDevicesInput!): BulkInstallDevicePayload!
@@ -564,6 +578,14 @@ type Query {
   ptpTopology: PtpTopology
   ptpTopologyVersionData(version: String!): PtpTopologyVersionData!
   shortestPath(from: String!, to: String!): [NetRoutingPathNode!]!
+  streams(
+    after: String
+    before: String
+    filter: FilterStreamsInput
+    first: Int
+    last: Int
+    orderBy: StreamOrderByInput
+  ): StreamConnection!
   syncePathToGrandMaster(deviceFrom: String!): [String!]
   synceTopology: SynceTopology
   synceTopologyVersionData(version: String!): SynceTopologyVersionData!
@@ -597,6 +619,35 @@ enum SortDeviceBy {
 enum SortDirection {
   ASC
   DESC
+}
+
+enum SortStreamBy {
+  createdAt
+  streamName
+}
+
+type Stream implements Node {
+  createdAt: String!
+  deviceName: String!
+  id: ID!
+  streamName: String!
+  updatedAt: String!
+}
+
+type StreamConnection {
+  edges: [StreamEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type StreamEdge {
+  cursor: String!
+  node: Stream!
+}
+
+input StreamOrderByInput {
+  direction: SortDirection!
+  sortKey: SortStreamBy!
 }
 
 type Subscription {

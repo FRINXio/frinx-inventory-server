@@ -59,6 +59,19 @@ export const NodeQuery = extendType({
             }
             return { ...device, __typename: 'Device' };
           }
+          case 'Stream': {
+            const id = fromGraphId('Stream', args.id);
+            const stream = await prisma.stream.findFirst({
+              where: { id, tenantId },
+            });
+            if (stream == null) {
+              return null;
+            }
+            if (stream == null) {
+              throw new Error('stream not found');
+            }
+            return { ...stream, __typename: 'Stream' };
+          }
           case 'Zone': {
             const id = fromGraphId('Zone', args.id);
             const zone = await prisma.uniconfigZone.findFirst({

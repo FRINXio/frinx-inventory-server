@@ -96,6 +96,22 @@ async function importDevices() {
   return devices;
 }
 
+async function importStreams() {
+  const devices = await getDeviceList();
+  const data = devices.map((d) => ({
+    deviceName: d.node_id,
+    streamName: 'sample_stream',
+    tenantId,
+  }));
+
+  const createArgs: Prisma.streamCreateManyArgs = {
+    data,
+    skipDuplicates: true,
+  };
+
+  return await prisma.stream.createMany(createArgs);
+}
+
 async function importBlueprints() {
   return await prisma.blueprint.createMany({
     data: [
@@ -122,13 +138,17 @@ async function importUniconfigZone(uniconfigZone: string) {
 async function main() {
   const uniconfigZoneArg = getUniconfigZone();
 
+  // first delete all streams, because of foreign key contraint check
+  await prisma.stream.deleteMany();
   const uniconfigZone = await importUniconfigZone(uniconfigZoneArg);
   const blueprints = await importBlueprints();
   const devices = await importDevices();
+  const streams = await importStreams();
   return {
     uniconfigZone,
     blueprints,
     devices,
+    streams,
   };
 }
 

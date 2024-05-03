@@ -12,8 +12,13 @@ type FilterQuery = {
   name?: Record<string, unknown>;
 };
 
-type OrderingInput = {
+type DeviceOrderingInput = {
   sortKey: 'name' | 'createdAt' | 'serviceState';
+  direction: 'ASC' | 'DESC';
+};
+
+type StreamOrderingInput = {
+  sortKey: 'streamName' | 'createdAt';
   direction: 'ASC' | 'DESC';
 };
 
@@ -36,7 +41,17 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
   };
 }
 
-export function getOrderingQuery(ordering?: OrderingInput | null): Record<string, unknown> | undefined {
+export function getOrderingQuery(
+  ordering?: StreamOrderingInput | DeviceOrderingInput | null,
+): Record<string, unknown> | undefined {
+  return ordering
+    ? {
+        orderBy: [{ [ordering.sortKey]: ordering.direction.toLowerCase() }],
+      }
+    : undefined;
+}
+
+export function getStreamOrderingQuery(ordering?: StreamOrderingInput | null): Record<string, unknown> | undefined {
   return ordering
     ? {
         orderBy: [{ [ordering.sortKey]: ordering.direction.toLowerCase() }],

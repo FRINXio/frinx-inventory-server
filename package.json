@@ -10,6 +10,7 @@
     "build:ts": "cross-env NODE_ENV=production tsc -p ./tsconfig.production.json",
     "build:clear": "rimraf build",
     "build": "run-s build:clear build:ts",
+    "compile:seed": "tsc && cp ./build/prisma/seed.js ./prisma/seed.js",
     "dev": "cross-env DEBUG='frinx-inventory-server' DEBUG_COLORS=true DOTENV_CONFIG_PATH=./.env ts-node-dev --transpile-only -r dotenv/config ./src/index.ts",
     "dev:migrate": "prisma migrate save --experimental -c && prisma migrate up --experimental -c",
     "prisma:seed": "ts-node -r dotenv/config ./prisma/seed.ts",
