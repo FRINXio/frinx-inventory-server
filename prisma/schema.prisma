@@ -120,13 +120,14 @@ model blueprint {
 }
 
 model stream {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  deviceName String   @map("device_name")
-  streamName String   @map("stream_name")
-  tenantId   String   @map("tenant_id")
-  device     device   @relation(fields: [deviceName, tenantId], references: [name, tenantId])
+  id               String   @id @default(uuid())
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  deviceName       String   @map("device_name")
+  streamName       String   @map("stream_name")
+  streamParameters Json?    @map("stream_parameters")
+  tenantId         String   @map("tenant_id")
+  device           device   @relation(fields: [deviceName, tenantId], references: [name, tenantId])
 
   @@unique([deviceName, streamName, tenantId], name: "udx_device_name_stream_name_id")
 }

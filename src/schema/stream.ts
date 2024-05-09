@@ -1,8 +1,16 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
-import { arg, enumType, extendType, inputObjectType, nonNull, objectType } from 'nexus';
+import { arg, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
 import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
 import { Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
-import { toGraphId } from '../helpers/id-helper';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
+import { getUniconfigURL } from '../helpers/zone.helpers';
+import {
+  getCachedDeviceInstallStatus,
+  installDeviceCache,
+  uninstallDeviceCache,
+} from '../external-api/uniconfig-cache';
+import { getMountParamsForStream, getUniconfigStreamName } from '../helpers/stream-helpers';
 
 export const StreamNode = objectType({
   name: 'Stream',
@@ -19,6 +27,21 @@ export const StreamNode = objectType({
     });
     t.nonNull.string('streamName');
     t.nonNull.string('deviceName');
+    t.nonNull.boolean('isActive', {
+      resolve: async (root, _, { prisma }) => {
+        const device = await prisma.device.findFirst({ where: { name: root.deviceName } });
+
+        if (device == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
+        const isActive = await getCachedDeviceInstallStatus(
+          uniconfigURL,
+          getUniconfigStreamName(root.streamName, root.deviceName),
+        );
+        return isActive;
+      },
+    });
   },
 });
 
@@ -120,6 +143,97 @@ export const AddStreamMutation = extendType({
           },
         });
 
+        return { stream };
+      },
+    });
+  },
+});
+
+export const ActivateStreamPayload = objectType({
+  name: 'ActivateStreamPayload',
+  definition: (t) => {
+    t.nonNull.field('stream', { type: StreamNode });
+  },
+});
+
+export const ActivateStreamMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('activateStream', {
+      type: ActivateStreamPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Stream', args.id);
+        const stream = await prisma.stream.findFirst({
+          where: { id: nativeId, AND: { tenantId } },
+          include: {
+            device: true,
+          },
+        });
+
+        if (stream == null) {
+          throw new Error('stream not found');
+        }
+
+        const { streamName, deviceName, streamParameters, device } = stream;
+        const uniconfigStreamName = getUniconfigStreamName(streamName, deviceName);
+        // TODO: create column stream params
+        const installDeviceParams = prepareInstallParameters(
+          uniconfigStreamName,
+          getMountParamsForStream(device.mountParameters, streamParameters),
+        );
+
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
+        await installDeviceCache({ uniconfigURL, deviceName: uniconfigStreamName, params: installDeviceParams });
+
+        return { stream };
+      },
+    });
+  },
+});
+
+export const DeactivateStreamPayload = objectType({
+  name: 'DeactivateStreamPayload',
+  definition: (t) => {
+    t.nonNull.field('stream', { type: StreamNode });
+  },
+});
+export const DeactivateStreamMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deactivateStream', {
+      type: DeactivateStreamPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Stream', args.id);
+        const stream = await prisma.stream.findFirst({
+          where: { id: nativeId, AND: { tenantId } },
+          include: { device: true },
+        });
+        if (stream == null) {
+          throw new Error('stream not found');
+        }
+
+        const { device } = stream;
+
+        const uninstallParams = {
+          input: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'node-id': getUniconfigStreamName(stream.streamName, stream.deviceName),
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'connection-type': getConnectionType(decodeMountParams(device.mountParameters)),
+          },
+        };
+        const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
+        await uninstallDeviceCache({
+          uniconfigURL,
+          params: uninstallParams,
+          deviceName: getUniconfigStreamName(stream.streamName, stream.deviceName),
+        });
         return { stream };
       },
     });
