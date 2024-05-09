@@ -457,6 +457,11 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  NetTopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
   PageInfo: {
     // root type
     endCursor?: string | null; // String
@@ -1026,6 +1031,11 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  NetTopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -1110,6 +1120,7 @@ export interface NexusGenFieldTypes {
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
+    netTopologyVersionData: NexusGenRootTypes['NetTopologyVersionData']; // NetTopologyVersionData!
     node: NexusGenRootTypes['Node'] | null; // Node
     phyTopologyVersionData: NexusGenRootTypes['PhyTopologyVersionData']; // PhyTopologyVersionData!
     ptpDiffSynce: NexusGenRootTypes['PtpDiffSynce']; // PtpDiffSynce!
@@ -1634,6 +1645,11 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphEdge';
     nodes: 'NetNode';
   };
+  NetTopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
+    nodes: 'NetNode';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1718,6 +1734,7 @@ export interface NexusGenFieldTypeNames {
     labels: 'LabelConnection';
     locations: 'LocationConnection';
     netTopology: 'NetTopology';
+    netTopologyVersionData: 'NetTopologyVersionData';
     node: 'Node';
     phyTopologyVersionData: 'PhyTopologyVersionData';
     ptpDiffSynce: 'PtpDiffSynce';
@@ -2085,6 +2102,10 @@ export interface NexusGenArgTypes {
       before?: string | null; // String
       first?: number | null; // Int
       last?: number | null; // Int
+    };
+    netTopologyVersionData: {
+      // args
+      version: string; // String!
     };
     node: {
       // args
