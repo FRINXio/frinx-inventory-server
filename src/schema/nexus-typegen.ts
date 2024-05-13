@@ -197,6 +197,10 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  ActivateStreamPayload: {
+    // root type
+    stream: NexusGenRootTypes['Stream']; // Stream!
+  };
   AddBlueprintPayload: {
     // root type
     blueprint: NexusGenRootTypes['Blueprint']; // Blueprint!
@@ -300,6 +304,10 @@ export interface NexusGenObjects {
     transactionId?: string | null; // String
   };
   DataStore: SourceTypes.DataStore;
+  DeactivateStreamPayload: {
+    // root type
+    stream: NexusGenRootTypes['Stream']; // Stream!
+  };
   DeleteBlueprintPayload: {
     // root type
     blueprint?: NexusGenRootTypes['Blueprint'] | null; // Blueprint
@@ -681,6 +689,10 @@ export type NexusGenRootTypes = NexusGenInterfaces & NexusGenObjects;
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums;
 
 export interface NexusGenFieldTypes {
+  ActivateStreamPayload: {
+    // field return type
+    stream: NexusGenRootTypes['Stream']; // Stream!
+  };
   AddBlueprintPayload: {
     // field return type
     blueprint: NexusGenRootTypes['Blueprint']; // Blueprint!
@@ -800,6 +812,10 @@ export interface NexusGenFieldTypes {
     config: string; // String!
     operational: string; // String!
     snapshots: NexusGenRootTypes['Snapshot'][]; // [Snapshot!]!
+  };
+  DeactivateStreamPayload: {
+    // field return type
+    stream: NexusGenRootTypes['Stream']; // Stream!
   };
   DeleteBlueprintPayload: {
     // field return type
@@ -949,6 +965,7 @@ export interface NexusGenFieldTypes {
   };
   Mutation: {
     // field return type
+    activateStream: NexusGenRootTypes['ActivateStreamPayload']; // ActivateStreamPayload!
     addBlueprint: NexusGenRootTypes['AddBlueprintPayload']; // AddBlueprintPayload!
     addDevice: NexusGenRootTypes['AddDevicePayload']; // AddDevicePayload!
     addLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
@@ -962,6 +979,7 @@ export interface NexusGenFieldTypes {
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
     createTransaction: NexusGenRootTypes['CreateTransactionPayload']; // CreateTransactionPayload!
+    deactivateStream: NexusGenRootTypes['DeactivateStreamPayload']; // DeactivateStreamPayload!
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
@@ -1139,6 +1157,7 @@ export interface NexusGenFieldTypes {
     createdAt: string; // String!
     deviceName: string; // String!
     id: string; // ID!
+    isActive: boolean; // Boolean!
     streamName: string; // String!
     updatedAt: string; // String!
   };
@@ -1284,6 +1303,10 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  ActivateStreamPayload: {
+    // field return type name
+    stream: 'Stream';
+  };
   AddBlueprintPayload: {
     // field return type name
     blueprint: 'Blueprint';
@@ -1403,6 +1426,10 @@ export interface NexusGenFieldTypeNames {
     config: 'String';
     operational: 'String';
     snapshots: 'Snapshot';
+  };
+  DeactivateStreamPayload: {
+    // field return type name
+    stream: 'Stream';
   };
   DeleteBlueprintPayload: {
     // field return type name
@@ -1552,6 +1579,7 @@ export interface NexusGenFieldTypeNames {
   };
   Mutation: {
     // field return type name
+    activateStream: 'ActivateStreamPayload';
     addBlueprint: 'AddBlueprintPayload';
     addDevice: 'AddDevicePayload';
     addLocation: 'AddLocationPayload';
@@ -1565,6 +1593,7 @@ export interface NexusGenFieldTypeNames {
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
     createTransaction: 'CreateTransactionPayload';
+    deactivateStream: 'DeactivateStreamPayload';
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
@@ -1742,6 +1771,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'String';
     deviceName: 'String';
     id: 'ID';
+    isActive: 'Boolean';
     streamName: 'String';
     updatedAt: 'String';
   };
@@ -1897,6 +1927,10 @@ export interface NexusGenArgTypes {
     };
   };
   Mutation: {
+    activateStream: {
+      // args
+      id: string; // String!
+    };
     addBlueprint: {
       // args
       input: NexusGenInputs['AddBlueprintInput']; // AddBlueprintInput!
@@ -1952,6 +1986,10 @@ export interface NexusGenArgTypes {
     createTransaction: {
       // args
       deviceId: string; // String!
+    };
+    deactivateStream: {
+      // args
+      id: string; // String!
     };
     deleteBlueprint: {
       // args

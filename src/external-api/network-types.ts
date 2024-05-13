@@ -31,7 +31,7 @@ export function decodeInstalledDevicesOutput(value: unknown): InstalledDevicesOu
 export type UninstallDeviceInput = {
   input: {
     'node-id': string;
-    'connection-type': 'netconf' | 'cli';
+    'connection-type': 'netconf' | 'cli' | 'gnmi';
   };
 };
 
@@ -39,7 +39,7 @@ export type UninstallMultipleDevicesInput = {
   input: {
     nodes: {
       'node-id': string;
-      'connection-type': 'netconf' | 'cli';
+      'connection-type': 'netconf' | 'cli' | 'gnmi';
     }[];
   };
 };
