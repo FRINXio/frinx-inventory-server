@@ -1,11 +1,21 @@
 import base64url from 'base64url';
 
-export type DataType = 'Zone' | 'Device' | 'Label' | 'Location' | 'Country' | 'Blueprint' | 'GraphNode' | 'GraphEdge';
+export type DataType =
+  | 'Zone'
+  | 'Device'
+  | 'Stream'
+  | 'Label'
+  | 'Location'
+  | 'Country'
+  | 'Blueprint'
+  | 'GraphNode'
+  | 'GraphEdge';
 
 function isDataType(value: string): value is DataType {
   return (
     value === 'Zone' ||
     value === 'Device' ||
+    value === 'Stream' ||
     value === 'Label' ||
     value === 'Location' ||
     value === 'Country' ||

@@ -9,8 +9,8 @@ const client_1 = require('@prisma/client');
 const csv_parse_1 = require('csv-parse');
 const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
-const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
-const utils_helpers_1 = require('../helpers/utils.helpers');
+const import_csv_helpers_1 = require('../src/helpers/import-csv.helpers');
+const utils_helpers_1 = require('../src/helpers/utils.helpers');
 const DEFAULT_UNICONFIG_ZONE = 'localhost';
 const { X_TENANT_ID } = process.env;
 if (!X_TENANT_ID) {
@@ -89,6 +89,19 @@ async function importDevices() {
   const devices = await prisma.device.createMany(args);
   return devices;
 }
+async function importStreams() {
+  const devices = await getDeviceList();
+  const data = devices.map((d) => ({
+    deviceName: d.node_id,
+    streamName: 'sample_stream',
+    tenantId,
+  }));
+  const createArgs = {
+    data,
+    skipDuplicates: true,
+  };
+  return await prisma.stream.createMany(createArgs);
+}
 async function importBlueprints() {
   return await prisma.blueprint.createMany({
     data: [
@@ -112,13 +125,17 @@ async function importUniconfigZone(uniconfigZone) {
 }
 async function main() {
   const uniconfigZoneArg = getUniconfigZone();
+  // first delete all streams, because of foreign key contraint check
+  await prisma.stream.deleteMany();
   const uniconfigZone = await importUniconfigZone(uniconfigZoneArg);
   const blueprints = await importBlueprints();
   const devices = await importDevices();
+  const streams = await importStreams();
   return {
     uniconfigZone,
     blueprints,
     devices,
+    streams,
   };
 }
 main()

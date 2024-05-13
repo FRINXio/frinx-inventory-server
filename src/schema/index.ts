@@ -3,6 +3,7 @@ import { join } from 'path';
 import * as blueprint from './blueprint';
 import * as dataStore from './data-store';
 import * as device from './device';
+import * as stream from './stream';
 import * as globalTypes from './global-types';
 import * as label from './label';
 import * as location from './location';
@@ -30,6 +31,7 @@ export default makeSchema({
   types: [
     globalTypes,
     device,
+    stream,
     zone,
     dataStore,
     label,

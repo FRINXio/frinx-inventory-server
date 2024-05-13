@@ -52,6 +52,7 @@ const NetInterface = t.type({
   _key: t.string,
   ip_address: t.string,
 });
+export type NetInterface = t.TypeOf<typeof NetInterface>;
 const StatusValidator = t.union([t.literal('ok'), t.literal('unknown')]);
 const InterfaceWithStatusValidator = t.intersection([
   Interface,
@@ -59,6 +60,12 @@ const InterfaceWithStatusValidator = t.intersection([
     status: StatusValidator,
   }),
 ]);
+
+const NetInterfaceValidator = t.type({
+  _id: t.string,
+  _key: t.string,
+  ip_address: t.string,
+});
 
 const PtpInterfaceWithStatusValidator = t.intersection([
   PtpInterface,
@@ -86,6 +93,7 @@ const DeviceValidator = t.intersection([
     coordinates: CoordinatesValidator,
   }),
 ]);
+
 const PtpDeviceValidator = t.intersection([
   InterfaceWithStatusValidator,
   t.type({
@@ -117,17 +125,40 @@ const SynceDeviceValidator = t.intersection([
     coordinates: CoordinatesValidator,
   }),
 ]);
+
+const NetworkValidator = t.type({
+  _id: t.string,
+  _key: t.string,
+  coordinates: CoordinatesValidator,
+  subnet: t.string,
+  ospf_route_type: t.number,
+});
+
+const ChangedNetNetwork = t.type({
+  new: NetworkValidator,
+  old: NetworkValidator,
+});
+
 const NetDeviceValidator = t.type({
   _id: t.string,
   _key: t.string,
-  _rev: t.string,
+  _rev: optional(t.string),
   router_id: t.string,
   coordinates: CoordinatesValidator,
+  ospf_area_id: t.string,
 });
+
+const DeviceWithNetworksValidator = t.intersection([
+  NetDeviceValidator,
+  t.type({
+    netNetworks: t.array(NetworkValidator),
+  }),
+]);
 
 export type ArangoDevice = t.TypeOf<typeof DeviceValidator>;
 export type ArangoPtpDevice = t.TypeOf<typeof PtpDeviceValidator>;
 export type ArangoSynceDevice = t.TypeOf<typeof SynceDeviceValidator>;
+export type ArangoNetDevice = t.TypeOf<typeof DeviceWithNetworksValidator>;
 
 export type Status = t.TypeOf<typeof StatusValidator>;
 
@@ -164,6 +195,11 @@ const ChangedSynceDevice = t.type({
   old: SynceDeviceValidator,
 });
 
+const ChangedNetDevice = t.type({
+  new: NetDeviceValidator,
+  old: NetDeviceValidator,
+});
+
 const ChangedEdge = t.type({
   new: Edge,
   old: Edge,
@@ -184,6 +220,10 @@ const ChangedPtpInterface = t.type({
 const ChangedSynceInterface = t.type({
   new: SynceInterfaceWithStatusValidator,
   old: SynceInterfaceWithStatusValidator,
+});
+const ChangedNetInterface = t.type({
+  new: NetInterfaceValidator,
+  old: NetInterfaceValidator,
 });
 
 const ChangePhyDiff = t.type({
@@ -229,17 +269,19 @@ const SynceDiff = t.type({
 });
 
 const ChangeNetDiff = t.type({
-  NetDevice: t.array(ChangedDevice),
-  NetHas: t.array(ChangedEdgeWithStatusValidator),
-  NetInterface: t.array(ChangedInterface),
+  NetDevice: t.array(ChangedNetDevice),
+  NetHas: t.array(ChangedEdge),
+  NetInterface: t.array(ChangedNetInterface),
   NetLink: t.array(ChangedEdge),
+  NetNetwork: t.array(ChangedNetNetwork),
 });
 
 const NetDiff = t.type({
-  NetDevice: t.array(DeviceValidator),
-  NetHas: t.array(EdgeWithStatusValidator),
-  NetInterface: t.array(InterfaceWithStatusValidator),
+  NetDevice: t.array(NetDeviceValidator),
+  NetHas: t.array(Edge),
+  NetInterface: t.array(NetInterfaceValidator),
   NetLink: t.array(Edge),
+  NetNetwork: t.array(NetworkValidator),
 });
 
 const TopologyDiff = t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]);
@@ -278,7 +320,8 @@ const TopologyDiffOutputValidator = t.type({
 export type TopologyDiffOutput = t.TypeOf<typeof TopologyDiffOutputValidator>;
 
 export function decodeTopologyDiffOutput(value: unknown): TopologyDiffOutput {
-  return extractResult(TopologyDiffOutputValidator.decode(value));
+  const result = extractResult(TopologyDiffOutputValidator.decode(value));
+  return result;
 }
 
 const TopologyCommonNodesOutputValidator = t.type({
@@ -354,12 +397,6 @@ const AdvertiseValidator = t.type({
   _from: t.string,
   _id: t.string,
   _to: t.string,
-});
-const NetworkValidator = t.type({
-  _id: t.string,
-  _key: t.string,
-  coordinates: CoordinatesValidator,
-  subnet: t.string,
 });
 
 export type NetNetwork = t.TypeOf<typeof NetworkValidator>;
