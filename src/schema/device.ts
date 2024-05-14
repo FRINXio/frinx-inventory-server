@@ -41,6 +41,7 @@ import { Node, PageInfo, PaginationConnectionArgs, SortDirection } from './globa
 import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
+import config from '../config';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -295,12 +296,14 @@ export const AddDeviceMutation = extendType({
             where: { id: device.locationId ?? undefined },
           });
 
-          await inventoryKafka.produceDeviceRegistrationEvent(
-            kafka,
-            device,
-            [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
-            labelIds ?? [],
-          );
+          if (config.kafkaEnabled) {
+            await inventoryKafka?.produceDeviceRegistrationEvent(
+              kafka,
+              device,
+              [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
+              labelIds ?? [],
+            );
+          }
 
           return { device };
         } catch (e) {
@@ -413,12 +416,14 @@ export const UpdateDeviceMutation = extendType({
             where: { id: updatedDevice.locationId ?? undefined },
           });
 
-          await inventoryKafka.produceDeviceUpdateEvent(
-            kafka,
-            updatedDevice,
-            [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
-            labelIds,
-          );
+          if (config.kafkaEnabled) {
+            await inventoryKafka?.produceDeviceUpdateEvent(
+              kafka,
+              updatedDevice,
+              [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
+              labelIds,
+            );
+          }
 
           return { device: updatedDevice };
         } catch (error) {
@@ -467,7 +472,9 @@ export const DeleteDeviceMutation = extendType({
         try {
           const deletedDevice = await prisma.device.delete({ where: { id: nativeId } });
 
-          await inventoryKafka.produceDeviceRemovalEvent(kafka, deletedDevice.name);
+          if (config.kafkaEnabled) {
+            await inventoryKafka?.produceDeviceRemovalEvent(kafka, deletedDevice.name);
+          }
 
           return { device: deletedDevice };
         } catch (error) {
