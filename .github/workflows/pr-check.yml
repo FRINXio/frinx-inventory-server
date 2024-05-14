@@ -47,6 +47,7 @@ jobs:
           RESOURCE_MANAGER_API_URL: 10.19.0.7
           KAFKA_BROKER: 10.19.0.25:30006
           KAFKA_TOPIC: uniconfig
+          KAFKA_ENABLED: false
       - name: Check code formatting
         run: npm run formatter:check
       - name: Run eslint check

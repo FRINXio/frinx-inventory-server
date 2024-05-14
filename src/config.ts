@@ -76,6 +76,7 @@ const config = {
   shellHost: envString('SHELL_HOST'),
   kafkaBroker: envString('KAFKA_BROKER'),
   kafkaTopic: envString('KAFKA_TOPIC'),
+  kafkaEnabled: stringToBoolean(envString('KAFKA_ENABLED')),
   ...getTopologyConfig(),
 };
 
