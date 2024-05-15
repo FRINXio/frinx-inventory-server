@@ -863,6 +863,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     port: number | null; // Int
     serviceState: NexusGenEnums['DeviceServiceState']; // DeviceServiceState!
+    software: string | null; // String
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
     vendor: string | null; // String
@@ -1494,6 +1495,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     port: 'Int';
     serviceState: 'DeviceServiceState';
+    software: 'String';
     source: 'DeviceSource';
     updatedAt: 'String';
     vendor: 'String';

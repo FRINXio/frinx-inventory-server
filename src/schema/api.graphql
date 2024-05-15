@@ -242,6 +242,7 @@ type Device implements Node {
   name: String!
   port: Int
   serviceState: DeviceServiceState!
+  software: String
   source: DeviceSource!
   updatedAt: String!
   vendor: String
