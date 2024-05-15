@@ -9,8 +9,8 @@ const client_1 = require('@prisma/client');
 const csv_parse_1 = require('csv-parse');
 const fs_1 = require('fs');
 const json_templates_1 = __importDefault(require('json-templates'));
-const import_csv_helpers_1 = require('../src/helpers/import-csv.helpers');
-const utils_helpers_1 = require('../src/helpers/utils.helpers');
+const import_csv_helpers_1 = require('../helpers/import-csv.helpers');
+const utils_helpers_1 = require('../helpers/utils.helpers');
 const DEFAULT_UNICONFIG_ZONE = 'localhost';
 const { X_TENANT_ID } = process.env;
 if (!X_TENANT_ID) {
@@ -30,12 +30,18 @@ const SAMPLE_BLUEPRINT_TEMPLATE = `
       "cli-topology:journal-size": 150,
       "cli-topology:dry-run-journal-size": 150,
       "cli:topology:parsing-engine" : "tree-parser",
-      "node-extension:reconcile": false,
       "uniconfig-config:install-uniconfig-node-enabled": true
   }
-}
-
-`;
+}`;
+const STREAM_PARAMETERS = {
+  'subscriptions:stream': [
+    {
+      'stream-name': 'GNMI',
+      mode: 'TARGET_DEFINED',
+      paths: ['state/system/cpu=1/summary/usage', 'state/system/memory-pools/summary'],
+    },
+  ],
+};
 // TODO: we are setting uniconfig zone based on optional -z flag when running seed script
 // example: `npm run prisma:seed -z uniconfig`
 // when flag is omitted, localhost is used
@@ -94,6 +100,7 @@ async function importStreams() {
   const data = devices.map((d) => ({
     deviceName: d.node_id,
     streamName: 'sample_stream',
+    streamParameters: STREAM_PARAMETERS,
     tenantId,
   }));
   const createArgs = {

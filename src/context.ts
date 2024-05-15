@@ -17,7 +17,7 @@ export type Context = {
   topologyDiscoveryAPI: TopologyDiscoveryAPI;
   topologyDiscoveryGraphQLAPI?: TopologyDiscoveryGraphQLAPI;
   performanceMonitoringAPI: PerformanceMonitoringAPI;
-  inventoryKafka: typeof kafkaProducers;
+  inventoryKafka: typeof kafkaProducers | null;
 };
 
 function getTenantIdFromHeaders(headers: IncomingHttpHeaders): string {
@@ -34,17 +34,20 @@ export default async function createContext(context: ExpressContextFunctionArgum
   const { req } = context;
   const { headers } = req;
   const tenantId = getTenantIdFromHeaders(headers);
-  const kafka = new KafkaService();
+  let kafka: KafkaService | null = null;
+
+  if (config.kafkaEnabled) {
+    kafka = new KafkaService();
+  }
 
   return {
-    kafka,
     prisma: prismaClient,
     tenantId,
     uniconfigAPI,
     topologyDiscoveryAPI,
     topologyDiscoveryGraphQLAPI: getTopologyDiscoveryApi(),
     performanceMonitoringAPI: getPerformanceMonitoringAPI(),
-    inventoryKafka: kafkaProducers,
+    ...(config.kafkaEnabled ? { kafka, inventoryKafka: kafkaProducers } : { kafka: null, inventoryKafka: null }),
   };
 }
 

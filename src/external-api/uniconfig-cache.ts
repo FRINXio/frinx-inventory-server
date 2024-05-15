@@ -53,7 +53,7 @@ async function getDeviceInstallStatus(baseURL: string, deviceName: string): Prom
   const { output } = await getCheckInstalledDevices(baseURL, input);
 
   const nodeResults = output['node-results']?.['node-result'] ?? [];
-  return nodeResults.filter((n) => n['uniconfig-layer'] === true && n['node-id'] === deviceName).length > 0;
+  return nodeResults.filter((n) => n['node-id'] === deviceName).length > 0;
 }
 
 export async function getCachedDeviceInstallStatus(baseURL: string, deviceName: string): Promise<boolean> {

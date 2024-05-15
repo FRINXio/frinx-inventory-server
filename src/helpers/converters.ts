@@ -46,10 +46,13 @@ export function prepareMultipleInstallParameters(
 
 const MountParamsValidator = t.union([
   t.type({
-    cli: t.unknown,
+    cli: t.UnknownRecord,
   }),
   t.type({
-    netconf: t.unknown,
+    netconf: t.UnknownRecord,
+  }),
+  t.type({
+    gnmi: t.UnknownRecord,
   }),
 ]);
 type MountParams = t.TypeOf<typeof MountParamsValidator>;
@@ -58,9 +61,9 @@ export function decodeMountParams(value: unknown): MountParams {
   return extractResult(MountParamsValidator.decode(value));
 }
 
-export function getConnectionType(mountParameters: MountParams): 'cli' | 'netconf' {
+export function getConnectionType(mountParameters: MountParams): 'cli' | 'netconf' | 'gnmi' {
   const type = Object.keys(mountParameters)[0];
-  if (type !== 'cli' && type !== 'netconf') {
+  if (type !== 'cli' && type !== 'netconf' && type !== 'gnmi') {
     throw new Error('INTERNAL SERVER ERROR');
   }
   return type;
