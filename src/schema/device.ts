@@ -88,13 +88,7 @@ export const Device = objectType({
       },
     });
     t.string('software', {
-      resolve: (root) => {
-        if (root.software != null && root.software.trim().length > 0) {
-          return root.software;
-        }
-
-        return null;
-      },
+      resolve: (root) => (root.software == null || root.software.trim().length === 0 ? null : root.software),
     });
     t.int('port');
     t.string('address', {
