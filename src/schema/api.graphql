@@ -262,7 +262,7 @@ type DeviceEdge {
 }
 
 type DeviceListUsage {
-  devicesUsage: [DevicesUsage]!
+  devicesUsage: [DevicesUsage!]!
 }
 
 input DeviceOrderByInput {
@@ -289,14 +289,14 @@ enum DeviceSource {
 }
 
 type DeviceUsage {
-  cpuLoad: Float!
-  memoryLoad: Float!
+  cpuLoad: Float
+  memoryLoad: Float
 }
 
 type DevicesUsage {
-  cpuLoad: Float!
+  cpuLoad: Float
   deviceName: String!
-  memoryLoad: Float!
+  memoryLoad: Float
 }
 
 type DiffData {

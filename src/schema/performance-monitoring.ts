@@ -1,12 +1,12 @@
 import { objectType, subscriptionField, nonNull, stringArg, intArg, list } from 'nexus';
-import performanceMonitoringAPI, { DeviceLoadUsage } from '../external-api/performance-monitoring';
+import { DeviceLoadUsage } from '../external-api/performance-monitoring-graphql';
 import { asyncGenerator } from '../helpers/async-generator';
 
 export const DeviceUsage = objectType({
   name: 'DeviceUsage',
   definition: (t) => {
-    t.nonNull.float('cpuLoad');
-    t.nonNull.float('memoryLoad');
+    t.float('cpuLoad');
+    t.float('memoryLoad');
   },
 });
 
@@ -16,10 +16,16 @@ export const DeviceUsageSubscription = subscriptionField('deviceUsage', {
     deviceName: nonNull(stringArg()),
     refreshEverySec: intArg(),
   },
-  subscribe: async (_, { deviceName, refreshEverySec }) =>
+  subscribe: async (_, { deviceName, refreshEverySec }, { performanceMonitoringAPI }) =>
     asyncGenerator<DeviceLoadUsage>(
       (refreshEverySec || 10) * 1000,
-      () => performanceMonitoringAPI().getDeviceLoadUsage(deviceName),
+      async () => {
+        if (performanceMonitoringAPI == null) {
+          return { cpuUsage: null, memoryUsage: null };
+        }
+
+        return performanceMonitoringAPI.getDeviceLoadUsage(deviceName);
+      },
       () => true,
     ),
   resolve: (data) => ({
@@ -32,15 +38,15 @@ export const DevicesUsage = objectType({
   name: 'DevicesUsage',
   definition: (t) => {
     t.nonNull.string('deviceName');
-    t.nonNull.float('cpuLoad');
-    t.nonNull.float('memoryLoad');
+    t.float('cpuLoad');
+    t.float('memoryLoad');
   },
 });
 
 export const DeviceListUsage = objectType({
   name: 'DeviceListUsage',
   definition: (t) => {
-    t.nonNull.list.field('devicesUsage', {
+    t.nonNull.list.nonNull.field('devicesUsage', {
       type: DevicesUsage,
     });
   },
@@ -52,17 +58,20 @@ export const DevicesUsageSubscription = subscriptionField('devicesUsage', {
     deviceNames: nonNull(list(nonNull(stringArg()))),
     refreshEverySec: intArg(),
   },
-  subscribe: async (_, { deviceNames, refreshEverySec }) =>
+  subscribe: async (_, { deviceNames, refreshEverySec }, { performanceMonitoringAPI }) =>
     asyncGenerator(
       (refreshEverySec || 10) * 1000,
       async () => {
-        const promises = deviceNames.map((deviceName) => performanceMonitoringAPI().getDeviceLoadUsage(deviceName));
-        const devicesLoads = await Promise.all(promises);
+        if (performanceMonitoringAPI == null) {
+          return [];
+        }
 
-        return devicesLoads.map((deviceLoad, index) => ({
-          deviceName: deviceNames[index],
-          cpuLoad: deviceLoad.cpuUsage,
-          memoryLoad: deviceLoad.memoryUsage,
+        const usages = await performanceMonitoringAPI.getDeviceLoadUsages(deviceNames);
+
+        return usages.map(({ cpuUsage, deviceName, memoryUsage }) => ({
+          deviceName,
+          cpuLoad: cpuUsage,
+          memoryLoad: memoryUsage,
         }));
       },
       () => true,

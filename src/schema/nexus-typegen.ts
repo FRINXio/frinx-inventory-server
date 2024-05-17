@@ -338,18 +338,18 @@ export interface NexusGenObjects {
   };
   DeviceListUsage: {
     // root type
-    devicesUsage: Array<NexusGenRootTypes['DevicesUsage'] | null>; // [DevicesUsage]!
+    devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
   DeviceUsage: {
     // root type
-    cpuLoad: number; // Float!
-    memoryLoad: number; // Float!
+    cpuLoad?: number | null; // Float
+    memoryLoad?: number | null; // Float
   };
   DevicesUsage: {
     // root type
-    cpuLoad: number; // Float!
+    cpuLoad?: number | null; // Float
     deviceName: string; // String!
-    memoryLoad: number; // Float!
+    memoryLoad?: number | null; // Float
   };
   DiffData: {
     // root type
@@ -883,18 +883,18 @@ export interface NexusGenFieldTypes {
   };
   DeviceListUsage: {
     // field return type
-    devicesUsage: Array<NexusGenRootTypes['DevicesUsage'] | null>; // [DevicesUsage]!
+    devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
   DeviceUsage: {
     // field return type
-    cpuLoad: number; // Float!
-    memoryLoad: number; // Float!
+    cpuLoad: number | null; // Float
+    memoryLoad: number | null; // Float
   };
   DevicesUsage: {
     // field return type
-    cpuLoad: number; // Float!
+    cpuLoad: number | null; // Float
     deviceName: string; // String!
-    memoryLoad: number; // Float!
+    memoryLoad: number | null; // Float
   };
   DiffData: {
     // field return type

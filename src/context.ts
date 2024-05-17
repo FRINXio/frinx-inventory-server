@@ -7,7 +7,7 @@ import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
 import config from './config';
 import kafkaProducers, { KafkaService } from './external-api/kafka';
-import getPerformanceMonitoringAPI, { PerformanceMonitoringAPI } from './external-api/performance-monitoring';
+import getPerformanceMonitoringAPI, { PerformanceMonitoringAPI } from './external-api/performance-monitoring-graphql';
 
 export type Context = {
   kafka: KafkaService | null;
@@ -54,5 +54,6 @@ export default async function createContext(context: ExpressContextFunctionArgum
 export function createSubscriptionContext() {
   return {
     prisma: prismaClient,
+    performanceMonitoringAPI: getPerformanceMonitoringAPI(),
   };
 }
