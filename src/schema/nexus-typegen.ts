@@ -68,6 +68,7 @@ export interface NexusGenInputs {
     // input type
     deviceName: string; // String!
     streamName: string; // String!
+    streamParameters?: string | null; // String
   };
   AddZoneInput: {
     // input type

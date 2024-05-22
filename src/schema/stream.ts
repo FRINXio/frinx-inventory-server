@@ -115,6 +115,7 @@ export const AddStreamInput = inputObjectType({
   definition: (t) => {
     t.nonNull.string('streamName');
     t.nonNull.string('deviceName');
+    t.string('streamParameters');
   },
 });
 
@@ -139,6 +140,7 @@ export const AddStreamMutation = extendType({
           data: {
             deviceName: input.deviceName,
             streamName: input.streamName,
+            streamParameters: input.streamParameters != null ? JSON.parse(input.streamParameters) : undefined,
             tenantId,
           },
         });
@@ -180,13 +182,13 @@ export const ActivateStreamMutation = extendType({
         const { streamName, deviceName, streamParameters, device } = stream;
         const uniconfigStreamName = getUniconfigStreamName(streamName, deviceName);
         // TODO: create column stream params
-        const installDeviceParams = prepareInstallParameters(
+        const installStreamParams = prepareInstallParameters(
           uniconfigStreamName,
           getMountParamsForStream(device.mountParameters, streamParameters),
         );
 
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await installDeviceCache({ uniconfigURL, deviceName: uniconfigStreamName, params: installDeviceParams });
+        await installDeviceCache({ uniconfigURL, deviceName: uniconfigStreamName, params: installStreamParams });
 
         return { stream };
       },
