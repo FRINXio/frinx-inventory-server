@@ -7,6 +7,7 @@ import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
 import config from './config';
 import kafkaProducers, { KafkaService } from './external-api/kafka';
+import getPerformanceMonitoringAPI, { PerformanceMonitoringAPI } from './external-api/performance-monitoring-graphql';
 
 export type Context = {
   kafka: KafkaService | null;
@@ -15,6 +16,7 @@ export type Context = {
   uniconfigAPI: UniConfigAPI;
   topologyDiscoveryAPI: TopologyDiscoveryAPI;
   topologyDiscoveryGraphQLAPI?: TopologyDiscoveryGraphQLAPI;
+  performanceMonitoringAPI: PerformanceMonitoringAPI;
   inventoryKafka: typeof kafkaProducers | null;
 };
 
@@ -44,6 +46,7 @@ export default async function createContext(context: ExpressContextFunctionArgum
     uniconfigAPI,
     topologyDiscoveryAPI,
     topologyDiscoveryGraphQLAPI: getTopologyDiscoveryApi(),
+    performanceMonitoringAPI: getPerformanceMonitoringAPI(),
     ...(config.kafkaEnabled ? { kafka, inventoryKafka: kafkaProducers } : { kafka: null, inventoryKafka: null }),
   };
 }
@@ -51,5 +54,6 @@ export default async function createContext(context: ExpressContextFunctionArgum
 export function createSubscriptionContext() {
   return {
     prisma: prismaClient,
+    performanceMonitoringAPI: getPerformanceMonitoringAPI(),
   };
 }

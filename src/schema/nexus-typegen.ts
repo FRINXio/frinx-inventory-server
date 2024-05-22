@@ -336,6 +336,21 @@ export interface NexusGenObjects {
     cursor: string; // String!
     node: NexusGenRootTypes['Device']; // Device!
   };
+  DeviceListUsage: {
+    // root type
+    devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
+  };
+  DeviceUsage: {
+    // root type
+    cpuLoad?: number | null; // Float
+    memoryLoad?: number | null; // Float
+  };
+  DevicesUsage: {
+    // root type
+    cpuLoad?: number | null; // Float
+    deviceName: string; // String!
+    memoryLoad?: number | null; // Float
+  };
   DiffData: {
     // root type
     data: string; // String!
@@ -848,6 +863,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     port: number | null; // Int
     serviceState: NexusGenEnums['DeviceServiceState']; // DeviceServiceState!
+    software: string | null; // String
     source: NexusGenEnums['DeviceSource']; // DeviceSource!
     updatedAt: string; // String!
     vendor: string | null; // String
@@ -864,6 +880,21 @@ export interface NexusGenFieldTypes {
     // field return type
     cursor: string; // String!
     node: NexusGenRootTypes['Device']; // Device!
+  };
+  DeviceListUsage: {
+    // field return type
+    devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
+  };
+  DeviceUsage: {
+    // field return type
+    cpuLoad: number | null; // Float
+    memoryLoad: number | null; // Float
+  };
+  DevicesUsage: {
+    // field return type
+    cpuLoad: number | null; // Float
+    deviceName: string; // String!
+    memoryLoad: number | null; // Float
   };
   DiffData: {
     // field return type
@@ -1174,6 +1205,8 @@ export interface NexusGenFieldTypes {
   };
   Subscription: {
     // field return type
+    deviceUsage: NexusGenRootTypes['DeviceUsage'] | null; // DeviceUsage
+    devicesUsage: NexusGenRootTypes['DeviceListUsage'] | null; // DeviceListUsage
     uniconfigShell: string | null; // String
   };
   SyncFromNetworkPayload: {
@@ -1462,6 +1495,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     port: 'Int';
     serviceState: 'DeviceServiceState';
+    software: 'String';
     source: 'DeviceSource';
     updatedAt: 'String';
     vendor: 'String';
@@ -1478,6 +1512,21 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     cursor: 'String';
     node: 'Device';
+  };
+  DeviceListUsage: {
+    // field return type name
+    devicesUsage: 'DevicesUsage';
+  };
+  DeviceUsage: {
+    // field return type name
+    cpuLoad: 'Float';
+    memoryLoad: 'Float';
+  };
+  DevicesUsage: {
+    // field return type name
+    cpuLoad: 'Float';
+    deviceName: 'String';
+    memoryLoad: 'Float';
   };
   DiffData: {
     // field return type name
@@ -1788,6 +1837,8 @@ export interface NexusGenFieldTypeNames {
   };
   Subscription: {
     // field return type name
+    deviceUsage: 'DeviceUsage';
+    devicesUsage: 'DeviceListUsage';
     uniconfigShell: 'String';
   };
   SyncFromNetworkPayload: {
@@ -2163,6 +2214,16 @@ export interface NexusGenArgTypes {
     };
   };
   Subscription: {
+    deviceUsage: {
+      // args
+      deviceName: string; // String!
+      refreshEverySec?: number | null; // Int
+    };
+    devicesUsage: {
+      // args
+      deviceNames: string[]; // [String!]!
+      refreshEverySec?: number | null; // Int
+    };
     uniconfigShell: {
       // args
       input?: string | null; // String

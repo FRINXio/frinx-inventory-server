@@ -242,6 +242,7 @@ type Device implements Node {
   name: String!
   port: Int
   serviceState: DeviceServiceState!
+  software: String
   source: DeviceSource!
   updatedAt: String!
   vendor: String
@@ -258,6 +259,10 @@ type DeviceConnection {
 type DeviceEdge {
   cursor: String!
   node: Device!
+}
+
+type DeviceListUsage {
+  devicesUsage: [DevicesUsage!]!
 }
 
 input DeviceOrderByInput {
@@ -281,6 +286,17 @@ enum DeviceSource {
   DISCOVERED
   IMPORTED
   MANUAL
+}
+
+type DeviceUsage {
+  cpuLoad: Float
+  memoryLoad: Float
+}
+
+type DevicesUsage {
+  cpuLoad: Float
+  deviceName: String!
+  memoryLoad: Float
 }
 
 type DiffData {
@@ -662,6 +678,8 @@ input StreamOrderByInput {
 }
 
 type Subscription {
+  deviceUsage(deviceName: String!, refreshEverySec: Int): DeviceUsage
+  devicesUsage(deviceNames: [String!]!, refreshEverySec: Int): DeviceListUsage
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 

@@ -70,9 +70,26 @@ export const Device = objectType({
     t.nonNull.string('updatedAt', {
       resolve: (device) => device.updatedAt.toISOString(),
     });
-    t.string('model');
+    t.string('model', {
+      resolve: (root) => (root.model == null || root.model.trim().length === 0 ? null : root.model),
+    });
     t.string('vendor');
-    t.string('version');
+    t.string('version', {
+      resolve: (root) => {
+        if (root.softwareVersion != null && root.softwareVersion.length > 0) {
+          return root.softwareVersion;
+        }
+
+        if (root.version != null && root.version.length > 0) {
+          return root.version;
+        }
+
+        return null;
+      },
+    });
+    t.string('software', {
+      resolve: (root) => (root.software == null || root.software.trim().length === 0 ? null : root.software),
+    });
     t.int('port');
     t.string('address', {
       resolve: async (root) => root.managementIp,
