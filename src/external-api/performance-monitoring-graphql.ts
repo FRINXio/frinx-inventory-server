@@ -53,7 +53,7 @@ const DEVICE_CPU_USAGE = gql`
 `;
 
 function getPerformanceMonitoringAPI() {
-  if (config.topologyEnabled === false) {
+  if (config.performanceMonitoringEnabled === false) {
     return undefined;
   }
 
