@@ -42,6 +42,17 @@ type TopologyConfigDisabled = {
 
 type TopologyConfig = TopologyConfigDisabled | TopologyConfigEnabled;
 
+type PerformanceMonitoringConfigEnabled = {
+  performanceMonitoringEnabled: true;
+  performanceMonitoringGraphqlURL: string;
+};
+
+type PerfomanceMonitoringConfigDisabled = {
+  performanceMonitoringEnabled: false;
+};
+
+type PerformanceMonitoringConfig = PerfomanceMonitoringConfigDisabled | PerformanceMonitoringConfigEnabled;
+
 // all arango params must be present or none
 function getTopologyConfig(): TopologyConfig {
   const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
@@ -69,6 +80,27 @@ function getTopologyConfig(): TopologyConfig {
   };
 }
 
+function getPerformanceMonitoringConfig(): PerformanceMonitoringConfig {
+  const performanceMonitoringEnabled = stringToBoolean(envString('PERFORMANCE_MONITORING_ENABLED'));
+  const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
+  const performanceMonitoringGraphqlURL = optionalEnvString('PERFORMANCE_MONITORING_GRAPHQL_API_URL');
+
+  if (!performanceMonitoringEnabled || !topologyEnabled) {
+    return {
+      performanceMonitoringEnabled: false,
+    };
+  }
+
+  if (!performanceMonitoringGraphqlURL) {
+    throw new Error('Not all mandatory topology discovery url (PERFORMANCE_MONITORING_GRAPHQL_API_URL) were found.');
+  }
+
+  return {
+    performanceMonitoringEnabled: true,
+    performanceMonitoringGraphqlURL,
+  };
+}
+
 const config = {
   host: envString('HOST'),
   port: envString('PORT'),
@@ -82,6 +114,7 @@ const config = {
   kafkaTopic: envString('KAFKA_TOPIC'),
   kafkaEnabled: stringToBoolean(envString('KAFKA_ENABLED')),
   ...getTopologyConfig(),
+  ...getPerformanceMonitoringConfig(),
 };
 
 export default config;
