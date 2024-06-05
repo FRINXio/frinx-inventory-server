@@ -507,6 +507,15 @@ interface Node {
   id: ID!
 }
 
+type NodesConnection {
+  status: String
+}
+
+input NodesConnectionInput {
+  connectionTimeout: Int!
+  targetNodes: [TargetNodes!]!
+}
+
 type PageInfo {
   endCursor: String
   hasNextPage: Boolean!
@@ -681,6 +690,7 @@ input StreamOrderByInput {
 type Subscription {
   deviceUsage(deviceName: String!, refreshEverySec: Int): DeviceUsage
   devicesUsage(deviceNames: [String!]!, refreshEverySec: Int): DeviceListUsage
+  nodesConnection(input: NodesConnectionInput!): NodesConnection
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 
@@ -726,6 +736,10 @@ type SynceTopology {
 type SynceTopologyVersionData {
   edges: [GraphVersionEdge!]!
   nodes: [SynceGraphNode!]!
+}
+
+input TargetNodes {
+  targetNode: [String!]!
 }
 
 type Topology {

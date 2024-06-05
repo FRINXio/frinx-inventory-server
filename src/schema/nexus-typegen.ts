@@ -139,10 +139,19 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
+  NodesConnectionInput: {
+    // input type
+    connectionTimeout: number; // Int!
+    targetNodes: NexusGenInputs['TargetNodes'][]; // [TargetNodes!]!
+  };
   StreamOrderByInput: {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortStreamBy']; // SortStreamBy!
+  };
+  TargetNodes: {
+    // input type
+    targetNode: string[]; // [String!]!
   };
   UpdateBlueprintInput: {
     // input type
@@ -477,6 +486,10 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
+  };
+  NodesConnection: {
+    // root type
+    status?: string | null; // String
   };
   PageInfo: {
     // root type
@@ -1068,6 +1081,10 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  NodesConnection: {
+    // field return type
+    status: string | null; // String
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -1208,6 +1225,7 @@ export interface NexusGenFieldTypes {
     // field return type
     deviceUsage: NexusGenRootTypes['DeviceUsage'] | null; // DeviceUsage
     devicesUsage: NexusGenRootTypes['DeviceListUsage'] | null; // DeviceListUsage
+    nodesConnection: NexusGenRootTypes['NodesConnection'] | null; // NodesConnection
     uniconfigShell: string | null; // String
   };
   SyncFromNetworkPayload: {
@@ -1700,6 +1718,10 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphVersionEdge';
     nodes: 'NetNode';
   };
+  NodesConnection: {
+    // field return type name
+    status: 'String';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1840,6 +1862,7 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     deviceUsage: 'DeviceUsage';
     devicesUsage: 'DeviceListUsage';
+    nodesConnection: 'NodesConnection';
     uniconfigShell: 'String';
   };
   SyncFromNetworkPayload: {
@@ -2224,6 +2247,10 @@ export interface NexusGenArgTypes {
       // args
       deviceNames: string[]; // [String!]!
       refreshEverySec?: number | null; // Int
+    };
+    nodesConnection: {
+      // args
+      input: NexusGenInputs['NodesConnectionInput']; // NodesConnectionInput!
     };
     uniconfigShell: {
       // args

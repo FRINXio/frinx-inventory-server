@@ -4,6 +4,8 @@ import { sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 import {
   CheckInstalledNodesInput,
   CheckInstalledNodesOutput,
+  CheckNodesConnectionOutput,
+  decodeCheckNodesConnectionOutput,
   decodeInstalledDevicesOutput,
   decodeInstalledNodeOutput,
   decodeUniconfigConfigOutput,
@@ -42,6 +44,33 @@ export async function getInstalledDevices(baseURL: string): Promise<InstalledDev
 
   return data;
 }
+
+    async function getNodesConnection(baseURL: string, params: unknown): Promise<CheckNodesConnectionOutput> {
+      const response = (await sendPostRequest([baseURL, '/operations/connection-manager:check-nodes-connection'], {
+        input: {
+          'connection-timeout': 2,
+          'target-nodes': {
+            node: [params],
+          },
+        },
+      })) as Response;
+      
+      if (!response.ok) {
+        const errorResult = decodeCheckNodesConnectionOutput(response.body);
+        return {
+          output: {
+            status: 'fail',
+            'error-message': errorResult.errors.error.map((e) => e['error-message']).join('\n'), // eslint-disable-line @typescript-eslint/naming-convention
+          },
+        };
+      }
+
+      return {
+        output: {
+          status: 'complete',
+        },
+      };
+    }
 
 export async function installDevice(baseURL: string, params: unknown): Promise<UniconfigInstallOutput> {
   const response = (await sendPostRequest(
@@ -276,6 +305,7 @@ async function getExternalStorage(baseURL: string, path: string): Promise<Record
 }
 
 const uniconfigAPI = {
+  getNodesConnection,
   getInstalledDevices,
   installDevice,
   uninstallDevice,
