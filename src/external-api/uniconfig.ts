@@ -46,14 +46,18 @@ export async function getInstalledDevices(baseURL: string): Promise<InstalledDev
 }
 
     async function getNodesConnection(baseURL: string, params: unknown): Promise<CheckNodesConnectionOutput> {
+     // console.log(baseURL, params);
+      
       const response = (await sendPostRequest([baseURL, '/operations/connection-manager:check-nodes-connection'], {
         input: {
-          'connection-timeout': 2,
+          'connection-timeout': 10,
           'target-nodes': {
             node: [params],
           },
         },
       })) as Response;
+      console.log('Response', response);
+      
       
       if (!response.ok) {
         const errorResult = decodeCheckNodesConnectionOutput(response.body);

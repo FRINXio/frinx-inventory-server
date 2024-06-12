@@ -487,9 +487,14 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  NodeStatus: {
+    // root type
+    deviceName?: string | null; // String
+    status?: string | null; // String
+  };
   NodesConnection: {
     // root type
-    status?: string | null; // String
+    deviceStatuses?: Array<NexusGenRootTypes['NodeStatus'] | null> | null; // [NodeStatus]
   };
   PageInfo: {
     // root type
@@ -1081,9 +1086,14 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
+  NodeStatus: {
+    // field return type
+    deviceName: string | null; // String
+    status: string | null; // String
+  };
   NodesConnection: {
     // field return type
-    status: string | null; // String
+    deviceStatuses: Array<NexusGenRootTypes['NodeStatus'] | null> | null; // [NodeStatus]
   };
   PageInfo: {
     // field return type
@@ -1718,9 +1728,14 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphVersionEdge';
     nodes: 'NetNode';
   };
+  NodeStatus: {
+    // field return type name
+    deviceName: 'String';
+    status: 'String';
+  };
   NodesConnection: {
     // field return type name
-    status: 'String';
+    deviceStatuses: 'NodeStatus';
   };
   PageInfo: {
     // field return type name

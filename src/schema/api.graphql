@@ -507,8 +507,13 @@ interface Node {
   id: ID!
 }
 
-type NodesConnection {
+type NodeStatus {
+  deviceName: String
   status: String
+}
+
+type NodesConnection {
+  deviceStatuses: [NodeStatus]
 }
 
 input NodesConnectionInput {
