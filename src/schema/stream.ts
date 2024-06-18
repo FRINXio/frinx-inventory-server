@@ -11,6 +11,7 @@ import {
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { getMountParamsForStream, getUniconfigStreamName } from '../helpers/stream-helpers';
+import config from '../config';
 
 export const StreamNode = objectType({
   name: 'Stream',
@@ -237,6 +238,58 @@ export const DeactivateStreamMutation = extendType({
           deviceName: getUniconfigStreamName(stream.streamName, stream.deviceName),
         });
         return { stream };
+      },
+    });
+  },
+});
+
+export const DeleteStreamPayload = objectType({
+  name: 'DeleteStreamPayload',
+  definition: (t) => {
+    t.field('stream', { type: StreamNode });
+  },
+});
+
+export const DeleteStreamMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteStream', {
+      type: DeleteStreamPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
+        const nativeId = fromGraphId('Stream', args.id);
+        const dbStream = await prisma.stream.findFirst({
+          where: { id: nativeId, AND: { tenantId } },
+          include: { device: true },
+        });
+        if (dbStream == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await getUniconfigURL(prisma, dbStream.device.uniconfigZoneId);
+        const isActive = await getCachedDeviceInstallStatus(
+          uniconfigURL,
+          getUniconfigStreamName(dbStream.streamName, dbStream.deviceName),
+        );
+        if (isActive) {
+          throw new Error('stream is installed in UniConfig');
+        }
+
+        try {
+          const deletedStream = await prisma.stream.delete({ where: { id: nativeId } });
+
+          if (config.kafkaEnabled) {
+            await inventoryKafka?.produceDeviceRemovalEvent(
+              kafka,
+              getUniconfigStreamName(dbStream.streamName, dbStream.deviceName),
+            );
+          }
+
+          return { stream: deletedStream };
+        } catch (error) {
+          throw new Error('Error deleting stream');
+        }
       },
     });
   },

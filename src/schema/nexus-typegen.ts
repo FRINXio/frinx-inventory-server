@@ -325,6 +325,10 @@ export interface NexusGenObjects {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
   };
+  DeleteStreamPayload: {
+    // root type
+    stream?: NexusGenRootTypes['Stream'] | null; // Stream
+  };
   Device: SourceTypes.Device;
   DeviceConnection: {
     // root type
@@ -834,6 +838,10 @@ export interface NexusGenFieldTypes {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
   };
+  DeleteStreamPayload: {
+    // field return type
+    stream: NexusGenRootTypes['Stream'] | null; // Stream
+  };
   Device: {
     // field return type
     address: string | null; // String
@@ -985,6 +993,7 @@ export interface NexusGenFieldTypes {
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
+    deleteStream: NexusGenRootTypes['DeleteStreamPayload']; // DeleteStreamPayload!
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
     installDevice: NexusGenRootTypes['InstallDevicePayload']; // InstallDevicePayload!
     reconnectKafka: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
@@ -1448,6 +1457,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     snapshot: 'Snapshot';
   };
+  DeleteStreamPayload: {
+    // field return type name
+    stream: 'Stream';
+  };
   Device: {
     // field return type name
     address: 'String';
@@ -1599,6 +1612,7 @@ export interface NexusGenFieldTypeNames {
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
+    deleteStream: 'DeleteStreamPayload';
     importCSV: 'CSVImport';
     installDevice: 'InstallDevicePayload';
     reconnectKafka: 'IsOkResponse';
@@ -2007,6 +2021,10 @@ export interface NexusGenArgTypes {
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
+    };
+    deleteStream: {
+      // args
+      id: string; // String!
     };
     importCSV: {
       // args

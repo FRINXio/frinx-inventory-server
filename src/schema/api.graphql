@@ -229,6 +229,10 @@ type DeleteSnapshotPayload {
   snapshot: Snapshot
 }
 
+type DeleteStreamPayload {
+  stream: Stream
+}
+
 type Device implements Node {
   address: String
   blueprint: Blueprint
@@ -434,6 +438,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  deleteStream(id: String!): DeleteStreamPayload!
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   reconnectKafka: IsOkResponse
