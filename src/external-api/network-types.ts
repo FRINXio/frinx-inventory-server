@@ -41,7 +41,7 @@ const CheckNodesConnectionOutputTypeValidator = t.type({
 export type CheckNodesConnectionOutput = {
   output: {
     'error-message'?: string;
-    status: 'complete' | 'fail';
+    status: 'online' | 'offline';
   };
 };
 

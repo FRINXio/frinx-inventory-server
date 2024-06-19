@@ -45,36 +45,31 @@ export async function getInstalledDevices(baseURL: string): Promise<InstalledDev
   return data;
 }
 
-    async function getNodesConnection(baseURL: string, params: unknown): Promise<CheckNodesConnectionOutput> {
-     // console.log(baseURL, params);
-      
-      const response = (await sendPostRequest([baseURL, '/operations/connection-manager:check-nodes-connection'], {
-        input: {
-          'connection-timeout': 10,
-          'target-nodes': {
-            node: [params],
-          },
+async function getNodesConnection(baseURL: string, params: unknown): Promise<CheckNodesConnectionOutput> {
+  try {
+    const response = (await sendPostRequest([baseURL, '/operations/connection-manager:check-nodes-connection'], {
+      input: {
+        'connection-timeout': 10,
+        'target-nodes': {
+          node: [params],
         },
-      })) as Response;
-      console.log('Response', response);
-      
-      
-      if (!response.ok) {
-        const errorResult = decodeCheckNodesConnectionOutput(response.body);
-        return {
-          output: {
-            status: 'fail',
-            'error-message': errorResult.errors.error.map((e) => e['error-message']).join('\n'), // eslint-disable-line @typescript-eslint/naming-convention
-          },
-        };
-      }
+      },
+    })) as Response;
 
-      return {
-        output: {
-          status: 'complete',
-        },
-      };
-    }
+    return {
+      output: {
+        status: 'online',
+      },
+    };
+  } catch (error: any) {
+    return {
+      output: {
+        status: 'offline',
+        'error-message': error.message || 'An unknown error occurred',
+      },
+    };
+  }
+}
 
 export async function installDevice(baseURL: string, params: unknown): Promise<UniconfigInstallOutput> {
   const response = (await sendPostRequest(

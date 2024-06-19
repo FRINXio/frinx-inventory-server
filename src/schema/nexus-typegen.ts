@@ -139,19 +139,10 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
-  NodesConnectionInput: {
-    // input type
-    connectionTimeout: number; // Int!
-    targetNodes: NexusGenInputs['TargetNodes'][]; // [TargetNodes!]!
-  };
   StreamOrderByInput: {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
     sortKey: NexusGenEnums['SortStreamBy']; // SortStreamBy!
-  };
-  TargetNodes: {
-    // input type
-    targetNode: string[]; // [String!]!
   };
   UpdateBlueprintInput: {
     // input type
@@ -350,10 +341,19 @@ export interface NexusGenObjects {
     // root type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceStatus: {
+    // root type
+    deviceName?: string | null; // String
+    status?: string | null; // String
+  };
   DeviceUsage: {
     // root type
     cpuLoad?: number | null; // Float
     memoryLoad?: number | null; // Float
+  };
+  DevicesConnection: {
+    // root type
+    deviceStatuses?: Array<NexusGenRootTypes['DeviceStatus'] | null> | null; // [DeviceStatus]
   };
   DevicesUsage: {
     // root type
@@ -486,15 +486,6 @@ export interface NexusGenObjects {
     // root type
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
-  };
-  NodeStatus: {
-    // root type
-    deviceName?: string | null; // String
-    status?: string | null; // String
-  };
-  NodesConnection: {
-    // root type
-    deviceStatuses?: Array<NexusGenRootTypes['NodeStatus'] | null> | null; // [NodeStatus]
   };
   PageInfo: {
     // root type
@@ -904,10 +895,19 @@ export interface NexusGenFieldTypes {
     // field return type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceStatus: {
+    // field return type
+    deviceName: string | null; // String
+    status: string | null; // String
+  };
   DeviceUsage: {
     // field return type
     cpuLoad: number | null; // Float
     memoryLoad: number | null; // Float
+  };
+  DevicesConnection: {
+    // field return type
+    deviceStatuses: Array<NexusGenRootTypes['DeviceStatus'] | null> | null; // [DeviceStatus]
   };
   DevicesUsage: {
     // field return type
@@ -1086,15 +1086,6 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['NetNode'][]; // [NetNode!]!
   };
-  NodeStatus: {
-    // field return type
-    deviceName: string | null; // String
-    status: string | null; // String
-  };
-  NodesConnection: {
-    // field return type
-    deviceStatuses: Array<NexusGenRootTypes['NodeStatus'] | null> | null; // [NodeStatus]
-  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -1234,8 +1225,8 @@ export interface NexusGenFieldTypes {
   Subscription: {
     // field return type
     deviceUsage: NexusGenRootTypes['DeviceUsage'] | null; // DeviceUsage
+    devicesConnection: NexusGenRootTypes['DevicesConnection'] | null; // DevicesConnection
     devicesUsage: NexusGenRootTypes['DeviceListUsage'] | null; // DeviceListUsage
-    nodesConnection: NexusGenRootTypes['NodesConnection'] | null; // NodesConnection
     uniconfigShell: string | null; // String
   };
   SyncFromNetworkPayload: {
@@ -1546,10 +1537,19 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     devicesUsage: 'DevicesUsage';
   };
+  DeviceStatus: {
+    // field return type name
+    deviceName: 'String';
+    status: 'String';
+  };
   DeviceUsage: {
     // field return type name
     cpuLoad: 'Float';
     memoryLoad: 'Float';
+  };
+  DevicesConnection: {
+    // field return type name
+    deviceStatuses: 'DeviceStatus';
   };
   DevicesUsage: {
     // field return type name
@@ -1728,15 +1728,6 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphVersionEdge';
     nodes: 'NetNode';
   };
-  NodeStatus: {
-    // field return type name
-    deviceName: 'String';
-    status: 'String';
-  };
-  NodesConnection: {
-    // field return type name
-    deviceStatuses: 'NodeStatus';
-  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -1876,8 +1867,8 @@ export interface NexusGenFieldTypeNames {
   Subscription: {
     // field return type name
     deviceUsage: 'DeviceUsage';
+    devicesConnection: 'DevicesConnection';
     devicesUsage: 'DeviceListUsage';
-    nodesConnection: 'NodesConnection';
     uniconfigShell: 'String';
   };
   SyncFromNetworkPayload: {
@@ -2258,14 +2249,15 @@ export interface NexusGenArgTypes {
       deviceName: string; // String!
       refreshEverySec?: number | null; // Int
     };
+    devicesConnection: {
+      // args
+      connectionTimeout?: number | null; // Int
+      targetDevices: string[]; // [String!]!
+    };
     devicesUsage: {
       // args
       deviceNames: string[]; // [String!]!
       refreshEverySec?: number | null; // Int
-    };
-    nodesConnection: {
-      // args
-      input: NexusGenInputs['NodesConnectionInput']; // NodesConnectionInput!
     };
     uniconfigShell: {
       // args

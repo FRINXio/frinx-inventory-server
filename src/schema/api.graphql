@@ -289,9 +289,18 @@ enum DeviceSource {
   MANUAL
 }
 
+type DeviceStatus {
+  deviceName: String
+  status: String
+}
+
 type DeviceUsage {
   cpuLoad: Float
   memoryLoad: Float
+}
+
+type DevicesConnection {
+  deviceStatuses: [DeviceStatus]
 }
 
 type DevicesUsage {
@@ -507,20 +516,6 @@ interface Node {
   id: ID!
 }
 
-type NodeStatus {
-  deviceName: String
-  status: String
-}
-
-type NodesConnection {
-  deviceStatuses: [NodeStatus]
-}
-
-input NodesConnectionInput {
-  connectionTimeout: Int!
-  targetNodes: [TargetNodes!]!
-}
-
 type PageInfo {
   endCursor: String
   hasNextPage: Boolean!
@@ -694,8 +689,8 @@ input StreamOrderByInput {
 
 type Subscription {
   deviceUsage(deviceName: String!, refreshEverySec: Int): DeviceUsage
+  devicesConnection(connectionTimeout: Int, targetDevices: [String!]!): DevicesConnection
   devicesUsage(deviceNames: [String!]!, refreshEverySec: Int): DeviceListUsage
-  nodesConnection(input: NodesConnectionInput!): NodesConnection
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 
@@ -741,10 +736,6 @@ type SynceTopology {
 type SynceTopologyVersionData {
   edges: [GraphVersionEdge!]!
   nodes: [SynceGraphNode!]!
-}
-
-input TargetNodes {
-  targetNode: [String!]!
 }
 
 type Topology {
