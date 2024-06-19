@@ -1,4 +1,4 @@
-import { objectType, subscriptionField, nonNull, stringArg, intArg, list, arg, inputObjectType } from 'nexus';
+import { objectType, subscriptionField, nonNull, stringArg, intArg, list } from 'nexus';
 import { DeviceLoadUsage } from '../external-api/performance-monitoring-graphql';
 import { asyncGenerator } from '../helpers/async-generator';
 import { getUniconfigURL } from '../helpers/zone.helpers';
@@ -19,14 +19,15 @@ export const DevicesConnection = objectType({
   },
 });
 
+/* eslint-disable arrow-body-style */
 export const NodesConnectionSubscription = subscriptionField('devicesConnection', {
   type: 'DevicesConnection',
   args: {
     targetDevices: nonNull(list(nonNull(stringArg()))),
     connectionTimeout: intArg(),
   },
-  subscribe: async (_, { targetDevices, connectionTimeout }, { prisma }) =>
-    asyncGenerator(
+  subscribe: async (_, { targetDevices, connectionTimeout }, { prisma }) => {
+    return asyncGenerator(
       (connectionTimeout || 10) * 1000,
       async () => {
         const zones = await prisma.uniconfigZone.findMany({
@@ -66,11 +67,13 @@ export const NodesConnectionSubscription = subscriptionField('devicesConnection'
         return deviceReachability;
       },
       () => true,
-    ),
+    );
+  },
   resolve: (data) => ({
     deviceStatuses: data,
   }),
 });
+/* eslint-enable arrow-body-style */
 
 export const DeviceUsage = objectType({
   name: 'DeviceUsage',

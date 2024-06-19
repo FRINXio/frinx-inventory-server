@@ -49,23 +49,43 @@ async function getNodesConnection(baseURL: string, params: unknown): Promise<Che
   try {
     const response = (await sendPostRequest([baseURL, '/operations/connection-manager:check-nodes-connection'], {
       input: {
+        /* eslint-disable @typescript-eslint/naming-convention */
         'connection-timeout': 10,
         'target-nodes': {
           node: [params],
         },
+        /* eslint-disable @typescript-eslint/naming-convention */
       },
     })) as Response;
+
+    if (!response.ok) {
+      const errorResult = decodeCheckNodesConnectionOutput(response.body);
+      return {
+        output: {
+          status: 'offline',
+          'error-message': errorResult.errors.error.map((e) => e['error-message']).join('\n'), // eslint-disable-line @typescript-eslint/naming-convention
+        },
+      };
+    }
 
     return {
       output: {
         status: 'online',
       },
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    let errorMessage: string;
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = 'An unknown error occurred';
+    }
+
     return {
       output: {
         status: 'offline',
-        'error-message': error.message || 'An unknown error occurred',
+        'error-message': errorMessage, // eslint-disable-line @typescript-eslint/naming-convention
       },
     };
   }
