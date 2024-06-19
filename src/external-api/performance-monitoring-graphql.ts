@@ -63,6 +63,14 @@ function getPerformanceMonitoringAPI() {
     if (config.topologyEnabled === false) {
       return undefined;
     }
+  }
+
+  const client = new GraphQLClient(config.performanceMonitoringGraphqlURL);
+
+  async function getDeviceCpuUsage(deviceName: string): Promise<CurrentCpuUsageQuery> {
+    const result = await client.request<CurrentCpuUsageQuery, CurrentCpuUsageQueryVariables>(DEVICE_CPU_USAGE, {
+      name: deviceName,
+    });
 
     const client = new GraphQLClient(config.performanceMonitoringGraphqlURL);
 
