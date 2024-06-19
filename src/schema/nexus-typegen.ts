@@ -66,6 +66,7 @@ export interface NexusGenInputs {
   };
   AddStreamInput: {
     // input type
+    blueprintId?: string | null; // String
     deviceName: string; // String!
     streamName: string; // String!
     streamParameters?: string | null; // String
@@ -174,6 +175,13 @@ export interface NexusGenInputs {
     // input type
     coordinates: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
     layer?: NexusGenEnums['TopologyLayer'] | null; // TopologyLayer
+  };
+  UpdateStreamInput: {
+    // input type
+    blueprintId?: string | null; // String
+    deviceName: string; // String!
+    streamName: string; // String!
+    streamParameters?: string | null; // String
   };
 }
 
@@ -661,6 +669,10 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
+  UpdateStreamPayload: {
+    // root type
+    stream?: NexusGenRootTypes['Stream'] | null; // Stream
+  };
   Zone: SourceTypes.Zone;
   ZoneEdge: {
     // root type
@@ -1005,6 +1017,7 @@ export interface NexusGenFieldTypes {
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
+    updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
   };
   NetInterface: {
     // field return type
@@ -1164,11 +1177,13 @@ export interface NexusGenFieldTypes {
   };
   Stream: {
     // field return type
+    blueprint: NexusGenRootTypes['Blueprint'] | null; // Blueprint
     createdAt: string; // String!
     deviceName: string; // String!
     id: string; // ID!
     isActive: boolean; // Boolean!
     streamName: string; // String!
+    streamParameters: string | null; // String
     updatedAt: string; // String!
   };
   StreamConnection: {
@@ -1279,6 +1294,10 @@ export interface NexusGenFieldTypes {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type
     deviceNames: string[]; // [String!]!
+  };
+  UpdateStreamPayload: {
+    // field return type
+    stream: NexusGenRootTypes['Stream'] | null; // Stream
   };
   Zone: {
     // field return type
@@ -1624,6 +1643,7 @@ export interface NexusGenFieldTypeNames {
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
+    updateStream: 'UpdateStreamPayload';
   };
   NetInterface: {
     // field return type name
@@ -1783,11 +1803,13 @@ export interface NexusGenFieldTypeNames {
   };
   Stream: {
     // field return type name
+    blueprint: 'Blueprint';
     createdAt: 'String';
     deviceName: 'String';
     id: 'ID';
     isActive: 'Boolean';
     streamName: 'String';
+    streamParameters: 'String';
     updatedAt: 'String';
   };
   StreamConnection: {
@@ -1898,6 +1920,10 @@ export interface NexusGenFieldTypeNames {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type name
     deviceNames: 'String';
+  };
+  UpdateStreamPayload: {
+    // field return type name
+    stream: 'Stream';
   };
   Zone: {
     // field return type name
@@ -2071,6 +2097,11 @@ export interface NexusGenArgTypes {
     updateGraphNodeCoordinates: {
       // args
       input: NexusGenInputs['UpdateGraphNodeCoordinatesInput']; // UpdateGraphNodeCoordinatesInput!
+    };
+    updateStream: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateStreamInput']; // UpdateStreamInput!
     };
   };
   Query: {

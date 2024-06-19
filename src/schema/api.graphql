@@ -55,6 +55,7 @@ type AddSnapshotPayload {
 }
 
 input AddStreamInput {
+  blueprintId: String
   deviceName: String!
   streamName: String!
   streamParameters: String
@@ -450,6 +451,7 @@ type Mutation {
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
   updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
+  updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
 }
 
 type NetInterface {
@@ -643,11 +645,13 @@ enum SortStreamBy {
 }
 
 type Stream implements Node {
+  blueprint: Blueprint
   createdAt: String!
   deviceName: String!
   id: ID!
   isActive: Boolean!
   streamName: String!
+  streamParameters: String
   updatedAt: String!
 }
 
@@ -800,6 +804,17 @@ input UpdateGraphNodeCoordinatesInput {
 
 type UpdateGraphNodeCoordinatesPayload {
   deviceNames: [String!]!
+}
+
+input UpdateStreamInput {
+  blueprintId: String
+  deviceName: String!
+  streamName: String!
+  streamParameters: String
+}
+
+type UpdateStreamPayload {
+  stream: Stream
 }
 
 """
