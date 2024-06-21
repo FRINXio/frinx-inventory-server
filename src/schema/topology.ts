@@ -159,12 +159,12 @@ export const GraphVersionEdge = objectType({
 export const PtpDeviceDetails = objectType({
   name: 'PtpDeviceDetails',
   definition: (t) => {
-    t.nonNull.string('clockType');
-    t.nonNull.int('domain');
-    t.nonNull.string('ptpProfile');
-    t.nonNull.string('clockId');
-    t.nonNull.string('parentClockId');
-    t.nonNull.string('gmClockId');
+    t.string('clockType');
+    t.int('domain');
+    t.string('ptpProfile');
+    t.string('clockId');
+    t.string('parentClockId');
+    t.string('gmClockId');
     t.int('clockClass');
     t.string('clockAccuracy');
     t.string('clockVariance');

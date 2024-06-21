@@ -16,6 +16,10 @@ export type DeviceLoadUsage = {
   memoryUsage: number | null;
 };
 
+export type NodesConnectionStatus = {
+  status: 'complete' | 'fail';
+};
+
 const DEVICE_MEMORY_USAGES = gql`
   query CurrentMemoryUsages($names: [String!]!) {
     currentMemoryUsages(devices: $names) {
@@ -58,7 +62,6 @@ function getPerformanceMonitoringAPI() {
       return undefined;
     }
   }
-
   const client = new GraphQLClient(config.performanceMonitoringGraphqlURL);
 
   async function getDeviceCpuUsage(deviceName: string): Promise<CurrentCpuUsageQuery> {
@@ -121,7 +124,11 @@ function getPerformanceMonitoringAPI() {
       if (deviceLoadUsage) {
         deviceLoadUsage.memoryUsage = memoryUsage.usage;
       } else {
-        map.set(memoryUsage.device, { deviceName: memoryUsage.device, cpuUsage: null, memoryUsage: memoryUsage.usage });
+        map.set(memoryUsage.device, {
+          deviceName: memoryUsage.device,
+          cpuUsage: null,
+          memoryUsage: memoryUsage.usage,
+        });
       }
     });
 
@@ -130,6 +137,5 @@ function getPerformanceMonitoringAPI() {
 
   return { getDeviceLoadUsage, getDeviceLoadUsages };
 }
-
 export type PerformanceMonitoringAPI = ReturnType<typeof getPerformanceMonitoringAPI>;
 export default getPerformanceMonitoringAPI;

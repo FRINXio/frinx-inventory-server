@@ -341,10 +341,19 @@ export interface NexusGenObjects {
     // root type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceStatus: {
+    // root type
+    deviceName?: string | null; // String
+    status?: string | null; // String
+  };
   DeviceUsage: {
     // root type
     cpuLoad?: number | null; // Float
     memoryLoad?: number | null; // Float
+  };
+  DevicesConnection: {
+    // root type
+    deviceStatuses?: Array<NexusGenRootTypes['DeviceStatus'] | null> | null; // [DeviceStatus]
   };
   DevicesUsage: {
     // root type
@@ -494,14 +503,14 @@ export interface NexusGenObjects {
     // root type
     clockAccuracy?: string | null; // String
     clockClass?: number | null; // Int
-    clockId: string; // String!
-    clockType: string; // String!
+    clockId?: string | null; // String
+    clockType?: string | null; // String
     clockVariance?: string | null; // String
-    domain: number; // Int!
+    domain?: number | null; // Int
     globalPriority?: number | null; // Int
-    gmClockId: string; // String!
-    parentClockId: string; // String!
-    ptpProfile: string; // String!
+    gmClockId?: string | null; // String
+    parentClockId?: string | null; // String
+    ptpProfile?: string | null; // String
     timeRecoveryStatus?: string | null; // String
     userPriority?: number | null; // Int
   };
@@ -886,10 +895,19 @@ export interface NexusGenFieldTypes {
     // field return type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceStatus: {
+    // field return type
+    deviceName: string | null; // String
+    status: string | null; // String
+  };
   DeviceUsage: {
     // field return type
     cpuLoad: number | null; // Float
     memoryLoad: number | null; // Float
+  };
+  DevicesConnection: {
+    // field return type
+    deviceStatuses: Array<NexusGenRootTypes['DeviceStatus'] | null> | null; // [DeviceStatus]
   };
   DevicesUsage: {
     // field return type
@@ -1084,14 +1102,14 @@ export interface NexusGenFieldTypes {
     // field return type
     clockAccuracy: string | null; // String
     clockClass: number | null; // Int
-    clockId: string; // String!
-    clockType: string; // String!
+    clockId: string | null; // String
+    clockType: string | null; // String
     clockVariance: string | null; // String
-    domain: number; // Int!
+    domain: number | null; // Int
     globalPriority: number | null; // Int
-    gmClockId: string; // String!
-    parentClockId: string; // String!
-    ptpProfile: string; // String!
+    gmClockId: string | null; // String
+    parentClockId: string | null; // String
+    ptpProfile: string | null; // String
     timeRecoveryStatus: string | null; // String
     userPriority: number | null; // Int
   };
@@ -1207,6 +1225,7 @@ export interface NexusGenFieldTypes {
   Subscription: {
     // field return type
     deviceUsage: NexusGenRootTypes['DeviceUsage'] | null; // DeviceUsage
+    devicesConnection: NexusGenRootTypes['DevicesConnection'] | null; // DevicesConnection
     devicesUsage: NexusGenRootTypes['DeviceListUsage'] | null; // DeviceListUsage
     uniconfigShell: string | null; // String
   };
@@ -1518,10 +1537,19 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     devicesUsage: 'DevicesUsage';
   };
+  DeviceStatus: {
+    // field return type name
+    deviceName: 'String';
+    status: 'String';
+  };
   DeviceUsage: {
     // field return type name
     cpuLoad: 'Float';
     memoryLoad: 'Float';
+  };
+  DevicesConnection: {
+    // field return type name
+    deviceStatuses: 'DeviceStatus';
   };
   DevicesUsage: {
     // field return type name
@@ -1839,6 +1867,7 @@ export interface NexusGenFieldTypeNames {
   Subscription: {
     // field return type name
     deviceUsage: 'DeviceUsage';
+    devicesConnection: 'DevicesConnection';
     devicesUsage: 'DeviceListUsage';
     uniconfigShell: 'String';
   };
@@ -2219,6 +2248,11 @@ export interface NexusGenArgTypes {
       // args
       deviceName: string; // String!
       refreshEverySec?: number | null; // Int
+    };
+    devicesConnection: {
+      // args
+      connectionTimeout?: number | null; // Int
+      targetDevices: string[]; // [String!]!
     };
     devicesUsage: {
       // args

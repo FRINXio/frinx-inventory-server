@@ -4,6 +4,8 @@ import { sendGetRequest, sendPostRequest, sendPutRequest } from './helpers';
 import {
   CheckInstalledNodesInput,
   CheckInstalledNodesOutput,
+  CheckNodesConnectionOutput,
+  decodeCheckNodesConnectionOutput,
   decodeInstalledDevicesOutput,
   decodeInstalledNodeOutput,
   decodeUniconfigConfigOutput,
@@ -41,6 +43,53 @@ export async function getInstalledDevices(baseURL: string): Promise<InstalledDev
   const data = decodeInstalledDevicesOutput(json);
 
   return data;
+}
+
+async function getNodesConnection(baseURL: string, params: unknown): Promise<CheckNodesConnectionOutput> {
+  try {
+    const response = (await sendPostRequest([baseURL, '/operations/connection-manager:check-nodes-connection'], {
+      input: {
+        /* eslint-disable @typescript-eslint/naming-convention */
+        'connection-timeout': 10,
+        'target-nodes': {
+          node: [params],
+        },
+        /* eslint-disable @typescript-eslint/naming-convention */
+      },
+    })) as Response;
+
+    if (!response.ok) {
+      const errorResult = decodeCheckNodesConnectionOutput(response.body);
+      return {
+        output: {
+          status: 'offline',
+          'error-message': errorResult.errors.error.map((e) => e['error-message']).join('\n'), // eslint-disable-line @typescript-eslint/naming-convention
+        },
+      };
+    }
+
+    if (response.status === 204) {
+      return {
+        output: {
+          status: 'online',
+        },
+      };
+    }
+
+    return {
+      output: {
+        status: 'offline',
+      },
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return {
+      output: {
+        status: 'offline',
+        'error-message': error.message || 'An unknown error occurred',
+      },
+    };
+  }
 }
 
 export async function installDevice(baseURL: string, params: unknown): Promise<UniconfigInstallOutput> {
@@ -276,6 +325,7 @@ async function getExternalStorage(baseURL: string, path: string): Promise<Record
 }
 
 const uniconfigAPI = {
+  getNodesConnection,
   getInstalledDevices,
   installDevice,
   uninstallDevice,
