@@ -20,38 +20,37 @@ export const DevicesConnection = objectType({
 });
 
 /* eslint-disable arrow-body-style */
-export const NodesConnectionSubscription = subscriptionField('devicesConnection', {
+export const DevicesConnectionSubscription = subscriptionField('devicesConnection', {
   type: 'DevicesConnection',
   args: {
     targetDevices: nonNull(list(nonNull(stringArg()))),
     connectionTimeout: intArg(),
   },
   subscribe: async (_, { targetDevices, connectionTimeout }, { prisma }) => {
+    const zones = await prisma.uniconfigZone.findMany({
+      select: { id: true },
+    });
+
+    const uniconfigZoneIds = [...new Set(zones.map((zone) => zone.id))];
+    const devices = uniconfigZoneIds.map((zoneId) => {
+      return prisma.device.findMany({
+        where: {
+          uniconfigZoneId: zoneId,
+          name: {
+            in: targetDevices,
+          },
+        },
+      });
+    });
+    const devicesResults = await Promise.all(devices);
+    const allDevices = devicesResults.flat().map((device) => ({
+      deviceName: device.name,
+      uniconfigZoneId: device.uniconfigZoneId,
+    }));
+
     return asyncGenerator(
       (connectionTimeout || 10) * 1000,
       async () => {
-        const zones = await prisma.uniconfigZone.findMany({
-          select: { id: true },
-        });
-
-        const uniconfigZoneIds = [...new Set(zones.map((zone) => zone.id))];
-        const devices = uniconfigZoneIds.map((zoneId) => {
-          return prisma.device.findMany({
-            where: {
-              uniconfigZoneId: zoneId,
-              name: {
-                in: targetDevices,
-              },
-            },
-          });
-        });
-
-        const devicesResults = await Promise.all(devices);
-        const allDevices = devicesResults.flat().map((device) => ({
-          deviceName: device.name,
-          uniconfigZoneId: device.uniconfigZoneId,
-        }));
-
         const deviceReachability = await Promise.all(
           allDevices.map(async (device) => {
             if (uniconfigAPI == null) {

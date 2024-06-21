@@ -68,24 +68,25 @@ async function getNodesConnection(baseURL: string, params: unknown): Promise<Che
       };
     }
 
-    return {
-      output: {
-        status: 'online',
-      },
-    };
-  } catch (error: unknown) {
-    let errorMessage: string;
-
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else {
-      errorMessage = 'An unknown error occurred';
+    if (response.status === 204) {
+      return {
+        output: {
+          status: 'online',
+        },
+      };
     }
 
     return {
       output: {
         status: 'offline',
-        'error-message': errorMessage, // eslint-disable-line @typescript-eslint/naming-convention
+      },
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return {
+      output: {
+        status: 'offline',
+        'error-message': error.message || 'An unknown error occurred',
       },
     };
   }

@@ -503,14 +503,14 @@ export interface NexusGenObjects {
     // root type
     clockAccuracy?: string | null; // String
     clockClass?: number | null; // Int
-    clockId: string; // String!
-    clockType: string; // String!
+    clockId?: string | null; // String
+    clockType?: string | null; // String
     clockVariance?: string | null; // String
-    domain: number; // Int!
+    domain?: number | null; // Int
     globalPriority?: number | null; // Int
-    gmClockId: string; // String!
-    parentClockId: string; // String!
-    ptpProfile: string; // String!
+    gmClockId?: string | null; // String
+    parentClockId?: string | null; // String
+    ptpProfile?: string | null; // String
     timeRecoveryStatus?: string | null; // String
     userPriority?: number | null; // Int
   };
@@ -1102,14 +1102,14 @@ export interface NexusGenFieldTypes {
     // field return type
     clockAccuracy: string | null; // String
     clockClass: number | null; // Int
-    clockId: string; // String!
-    clockType: string; // String!
+    clockId: string | null; // String
+    clockType: string | null; // String
     clockVariance: string | null; // String
-    domain: number; // Int!
+    domain: number | null; // Int
     globalPriority: number | null; // Int
-    gmClockId: string; // String!
-    parentClockId: string; // String!
-    ptpProfile: string; // String!
+    gmClockId: string | null; // String
+    parentClockId: string | null; // String
+    ptpProfile: string | null; // String
     timeRecoveryStatus: string | null; // String
     userPriority: number | null; // Int
   };

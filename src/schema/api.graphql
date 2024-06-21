@@ -531,14 +531,14 @@ type PhyTopologyVersionData {
 type PtpDeviceDetails {
   clockAccuracy: String
   clockClass: Int
-  clockId: String!
-  clockType: String!
+  clockId: String
+  clockType: String
   clockVariance: String
-  domain: Int!
+  domain: Int
   globalPriority: Int
-  gmClockId: String!
-  parentClockId: String!
-  ptpProfile: String!
+  gmClockId: String
+  parentClockId: String
+  ptpProfile: String
   timeRecoveryStatus: String
   userPriority: Int
 }
