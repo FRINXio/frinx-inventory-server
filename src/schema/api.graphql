@@ -55,6 +55,7 @@ type AddSnapshotPayload {
 }
 
 input AddStreamInput {
+  blueprintId: String
   deviceName: String!
   streamName: String!
   streamParameters: String
@@ -227,6 +228,10 @@ input DeleteSnapshotInput {
 
 type DeleteSnapshotPayload {
   snapshot: Snapshot
+}
+
+type DeleteStreamPayload {
+  stream: Stream
 }
 
 type Device implements Node {
@@ -459,6 +464,7 @@ type Mutation {
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
+  deleteStream(id: String!): DeleteStreamPayload!
   importCSV(input: CSVImportInput!): CSVImport
   installDevice(id: String!): InstallDevicePayload!
   reconnectKafka: IsOkResponse
@@ -470,6 +476,7 @@ type Mutation {
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
   updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
+  updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
 }
 
 type NetInterface {
@@ -663,11 +670,13 @@ enum SortStreamBy {
 }
 
 type Stream implements Node {
+  blueprint: Blueprint
   createdAt: String!
   deviceName: String!
   id: ID!
   isActive: Boolean!
   streamName: String!
+  streamParameters: String
   updatedAt: String!
 }
 
@@ -823,6 +832,17 @@ input UpdateGraphNodeCoordinatesInput {
 
 type UpdateGraphNodeCoordinatesPayload {
   deviceNames: [String!]!
+}
+
+input UpdateStreamInput {
+  blueprintId: String
+  deviceName: String!
+  streamName: String!
+  streamParameters: String
+}
+
+type UpdateStreamPayload {
+  stream: Stream
 }
 
 """

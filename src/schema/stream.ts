@@ -11,6 +11,8 @@ import {
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
 import { getMountParamsForStream, getUniconfigStreamName } from '../helpers/stream-helpers';
+import config from '../config';
+import { Blueprint } from './blueprint';
 
 export const StreamNode = objectType({
   name: 'Stream',
@@ -40,6 +42,27 @@ export const StreamNode = objectType({
           getUniconfigStreamName(root.streamName, root.deviceName),
         );
         return isActive;
+      },
+    });
+    t.string('streamParameters', {
+      resolve: async (root) => {
+        if (root.streamParameters != null) {
+          return JSON.stringify(root.streamParameters);
+        }
+        return null;
+      },
+    });
+    t.field('blueprint', {
+      type: Blueprint,
+      resolve: async (stream, _, { prisma }) => {
+        const { blueprintId } = stream;
+
+        if (blueprintId == null) {
+          return null;
+        }
+
+        const blueprint = await prisma.blueprint.findUnique({ where: { id: blueprintId } });
+        return blueprint;
       },
     });
   },
@@ -116,6 +139,7 @@ export const AddStreamInput = inputObjectType({
     t.nonNull.string('streamName');
     t.nonNull.string('deviceName');
     t.string('streamParameters');
+    t.string('blueprintId');
   },
 });
 
@@ -136,11 +160,13 @@ export const AddStreamMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { input } = args;
+        const nativeBlueprintId = input.blueprintId != null ? fromGraphId('Blueprint', input.blueprintId) : undefined;
         const stream = await prisma.stream.create({
           data: {
             deviceName: input.deviceName,
             streamName: input.streamName,
             streamParameters: input.streamParameters != null ? JSON.parse(input.streamParameters) : undefined,
+            blueprintId: nativeBlueprintId,
             tenantId,
           },
         });
@@ -237,6 +263,125 @@ export const DeactivateStreamMutation = extendType({
           deviceName: getUniconfigStreamName(stream.streamName, stream.deviceName),
         });
         return { stream };
+      },
+    });
+  },
+});
+
+export const DeleteStreamPayload = objectType({
+  name: 'DeleteStreamPayload',
+  definition: (t) => {
+    t.field('stream', { type: StreamNode });
+  },
+});
+
+export const DeleteStreamMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteStream', {
+      type: DeleteStreamPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
+        const nativeId = fromGraphId('Stream', args.id);
+        const dbStream = await prisma.stream.findFirst({
+          where: { id: nativeId, AND: { tenantId } },
+          include: { device: true },
+        });
+        if (dbStream == null) {
+          throw new Error('device not found');
+        }
+        const uniconfigURL = await getUniconfigURL(prisma, dbStream.device.uniconfigZoneId);
+        const isActive = await getCachedDeviceInstallStatus(
+          uniconfigURL,
+          getUniconfigStreamName(dbStream.streamName, dbStream.deviceName),
+        );
+        if (isActive) {
+          throw new Error('stream is installed in UniConfig');
+        }
+
+        try {
+          const deletedStream = await prisma.stream.delete({ where: { id: nativeId } });
+
+          if (config.kafkaEnabled) {
+            await inventoryKafka?.produceDeviceRemovalEvent(
+              kafka,
+              getUniconfigStreamName(dbStream.streamName, dbStream.deviceName),
+            );
+          }
+
+          return { stream: deletedStream };
+        } catch (error) {
+          throw new Error('Error deleting stream');
+        }
+      },
+    });
+  },
+});
+
+export const UpdateStreamInput = inputObjectType({
+  name: 'UpdateStreamInput',
+  definition: (t) => {
+    t.nonNull.string('streamName');
+    t.nonNull.string('deviceName');
+    t.string('blueprintId');
+    t.string('streamParameters');
+  },
+});
+export const UpdateStreamPayload = objectType({
+  name: 'UpdateStreamPayload',
+  definition: (t) => {
+    t.field('stream', { type: StreamNode });
+  },
+});
+export const UpdateStreamMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateStream', {
+      type: UpdateStreamPayload,
+      args: {
+        id: nonNull(stringArg()),
+        input: nonNull(arg({ type: UpdateStreamInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Stream', args.id);
+        const dbStream = await prisma.stream.findFirst({
+          where: { id: nativeId, tenantId },
+          include: { device: true },
+        });
+        if (dbStream == null) {
+          throw new Error('stream not found');
+        }
+        const uniconfigURL = await getUniconfigURL(prisma, dbStream.device.uniconfigZoneId);
+        const isActive = await getCachedDeviceInstallStatus(
+          uniconfigURL,
+          getUniconfigStreamName(dbStream.streamName, dbStream.deviceName),
+        );
+        if (isActive) {
+          throw new Error('active is installed in UniConfig');
+        }
+        const { input } = args;
+        const streamParameters =
+          input.streamParameters != null ? JSON.parse(input.streamParameters) : input.streamParameters;
+
+        try {
+          const updatedStream = await prisma.stream.update({
+            where: { id: nativeId },
+            data: {
+              streamName: input.streamName,
+              deviceName: input.deviceName,
+              streamParameters,
+              // blueprint: input.blueprintId
+              //   ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } }
+              //   : undefined,
+            },
+          });
+
+          return { stream: updatedStream };
+        } catch (error) {
+          throw new Error('Error updating device');
+        }
       },
     });
   },
