@@ -71,12 +71,72 @@ export type DeleteBackupsResponse = {
   deleted_backups: Array<Scalars['String']>;
 };
 
+/** Device GeoLocation data. */
+export type DeviceGeoLocation = {
+  __typename?: 'DeviceGeoLocation';
+  /** Defining the area around the device, with four elements indicating its boundaries. */
+  bbox: Maybe<Array<Maybe<Scalars['Float']>>>;
+  /** Device location coordinates providing latitude and longitude. */
+  coordinates: Array<Scalars['Float']>;
+  /** Type of geometry. */
+  type: GeometryType;
+};
+
+/** Representation of the device in the metadata. */
+export type DeviceMetadata = Node & {
+  __typename?: 'DeviceMetadata';
+  /** Human readable name of the device. */
+  deviceName: Scalars['String'];
+  /** Type of the device (ex. router). */
+  deviceType: Maybe<Scalars['String']>;
+  /** Device geographic data of point type in GeoJson format. */
+  geoLocation: Maybe<DeviceGeoLocation>;
+  /** Unique identifier of the object. */
+  id: Scalars['ID'];
+  /** Model of the device (XR, ASR). */
+  model: Maybe<Scalars['String']>;
+  /** Protocol used for management for the device (cli, netconf, gnmi). */
+  protocolType: Maybe<Scalars['String']>;
+  /** Vendor of the device (ex. Cisco). */
+  vendor: Maybe<Scalars['String']>;
+  /** Version of the device software (ex. 6.0.1). */
+  version: Maybe<Scalars['String']>;
+};
+
+/** Grouped Metadata device object and associated cursor used by pagination. */
+export type DeviceMetadataEdge = {
+  __typename?: 'DeviceMetadataEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** The associated MetadataDevice object. */
+  node: Maybe<DeviceMetadata>;
+};
+
+/** Filter for Metadata device type based on device name. */
+export type DeviceMetadataFilter = {
+  /** Regex of device name. */
+  deviceName?: InputMaybe<Scalars['String']>;
+};
+
+/** Type of geometry. */
+export type GeometryType =
+  | 'Point';
+
 export type InstalledDevices = {
   __typename?: 'InstalledDevices';
   /** List of node names which coordinates have not been updated. */
   not_updated: Array<Scalars['String']>;
   /** List of node names which coordinates have been updated. */
   updated: Array<Scalars['String']>;
+};
+
+/** Grouped list of Metadata device objects and pagination metadata. */
+export type MetadataConnection = {
+  __typename?: 'MetadataConnection';
+  /** List of Metadata device objects. */
+  edges: Maybe<Array<Maybe<DeviceMetadataEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
 };
 
 export type Mutation = {
@@ -408,9 +468,9 @@ export type PhyDeviceConnection = {
 export type PhyDeviceDetails = {
   __typename?: 'PhyDeviceDetails';
   /** Device type (e.g. device model, vendor, chassis, hardware details, etc.) */
-  device_type: Scalars['String'];
+  device_type: Maybe<Scalars['String']>;
   /** Version of the network operating system running on the device. */
-  sw_version: Scalars['String'];
+  sw_version: Maybe<Scalars['String']>;
 };
 
 /** Grouped PhyDevice object and associated cursor used by pagination. */
@@ -552,9 +612,9 @@ export type PtpDeviceDetails = {
   /** Measure of clock traceability. */
   clock_class: Maybe<Scalars['Int']>;
   /** Unique identifier of the clock. */
-  clock_id: Scalars['String'];
+  clock_id: Maybe<Scalars['String']>;
   /** Type of clock (e.g., ordinary, master). */
-  clock_type: Scalars['String'];
+  clock_type: Maybe<Scalars['String']>;
   /**
    * Measure of clock precision. How much the clock-output varies when not synchronized to another source.
    * The variance is determined by assessing how much the local clock deviates from the ideal time over a certain period,
@@ -562,15 +622,15 @@ export type PtpDeviceDetails = {
    */
   clock_variance: Maybe<Scalars['String']>;
   /** Domain of the PTP network. */
-  domain: Scalars['Int'];
+  domain: Maybe<Scalars['Int']>;
   /** Global priority of the clock (the first priority). */
   global_priority: Maybe<Scalars['Int']>;
   /** Unique identifier of the grandmaster clock. */
-  gm_clock_id: Scalars['String'];
+  gm_clock_id: Maybe<Scalars['String']>;
   /** Unique identifier of the parent clock. */
-  parent_clock_id: Scalars['String'];
+  parent_clock_id: Maybe<Scalars['String']>;
   /** PTP profile used (e.g., ITU-T G.8275.1). */
-  ptp_profile: Scalars['String'];
+  ptp_profile: Maybe<Scalars['String']>;
   /**
    * Indicates the current state of the time recovery process. Time recovery is the process of adjusting
    * the local clock to synchronize with a more accurate reference clock.
@@ -770,6 +830,8 @@ export type Query = {
    * In case of other types of nodes (for example, in the network topology), implementation logic may vary.
    */
   commonNodes: CommonNodesResponse;
+  /** Read devices that match specified filter. */
+  deviceMetadata: MetadataConnection;
   /** Read network devices that match specified filter. */
   netDevices: NetDeviceConnection;
   /**
@@ -824,6 +886,13 @@ export type QueryCommonNodesArgs = {
   db_name?: InputMaybe<Scalars['String']>;
   selected_nodes: Array<Scalars['String']>;
   topology_type?: InputMaybe<TopologyType>;
+};
+
+
+export type QueryDeviceMetadataArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  filters?: InputMaybe<DeviceMetadataFilter>;
+  first?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -909,6 +978,13 @@ export type RoutingPath = {
 /** Response from the sync query that contains information about synced devices from the network to topology. */
 export type SyncResponse = {
   __typename?: 'SyncResponse';
+  /**
+   * List of devices that are installed in UniConfig but are missing their metadata in DeviceMetadata collection in the
+   * database.
+   */
+  devices_missing_in_inventory: Maybe<Array<Maybe<Scalars['String']>>>;
+  /** List of devices that are not installed in UniConfig. */
+  devices_missing_in_uniconfig: Maybe<Array<Maybe<Scalars['String']>>>;
   /**
    * List of string labels that are used for grouping of synced devices.
    * List content should be the same as the list of labels in the input of the sync query.
@@ -1154,12 +1230,12 @@ export type GetShortestPathQuery = { __typename?: 'Query', netRoutingPaths: { __
 export type TopologyDevicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TopologyDevicesQuery = { __typename?: 'Query', phyDevices: { __typename?: 'PhyDeviceConnection', edges: Array<{ __typename?: 'PhyDeviceEdge', node: { __typename?: 'PhyDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, routerId: string | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PhyDeviceDetails', sw_version: string, device_type: string }, phyInterfaces: { __typename?: 'PhyInterfaceConnection', edges: Array<{ __typename?: 'PhyInterfaceEdge', node: { __typename?: 'PhyInterface', id: string, name: string, status: NodeStatus, phyLinks: { __typename?: 'PhyLinkConnection', edges: Array<{ __typename?: 'PhyLinkEdge', link: string | null, node: { __typename?: 'PhyInterface', id: string, name: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string } | null } | null } | null> | null } } | null } | null> | null } } | null } | null> | null } };
+export type TopologyDevicesQuery = { __typename?: 'Query', phyDevices: { __typename?: 'PhyDeviceConnection', edges: Array<{ __typename?: 'PhyDeviceEdge', node: { __typename?: 'PhyDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, routerId: string | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PhyDeviceDetails', sw_version: string | null, device_type: string | null }, phyInterfaces: { __typename?: 'PhyInterfaceConnection', edges: Array<{ __typename?: 'PhyInterfaceEdge', node: { __typename?: 'PhyInterface', id: string, name: string, status: NodeStatus, phyLinks: { __typename?: 'PhyLinkConnection', edges: Array<{ __typename?: 'PhyLinkEdge', link: string | null, node: { __typename?: 'PhyInterface', id: string, name: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string } | null } | null } | null> | null } } | null } | null> | null } } | null } | null> | null } };
 
 export type NetTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NetTopologyQuery = { __typename?: 'Query', netDevices: { __typename?: 'NetDeviceConnection', edges: Array<{ __typename?: 'NetDeviceEdge', cursor: string, node: { __typename?: 'NetDevice', id: string, routerId: string, ospfAreaId: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, routerId: string | null, details: { __typename?: 'PhyDeviceDetails', device_type: string, sw_version: string }, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null, netInterfaces: { __typename?: 'NetInterfaceConnection', edges: Array<{ __typename?: 'NetInterfaceEdge', cursor: string, node: { __typename?: 'NetInterface', id: string, ipAddress: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null, netLinks: { __typename?: 'NetLinkConnection', edges: Array<{ __typename?: 'NetLinkEdge', link: string | null, node: { __typename?: 'NetInterface', id: string, igp_metric: number | null, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null } | null } | null> | null } } | null } | null> | null }, netNetworks: { __typename?: 'NetNetworkConnection', edges: Array<{ __typename?: 'NetNetworkEdge', cursor: string, node: { __typename?: 'NetNetwork', id: string, subnet: string, ospfRouteType: number, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor: string | null } | null } } | null } | null> | null } };
+export type NetTopologyQuery = { __typename?: 'Query', netDevices: { __typename?: 'NetDeviceConnection', edges: Array<{ __typename?: 'NetDeviceEdge', cursor: string, node: { __typename?: 'NetDevice', id: string, routerId: string, ospfAreaId: string, phyDevice: { __typename?: 'PhyDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, routerId: string | null, details: { __typename?: 'PhyDeviceDetails', device_type: string | null, sw_version: string | null }, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null, netInterfaces: { __typename?: 'NetInterfaceConnection', edges: Array<{ __typename?: 'NetInterfaceEdge', cursor: string, node: { __typename?: 'NetInterface', id: string, ipAddress: string, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null, netLinks: { __typename?: 'NetLinkConnection', edges: Array<{ __typename?: 'NetLinkEdge', link: string | null, node: { __typename?: 'NetInterface', id: string, igp_metric: number | null, netDevice: { __typename?: 'NetDevice', id: string, routerId: string } | null } | null } | null> | null } } | null } | null> | null }, netNetworks: { __typename?: 'NetNetworkConnection', edges: Array<{ __typename?: 'NetNetworkEdge', cursor: string, node: { __typename?: 'NetNetwork', id: string, subnet: string, ospfRouteType: number, coordinates: { __typename?: 'Coordinates', x: number, y: number } } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor: string | null } | null } } | null } | null> | null } };
 
 export type GetBackupsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1195,7 +1271,7 @@ export type UpdateCoordinatesMutationVariables = Exact<{
 
 export type UpdateCoordinatesMutation = { __typename?: 'Mutation', updateCoordinates: { __typename?: 'CoordinatesResponse', not_installed: Array<string>, installed: { __typename?: 'InstalledDevices', not_updated: Array<string>, updated: Array<string> } } };
 
-export type PtpDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string, domain: number, ptp_profile: string, clock_id: string, parent_clock_id: string, gm_clock_id: string, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, name: string, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, name: string } | null } | null> | null } } | null } | null> | null } } | null } | null } | null> | null } } | null } | null> | null } };
+export type PtpDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string | null, domain: number | null, ptp_profile: string | null, clock_id: string | null, parent_clock_id: string | null, gm_clock_id: string | null, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, name: string, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, name: string } | null } | null> | null } } | null } | null> | null } } | null } | null } | null> | null } } | null } | null> | null } };
 
 export type PtpInterfaceDevicePartsFragment = { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, name: string, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, name: string } | null } | null> | null } } | null } | null> | null } };
 
@@ -1204,7 +1280,7 @@ export type PtpInterfacePartsFragment = { __typename?: 'PtpInterface', id: strin
 export type PtpTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PtpTopologyQuery = { __typename?: 'Query', ptpDevices: { __typename?: 'PtpDeviceConnection', edges: Array<{ __typename?: 'PtpDeviceEdge', cursor: string, node: { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string, domain: number, ptp_profile: string, clock_id: string, parent_clock_id: string, gm_clock_id: string, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, name: string, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, name: string } | null } | null> | null } } | null } | null> | null } } | null } | null } | null> | null } } | null } | null> | null } } | null } | null> | null } };
+export type PtpTopologyQuery = { __typename?: 'Query', ptpDevices: { __typename?: 'PtpDeviceConnection', edges: Array<{ __typename?: 'PtpDeviceEdge', cursor: string, node: { __typename?: 'PtpDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, details: { __typename?: 'PtpDeviceDetails', clock_type: string | null, domain: number | null, ptp_profile: string | null, clock_id: string | null, parent_clock_id: string | null, gm_clock_id: string | null, clock_class: number | null, clock_accuracy: string | null, clock_variance: string | null, time_recovery_status: string | null, global_priority: number | null, user_priority: number | null }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', cursor: string, node: { __typename?: 'PtpInterface', id: string, name: string, status: NodeStatus, details: { __typename?: 'PtpInterfaceDetails', ptp_status: string, ptsf_unusable: string, admin_oper_status: string } | null, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, ptpDevice: { __typename?: 'PtpDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, ptpInterfaces: { __typename?: 'PtpInterfaceConnection', edges: Array<{ __typename?: 'PtpInterfaceEdge', node: { __typename?: 'PtpInterface', id: string, name: string, ptpLinks: { __typename?: 'PtpLinkConnection', edges: Array<{ __typename?: 'PtpLinkEdge', link: string | null, node: { __typename?: 'PtpInterface', id: string, name: string } | null } | null> | null } } | null } | null> | null } } | null } | null } | null> | null } } | null } | null> | null } } | null } | null> | null } };
 
 export type PtpPathToGrandMasterQueryVariables = Exact<{
   deviceFrom: Scalars['ID'];

@@ -33,6 +33,7 @@ type TopologyConfigEnabled = {
   topologyEnabled: true;
   topologyDiscoveryURL: string;
   topologyDiscoveryGraphqlURL: string;
+  performanceMonitoringGraphqlURL: string;
 };
 
 type TopologyConfigDisabled = {
@@ -41,20 +42,33 @@ type TopologyConfigDisabled = {
 
 type TopologyConfig = TopologyConfigDisabled | TopologyConfigEnabled;
 
+type PerformanceMonitoringConfigEnabled = {
+  performanceMonitoringEnabled: true;
+  performanceMonitoringGraphqlURL: string;
+};
+
+type PerfomanceMonitoringConfigDisabled = {
+  performanceMonitoringEnabled: false;
+};
+
+type PerformanceMonitoringConfig = PerfomanceMonitoringConfigDisabled | PerformanceMonitoringConfigEnabled;
+
 // all arango params must be present or none
 function getTopologyConfig(): TopologyConfig {
   const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
   const topologyDiscoveryURL = optionalEnvString('TOPOLOGY_DISCOVERY_API_URL');
   const topologyDiscoveryGraphqlURL = optionalEnvString('TOPOLOGY_DISCOVERY_GRAPHQL_API_URL');
+  const performanceMonitoringGraphqlURL = optionalEnvString('PERFORMANCE_MONITORING_GRAPHQL_API_URL');
+
   if (!topologyEnabled) {
     return {
       topologyEnabled: false,
     };
   }
 
-  if (!topologyDiscoveryURL || !topologyDiscoveryGraphqlURL) {
+  if (!topologyDiscoveryURL || !topologyDiscoveryGraphqlURL || !performanceMonitoringGraphqlURL) {
     throw new Error(
-      'Not all mandatory topology discovery url (TOPOLOGY_DISCOVERY_API_URL, TOPOLOGY_DISCOVERY_GRAPHQL_API_URL) were found.',
+      'Not all mandatory topology discovery url (TOPOLOGY_DISCOVERY_API_URL, TOPOLOGY_DISCOVERY_GRAPHQL_API_URL, PERFORMANCE_MONITORING_GRAPHQL_API_URL) were found.',
     );
   }
 
@@ -62,6 +76,28 @@ function getTopologyConfig(): TopologyConfig {
     topologyEnabled: true,
     topologyDiscoveryURL,
     topologyDiscoveryGraphqlURL,
+    performanceMonitoringGraphqlURL,
+  };
+}
+
+function getPerformanceMonitoringConfig(): PerformanceMonitoringConfig {
+  const performanceMonitoringEnabled = stringToBoolean(envString('PERFORMANCE_MONITORING_ENABLED'));
+  const topologyEnabled = stringToBoolean(envString('TOPOLOGY_ENABLED'));
+  const performanceMonitoringGraphqlURL = optionalEnvString('PERFORMANCE_MONITORING_GRAPHQL_API_URL');
+
+  if (!performanceMonitoringEnabled || !topologyEnabled) {
+    return {
+      performanceMonitoringEnabled: false,
+    };
+  }
+
+  if (!performanceMonitoringGraphqlURL) {
+    throw new Error('Not all mandatory topology discovery url (PERFORMANCE_MONITORING_GRAPHQL_API_URL) were found.');
+  }
+
+  return {
+    performanceMonitoringEnabled: true,
+    performanceMonitoringGraphqlURL,
   };
 }
 
@@ -78,6 +114,7 @@ const config = {
   kafkaTopic: envString('KAFKA_TOPIC'),
   kafkaEnabled: stringToBoolean(envString('KAFKA_ENABLED')),
   ...getTopologyConfig(),
+  ...getPerformanceMonitoringConfig(),
 };
 
 export default config;

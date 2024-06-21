@@ -28,6 +28,38 @@ export function decodeInstalledDevicesOutput(value: unknown): InstalledDevicesOu
   return extractResult(InstalledDevicesOutputValidator.decode(value));
 }
 
+const CheckNodesConnectionOutputTypeValidator = t.type({
+  errors: t.type({
+    error: t.array(
+      t.type({
+        'error-message': optional(t.string),
+      }),
+    ),
+  }),
+});
+
+export type CheckNodesConnectionOutput = {
+  output: {
+    'error-message'?: string;
+    status: 'online' | 'offline';
+  };
+};
+
+export type CheckNodesConnectionErrorOutput = t.TypeOf<typeof CheckNodesConnectionOutputTypeValidator>;
+
+export function decodeCheckNodesConnectionOutput(value: unknown): CheckNodesConnectionErrorOutput {
+  return extractResult(CheckNodesConnectionOutputTypeValidator.decode(value));
+}
+
+export type CheckNodesConnectionInput = {
+  input: {
+    'target-nodes': {
+      node: string[];
+    };
+    'connection-timeout': 2;
+  };
+};
+
 export type UninstallDeviceInput = {
   input: {
     'node-id': string;

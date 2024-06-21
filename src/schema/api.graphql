@@ -248,6 +248,7 @@ type Device implements Node {
   name: String!
   port: Int
   serviceState: DeviceServiceState!
+  software: String
   source: DeviceSource!
   updatedAt: String!
   vendor: String
@@ -264,6 +265,10 @@ type DeviceConnection {
 type DeviceEdge {
   cursor: String!
   node: Device!
+}
+
+type DeviceListUsage {
+  devicesUsage: [DevicesUsage!]!
 }
 
 input DeviceOrderByInput {
@@ -287,6 +292,26 @@ enum DeviceSource {
   DISCOVERED
   IMPORTED
   MANUAL
+}
+
+type DeviceStatus {
+  deviceName: String
+  status: String
+}
+
+type DeviceUsage {
+  cpuLoad: Float
+  memoryLoad: Float
+}
+
+type DevicesConnection {
+  deviceStatuses: [DeviceStatus]
+}
+
+type DevicesUsage {
+  cpuLoad: Float
+  deviceName: String!
+  memoryLoad: Float
 }
 
 type DiffData {
@@ -513,14 +538,14 @@ type PhyTopologyVersionData {
 type PtpDeviceDetails {
   clockAccuracy: String
   clockClass: Int
-  clockId: String!
-  clockType: String!
+  clockId: String
+  clockType: String
   clockVariance: String
-  domain: Int!
+  domain: Int
   globalPriority: Int
-  gmClockId: String!
-  parentClockId: String!
-  ptpProfile: String!
+  gmClockId: String
+  parentClockId: String
+  ptpProfile: String
   timeRecoveryStatus: String
   userPriority: Int
 }
@@ -672,6 +697,9 @@ input StreamOrderByInput {
 }
 
 type Subscription {
+  deviceUsage(deviceName: String!, refreshEverySec: Int): DeviceUsage
+  devicesConnection(connectionTimeout: Int, targetDevices: [String!]!): DevicesConnection
+  devicesUsage(deviceNames: [String!]!, refreshEverySec: Int): DeviceListUsage
   uniconfigShell(input: String, sessionId: String!, trigger: Int): String
 }
 

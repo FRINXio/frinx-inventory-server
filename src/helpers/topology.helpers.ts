@@ -38,12 +38,12 @@ type FilterQuery = {
 };
 
 type PtpDeviceDetails = {
-  clockType: string;
-  domain: number;
-  ptpProfile: string;
-  clockId: string;
-  parentClockId: string;
-  gmClockId: string;
+  clockType: string | null;
+  domain: number | null;
+  ptpProfile: string | null;
+  clockId: string | null;
+  parentClockId: string | null;
+  gmClockId: string | null;
   clockClass: number | null;
   clockAccuracy: string | null;
   clockVariance: string | null;

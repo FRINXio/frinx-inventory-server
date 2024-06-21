@@ -10,6 +10,7 @@ import * as location from './location';
 import * as zone from './zone';
 import * as transaction from './transaction';
 import * as topology from './topology';
+import * as performanceMonitoring from './performance-monitoring';
 
 export default makeSchema({
   features: {
@@ -27,7 +28,19 @@ export default makeSchema({
     schema: join(__dirname, './api.graphql'),
   },
   shouldExitAfterGenerateArtifacts: Boolean(process.env.NEXUS_SHOULD_EXIT_AFTER_REFLECTION),
-  types: [globalTypes, device, stream, zone, dataStore, label, location, blueprint, transaction, topology],
+  types: [
+    globalTypes,
+    device,
+    stream,
+    zone,
+    dataStore,
+    label,
+    location,
+    blueprint,
+    transaction,
+    topology,
+    performanceMonitoring,
+  ],
   sourceTypes: {
     modules: [
       {
