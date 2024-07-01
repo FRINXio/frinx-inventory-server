@@ -23,7 +23,7 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
     return {
       cli: {
         ...cli,
-        ...parsedStreamParameters,
+        'subscriptions:stream': parsedStreamParameters,
         ...getDisabledSyncConfig(),
       },
     };
@@ -34,7 +34,7 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
     return {
       gnmi: {
         ...gnmi,
-        ...parsedStreamParameters,
+        'subscriptions:stream': parsedStreamParameters,
         ...getDisabledSyncConfig(),
       },
     };
@@ -44,7 +44,7 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
   return {
     netconf: {
       ...netconf,
-      ...parsedMountParameters,
+      'subscriptions:stream': parsedStreamParameters,
       ...getDisabledSyncConfig(),
     },
   };
