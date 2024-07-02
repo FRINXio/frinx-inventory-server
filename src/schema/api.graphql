@@ -239,6 +239,7 @@ type Device implements Node {
   blueprint: Blueprint
   createdAt: String!
   deviceSize: DeviceSize!
+  discoveredAt: String
   id: ID!
   isInstalled: Boolean!
   labels(after: String, before: String, first: Int, last: Int): LabelConnection!
@@ -260,6 +261,11 @@ type DeviceConnection {
   edges: [DeviceEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+type DeviceDiscoveryPayload {
+  deviceID: String!
+  discoveredAt: String
 }
 
 type DeviceEdge {
@@ -475,6 +481,7 @@ type Mutation {
   updateBlueprint(id: String!, input: UpdateBlueprintInput!): UpdateBlueprintPayload!
   updateDataStore(deviceId: String!, input: UpdateDataStoreInput!, transactionId: String!): UpdateDataStorePayload!
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
+  updateDiscoveredAt(deviceIds: [String!]!): [DeviceDiscoveryPayload!]!
   updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
   updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
 }

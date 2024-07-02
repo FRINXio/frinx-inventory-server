@@ -10,6 +10,7 @@ import {
   extendType,
   inputObjectType,
   intArg,
+  list,
   nonNull,
   nullable,
   objectType,
@@ -69,6 +70,14 @@ export const Device = objectType({
     });
     t.nonNull.string('updatedAt', {
       resolve: (device) => device.updatedAt.toISOString(),
+    });
+    t.string('discoveredAt', {
+      resolve: (device) => {
+        if (device.discoveredAt == null) {
+          return null;
+        }
+        return device.discoveredAt.toISOString();
+      },
     });
     t.string('model', {
       resolve: (root) => (root.model == null || root.model.trim().length === 0 ? null : root.model),
@@ -455,6 +464,57 @@ export const UpdateDeviceMetadataPayload = objectType({
   name: 'UpdateDeviceMetadataPayload',
   definition: (t) => {
     t.list.field('devices', { type: Device });
+  },
+});
+
+export const DeviceDiscoveryPayload = objectType({
+  name: 'DeviceDiscoveryPayload',
+  definition(t) {
+    t.nonNull.string('deviceID');
+    t.string('discoveredAt');
+  },
+});
+
+export const UpdateDiscoveredAtMutation = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.field('updateDiscoveredAt', {
+      type: nonNull(list(nonNull('DeviceDiscoveryPayload'))),
+      args: {
+        deviceIds: nonNull(list(nonNull(stringArg()))),
+      },
+      resolve: async (_, { deviceIds }, { prisma }) => {
+        const currentTimestamp = new Date();
+
+        await prisma.device.updateMany({
+          where: {
+            id: {
+              in: deviceIds,
+            },
+          },
+          data: {
+            discoveredAt: currentTimestamp,
+          },
+        });
+
+        const updatedDevices = await prisma.device.findMany({
+          where: {
+            id: {
+              in: deviceIds,
+            },
+          },
+          select: {
+            id: true,
+            discoveredAt: true,
+          },
+        });
+
+        return updatedDevices.map((device) => ({
+          deviceID: device.id,
+          discoveredAt: device.discoveredAt ? device.discoveredAt.toISOString() : null,
+        }));
+      },
+    });
   },
 });
 

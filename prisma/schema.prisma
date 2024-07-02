@@ -11,6 +11,7 @@ model device {
   id              String        @id @default(uuid())
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
+  discoveredAt    DateTime?
   name            String
   role            String?
   managementIp    String?       @map("management_ip")
