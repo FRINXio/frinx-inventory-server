@@ -13,7 +13,6 @@ function getDisabledSyncConfig() {
 }
 
 export function getMountParamsForStream(mountParameters: JsonValue, streamParameters: JsonValue): JsonValue {
-  const parsedMountParameters = typeof mountParameters === 'string' ? JSON.parse(mountParameters) : mountParameters;
   const parsedStreamParameters = typeof streamParameters === 'string' ? JSON.parse(streamParameters) : streamParameters;
 
   const decodedMountParams = decodeMountParams(mountParameters);
