@@ -13,7 +13,6 @@ function getDisabledSyncConfig() {
 }
 
 export function getMountParamsForStream(mountParameters: JsonValue, streamParameters: JsonValue): JsonValue {
-  const parsedMountParameters = typeof mountParameters === 'string' ? JSON.parse(mountParameters) : mountParameters;
   const parsedStreamParameters = typeof streamParameters === 'string' ? JSON.parse(streamParameters) : streamParameters;
 
   const decodedMountParams = decodeMountParams(mountParameters);
@@ -23,7 +22,6 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
     return {
       cli: {
         ...cli,
-        ...parsedMountParameters,
         'subscriptions:stream': parsedStreamParameters, // eslint-disable-line @typescript-eslint/naming-convention
         ...getDisabledSyncConfig(),
       },
@@ -35,7 +33,6 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
     return {
       gnmi: {
         ...gnmi,
-        ...parsedMountParameters,
         'subscriptions:stream': parsedStreamParameters, // eslint-disable-line @typescript-eslint/naming-convention
         ...getDisabledSyncConfig(),
       },
@@ -46,7 +43,6 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
   return {
     netconf: {
       ...netconf,
-      ...parsedMountParameters,
       'subscriptions:stream': parsedStreamParameters, // eslint-disable-line @typescript-eslint/naming-convention
       ...getDisabledSyncConfig(),
     },
