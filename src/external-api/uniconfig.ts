@@ -175,7 +175,9 @@ export async function getUniconfigDatastore(
   const json = await sendGetRequest(
     [
       baseURL,
-      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${nodeId}/frinx-uniconfig-topology:configuration?content=${DATA_STORE_MAP[datastoreType]}`,
+      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${encodeURIComponent(
+        nodeId,
+      )}/frinx-uniconfig-topology:configuration?content=${DATA_STORE_MAP[datastoreType]}`,
     ],
     cookie,
   );
@@ -194,7 +196,9 @@ export async function updateUniconfigDataStore(
   await sendPutRequest(
     [
       baseURL,
-      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${nodeId}/frinx-uniconfig-topology:configuration`,
+      `/data/network-topology:network-topology/network-topology:topology=uniconfig/network-topology:node=${encodeURIComponent(
+        nodeId,
+      )}/frinx-uniconfig-topology:configuration`,
     ],
     params,
     cookie,
