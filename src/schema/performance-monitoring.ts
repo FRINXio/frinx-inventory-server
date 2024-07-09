@@ -96,7 +96,7 @@ export const DeviceUsageSubscription = subscriptionField('deviceUsage', {
           return { cpuUsage: null, memoryUsage: null };
         }
         console.log(performanceMonitoringAPI.getDeviceLoadUsage(deviceName));
-        
+
         return performanceMonitoringAPI.getDeviceLoadUsage(deviceName);
       },
       () => true,
