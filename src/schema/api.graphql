@@ -264,7 +264,7 @@ type DeviceConnection {
 }
 
 type DeviceDiscoveryPayload {
-  deviceID: String!
+  deviceId: String!
   discoveredAt: String
 }
 

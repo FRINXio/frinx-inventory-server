@@ -470,7 +470,7 @@ export const UpdateDeviceMetadataPayload = objectType({
 export const DeviceDiscoveryPayload = objectType({
   name: 'DeviceDiscoveryPayload',
   definition(t) {
-    t.nonNull.string('deviceID');
+    t.nonNull.string('deviceId');
     t.string('discoveredAt');
   },
 });
@@ -510,7 +510,7 @@ export const UpdateDiscoveredAtMutation = extendType({
         });
 
         return updatedDevices.map((device) => ({
-          deviceID: device.id,
+          deviceId: device.id,
           discoveredAt: device.discoveredAt ? device.discoveredAt.toISOString() : null,
         }));
       },

@@ -346,7 +346,7 @@ export interface NexusGenObjects {
   };
   DeviceDiscoveryPayload: {
     // root type
-    deviceID: string; // String!
+    deviceId: string; // String!
     discoveredAt?: string | null; // String
   };
   DeviceEdge: {
@@ -914,7 +914,7 @@ export interface NexusGenFieldTypes {
   };
   DeviceDiscoveryPayload: {
     // field return type
-    deviceID: string; // String!
+    deviceId: string; // String!
     discoveredAt: string | null; // String
   };
   DeviceEdge: {
@@ -1575,7 +1575,7 @@ export interface NexusGenFieldTypeNames {
   };
   DeviceDiscoveryPayload: {
     // field return type name
-    deviceID: 'String';
+    deviceId: 'String';
     discoveredAt: 'String';
   };
   DeviceEdge: {
