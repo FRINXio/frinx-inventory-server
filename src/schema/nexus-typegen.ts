@@ -84,9 +84,17 @@ export interface NexusGenInputs {
     // input type
     deviceIds: string[]; // [String!]!
   };
+  BulkInstallStreamsInput: {
+    // input type
+    streamIds: string[]; // [String!]!
+  };
   BulkUninstallDevicesInput: {
     // input type
     deviceIds: string[]; // [String!]!
+  };
+  BulkUninstallStreamsInput: {
+    // input type
+    streamIds: string[]; // [String!]!
   };
   CSVImportInput: {
     // input type
@@ -254,9 +262,17 @@ export interface NexusGenObjects {
     // root type
     installedDevices: NexusGenRootTypes['Device'][]; // [Device!]!
   };
+  BulkInstallStreamPayload: {
+    // root type
+    installedStreams: NexusGenRootTypes['Stream'][]; // [Stream!]!
+  };
   BulkUninstallDevicePayload: {
     // root type
     uninstalledDevices: NexusGenRootTypes['Device'][]; // [Device!]!
+  };
+  BulkUninstallStreamPayload: {
+    // root type
+    uninstalledStreams: NexusGenRootTypes['Stream'][]; // [Stream!]!
   };
   CSVImport: {
     // root type
@@ -785,9 +801,17 @@ export interface NexusGenFieldTypes {
     // field return type
     installedDevices: NexusGenRootTypes['Device'][]; // [Device!]!
   };
+  BulkInstallStreamPayload: {
+    // field return type
+    installedStreams: NexusGenRootTypes['Stream'][]; // [Stream!]!
+  };
   BulkUninstallDevicePayload: {
     // field return type
     uninstalledDevices: NexusGenRootTypes['Device'][]; // [Device!]!
+  };
+  BulkUninstallStreamPayload: {
+    // field return type
+    uninstalledStreams: NexusGenRootTypes['Stream'][]; // [Stream!]!
   };
   CSVImport: {
     // field return type
@@ -1044,7 +1068,9 @@ export interface NexusGenFieldTypes {
     addZone: NexusGenRootTypes['AddZonePayload']; // AddZonePayload!
     applySnapshot: NexusGenRootTypes['ApplySnapshotPayload']; // ApplySnapshotPayload!
     bulkInstallDevices: NexusGenRootTypes['BulkInstallDevicePayload']; // BulkInstallDevicePayload!
+    bulkInstallStreams: NexusGenRootTypes['BulkInstallStreamPayload']; // BulkInstallStreamPayload!
     bulkUninstallDevices: NexusGenRootTypes['BulkUninstallDevicePayload']; // BulkUninstallDevicePayload!
+    bulkUninstallStreams: NexusGenRootTypes['BulkUninstallStreamPayload']; // BulkUninstallStreamPayload!
     closeTransaction: NexusGenRootTypes['CloseTransactionPayload']; // CloseTransactionPayload!
     commitConfig: NexusGenRootTypes['CommitConfigPayload']; // CommitConfigPayload!
     createLabel: NexusGenRootTypes['CreateLabelPayload']; // CreateLabelPayload!
@@ -1439,9 +1465,17 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     installedDevices: 'Device';
   };
+  BulkInstallStreamPayload: {
+    // field return type name
+    installedStreams: 'Stream';
+  };
   BulkUninstallDevicePayload: {
     // field return type name
     uninstalledDevices: 'Device';
+  };
+  BulkUninstallStreamPayload: {
+    // field return type name
+    uninstalledStreams: 'Stream';
   };
   CSVImport: {
     // field return type name
@@ -1698,7 +1732,9 @@ export interface NexusGenFieldTypeNames {
     addZone: 'AddZonePayload';
     applySnapshot: 'ApplySnapshotPayload';
     bulkInstallDevices: 'BulkInstallDevicePayload';
+    bulkInstallStreams: 'BulkInstallStreamPayload';
     bulkUninstallDevices: 'BulkUninstallDevicePayload';
+    bulkUninstallStreams: 'BulkUninstallStreamPayload';
     closeTransaction: 'CloseTransactionPayload';
     commitConfig: 'CommitConfigPayload';
     createLabel: 'CreateLabelPayload';
@@ -2086,9 +2122,17 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['BulkInstallDevicesInput']; // BulkInstallDevicesInput!
     };
+    bulkInstallStreams: {
+      // args
+      input: NexusGenInputs['BulkInstallStreamsInput']; // BulkInstallStreamsInput!
+    };
     bulkUninstallDevices: {
       // args
       input: NexusGenInputs['BulkUninstallDevicesInput']; // BulkUninstallDevicesInput!
+    };
+    bulkUninstallStreams: {
+      // args
+      input: NexusGenInputs['BulkUninstallStreamsInput']; // BulkUninstallStreamsInput!
     };
     closeTransaction: {
       // args

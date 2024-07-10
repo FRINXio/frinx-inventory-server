@@ -1,5 +1,7 @@
 import { JsonValue } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 import { decodeMountParams } from './converters';
+import { Device, Stream } from '../schema/source-types';
 
 export function getUniconfigStreamName(streamName: string, deviceName: string): string {
   return `${streamName}>>${deviceName}`;
@@ -50,4 +52,32 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
       ...getDisabledSyncConfig(),
     },
   };
+}
+
+type StreamWithDevice = Stream & {
+  device: Device;
+};
+
+export function makeZonesWithStreamsFromStreams(streams: StreamWithDevice[]) {
+  const zonesWithStreams = new Map<
+    string,
+    {
+      deviceName: string;
+      params: Prisma.JsonValue;
+    }[]
+  >();
+
+  streams.forEach((stream) => {
+    const { streamName, device, streamParameters } = stream;
+    const streamsInZone = zonesWithStreams.get(device.uniconfigZoneId) ?? [];
+
+    const streamToInstall = {
+      deviceName: getUniconfigStreamName(streamName, device.name),
+      params: getMountParamsForStream(device.mountParameters, streamParameters),
+    };
+
+    zonesWithStreams.set(device.uniconfigZoneId, [...streamsInZone, streamToInstall]);
+  });
+
+  return zonesWithStreams;
 }

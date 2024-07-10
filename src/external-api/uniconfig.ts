@@ -13,7 +13,6 @@ import {
   decodeUniconfigDryRunCommitOutput,
   decodeUniconfigExternalStorageOutput,
   decodeUniconfigInstallOutput,
-  decodeUniconfigMultipleNodesOutput,
   decodeUniconfigSnapshotsOutput,
   decodeUniconfigTransactionLogOutput,
   InstalledDevicesOutput,
@@ -28,7 +27,6 @@ import {
   UniconfigDryRunCommitInput,
   UniconfigDryRunCommitOutput,
   UniconfigInstallOutput,
-  UniconfigMultipleNodesOutput,
   UniconfigReplaceInput,
   UniconfigSnapshotInput,
   UniconfigSnapshotsOutput,
@@ -133,14 +131,8 @@ export async function installMultipleDevices(baseURL: string, input: unknown): P
   await sendPostRequest([baseURL, '/operations/connection-manager:install-multiple-nodes'], input);
 }
 
-export async function uninstallMultipleDevices(
-  baseURL: string,
-  input: UninstallMultipleDevicesInput,
-): Promise<UniconfigMultipleNodesOutput> {
-  const json = await sendPostRequest([baseURL, '/operations/connection-manager:uninstall-multiple-nodes'], input);
-  const data = decodeUniconfigMultipleNodesOutput(json);
-
-  return data;
+export async function uninstallMultipleDevices(baseURL: string, input: UninstallMultipleDevicesInput): Promise<void> {
+  await sendPostRequest([baseURL, '/operations/connection-manager:uninstall-multiple-nodes'], input);
 }
 
 /*

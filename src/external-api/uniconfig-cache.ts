@@ -134,13 +134,11 @@ export async function uninstallMultipleDevicesCache({
 }): Promise<void> {
   const uniconfigCache = UniconfigCache.getInstance();
   const url = await uniconfigURL;
-  const response = await uninstallMultipleDevices(url, devicesToUninstall);
-
-  response.output['node-results']?.forEach((nodeResult) => {
-    if (nodeResult.status === 'fail') {
-      throw new Error(nodeResult['error-message'] ?? 'could not install device');
-    }
-  });
+  try {
+    await uninstallMultipleDevices(url, devicesToUninstall);
+  } catch {
+    throw new Error('some of nodes could not be uninstalled');
+  }
 
   deviceNames.forEach((deviceName) => uniconfigCache.delete(url, deviceName));
 }
