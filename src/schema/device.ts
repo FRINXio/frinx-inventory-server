@@ -485,11 +485,11 @@ export const UpdateDiscoveredAtMutation = extendType({
       },
       resolve: async (_, { deviceIds }, { prisma }) => {
         const currentTimestamp = new Date();
-
+        const nativeIds = deviceIds.map((id) => fromGraphId('Device', id));
         await prisma.device.updateMany({
           where: {
             id: {
-              in: deviceIds,
+              in: nativeIds,
             },
           },
           data: {
@@ -500,7 +500,7 @@ export const UpdateDiscoveredAtMutation = extendType({
         const updatedDevices = await prisma.device.findMany({
           where: {
             id: {
-              in: deviceIds,
+              in: nativeIds,
             },
           },
           select: {
@@ -510,7 +510,7 @@ export const UpdateDiscoveredAtMutation = extendType({
         });
 
         return updatedDevices.map((device) => ({
-          deviceId: device.id,
+          deviceId: toGraphId('Device', device.id),
           discoveredAt: device.discoveredAt ? device.discoveredAt.toISOString() : null,
         }));
       },
