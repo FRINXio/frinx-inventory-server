@@ -334,6 +334,8 @@ input FilterLabelsInput {
 }
 
 input FilterStreamsInput {
+  deviceName: String
+  labels: [String!]
   streamName: String
 }
 

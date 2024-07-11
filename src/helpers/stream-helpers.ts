@@ -51,3 +51,33 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
     },
   };
 }
+
+type StreamFilterInput = {
+  labelIds?: string[] | null;
+  deviceName?: string | null;
+  streamName?: string | null;
+};
+
+type StreamFilterQuery = {
+  label?: Record<string, unknown>;
+  name?: Record<string, unknown>;
+};
+
+function getLabelsQuery(labelIds: string[]): Record<string, unknown> | undefined {
+  return labelIds.length ? { some: { labelId: { in: labelIds } } } : undefined;
+}
+
+function getDeviceNameQuery(deviceName?: string | null): Record<string, unknown> | undefined {
+  return deviceName ? { contains: deviceName, mode: 'insensitive' } : undefined;
+}
+
+export function getFilterQuery(filter?: StreamFilterInput | null): StreamFilterQuery | undefined {
+  if (!filter) {
+    return undefined;
+  }
+  const { labelIds, deviceName, streamName } = filter;
+  return {
+    label: getLabelsQuery(labelIds ?? []),
+    name: getDeviceNameQuery(deviceName),
+  };
+}

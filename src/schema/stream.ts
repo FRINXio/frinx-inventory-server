@@ -92,7 +92,9 @@ export const StreamConnection = objectType({
 export const FilterStreamsInput = inputObjectType({
   name: 'FilterStreamsInput',
   definition: (t) => {
-    t.string('streamName', 'deviceName');
+    t.list.nonNull.string('labels');
+    t.string('deviceName');
+    t.string('streamName');
   },
 });
 export const SortStreamBy = enumType({
@@ -118,6 +120,7 @@ export const StreamQuery = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { filter, orderBy } = args;
+        console.log('filter: ', filter);
         const filterQuery = getFilterQuery({ deviceName: filter?.streamName });
         const orderingArgs = getOrderingQuery(orderBy);
         const baseArgs = { where: { tenantId, ...filterQuery } };
