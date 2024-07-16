@@ -219,6 +219,7 @@ export const DeviceOrderByInput = inputObjectType({
     t.nonNull.field('direction', { type: SortDirection });
   },
 });
+
 export const DevicesQuery = extendType({
   type: 'Query',
   definition: (t) => {
