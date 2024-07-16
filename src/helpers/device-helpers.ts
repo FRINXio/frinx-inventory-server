@@ -13,7 +13,7 @@ type FilterQuery = {
 };
 
 type DeviceOrderingInput = {
-  sortKey: 'name' | 'discoveredAt' | 'serviceState';
+  sortKey: 'name' | 'discoveredAt' | 'serviceState' | 'modelVersion';
   direction: 'ASC' | 'DESC';
 };
 
@@ -44,11 +44,19 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
 export function getOrderingQuery(
   ordering?: StreamOrderingInput | DeviceOrderingInput | null,
 ): Record<string, unknown> | undefined {
-  return ordering
-    ? {
-        orderBy: [{ [ordering.sortKey]: ordering.direction.toLowerCase() }],
-      }
-    : undefined;
+  if (!ordering) {
+    return undefined;
+  }
+
+  if (ordering.sortKey === 'modelVersion') {
+    return {
+      orderBy: [{ model: ordering.direction.toLowerCase() }, { version: ordering.direction.toLowerCase() }],
+    };
+  }
+
+  return {
+    orderBy: [{ [ordering.sortKey]: ordering.direction.toLowerCase() }],
+  };
 }
 
 export function getStreamOrderingQuery(ordering?: StreamOrderingInput | null): Record<string, unknown> | undefined {

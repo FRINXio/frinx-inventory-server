@@ -662,6 +662,7 @@ type Snapshot {
 
 enum SortDeviceBy {
   discoveredAt
+  modelVersion
   name
   serviceState
 }
