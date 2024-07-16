@@ -192,7 +192,7 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'createdAt' | 'name' | 'serviceState';
   SortDirection: 'ASC' | 'DESC';
-  SortStreamBy: 'createdAt' | 'streamName';
+  SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
   TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 

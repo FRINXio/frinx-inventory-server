@@ -97,7 +97,7 @@ export const FilterStreamsInput = inputObjectType({
 });
 export const SortStreamBy = enumType({
   name: 'SortStreamBy',
-  members: ['streamName', 'createdAt'],
+  members: ['streamName', 'deviceName', 'createdAt'],
 });
 export const StreamOrderByInput = inputObjectType({
   name: 'StreamOrderByInput',
