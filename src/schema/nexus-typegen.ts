@@ -346,6 +346,11 @@ export interface NexusGenObjects {
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount: number; // Int!
   };
+  DeviceDiscoveryPayload: {
+    // root type
+    deviceId: string; // String!
+    discoveredAt?: string | null; // String
+  };
   DeviceEdge: {
     // root type
     cursor: string; // String!
@@ -886,6 +891,7 @@ export interface NexusGenFieldTypes {
     blueprint: NexusGenRootTypes['Blueprint'] | null; // Blueprint
     createdAt: string; // String!
     deviceSize: NexusGenEnums['DeviceSize']; // DeviceSize!
+    discoveredAt: string | null; // String
     id: string; // ID!
     isInstalled: boolean; // Boolean!
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
@@ -907,6 +913,11 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['DeviceEdge'][]; // [DeviceEdge!]!
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount: number; // Int!
+  };
+  DeviceDiscoveryPayload: {
+    // field return type
+    deviceId: string; // String!
+    discoveredAt: string | null; // String
   };
   DeviceEdge: {
     // field return type
@@ -1067,6 +1078,7 @@ export interface NexusGenFieldTypes {
     updateBlueprint: NexusGenRootTypes['UpdateBlueprintPayload']; // UpdateBlueprintPayload!
     updateDataStore: NexusGenRootTypes['UpdateDataStorePayload']; // UpdateDataStorePayload!
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
+    updateDiscoveredAt: NexusGenRootTypes['DeviceDiscoveryPayload'][]; // [DeviceDiscoveryPayload!]!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
     updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
   };
@@ -1540,6 +1552,7 @@ export interface NexusGenFieldTypeNames {
     blueprint: 'Blueprint';
     createdAt: 'String';
     deviceSize: 'DeviceSize';
+    discoveredAt: 'String';
     id: 'ID';
     isInstalled: 'Boolean';
     labels: 'LabelConnection';
@@ -1561,6 +1574,11 @@ export interface NexusGenFieldTypeNames {
     edges: 'DeviceEdge';
     pageInfo: 'PageInfo';
     totalCount: 'Int';
+  };
+  DeviceDiscoveryPayload: {
+    // field return type name
+    deviceId: 'String';
+    discoveredAt: 'String';
   };
   DeviceEdge: {
     // field return type name
@@ -1721,6 +1739,7 @@ export interface NexusGenFieldTypeNames {
     updateBlueprint: 'UpdateBlueprintPayload';
     updateDataStore: 'UpdateDataStorePayload';
     updateDevice: 'UpdateDevicePayload';
+    updateDiscoveredAt: 'DeviceDiscoveryPayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
     updateStream: 'UpdateStreamPayload';
   };
@@ -2175,6 +2194,10 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
       input: NexusGenInputs['UpdateDeviceInput']; // UpdateDeviceInput!
+    };
+    updateDiscoveredAt: {
+      // args
+      deviceIds: string[]; // [String!]!
     };
     updateGraphNodeCoordinates: {
       // args
