@@ -81,3 +81,7 @@ export function makeZonesWithStreamsFromStreams(streams: StreamWithDevice[]) {
 
   return zonesWithStreams;
 }
+
+export function getStreamNameQuery(streamName?: string | null): Record<string, unknown> | undefined {
+  return streamName ? { contains: streamName, mode: 'insensitive' } : undefined;
+}

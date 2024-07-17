@@ -10,6 +10,7 @@ import {
   extendType,
   inputObjectType,
   intArg,
+  list,
   nonNull,
   nullable,
   objectType,
@@ -69,6 +70,14 @@ export const Device = objectType({
     });
     t.nonNull.string('updatedAt', {
       resolve: (device) => device.updatedAt.toISOString(),
+    });
+    t.string('discoveredAt', {
+      resolve: (device) => {
+        if (device.discoveredAt == null) {
+          return null;
+        }
+        return device.discoveredAt.toISOString();
+      },
     });
     t.string('model', {
       resolve: (root) => (root.model == null || root.model.trim().length === 0 ? null : root.model),
@@ -201,7 +210,7 @@ export const FilterDevicesInput = inputObjectType({
 });
 export const SortDeviceBy = enumType({
   name: 'SortDeviceBy',
-  members: ['name', 'createdAt', 'serviceState'],
+  members: ['name', 'discoveredAt', 'serviceState'],
 });
 export const DeviceOrderByInput = inputObjectType({
   name: 'DeviceOrderByInput',
@@ -210,6 +219,7 @@ export const DeviceOrderByInput = inputObjectType({
     t.nonNull.field('direction', { type: SortDirection });
   },
 });
+
 export const DevicesQuery = extendType({
   type: 'Query',
   definition: (t) => {
@@ -455,6 +465,57 @@ export const UpdateDeviceMetadataPayload = objectType({
   name: 'UpdateDeviceMetadataPayload',
   definition: (t) => {
     t.list.field('devices', { type: Device });
+  },
+});
+
+export const DeviceDiscoveryPayload = objectType({
+  name: 'DeviceDiscoveryPayload',
+  definition(t) {
+    t.nonNull.string('deviceId');
+    t.string('discoveredAt');
+  },
+});
+
+export const UpdateDiscoveredAtMutation = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.field('updateDiscoveredAt', {
+      type: nonNull(list(nonNull('DeviceDiscoveryPayload'))),
+      args: {
+        deviceIds: nonNull(list(nonNull(stringArg()))),
+      },
+      resolve: async (_, { deviceIds }, { prisma }) => {
+        const currentTimestamp = new Date();
+        const nativeIds = deviceIds.map((id) => fromGraphId('Device', id));
+        await prisma.device.updateMany({
+          where: {
+            id: {
+              in: nativeIds,
+            },
+          },
+          data: {
+            discoveredAt: currentTimestamp,
+          },
+        });
+
+        const updatedDevices = await prisma.device.findMany({
+          where: {
+            id: {
+              in: nativeIds,
+            },
+          },
+          select: {
+            id: true,
+            discoveredAt: true,
+          },
+        });
+
+        return updatedDevices.map((device) => ({
+          deviceId: toGraphId('Device', device.id),
+          discoveredAt: device.discoveredAt ? device.discoveredAt.toISOString() : null,
+        }));
+      },
+    });
   },
 });
 
