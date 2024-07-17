@@ -51,3 +51,7 @@ export function getMountParamsForStream(mountParameters: JsonValue, streamParame
     },
   };
 }
+
+export function getStreamNameQuery(streamName?: string | null): Record<string, unknown> | undefined {
+  return streamName ? { contains: streamName, mode: 'insensitive' } : undefined;
+}

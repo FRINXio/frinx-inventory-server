@@ -18,7 +18,7 @@ type DeviceOrderingInput = {
 };
 
 type StreamOrderingInput = {
-  sortKey: 'streamName' | 'createdAt';
+  sortKey: 'streamName' | 'deviceName' | 'createdAt';
   direction: 'ASC' | 'DESC';
 };
 
