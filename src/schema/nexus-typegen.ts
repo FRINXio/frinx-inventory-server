@@ -124,6 +124,8 @@ export interface NexusGenInputs {
   };
   FilterStreamsInput: {
     // input type
+    deviceName?: string | null; // String
+    labels?: string[] | null; // [String!]
     streamName?: string | null; // String
   };
   FilterTopologyInput: {
