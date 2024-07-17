@@ -47,7 +47,7 @@ export function getOrderingQuery(
   if (!ordering) {
     return undefined;
   }
-
+  // TODO: in future consider refactoring to accepting more sort keys
   if (ordering.sortKey === 'modelVersion') {
     return {
       orderBy: [{ model: ordering.direction.toLowerCase() }, { version: ordering.direction.toLowerCase() }],
