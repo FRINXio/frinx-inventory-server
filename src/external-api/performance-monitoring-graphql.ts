@@ -62,6 +62,9 @@ function getPerformanceMonitoringAPI() {
       return undefined;
     }
   }
+  if (!config.performanceMonitoringGraphqlURL) {
+    return undefined;
+  }
   const client = new GraphQLClient(config.performanceMonitoringGraphqlURL);
 
   async function getDeviceCpuUsage(deviceName: string): Promise<CurrentCpuUsageQuery> {
