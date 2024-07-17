@@ -10,7 +10,7 @@ import {
   installDeviceCache,
   uninstallDeviceCache,
 } from '../external-api/uniconfig-cache';
-import { getMountParamsForStream, getUniconfigStreamName } from '../helpers/stream-helpers';
+import { getMountParamsForStream, getStreamNameQuery, getUniconfigStreamName } from '../helpers/stream-helpers';
 import config from '../config';
 import { Blueprint } from './blueprint';
 
@@ -92,12 +92,14 @@ export const StreamConnection = objectType({
 export const FilterStreamsInput = inputObjectType({
   name: 'FilterStreamsInput',
   definition: (t) => {
-    t.string('streamName', 'deviceName');
+    t.list.nonNull.string('labels');
+    t.string('deviceName');
+    t.string('streamName');
   },
 });
 export const SortStreamBy = enumType({
   name: 'SortStreamBy',
-  members: ['streamName', 'createdAt'],
+  members: ['streamName', 'deviceName', 'createdAt'],
 });
 export const StreamOrderByInput = inputObjectType({
   name: 'StreamOrderByInput',
@@ -118,11 +120,26 @@ export const StreamQuery = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { filter, orderBy } = args;
-        const filterQuery = getFilterQuery({ deviceName: filter?.streamName });
+        const labels = filter?.labels ?? [];
+        const dbLabels = await prisma.label.findMany({ where: { name: { in: labels } } });
+        const labelIds = dbLabels.map((l) => l.id);
+        const filterQuery = getFilterQuery({ deviceName: filter?.deviceName, labelIds });
         const orderingArgs = getOrderingQuery(orderBy);
-        const baseArgs = { where: { tenantId, ...filterQuery } };
+        const baseArgs = { where: { tenantId } };
         const result = await findManyCursorConnection(
-          (paginationArgs) => prisma.stream.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),
+          (paginationArgs) =>
+            prisma.stream.findMany({
+              ...baseArgs,
+              ...orderingArgs,
+              ...paginationArgs,
+              include: {
+                device: true,
+              },
+              where: {
+                streamName: getStreamNameQuery(filter?.streamName),
+                device: filterQuery,
+              },
+            }),
           () => prisma.device.count(baseArgs),
           args,
         );

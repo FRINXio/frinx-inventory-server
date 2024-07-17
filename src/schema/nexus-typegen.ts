@@ -124,6 +124,8 @@ export interface NexusGenInputs {
   };
   FilterStreamsInput: {
     // input type
+    deviceName?: string | null; // String
+    labels?: string[] | null; // [String!]
     streamName?: string | null; // String
   };
   FilterTopologyInput: {
@@ -192,7 +194,7 @@ export interface NexusGenEnums {
   GraphEdgeStatus: 'ok' | 'unknown';
   SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
-  SortStreamBy: 'createdAt' | 'streamName';
+  SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
   TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
