@@ -190,7 +190,7 @@ export interface NexusGenEnums {
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
   GraphEdgeStatus: 'ok' | 'unknown';
-  SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name' | 'serviceState';
+  SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
   SortStreamBy: 'createdAt' | 'streamName';
   TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';

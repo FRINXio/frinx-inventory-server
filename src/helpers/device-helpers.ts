@@ -13,7 +13,7 @@ type FilterQuery = {
 };
 
 type DeviceOrderingInput = {
-  sortKey: 'name' | 'discoveredAt' | 'serviceState' | 'modelVersion';
+  sortKey: 'name' | 'discoveredAt' | 'modelVersion';
   direction: 'ASC' | 'DESC';
 };
 

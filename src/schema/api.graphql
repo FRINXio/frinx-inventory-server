@@ -664,7 +664,6 @@ enum SortDeviceBy {
   discoveredAt
   modelVersion
   name
-  serviceState
 }
 
 enum SortDirection {
