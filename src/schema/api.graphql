@@ -675,6 +675,7 @@ enum SortDirection {
 
 enum SortStreamBy {
   createdAt
+  deviceName
   streamName
 }
 
