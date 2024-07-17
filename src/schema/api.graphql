@@ -663,7 +663,7 @@ type Snapshot {
 }
 
 enum SortDeviceBy {
-  createdAt
+  discoveredAt
   name
   serviceState
 }

@@ -210,7 +210,7 @@ export const FilterDevicesInput = inputObjectType({
 });
 export const SortDeviceBy = enumType({
   name: 'SortDeviceBy',
-  members: ['name', 'createdAt', 'serviceState'],
+  members: ['name', 'discoveredAt', 'serviceState'],
 });
 export const DeviceOrderByInput = inputObjectType({
   name: 'DeviceOrderByInput',
@@ -219,6 +219,7 @@ export const DeviceOrderByInput = inputObjectType({
     t.nonNull.field('direction', { type: SortDirection });
   },
 });
+
 export const DevicesQuery = extendType({
   type: 'Query',
   definition: (t) => {
