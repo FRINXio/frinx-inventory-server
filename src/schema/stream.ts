@@ -1,16 +1,28 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { arg, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
-import { getFilterQuery, getOrderingQuery } from '../helpers/device-helpers';
+import { getFilterQuery, getOrderingQuery, makeZonesWithDevicesFromDevices } from '../helpers/device-helpers';
 import { Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
-import { decodeMountParams, getConnectionType, prepareInstallParameters } from '../helpers/converters';
+import {
+  decodeMountParams,
+  getConnectionType,
+  prepareInstallParameters,
+  prepareMultipleInstallParameters,
+} from '../helpers/converters';
 import { getUniconfigURL } from '../helpers/zone.helpers';
 import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
+  installMultipleDevicesCache,
   uninstallDeviceCache,
+  uninstallMultipleDevicesCache,
 } from '../external-api/uniconfig-cache';
-import { getMountParamsForStream, getStreamNameQuery, getUniconfigStreamName } from '../helpers/stream-helpers';
+import {
+  getMountParamsForStream,
+  getUniconfigStreamName,
+  makeZonesWithStreamsFromStreams,
+  getStreamNameQuery,
+} from '../helpers/stream-helpers';
 import config from '../config';
 import { Blueprint } from './blueprint';
 
@@ -399,6 +411,116 @@ export const UpdateStreamMutation = extendType({
         } catch (error) {
           throw new Error('Error updating device');
         }
+      },
+    });
+  },
+});
+
+export const BulkInstallStreamPayload = objectType({
+  name: 'BulkInstallStreamPayload',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('installedStreams', { type: StreamNode });
+  },
+});
+
+export const BulkInstallStreamsInput = inputObjectType({
+  name: 'BulkInstallStreamsInput',
+  definition: (t) => {
+    t.nonNull.list.nonNull.string('streamIds');
+  },
+});
+
+export const BulkInstallStreamsMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('bulkInstallStreams', {
+      type: BulkInstallStreamPayload,
+      args: {
+        input: nonNull(arg({ type: BulkInstallStreamsInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const { streamIds } = args.input;
+        const nativeIds = streamIds.map((id) => fromGraphId('Stream', id));
+        const streams = await prisma.stream.findMany({
+          where: { id: { in: nativeIds }, tenantId },
+          include: {
+            device: true,
+          },
+        });
+        const zonesWithStreams = makeZonesWithStreamsFromStreams(streams);
+
+        const streamsToInstallWithParams = [...zonesWithStreams.entries()].map(
+          ([uniconfigZoneId, devicesToInstall]) => ({
+            uniconfigURL: getUniconfigURL(prisma, uniconfigZoneId),
+            devicesToInstall: prepareMultipleInstallParameters(devicesToInstall),
+            deviceNames: devicesToInstall.map((device) => device.deviceName),
+          }),
+        );
+
+        await Promise.all(
+          streamsToInstallWithParams.map((streamsToInstall) => installMultipleDevicesCache(streamsToInstall)),
+        );
+
+        return { installedStreams: streams };
+      },
+    });
+  },
+});
+
+export const BulkUninstallStreamPayload = objectType({
+  name: 'BulkUninstallStreamPayload',
+  definition: (t) => {
+    t.nonNull.list.nonNull.field('uninstalledStreams', { type: StreamNode });
+  },
+});
+
+export const BulkUninstallStreamsInput = inputObjectType({
+  name: 'BulkUninstallStreamsInput',
+  definition: (t) => {
+    t.nonNull.list.nonNull.string('streamIds');
+  },
+});
+
+export const BulkUninstallDevicesMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('bulkUninstallStreams', {
+      type: BulkUninstallStreamPayload,
+      args: {
+        input: nonNull(arg({ type: BulkUninstallStreamsInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const { streamIds } = args.input;
+        const nativeIds = streamIds.map((id) => fromGraphId('Stream', id));
+        const streams = await prisma.stream.findMany({
+          where: { id: { in: nativeIds }, tenantId },
+          include: { device: true },
+        });
+        const deviceStreamMap = new Map(streams.map((s) => [s.deviceName, s]));
+        const zonesWithDevices = makeZonesWithDevicesFromDevices(streams.map((s) => s.device));
+
+        const streamsToUninstallWithParams = [...zonesWithDevices.entries()].map(
+          ([uniconfigZoneId, devicesToUninstall]) => ({
+            uniconfigURL: getUniconfigURL(prisma, uniconfigZoneId),
+            devicesToUninstall: {
+              input: {
+                nodes: devicesToUninstall.map(({ deviceName, params }) => ({
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
+                  'node-id': getUniconfigStreamName(deviceStreamMap.get(deviceName)?.streamName ?? '', deviceName),
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
+                  'connection-type': getConnectionType(decodeMountParams(params)),
+                })),
+              },
+            },
+            deviceNames: devicesToUninstall.map((device) => device.deviceName),
+          }),
+        );
+
+        await Promise.all(
+          streamsToUninstallWithParams.map((streamsToUninstall) => uninstallMultipleDevicesCache(streamsToUninstall)),
+        );
+
+        return { uninstalledStreams: streams };
       },
     });
   },
