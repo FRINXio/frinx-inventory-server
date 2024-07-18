@@ -20,6 +20,7 @@ input AddDeviceInput {
   deviceSize: DeviceSize
   deviceType: String
   labelIds: [String!]
+  locationId: String
   model: String
   mountParameters: String
   name: String!
@@ -37,7 +38,8 @@ type AddDevicePayload {
 }
 
 input AddLocationInput {
-  countryId: String!
+  coordinates: Coordinates!
+  countryId: String
   name: String!
 }
 
@@ -183,6 +185,11 @@ type CommitConfigOutput {
 
 type CommitConfigPayload {
   output: CommitConfigOutput!
+}
+
+input Coordinates {
+  latitude: Float!
+  longitude: Float!
 }
 
 type Country implements Node {
@@ -450,9 +457,11 @@ type LabelEdge {
 }
 
 type Location implements Node {
-  country: String!
+  country: String
   createdAt: String!
   id: ID!
+  latitude: Float
+  longitude: Float
   name: String!
   updatedAt: String!
 }

@@ -1,10 +1,12 @@
 import { Consumer, Kafka, Producer } from 'kafkajs';
 import config from '../config';
 import { Device } from '../schema/source-types';
-import { encodeDeviceForInventoryKafka } from '../helpers/device-helpers';
+import { DeviceLocation, encodeDeviceForInventoryKafka } from '../helpers/device-helpers';
 
 const KAFKA_BROKER = config.kafkaBroker || '';
 const KAFKA_TOPIC = config.kafkaTopic || '';
+
+type Coordinates = [number, number];
 
 class KafkaService {
   private kafka: Kafka;
@@ -103,7 +105,7 @@ class KafkaService {
 async function produceDeviceRegistrationEvent(
   kafka: Omit<KafkaService, 'connect'> | null,
   device: Device,
-  coordinates: [number, number],
+  coordinates: Coordinates | null,
   labelIds: string[],
 ): Promise<void> {
   if (kafka == null) {
@@ -111,7 +113,8 @@ async function produceDeviceRegistrationEvent(
   }
 
   try {
-    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'Point', coordinates } : null;
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds), {
       type: 'device_registration',
     });
   } catch (error) {
@@ -142,7 +145,7 @@ async function produceDeviceRemovalEvent(
 async function produceDeviceUpdateEvent(
   kafka: Omit<KafkaService, 'connect'> | null,
   device: Device,
-  coordinates: [number, number],
+  coordinates: Coordinates | null,
   labelIds: string[],
 ): Promise<void> {
   if (kafka == null) {
@@ -150,7 +153,8 @@ async function produceDeviceUpdateEvent(
   }
 
   try {
-    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'Point', coordinates } : null;
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds), {
       type: 'device_update',
     });
   } catch (error) {

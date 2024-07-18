@@ -43,6 +43,7 @@ export interface NexusGenInputs {
     deviceSize?: NexusGenEnums['DeviceSize'] | null; // DeviceSize
     deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
+    locationId?: string | null; // String
     model?: string | null; // String
     mountParameters?: string | null; // String
     name: string; // String!
@@ -56,7 +57,8 @@ export interface NexusGenInputs {
   };
   AddLocationInput: {
     // input type
-    countryId: string; // String!
+    coordinates: NexusGenInputs['Coordinates']; // Coordinates!
+    countryId?: string | null; // String
     name: string; // String!
   };
   AddSnapshotInput: {
@@ -105,6 +107,11 @@ export interface NexusGenInputs {
     // input type
     deviceId: string; // String!
     shouldDryRun?: boolean | null; // Boolean
+  };
+  Coordinates: {
+    // input type
+    latitude: number; // Float!
+    longitude: number; // Float!
   };
   CreateLabelInput: {
     // input type
@@ -1053,9 +1060,11 @@ export interface NexusGenFieldTypes {
   };
   Location: {
     // field return type
-    country: string; // String!
+    country: string | null; // String
     createdAt: string; // String!
     id: string; // ID!
+    latitude: number | null; // Float
+    longitude: number | null; // Float
     name: string; // String!
     updatedAt: string; // String!
   };
@@ -1727,6 +1736,8 @@ export interface NexusGenFieldTypeNames {
     country: 'String';
     createdAt: 'String';
     id: 'ID';
+    latitude: 'Float';
+    longitude: 'Float';
     name: 'String';
     updatedAt: 'String';
   };

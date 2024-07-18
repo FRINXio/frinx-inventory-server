@@ -2,8 +2,9 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { connectionFromArray } from 'graphql-relay';
 import countries from 'i18n-iso-countries';
 import { arg, extendType, inputObjectType, nonNull, objectType } from 'nexus';
-import { fromGraphId, toGraphId } from '../helpers/id-helper';
+import { toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
+import { getCountryName } from '../helpers/location-helpers';
 
 export const Location = objectType({
   name: 'Location',
@@ -19,7 +20,9 @@ export const Location = objectType({
     t.nonNull.string('updatedAt', {
       resolve: (root) => root.updatedAt.toISOString(),
     });
-    t.nonNull.string('country');
+    t.string('country');
+    t.float('latitude');
+    t.float('longitude');
   },
 });
 
@@ -116,11 +119,21 @@ export const AddLocationPayload = objectType({
     t.nonNull.field('location', { type: Location });
   },
 });
+
+export const Coordinates = inputObjectType({
+  name: 'Coordinates',
+  definition: (t) => {
+    t.nonNull.float('latitude');
+    t.nonNull.float('longitude');
+  },
+});
+
 export const AddLocationInput = inputObjectType({
   name: 'AddLocationInput',
   definition: (t) => {
     t.nonNull.string('name');
-    t.nonNull.string('countryId');
+    t.string('countryId');
+    t.nonNull.field({ name: 'coordinates', type: Coordinates });
   },
 });
 export const AddLocationMutation = extendType({
@@ -133,16 +146,16 @@ export const AddLocationMutation = extendType({
       },
       resolve: async (_, args, { prisma, tenantId }) => {
         const { input } = args;
-        const countryCode = fromGraphId('Country', input.countryId);
-        if (!countries.isValid(countryCode)) {
-          throw new Error('invalid countryId');
-        }
-        const countryName = countries.getName(countryCode, 'en', { select: 'official' });
+
+        const countryName = getCountryName(input.countryId ?? null);
+
         const location = await prisma.location.create({
           data: {
             tenantId,
             name: input.name,
             country: countryName,
+            latitude: input.coordinates.latitude.toString(),
+            longitude: input.coordinates.latitude.toString(),
           },
         });
         return {
