@@ -117,12 +117,28 @@ input BulkInstallDevicesInput {
   deviceIds: [String!]!
 }
 
+type BulkInstallStreamPayload {
+  installedStreams: [Stream!]!
+}
+
+input BulkInstallStreamsInput {
+  streamIds: [String!]!
+}
+
 type BulkUninstallDevicePayload {
   uninstalledDevices: [Device!]!
 }
 
 input BulkUninstallDevicesInput {
   deviceIds: [String!]!
+}
+
+type BulkUninstallStreamPayload {
+  uninstalledStreams: [Stream!]!
+}
+
+input BulkUninstallStreamsInput {
+  streamIds: [String!]!
 }
 
 type CSVImport {
@@ -340,6 +356,8 @@ input FilterLabelsInput {
 }
 
 input FilterStreamsInput {
+  deviceName: String
+  labels: [String!]
   streamName: String
 }
 
@@ -460,7 +478,9 @@ type Mutation {
   addZone(input: AddZoneInput!): AddZonePayload!
   applySnapshot(input: ApplySnapshotInput!, transactionId: String!): ApplySnapshotPayload!
   bulkInstallDevices(input: BulkInstallDevicesInput!): BulkInstallDevicePayload!
+  bulkInstallStreams(input: BulkInstallStreamsInput!): BulkInstallStreamPayload!
   bulkUninstallDevices(input: BulkUninstallDevicesInput!): BulkUninstallDevicePayload!
+  bulkUninstallStreams(input: BulkUninstallStreamsInput!): BulkUninstallStreamPayload!
   closeTransaction(deviceId: String!, transactionId: String!): CloseTransactionPayload!
   commitConfig(input: CommitConfigInput!, transactionId: String!): CommitConfigPayload!
   createLabel(input: CreateLabelInput!): CreateLabelPayload!
@@ -662,8 +682,8 @@ type Snapshot {
 
 enum SortDeviceBy {
   discoveredAt
+  modelVersion
   name
-  serviceState
 }
 
 enum SortDirection {
@@ -673,6 +693,7 @@ enum SortDirection {
 
 enum SortStreamBy {
   createdAt
+  deviceName
   streamName
 }
 

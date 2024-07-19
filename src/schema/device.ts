@@ -210,7 +210,7 @@ export const FilterDevicesInput = inputObjectType({
 });
 export const SortDeviceBy = enumType({
   name: 'SortDeviceBy',
-  members: ['name', 'discoveredAt', 'serviceState'],
+  members: ['name', 'discoveredAt', 'modelVersion'],
 });
 export const DeviceOrderByInput = inputObjectType({
   name: 'DeviceOrderByInput',
