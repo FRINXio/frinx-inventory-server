@@ -245,6 +245,14 @@ export const ActivateStreamMutation = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         await installDeviceCache({ uniconfigURL, deviceName: uniconfigStreamName, params: installStreamParams });
 
+        await prisma.stream.update({
+          where: { id: nativeId },
+          data: {
+            startedAt: new Date(),
+            stoppedAt: null,
+          },
+        });
+
         return { stream };
       },
     });
@@ -291,6 +299,13 @@ export const DeactivateStreamMutation = extendType({
           params: uninstallParams,
           deviceName: getUniconfigStreamName(stream.streamName, stream.deviceName),
         });
+        await prisma.stream.update({
+          where: { id: nativeId },
+          data: {
+            stoppedAt: new Date(),
+          },
+        });
+
         return { stream };
       },
     });
