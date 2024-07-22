@@ -442,6 +442,7 @@ export const UpdateDeviceMutation = extendType({
           const deviceLocation = await prisma.location.findFirst({
             where: { id: updatedDevice.locationId ?? undefined },
           });
+
           const geoLocation: [number, number] | null =
             deviceLocation?.latitude && deviceLocation?.longitude
               ? [Number.parseFloat(deviceLocation.latitude ?? '0'), Number.parseFloat(deviceLocation.longitude ?? '0')]

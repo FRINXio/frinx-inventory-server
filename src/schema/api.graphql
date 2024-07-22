@@ -300,6 +300,10 @@ type DeviceListUsage {
   devicesUsage: [DevicesUsage!]!
 }
 
+type DeviceMetadata {
+  nodes: [GeoMapDevice]
+}
+
 input DeviceOrderByInput {
   direction: SortDirection!
   sortKey: SortDeviceBy!
@@ -374,6 +378,17 @@ input FilterTopologyInput {
 
 input FilterZonesInput {
   name: String!
+}
+
+type GeoMapDevice {
+  deviceName: String!
+  geolocation: Geolocation
+  id: ID!
+}
+
+type Geolocation {
+  latitude: Float!
+  longitude: Float!
 }
 
 type GraphEdge {
@@ -637,6 +652,7 @@ type Query {
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
+  deviceMetadata: DeviceMetadata
   devices(
     after: String
     before: String

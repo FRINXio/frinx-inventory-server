@@ -383,6 +383,10 @@ export interface NexusGenObjects {
     // root type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceMetadata: {
+    // root type
+    nodes?: Array<NexusGenRootTypes['GeoMapDevice'] | null> | null; // [GeoMapDevice]
+  };
   DeviceStatus: {
     // root type
     deviceName?: string | null; // String
@@ -412,6 +416,17 @@ export interface NexusGenObjects {
     // root type
     interface: string; // String!
     nodeId: string; // String!
+  };
+  GeoMapDevice: {
+    // root type
+    deviceName: string; // String!
+    geolocation?: NexusGenRootTypes['Geolocation'] | null; // Geolocation
+    id: string; // ID!
+  };
+  Geolocation: {
+    // root type
+    latitude: number; // Float!
+    longitude: number; // Float!
   };
   GraphEdge: {
     // root type
@@ -959,6 +974,10 @@ export interface NexusGenFieldTypes {
     // field return type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceMetadata: {
+    // field return type
+    nodes: Array<NexusGenRootTypes['GeoMapDevice'] | null> | null; // [GeoMapDevice]
+  };
   DeviceStatus: {
     // field return type
     deviceName: string | null; // String
@@ -988,6 +1007,17 @@ export interface NexusGenFieldTypes {
     // field return type
     interface: string; // String!
     nodeId: string; // String!
+  };
+  GeoMapDevice: {
+    // field return type
+    deviceName: string; // String!
+    geolocation: NexusGenRootTypes['Geolocation'] | null; // Geolocation
+    id: string; // ID!
+  };
+  Geolocation: {
+    // field return type
+    latitude: number; // Float!
+    longitude: number; // Float!
   };
   GraphEdge: {
     // field return type
@@ -1236,6 +1266,7 @@ export interface NexusGenFieldTypes {
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+    deviceMetadata: NexusGenRootTypes['DeviceMetadata'] | null; // DeviceMetadata
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
@@ -1632,6 +1663,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     devicesUsage: 'DevicesUsage';
   };
+  DeviceMetadata: {
+    // field return type name
+    nodes: 'GeoMapDevice';
+  };
   DeviceStatus: {
     // field return type name
     deviceName: 'String';
@@ -1661,6 +1696,17 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     interface: 'String';
     nodeId: 'String';
+  };
+  GeoMapDevice: {
+    // field return type name
+    deviceName: 'String';
+    geolocation: 'Geolocation';
+    id: 'ID';
+  };
+  Geolocation: {
+    // field return type name
+    latitude: 'Float';
+    longitude: 'Float';
   };
   GraphEdge: {
     // field return type name
@@ -1909,6 +1955,7 @@ export interface NexusGenFieldTypeNames {
     calculatedDiff: 'CalculatedDiffPayload';
     countries: 'CountryConnection';
     dataStore: 'DataStore';
+    deviceMetadata: 'DeviceMetadata';
     devices: 'DeviceConnection';
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';

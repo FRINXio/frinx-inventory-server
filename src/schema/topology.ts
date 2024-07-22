@@ -12,6 +12,7 @@ import {
 import config from '../config';
 import { fromGraphId } from '../helpers/id-helper';
 import {
+  convertDeviceMetadataToMapNodes,
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
@@ -110,6 +111,23 @@ export const GraphNode = objectType({
     t.implements(BaseGraphNode);
     t.nonNull.string('name');
     t.field('device', { type: 'Device' });
+  },
+});
+
+export const Geolocation = objectType({
+  name: 'Geolocation',
+  definition: (t) => {
+    t.nonNull.float('latitude');
+    t.nonNull.float('longitude');
+  },
+});
+
+export const GeoMapDevice = objectType({
+  name: 'GeoMapDevice',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.string('deviceName');
+    t.field('geolocation', { type: Geolocation });
   },
 });
 
@@ -759,5 +777,31 @@ export const SyncePathToGrandMasterQuery = queryField('syncePathToGrandMaster', 
 
     const syncePathResult = await topologyDiscoveryGraphQLAPI?.getSyncePathToGrandMaster(fromNodeNativeId);
     return syncePathResult ?? [];
+  },
+});
+
+export const DeviceMetadata = objectType({
+  name: 'DeviceMetadata',
+  definition: (t) => {
+    t.list.field('nodes', {
+      type: GeoMapDevice,
+    });
+  },
+});
+
+export const deviceMetadataQuery = queryField('deviceMetadata', {
+  type: DeviceMetadata,
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    if (!topologyDiscoveryGraphQLAPI) {
+      return null;
+    }
+    const deviceMetadataResult = await topologyDiscoveryGraphQLAPI.getDeviceMetadata();
+
+    const mapNodes = convertDeviceMetadataToMapNodes(deviceMetadataResult);
+    return mapNodes
+      ? {
+          nodes: mapNodes,
+        }
+      : null;
   },
 });

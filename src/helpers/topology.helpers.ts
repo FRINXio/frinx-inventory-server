@@ -1,5 +1,6 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
+  DeviceMetadataQuery,
   NetTopologyQuery,
   PhyDevice,
   PtpDevice,
@@ -1541,4 +1542,36 @@ export function makeNetTopologyDiff(
     })),
     edges: oldEdges,
   };
+}
+
+export function convertDeviceMetadataToMapNodes(deviceMetadataQuery: DeviceMetadataQuery) {
+  if (deviceMetadataQuery.deviceMetadata?.edges == null) {
+    return null;
+  }
+
+  const mapNodes = deviceMetadataQuery.deviceMetadata.edges
+    .filter(omitNullValue)
+    .map((e) => {
+      const { node } = e;
+      if (node == null) {
+        return null;
+      }
+
+      const { id, deviceName, geoLocation: topologyGeolocation } = node;
+      const geolocation = topologyGeolocation
+        ? {
+            latitude: topologyGeolocation.coordinates[0],
+            longitude: topologyGeolocation.coordinates[1],
+          }
+        : null;
+
+      return {
+        id: toGraphId('MapNode', id),
+        deviceName,
+        geolocation,
+      };
+    })
+    .filter(omitNullValue);
+
+  return mapNodes;
 }
