@@ -25,7 +25,6 @@ import {
 } from '../helpers/stream-helpers';
 import config from '../config';
 import { Blueprint } from './blueprint';
-
 export const StreamNode = objectType({
   name: 'Stream',
   definition: (t) => {
@@ -38,6 +37,12 @@ export const StreamNode = objectType({
     });
     t.nonNull.string('updatedAt', {
       resolve: (stream) => stream.updatedAt.toISOString(),
+    });
+    t.string('startedAt', {
+      resolve: (stream) => stream.startedAt?.toISOString() || null,
+    });
+    t.string('stoppedAt', {
+      resolve: (stream) => stream.stoppedAt?.toISOString() || null,
     });
     t.nonNull.string('streamName');
     t.nonNull.string('deviceName');
