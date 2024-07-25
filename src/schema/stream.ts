@@ -25,6 +25,7 @@ import {
 } from '../helpers/stream-helpers';
 import config from '../config';
 import { Blueprint } from './blueprint';
+
 export const StreamNode = objectType({
   name: 'Stream',
   definition: (t) => {
