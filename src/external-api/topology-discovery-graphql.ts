@@ -548,7 +548,7 @@ function getTopologyDiscoveryApi() {
 
   async function getDeviceMetadata(): Promise<DeviceMetadataQuery> {
     const response = await client.request<DeviceMetadataQuery, DeviceMetadataQueryVariables>(DEVICE_METADATA, {
-      filter: undefined,
+      filters: undefined,
     });
     return response;
   }

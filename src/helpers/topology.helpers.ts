@@ -29,6 +29,7 @@ import {
 import { omitNullValue, unwrap } from './utils.helpers';
 import { toGraphId } from './id-helper';
 import { NexusGenObjects } from '../schema/nexus-typegen';
+import { Location } from '../schema/source-types';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -1544,7 +1545,10 @@ export function makeNetTopologyDiff(
   };
 }
 
-export function convertDeviceMetadataToMapNodes(deviceMetadataQuery: DeviceMetadataQuery) {
+export function convertDeviceMetadataToMapNodes(
+  deviceMetadataQuery: DeviceMetadataQuery,
+  deviceLocationMap: Map<string, Location | null>,
+) {
   if (deviceMetadataQuery.deviceMetadata?.edges == null) {
     return null;
   }
@@ -1565,9 +1569,12 @@ export function convertDeviceMetadataToMapNodes(deviceMetadataQuery: DeviceMetad
           }
         : null;
 
+      const deviceLocation = deviceLocationMap.get(node.deviceName)?.name ?? null;
+
       return {
         id: toGraphId('MapNode', id),
         deviceName,
+        locationName: deviceLocation,
         geolocation,
       };
     })

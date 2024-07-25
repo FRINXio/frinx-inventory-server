@@ -127,6 +127,7 @@ export const GeoMapDevice = objectType({
   definition: (t) => {
     t.nonNull.id('id');
     t.nonNull.string('deviceName');
+    t.string('locationName');
     t.field('geolocation', { type: Geolocation });
   },
 });
@@ -791,13 +792,21 @@ export const DeviceMetadata = objectType({
 
 export const deviceMetadataQuery = queryField('deviceMetadata', {
   type: DeviceMetadata,
-  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+  resolve: async (_, args, { prisma, topologyDiscoveryGraphQLAPI }) => {
     if (!topologyDiscoveryGraphQLAPI) {
       return null;
     }
     const deviceMetadataResult = await topologyDiscoveryGraphQLAPI.getDeviceMetadata();
 
-    const mapNodes = convertDeviceMetadataToMapNodes(deviceMetadataResult);
+    const dbDevices = await prisma.device.findMany({
+      include: {
+        location: true,
+      },
+    });
+
+    const deviceLocationMap = new Map(dbDevices.map((d) => [d.name, d.location]));
+
+    const mapNodes = convertDeviceMetadataToMapNodes(deviceMetadataResult, deviceLocationMap);
     return mapNodes
       ? {
           nodes: mapNodes,

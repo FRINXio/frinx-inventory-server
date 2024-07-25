@@ -422,6 +422,7 @@ export interface NexusGenObjects {
     deviceName: string; // String!
     geolocation?: NexusGenRootTypes['Geolocation'] | null; // Geolocation
     id: string; // ID!
+    locationName?: string | null; // String
   };
   Geolocation: {
     // root type
@@ -1013,6 +1014,7 @@ export interface NexusGenFieldTypes {
     deviceName: string; // String!
     geolocation: NexusGenRootTypes['Geolocation'] | null; // Geolocation
     id: string; // ID!
+    locationName: string | null; // String
   };
   Geolocation: {
     // field return type
@@ -1702,6 +1704,7 @@ export interface NexusGenFieldTypeNames {
     deviceName: 'String';
     geolocation: 'Geolocation';
     id: 'ID';
+    locationName: 'String';
   };
   Geolocation: {
     // field return type name

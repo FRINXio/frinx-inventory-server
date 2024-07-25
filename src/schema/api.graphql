@@ -384,6 +384,7 @@ type GeoMapDevice {
   deviceName: String!
   geolocation: Geolocation
   id: ID!
+  locationName: String
 }
 
 type Geolocation {
