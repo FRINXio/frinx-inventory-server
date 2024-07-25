@@ -703,6 +703,8 @@ type Stream implements Node {
   deviceName: String!
   id: ID!
   isActive: Boolean!
+  startedAt: String
+  stoppedAt: String
   streamName: String!
   streamParameters: String
   updatedAt: String!

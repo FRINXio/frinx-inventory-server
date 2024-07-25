@@ -39,6 +39,12 @@ export const StreamNode = objectType({
     t.nonNull.string('updatedAt', {
       resolve: (stream) => stream.updatedAt.toISOString(),
     });
+    t.string('startedAt', {
+      resolve: (stream) => stream.startedAt?.toISOString() || null,
+    });
+    t.string('stoppedAt', {
+      resolve: (stream) => stream.stoppedAt?.toISOString() || null,
+    });
     t.nonNull.string('streamName');
     t.nonNull.string('deviceName');
     t.nonNull.boolean('isActive', {
@@ -245,6 +251,14 @@ export const ActivateStreamMutation = extendType({
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
         await installDeviceCache({ uniconfigURL, deviceName: uniconfigStreamName, params: installStreamParams });
 
+        await prisma.stream.update({
+          where: { id: nativeId },
+          data: {
+            startedAt: new Date(),
+            stoppedAt: null,
+          },
+        });
+
         return { stream };
       },
     });
@@ -291,6 +305,13 @@ export const DeactivateStreamMutation = extendType({
           params: uninstallParams,
           deviceName: getUniconfigStreamName(stream.streamName, stream.deviceName),
         });
+        await prisma.stream.update({
+          where: { id: nativeId },
+          data: {
+            stoppedAt: new Date(),
+          },
+        });
+
         return { stream };
       },
     });

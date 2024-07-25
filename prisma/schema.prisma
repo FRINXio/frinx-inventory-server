@@ -125,6 +125,8 @@ model stream {
   id               String     @id @default(uuid())
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
+  startedAt        DateTime?  @map("started_at")
+  stoppedAt        DateTime?  @map("stopped_at")
   deviceName       String     @map("device_name")
   streamName       String     @map("stream_name")
   streamParameters Json?      @map("stream_parameters")
