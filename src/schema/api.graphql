@@ -468,6 +468,49 @@ type LocationEdge {
   node: Location!
 }
 
+type LspTunnel {
+  fromDevice: String
+  lspId: String!
+  signalization: Signalization
+  toDevice: String
+  uptime: Int
+}
+
+type MplsData {
+  inputInterface: String
+  inputLabel: Int
+  lspId: String!
+  outputInterface: String
+  outputLabel: Int
+}
+
+type MplsDeviceDetails {
+  lspTunnels: [LspTunnel]
+  mplsData: [MplsData]
+}
+
+type MplsGraphNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [MplsGraphNodeInterface!]!
+  labels: [String!]
+  mplsDeviceDetails: MplsDeviceDetails!
+  name: String!
+  nodeId: String!
+  status: GraphEdgeStatus!
+}
+
+type MplsGraphNodeInterface {
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+}
+
+type MplsTopology {
+  edges: [GraphEdge!]!
+  nodes: [MplsGraphNode!]!
+}
+
 type Mutation {
   activateStream(id: String!): ActivateStreamPayload!
   addBlueprint(input: AddBlueprintInput!): AddBlueprintPayload!
@@ -639,6 +682,7 @@ type Query {
   kafkaHealthCheck: IsOkResponse
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  mplsTopology: MplsTopology
   netTopology: NetTopology
   netTopologyVersionData(version: String!): NetTopologyVersionData!
   node(id: ID!): Node
@@ -673,6 +717,11 @@ type ResetConfigPayload {
 
 type RevertChangesPayload {
   isOk: Boolean!
+}
+
+enum Signalization {
+  LDP
+  RSVP
 }
 
 type Snapshot {

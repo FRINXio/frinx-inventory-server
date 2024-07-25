@@ -21,6 +21,7 @@ import {
   SynceTopologyQuery,
   SyncePathToGrandMasterQuery,
   SyncePathToGrandMasterQueryVariables,
+  MplsTopologyQuery,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -408,6 +409,99 @@ const SYNCE_PATH = gql`
   }
 `;
 
+const MPLS_TOPOLOGY = gql`
+  fragment MplsDeviceParts on MplsDevice {
+    id
+    name
+    status
+    labels
+    coordinates {
+      x
+      y
+    }
+    mplsInterfaces {
+      edges {
+        node {
+          ...MplsInterfaceParts
+        }
+      }
+    }
+    details {
+      mpls_data {
+        lsp_id
+        input_label
+        input_interface
+        output_interface
+        output_label
+      }
+      lsp_tunnels {
+        lsp_id
+        from_device
+        to_device
+        signalisation
+        uptime
+      }
+    }
+  }
+
+  fragment MplsInterfaceDeviceParts on MplsDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    mplsInterfaces {
+      edges {
+        node {
+          id
+          name
+          mplsLinks {
+            edges {
+              link
+              node {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fragment MplsInterfaceParts on MplsInterface {
+    id
+    name
+    status
+    mplsDevice {
+      ...MplsInterfaceDeviceParts
+    }
+    mplsLinks {
+      edges {
+        link
+        node {
+          id
+          mplsDevice {
+            ...MplsInterfaceDeviceParts
+          }
+        }
+      }
+    }
+  }
+
+  query MplsTopology {
+    mplsDevices {
+      edges {
+        cursor
+        node {
+          ...MplsDeviceParts
+        }
+      }
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -521,6 +615,12 @@ function getTopologyDiscoveryApi() {
     return response.syncePathToGm.nodes;
   }
 
+  async function getMplsTopology(): Promise<MplsTopologyQuery> {
+    const response = await client.request<MplsTopologyQuery>(MPLS_TOPOLOGY);
+
+    return response;
+  }
+
   return {
     getTopologyDevices,
     getPtpDiffSynce,
@@ -534,6 +634,7 @@ function getTopologyDiscoveryApi() {
     updateCoordinates,
     getSynceTopology,
     getSyncePathToGrandMaster,
+    getMplsTopology,
   };
 }
 

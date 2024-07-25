@@ -30,6 +30,8 @@ import {
   getSynceNodesFromTopologyQuery,
   getSynceTopologyInterfaces,
   getTopologyInterfaces,
+  makeMplsTopologyEdges,
+  makeMplsTopologyNodes,
   makeNetTopologyDiff,
   makeNetTopologyEdges,
   makeNetTopologyNodes,
@@ -226,6 +228,64 @@ export const SynceGraphNode = objectType({
     t.nonNull.field('status', { type: GraphInterfaceStatus });
     t.list.nonNull.string('labels');
     t.nonNull.list.nonNull.field('interfaces', { type: nonNull(SynceGraphNodeInterface) });
+    t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
+  },
+});
+
+export const MplsData = objectType({
+  name: 'MplsData',
+  definition: (t) => {
+    t.nonNull.string('lspId');
+    t.int('inputLabel');
+    t.string('inputInterface');
+    t.int('outputLabel');
+    t.string('outputInterface');
+  },
+});
+
+export const Signalization = enumType({
+  name: 'Signalization',
+  members: ['RSVP', 'LDP'],
+});
+
+export const LspTunnel = objectType({
+  name: 'LspTunnel',
+  definition: (t) => {
+    t.nonNull.string('lspId');
+    t.string('fromDevice');
+    t.string('toDevice');
+    t.int('uptime');
+    t.field('signalization', { type: Signalization });
+  },
+});
+
+export const MplsDeviceDetails = objectType({
+  name: 'MplsDeviceDetails',
+  definition: (t) => {
+    t.list.field('mplsData', { type: MplsData });
+    t.list.field('lspTunnels', { type: LspTunnel });
+  },
+});
+
+export const MplsGraphNodeInterface = objectType({
+  name: 'MplsGraphNodeInterface',
+  definition: (t) => {
+    t.nonNull.string('id');
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.nonNull.string('name');
+  },
+});
+
+export const MplsGraphNode = objectType({
+  name: 'MplsGraphNode',
+  definition: (t) => {
+    t.nonNull.id('id');
+    t.nonNull.string('nodeId');
+    t.nonNull.string('name');
+    t.nonNull.field('mplsDeviceDetails', { type: MplsDeviceDetails });
+    t.nonNull.field('status', { type: GraphInterfaceStatus });
+    t.list.nonNull.string('labels');
+    t.nonNull.list.nonNull.field('interfaces', { type: nonNull(MplsGraphNodeInterface) });
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
   },
 });
@@ -759,5 +819,28 @@ export const SyncePathToGrandMasterQuery = queryField('syncePathToGrandMaster', 
 
     const syncePathResult = await topologyDiscoveryGraphQLAPI?.getSyncePathToGrandMaster(fromNodeNativeId);
     return syncePathResult ?? [];
+  },
+});
+
+export const MplsTopology = objectType({
+  name: 'MplsTopology',
+  definition: (t) => {
+    t.nonNull.list.field('edges', { type: nonNull(GraphEdge) });
+    t.nonNull.list.field('nodes', { type: nonNull(MplsGraphNode) });
+  },
+});
+
+export const MplsTopologyQuery = queryField('mplsTopology', {
+  type: 'MplsTopology',
+  resolve: async (_, _args, { topologyDiscoveryGraphQLAPI }) => {
+    const mplsTopologyResult = await topologyDiscoveryGraphQLAPI?.getMplsTopology();
+
+    const nodes = makeMplsTopologyNodes(mplsTopologyResult);
+    const edges = makeMplsTopologyEdges(mplsTopologyResult);
+
+    return {
+      nodes,
+      edges,
+    };
   },
 });

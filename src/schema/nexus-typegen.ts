@@ -200,6 +200,7 @@ export interface NexusGenEnums {
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
   GraphEdgeStatus: 'ok' | 'unknown';
+  Signalization: 'LDP' | 'RSVP';
   SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
@@ -480,6 +481,49 @@ export interface NexusGenObjects {
     // root type
     cursor: string; // String!
     node: NexusGenRootTypes['Location']; // Location!
+  };
+  LspTunnel: {
+    // root type
+    fromDevice?: string | null; // String
+    lspId: string; // String!
+    signalization?: NexusGenEnums['Signalization'] | null; // Signalization
+    toDevice?: string | null; // String
+    uptime?: number | null; // Int
+  };
+  MplsData: {
+    // root type
+    inputInterface?: string | null; // String
+    inputLabel?: number | null; // Int
+    lspId: string; // String!
+    outputInterface?: string | null; // String
+    outputLabel?: number | null; // Int
+  };
+  MplsDeviceDetails: {
+    // root type
+    lspTunnels?: Array<NexusGenRootTypes['LspTunnel'] | null> | null; // [LspTunnel]
+    mplsData?: Array<NexusGenRootTypes['MplsData'] | null> | null; // [MplsData]
+  };
+  MplsGraphNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['MplsGraphNodeInterface'][]; // [MplsGraphNodeInterface!]!
+    labels?: string[] | null; // [String!]
+    mplsDeviceDetails: NexusGenRootTypes['MplsDeviceDetails']; // MplsDeviceDetails!
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsGraphNodeInterface: {
+    // root type
+    id: string; // String!
+    name: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
   };
   Mutation: {};
   NetInterface: {
@@ -1070,6 +1114,49 @@ export interface NexusGenFieldTypes {
     cursor: string; // String!
     node: NexusGenRootTypes['Location']; // Location!
   };
+  LspTunnel: {
+    // field return type
+    fromDevice: string | null; // String
+    lspId: string; // String!
+    signalization: NexusGenEnums['Signalization'] | null; // Signalization
+    toDevice: string | null; // String
+    uptime: number | null; // Int
+  };
+  MplsData: {
+    // field return type
+    inputInterface: string | null; // String
+    inputLabel: number | null; // Int
+    lspId: string; // String!
+    outputInterface: string | null; // String
+    outputLabel: number | null; // Int
+  };
+  MplsDeviceDetails: {
+    // field return type
+    lspTunnels: Array<NexusGenRootTypes['LspTunnel'] | null> | null; // [LspTunnel]
+    mplsData: Array<NexusGenRootTypes['MplsData'] | null> | null; // [MplsData]
+  };
+  MplsGraphNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['MplsGraphNodeInterface'][]; // [MplsGraphNodeInterface!]!
+    labels: string[] | null; // [String!]
+    mplsDeviceDetails: NexusGenRootTypes['MplsDeviceDetails']; // MplsDeviceDetails!
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsGraphNodeInterface: {
+    // field return type
+    id: string; // String!
+    name: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
+  };
   Mutation: {
     // field return type
     activateStream: NexusGenRootTypes['ActivateStreamPayload']; // ActivateStreamPayload!
@@ -1231,6 +1318,7 @@ export interface NexusGenFieldTypes {
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
+    mplsTopology: NexusGenRootTypes['MplsTopology'] | null; // MplsTopology
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     netTopologyVersionData: NexusGenRootTypes['NetTopologyVersionData']; // NetTopologyVersionData!
     node: NexusGenRootTypes['Node'] | null; // Node
@@ -1741,6 +1829,49 @@ export interface NexusGenFieldTypeNames {
     cursor: 'String';
     node: 'Location';
   };
+  LspTunnel: {
+    // field return type name
+    fromDevice: 'String';
+    lspId: 'String';
+    signalization: 'Signalization';
+    toDevice: 'String';
+    uptime: 'Int';
+  };
+  MplsData: {
+    // field return type name
+    inputInterface: 'String';
+    inputLabel: 'Int';
+    lspId: 'String';
+    outputInterface: 'String';
+    outputLabel: 'Int';
+  };
+  MplsDeviceDetails: {
+    // field return type name
+    lspTunnels: 'LspTunnel';
+    mplsData: 'MplsData';
+  };
+  MplsGraphNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'ID';
+    interfaces: 'MplsGraphNodeInterface';
+    labels: 'String';
+    mplsDeviceDetails: 'MplsDeviceDetails';
+    name: 'String';
+    nodeId: 'String';
+    status: 'GraphEdgeStatus';
+  };
+  MplsGraphNodeInterface: {
+    // field return type name
+    id: 'String';
+    name: 'String';
+    status: 'GraphEdgeStatus';
+  };
+  MplsTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'MplsGraphNode';
+  };
   Mutation: {
     // field return type name
     activateStream: 'ActivateStreamPayload';
@@ -1902,6 +2033,7 @@ export interface NexusGenFieldTypeNames {
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
+    mplsTopology: 'MplsTopology';
     netTopology: 'NetTopology';
     netTopologyVersionData: 'NetTopologyVersionData';
     node: 'Node';
