@@ -153,7 +153,7 @@ export const AddLocationMutation = extendType({
           data: {
             tenantId,
             name: input.name,
-            country: countryName,
+            country: countryName ?? undefined,
             latitude: input.coordinates.latitude.toString(),
             longitude: input.coordinates.latitude.toString(),
           },
