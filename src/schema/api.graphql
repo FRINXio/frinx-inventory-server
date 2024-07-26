@@ -20,6 +20,7 @@ input AddDeviceInput {
   deviceSize: DeviceSize
   deviceType: String
   labelIds: [String!]
+  locationId: String
   model: String
   mountParameters: String
   name: String!
@@ -37,7 +38,8 @@ type AddDevicePayload {
 }
 
 input AddLocationInput {
-  countryId: String!
+  coordinates: Coordinates!
+  countryId: String
   name: String!
 }
 
@@ -185,6 +187,11 @@ type CommitConfigPayload {
   output: CommitConfigOutput!
 }
 
+input Coordinates {
+  latitude: Float!
+  longitude: Float!
+}
+
 type Country implements Node {
   code: String!
   id: ID!
@@ -293,6 +300,10 @@ type DeviceListUsage {
   devicesUsage: [DevicesUsage!]!
 }
 
+type DeviceMetadata {
+  nodes: [GeoMapDevice]
+}
+
 input DeviceOrderByInput {
   direction: SortDirection!
   sortKey: SortDeviceBy!
@@ -367,6 +378,18 @@ input FilterTopologyInput {
 
 input FilterZonesInput {
   name: String!
+}
+
+type GeoMapDevice {
+  deviceName: String!
+  geolocation: Geolocation
+  id: ID!
+  locationName: String
+}
+
+type Geolocation {
+  latitude: Float!
+  longitude: Float!
 }
 
 type GraphEdge {
@@ -450,9 +473,11 @@ type LabelEdge {
 }
 
 type Location implements Node {
-  country: String!
+  country: String
   createdAt: String!
   id: ID!
+  latitude: Float
+  longitude: Float
   name: String!
   updatedAt: String!
 }
@@ -628,6 +653,7 @@ type Query {
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
+  deviceMetadata: DeviceMetadata
   devices(
     after: String
     before: String

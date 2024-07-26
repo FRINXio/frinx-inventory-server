@@ -267,6 +267,7 @@ export const AddDeviceInput = inputObjectType({
     t.int('port');
     t.string('deviceType');
     t.string('version');
+    t.string('locationId');
   },
 });
 export const AddDevicePayload = objectType({
@@ -322,14 +323,13 @@ export const AddDeviceMutation = extendType({
           const deviceLocation = await prisma.location.findFirst({
             where: { id: device.locationId ?? undefined },
           });
+          const geoLocation: [number, number] | null =
+            deviceLocation?.latitude && deviceLocation?.longitude
+              ? [Number.parseFloat(deviceLocation.latitude ?? '0'), Number.parseFloat(deviceLocation.longitude ?? '0')]
+              : null;
 
           if (config.kafkaEnabled) {
-            await inventoryKafka?.produceDeviceRegistrationEvent(
-              kafka,
-              device,
-              [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
-              labelIds ?? [],
-            );
+            await inventoryKafka?.produceDeviceRegistrationEvent(kafka, device, geoLocation, labelIds ?? []);
           }
 
           return { device };
@@ -443,13 +443,13 @@ export const UpdateDeviceMutation = extendType({
             where: { id: updatedDevice.locationId ?? undefined },
           });
 
+          const geoLocation: [number, number] | null =
+            deviceLocation?.latitude && deviceLocation?.longitude
+              ? [Number.parseFloat(deviceLocation.latitude ?? '0'), Number.parseFloat(deviceLocation.longitude ?? '0')]
+              : null;
+
           if (config.kafkaEnabled) {
-            await inventoryKafka?.produceDeviceUpdateEvent(
-              kafka,
-              updatedDevice,
-              [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
-              labelIds,
-            );
+            await inventoryKafka?.produceDeviceUpdateEvent(kafka, updatedDevice, geoLocation, labelIds);
           }
 
           return { device: updatedDevice };

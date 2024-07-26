@@ -130,6 +130,21 @@ export type InstalledDevices = {
   updated: Array<Scalars['String']>;
 };
 
+/** LSP Tunnel (related to tunnel originating from this device). */
+export type LspTunnel = {
+  __typename?: 'LspTunnel';
+  /** From which device is the tunnel originating. */
+  from_device: Maybe<Scalars['String']>;
+  /** Name of the link state packet. */
+  lsp_id: Scalars['String'];
+  /** Type of signalisation. */
+  signalisation: Signalisation;
+  /** Where is the tunnel headed. */
+  to_device: Maybe<Scalars['String']>;
+  /** Uptime of the tunnel in seconds. */
+  uptime: Maybe<Scalars['Int']>;
+};
+
 /** Grouped list of Metadata device objects and pagination metadata. */
 export type MetadataConnection = {
   __typename?: 'MetadataConnection';
@@ -137,6 +152,150 @@ export type MetadataConnection = {
   edges: Maybe<Array<Maybe<DeviceMetadataEdge>>>;
   /** Pagination metadata. */
   pageInfo: PageInfo;
+};
+
+/** MPLS Data (related to all tunnels). */
+export type MplsData = {
+  __typename?: 'MplsData';
+  /** The input interface. */
+  input_interface: Maybe<Scalars['String']>;
+  /** The input label. */
+  input_label: Maybe<Scalars['Int']>;
+  /** Name of the link state packet. */
+  lsp_id: Scalars['String'];
+  /** The input interface. */
+  output_interface: Maybe<Scalars['String']>;
+  /** The output label. */
+  output_label: Maybe<Scalars['Int']>;
+};
+
+/** Representation of the device in the MPLS topology. */
+export type MplsDevice = Node & {
+  __typename?: 'MplsDevice';
+  /** Coordinates of the device node on the graph. */
+  coordinates: Coordinates;
+  /** Details of the device. */
+  details: MplsDeviceDetails;
+  /** Unique identifier of the object. */
+  id: Scalars['ID'];
+  /** List of strings that can be used for grouping of synced devices. */
+  labels: Maybe<Array<Scalars['String']>>;
+  /** List of ports that are present on the device. */
+  mplsInterfaces: MplsInterfaceConnection;
+  /** Human readable name of the device. */
+  name: Scalars['String'];
+  /** Status of the device from the view of the synced topology. */
+  status: NodeStatus;
+};
+
+
+/** Representation of the device in the MPLS topology. */
+export type MplsDeviceMplsInterfacesArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  filters?: InputMaybe<MplsInterfaceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+};
+
+/** Grouped list of MplsDevice objects and pagination metadata. */
+export type MplsDeviceConnection = {
+  __typename?: 'MplsDeviceConnection';
+  /** List of MplsDevice objects. */
+  edges: Maybe<Array<Maybe<MplsDeviceEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
+};
+
+/** Details specific to MPLS (Multi-Protocol Label Switching). */
+export type MplsDeviceDetails = {
+  __typename?: 'MplsDeviceDetails';
+  lsp_tunnels: Maybe<Array<Maybe<LspTunnel>>>;
+  mpls_data: Maybe<Array<Maybe<MplsData>>>;
+  router_id: Maybe<Scalars['String']>;
+};
+
+/** Grouped MplsDevice object and associated cursor used by pagination. */
+export type MplsDeviceEdge = {
+  __typename?: 'MplsDeviceEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** The associated MplsDevice object. */
+  node: Maybe<MplsDevice>;
+};
+
+/** Filter for MplsDevice type based on device label and device name. */
+export type MplsDeviceFilter = {
+  /** Device label. */
+  label?: InputMaybe<Scalars['String']>;
+  /** Regex of device name. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Port attached to the MPLS device. */
+export type MplsInterface = Node & {
+  __typename?: 'MplsInterface';
+  /** Unique identifier of the object. */
+  id: Scalars['ID'];
+  /** Device that owns this interface. */
+  mplsDevice: Maybe<MplsDevice>;
+  /** Link to connected remote MPLS device. */
+  mplsLinks: Maybe<MplsLinkConnection>;
+  /** Human readable name of the network port. */
+  name: Scalars['String'];
+  /** Status of the interface from the view of the synced topology ('ok' or 'unknown'). */
+  status: NodeStatus;
+};
+
+
+/** Port attached to the MPLS device. */
+export type MplsInterfaceMplsLinksArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+};
+
+/** Grouped list of MplsInterface objects and pagination metadata. */
+export type MplsInterfaceConnection = {
+  __typename?: 'MplsInterfaceConnection';
+  /** List of MplsInterface objects. */
+  edges: Maybe<Array<Maybe<MplsInterfaceEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
+};
+
+/** Grouped MplsInterface object and associated cursor used by pagination. */
+export type MplsInterfaceEdge = {
+  __typename?: 'MplsInterfaceEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** The associated MplsInterface object. */
+  node: Maybe<MplsInterface>;
+};
+
+/** Filter for MplsInterface type based on the current interface status and name of the device. */
+export type MplsInterfaceFilter = {
+  /** Regex of interface name. */
+  name?: InputMaybe<Scalars['String']>;
+  /** Status of the interface from the view of the synced topology. */
+  status?: InputMaybe<NodeStatus>;
+};
+
+/** Grouped list of MplsLinks objects and pagination metadata. */
+export type MplsLinkConnection = {
+  __typename?: 'MplsLinkConnection';
+  /** List of MplsInterface objects. */
+  edges: Maybe<Array<Maybe<MplsLinkEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
+};
+
+/** Grouped MplsLink object and associated cursor used by pagination. */
+export type MplsLinkEdge = {
+  __typename?: 'MplsLinkEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** Identifier of the link that connects this interface to the interface on the remote device */
+  link: Maybe<Scalars['ID']>;
+  /** The associated MplsInterface object. */
+  node: Maybe<MplsInterface>;
 };
 
 export type Mutation = {
@@ -629,6 +788,8 @@ export type PtpDeviceDetails = {
   gm_clock_id: Maybe<Scalars['String']>;
   /** Unique identifier of the parent clock. */
   parent_clock_id: Maybe<Scalars['String']>;
+  /** The port state of the device. */
+  ptp_port_state: Maybe<Scalars['String']>;
   /** PTP profile used (e.g., ITU-T G.8275.1). */
   ptp_profile: Maybe<Scalars['String']>;
   /**
@@ -832,6 +993,8 @@ export type Query = {
   commonNodes: CommonNodesResponse;
   /** Read devices that match specified filter. */
   deviceMetadata: MetadataConnection;
+  /** Read MPLS devices that match the specified filter. */
+  mplsDevices: MplsDeviceConnection;
   /** Read network devices that match specified filter. */
   netDevices: NetDeviceConnection;
   /**
@@ -892,6 +1055,13 @@ export type QueryCommonNodesArgs = {
 export type QueryDeviceMetadataArgs = {
   cursor?: InputMaybe<Scalars['String']>;
   filters?: InputMaybe<DeviceMetadataFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryMplsDevicesArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  filters?: InputMaybe<MplsDeviceFilter>;
   first?: InputMaybe<Scalars['Int']>;
 };
 
@@ -974,6 +1144,10 @@ export type RoutingPath = {
   /** Total weight of the path. */
   weight: Scalars['Int'];
 };
+
+export type Signalisation =
+  | 'LDP'
+  | 'RSVP';
 
 /** Response from the sync query that contains information about synced devices from the network to topology. */
 export type SyncResponse = {
@@ -1214,6 +1388,7 @@ export type TopologyResponse = {
 /** Present topology types. */
 export type TopologyType =
   | 'EthTopology'
+  | 'MplsTopology'
   | 'NetworkTopology'
   | 'PhysicalTopology'
   | 'PtpTopology';
@@ -1306,3 +1481,10 @@ export type SyncePathToGrandMasterQueryVariables = Exact<{
 
 
 export type SyncePathToGrandMasterQuery = { __typename?: 'Query', syncePathToGm: { __typename?: 'SyncePath', nodes: Array<string> | null } };
+
+export type DeviceMetadataQueryVariables = Exact<{
+  filters?: InputMaybe<DeviceMetadataFilter>;
+}>;
+
+
+export type DeviceMetadataQuery = { __typename?: 'Query', deviceMetadata: { __typename?: 'MetadataConnection', edges: Array<{ __typename?: 'DeviceMetadataEdge', node: { __typename?: 'DeviceMetadata', id: string, deviceName: string, deviceType: string | null, model: string | null, vendor: string | null, version: string | null, protocolType: string | null, geoLocation: { __typename?: 'DeviceGeoLocation', bbox: Array<number | null> | null, coordinates: Array<number>, type: GeometryType } | null } | null } | null> | null } };

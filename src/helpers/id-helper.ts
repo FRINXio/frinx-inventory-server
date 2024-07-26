@@ -9,7 +9,8 @@ export type DataType =
   | 'Country'
   | 'Blueprint'
   | 'GraphNode'
-  | 'GraphEdge';
+  | 'GraphEdge'
+  | 'MapNode';
 
 function isDataType(value: string): value is DataType {
   return (
@@ -21,7 +22,8 @@ function isDataType(value: string): value is DataType {
     value === 'Country' ||
     value === 'Blueprint' ||
     value === 'GraphNode' ||
-    value === 'GraphEdge'
+    value === 'GraphEdge' ||
+    value === 'MapNode'
   );
 }
 

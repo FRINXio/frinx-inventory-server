@@ -1,5 +1,6 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
+  DeviceMetadataQuery,
   NetTopologyQuery,
   PhyDevice,
   PtpDevice,
@@ -28,6 +29,7 @@ import {
 import { omitNullValue, unwrap } from './utils.helpers';
 import { toGraphId } from './id-helper';
 import { NexusGenObjects } from '../schema/nexus-typegen';
+import { Location } from '../schema/source-types';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -1541,4 +1543,42 @@ export function makeNetTopologyDiff(
     })),
     edges: oldEdges,
   };
+}
+
+export function convertDeviceMetadataToMapNodes(
+  deviceMetadataQuery: DeviceMetadataQuery,
+  deviceLocationMap: Map<string, Location | null>,
+) {
+  if (deviceMetadataQuery.deviceMetadata?.edges == null) {
+    return null;
+  }
+
+  const mapNodes = deviceMetadataQuery.deviceMetadata.edges
+    .filter(omitNullValue)
+    .map((e) => {
+      const { node } = e;
+      if (node == null) {
+        return null;
+      }
+
+      const { id, deviceName, geoLocation: topologyGeolocation } = node;
+      const geolocation = topologyGeolocation
+        ? {
+            latitude: topologyGeolocation.coordinates[0],
+            longitude: topologyGeolocation.coordinates[1],
+          }
+        : null;
+
+      const deviceLocation = deviceLocationMap.get(node.deviceName)?.name ?? null;
+
+      return {
+        id: toGraphId('MapNode', id),
+        deviceName,
+        locationName: deviceLocation,
+        geolocation,
+      };
+    })
+    .filter(omitNullValue);
+
+  return mapNodes;
 }

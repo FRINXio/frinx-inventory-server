@@ -21,6 +21,8 @@ import {
   SynceTopologyQuery,
   SyncePathToGrandMasterQuery,
   SyncePathToGrandMasterQueryVariables,
+  DeviceMetadataQuery,
+  DeviceMetadataQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -408,6 +410,29 @@ const SYNCE_PATH = gql`
   }
 `;
 
+const DEVICE_METADATA = gql`
+  query DeviceMetadata($filters: DeviceMetadataFilter) {
+    deviceMetadata(filters: $filters) {
+      edges {
+        node {
+          id
+          deviceName
+          deviceType
+          model
+          vendor
+          version
+          protocolType
+          geoLocation {
+            bbox
+            coordinates
+            type
+          }
+        }
+      }
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -521,6 +546,13 @@ function getTopologyDiscoveryApi() {
     return response.syncePathToGm.nodes;
   }
 
+  async function getDeviceMetadata(): Promise<DeviceMetadataQuery> {
+    const response = await client.request<DeviceMetadataQuery, DeviceMetadataQueryVariables>(DEVICE_METADATA, {
+      filters: undefined,
+    });
+    return response;
+  }
+
   return {
     getTopologyDevices,
     getPtpDiffSynce,
@@ -534,6 +566,7 @@ function getTopologyDiscoveryApi() {
     updateCoordinates,
     getSynceTopology,
     getSyncePathToGrandMaster,
+    getDeviceMetadata,
   };
 }
 
