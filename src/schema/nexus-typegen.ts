@@ -204,7 +204,7 @@ export interface NexusGenEnums {
   SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
-  TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
+  TopologyLayer: 'EthTopology' | 'MplsTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
 export interface NexusGenScalars {

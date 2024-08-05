@@ -559,7 +559,7 @@ export const GraphNodeCoordinatesInput = inputObjectType({
 
 export const TopologyLayer = enumType({
   name: 'TopologyLayer',
-  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology'],
+  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology', 'MplsTopology'],
 });
 
 export const UpdateGraphNodeCooordinatesInput = inputObjectType({

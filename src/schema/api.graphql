@@ -835,6 +835,7 @@ type TopologyCommonNodes {
 
 enum TopologyLayer {
   EthTopology
+  MplsTopology
   PhysicalTopology
   PtpTopology
 }
