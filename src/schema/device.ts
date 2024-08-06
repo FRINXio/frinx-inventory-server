@@ -288,6 +288,10 @@ export const AddDeviceMutation = extendType({
         const { input } = args;
         const nativeZoneId = fromGraphId('Zone', input.zoneId);
         const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
+        const deviceLocation = await prisma.location.findFirst({
+          where: { id: input.locationId ?? undefined },
+        });
+
         if (zone == null) {
           throw new Error('zone not found');
         }
@@ -307,6 +311,7 @@ export const AddDeviceMutation = extendType({
               port: input.port ?? undefined,
               deviceType: input.deviceType,
               version: input.version,
+              locationId: input.locationId ? fromGraphId('Location', input.locationId) : undefined,
               mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
               source: 'MANUAL',
               serviceState: input.serviceState ?? undefined,
@@ -320,9 +325,6 @@ export const AddDeviceMutation = extendType({
             },
           });
 
-          const deviceLocation = await prisma.location.findFirst({
-            where: { id: device.locationId ?? undefined },
-          });
           const geoLocation: [number, number] | null =
             deviceLocation?.latitude && deviceLocation?.longitude
               ? [Number.parseFloat(deviceLocation.latitude ?? '0'), Number.parseFloat(deviceLocation.longitude ?? '0')]
