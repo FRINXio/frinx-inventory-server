@@ -243,6 +243,10 @@ type DeleteLabelPayload {
   label: Label
 }
 
+type DeleteLocationPayload {
+  location: Location!
+}
+
 input DeleteSnapshotInput {
   deviceId: String!
   name: String!
@@ -557,6 +561,7 @@ type Mutation {
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
+  deleteLocation(id: String!): DeleteLocationPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   deleteStream(id: String!): DeleteStreamPayload!
   importCSV(input: CSVImportInput!): CSVImport
@@ -571,6 +576,7 @@ type Mutation {
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
   updateDiscoveredAt(deviceIds: [String!]!): [DeviceDiscoveryPayload!]!
   updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
+  updateLocation(id: String!, input: UpdateLocationInput!): UpdateLocationPayload!
   updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
 }
 
@@ -938,6 +944,16 @@ input UpdateGraphNodeCoordinatesInput {
 
 type UpdateGraphNodeCoordinatesPayload {
   deviceNames: [String!]!
+}
+
+input UpdateLocationInput {
+  coordinates: Coordinates!
+  countryId: String
+  name: String!
+}
+
+type UpdateLocationPayload {
+  location: Location!
 }
 
 input UpdateStreamInput {

@@ -193,6 +193,12 @@ export interface NexusGenInputs {
     coordinates: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
     layer?: NexusGenEnums['TopologyLayer'] | null; // TopologyLayer
   };
+  UpdateLocationInput: {
+    // input type
+    coordinates: NexusGenInputs['Coordinates']; // Coordinates!
+    countryId?: string | null; // String
+    name: string; // String!
+  };
   UpdateStreamInput: {
     // input type
     blueprintId?: string | null; // String
@@ -354,6 +360,10 @@ export interface NexusGenObjects {
   DeleteLabelPayload: {
     // root type
     label?: NexusGenRootTypes['Label'] | null; // Label
+  };
+  DeleteLocationPayload: {
+    // root type
+    location: NexusGenRootTypes['Location']; // Location!
   };
   DeleteSnapshotPayload: {
     // root type
@@ -783,6 +793,10 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
+  UpdateLocationPayload: {
+    // root type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   UpdateStreamPayload: {
     // root type
     stream?: NexusGenRootTypes['Stream'] | null; // Stream
@@ -967,6 +981,10 @@ export interface NexusGenFieldTypes {
   DeleteLabelPayload: {
     // field return type
     label: NexusGenRootTypes['Label'] | null; // Label
+  };
+  DeleteLocationPayload: {
+    // field return type
+    location: NexusGenRootTypes['Location']; // Location!
   };
   DeleteSnapshotPayload: {
     // field return type
@@ -1220,6 +1238,7 @@ export interface NexusGenFieldTypes {
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
+    deleteLocation: NexusGenRootTypes['DeleteLocationPayload']; // DeleteLocationPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     deleteStream: NexusGenRootTypes['DeleteStreamPayload']; // DeleteStreamPayload!
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
@@ -1234,6 +1253,7 @@ export interface NexusGenFieldTypes {
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateDiscoveredAt: NexusGenRootTypes['DeviceDiscoveryPayload'][]; // [DeviceDiscoveryPayload!]!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
+    updateLocation: NexusGenRootTypes['UpdateLocationPayload']; // UpdateLocationPayload!
     updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
   };
   NetInterface: {
@@ -1519,6 +1539,10 @@ export interface NexusGenFieldTypes {
     // field return type
     deviceNames: string[]; // [String!]!
   };
+  UpdateLocationPayload: {
+    // field return type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   UpdateStreamPayload: {
     // field return type
     stream: NexusGenRootTypes['Stream'] | null; // Stream
@@ -1703,6 +1727,10 @@ export interface NexusGenFieldTypeNames {
   DeleteLabelPayload: {
     // field return type name
     label: 'Label';
+  };
+  DeleteLocationPayload: {
+    // field return type name
+    location: 'Location';
   };
   DeleteSnapshotPayload: {
     // field return type name
@@ -1956,6 +1984,7 @@ export interface NexusGenFieldTypeNames {
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
+    deleteLocation: 'DeleteLocationPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
     deleteStream: 'DeleteStreamPayload';
     importCSV: 'CSVImport';
@@ -1970,6 +1999,7 @@ export interface NexusGenFieldTypeNames {
     updateDevice: 'UpdateDevicePayload';
     updateDiscoveredAt: 'DeviceDiscoveryPayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
+    updateLocation: 'UpdateLocationPayload';
     updateStream: 'UpdateStreamPayload';
   };
   NetInterface: {
@@ -2255,6 +2285,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     deviceNames: 'String';
   };
+  UpdateLocationPayload: {
+    // field return type name
+    location: 'Location';
+  };
   UpdateStreamPayload: {
     // field return type name
     stream: 'Stream';
@@ -2386,6 +2420,10 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
     };
+    deleteLocation: {
+      // args
+      id: string; // String!
+    };
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
@@ -2443,6 +2481,11 @@ export interface NexusGenArgTypes {
     updateGraphNodeCoordinates: {
       // args
       input: NexusGenInputs['UpdateGraphNodeCoordinatesInput']; // UpdateGraphNodeCoordinatesInput!
+    };
+    updateLocation: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateLocationInput']; // UpdateLocationInput!
     };
     updateStream: {
       // args

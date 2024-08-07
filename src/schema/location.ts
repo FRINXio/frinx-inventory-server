@@ -1,8 +1,8 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { connectionFromArray } from 'graphql-relay';
 import countries from 'i18n-iso-countries';
-import { arg, extendType, inputObjectType, nonNull, objectType } from 'nexus';
-import { toGraphId } from '../helpers/id-helper';
+import { arg, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { fromGraphId, toGraphId } from '../helpers/id-helper';
 import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
 import { getCountryName } from '../helpers/location-helpers';
 
@@ -158,6 +158,85 @@ export const AddLocationMutation = extendType({
             longitude: input.coordinates.latitude.toString(),
           },
         });
+        return {
+          location,
+        };
+      },
+    });
+  },
+});
+
+export const UpdateLocationInput = inputObjectType({
+  name: 'UpdateLocationInput',
+  definition: (t) => {
+    t.nonNull.string('name');
+    t.string('countryId');
+    t.nonNull.field({ name: 'coordinates', type: Coordinates });
+  },
+});
+
+export const UpdateLocationPayload = objectType({
+  name: 'UpdateLocationPayload',
+  definition: (t) => {
+    t.nonNull.field('location', { type: Location });
+  },
+});
+
+export const UpdateLocationMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('updateLocation', {
+      type: UpdateLocationPayload,
+      args: {
+        id: nonNull(stringArg()),
+        input: nonNull(arg({ type: UpdateLocationInput })),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Location', args.id);
+        const { input } = args;
+
+        const countryName = getCountryName(input.countryId ?? null);
+
+        const location = await prisma.location.update({
+          where: { id: nativeId },
+          data: {
+            tenantId,
+            name: input.name,
+            country: countryName,
+            latitude: input.coordinates.latitude.toString(),
+            longitude: input.coordinates.latitude.toString(),
+          },
+        });
+        return {
+          location,
+        };
+      },
+    });
+  },
+});
+
+export const DeleteLocationPayload = objectType({
+  name: 'DeleteLocationPayload',
+  definition: (t) => {
+    t.nonNull.field('location', { type: Location });
+  },
+});
+
+export const DeleteLocationMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteLocation', {
+      type: DeleteLocationPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Location', args.id);
+
+        const location = await prisma.location.delete({
+          where: { id: nativeId, AND: { tenantId } },
+        });
+
         return {
           location,
         };
