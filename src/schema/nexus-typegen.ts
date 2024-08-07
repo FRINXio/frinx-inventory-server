@@ -193,6 +193,12 @@ export interface NexusGenInputs {
     coordinates: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
     layer?: NexusGenEnums['TopologyLayer'] | null; // TopologyLayer
   };
+  UpdateLocationInput: {
+    // input type
+    coordinates: NexusGenInputs['Coordinates']; // Coordinates!
+    countryId?: string | null; // String
+    name: string; // String!
+  };
   UpdateStreamInput: {
     // input type
     blueprintId?: string | null; // String
@@ -1234,6 +1240,7 @@ export interface NexusGenFieldTypes {
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateDiscoveredAt: NexusGenRootTypes['DeviceDiscoveryPayload'][]; // [DeviceDiscoveryPayload!]!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
+    updateLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
     updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
   };
   NetInterface: {
@@ -1970,6 +1977,7 @@ export interface NexusGenFieldTypeNames {
     updateDevice: 'UpdateDevicePayload';
     updateDiscoveredAt: 'DeviceDiscoveryPayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
+    updateLocation: 'AddLocationPayload';
     updateStream: 'UpdateStreamPayload';
   };
   NetInterface: {
@@ -2443,6 +2451,11 @@ export interface NexusGenArgTypes {
     updateGraphNodeCoordinates: {
       // args
       input: NexusGenInputs['UpdateGraphNodeCoordinatesInput']; // UpdateGraphNodeCoordinatesInput!
+    };
+    updateLocation: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateLocationInput']; // UpdateLocationInput!
     };
     updateStream: {
       // args
