@@ -361,6 +361,10 @@ export interface NexusGenObjects {
     // root type
     label?: NexusGenRootTypes['Label'] | null; // Label
   };
+  DeleteLocationPayload: {
+    // root type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   DeleteSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
@@ -978,6 +982,10 @@ export interface NexusGenFieldTypes {
     // field return type
     label: NexusGenRootTypes['Label'] | null; // Label
   };
+  DeleteLocationPayload: {
+    // field return type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   DeleteSnapshotPayload: {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
@@ -1230,6 +1238,7 @@ export interface NexusGenFieldTypes {
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
+    deleteLocation: NexusGenRootTypes['DeleteLocationPayload']; // DeleteLocationPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     deleteStream: NexusGenRootTypes['DeleteStreamPayload']; // DeleteStreamPayload!
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
@@ -1719,6 +1728,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     label: 'Label';
   };
+  DeleteLocationPayload: {
+    // field return type name
+    location: 'Location';
+  };
   DeleteSnapshotPayload: {
     // field return type name
     snapshot: 'Snapshot';
@@ -1971,6 +1984,7 @@ export interface NexusGenFieldTypeNames {
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
+    deleteLocation: 'DeleteLocationPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
     deleteStream: 'DeleteStreamPayload';
     importCSV: 'CSVImport';
@@ -2403,6 +2417,10 @@ export interface NexusGenArgTypes {
       id: string; // String!
     };
     deleteLabel: {
+      // args
+      id: string; // String!
+    };
+    deleteLocation: {
       // args
       id: string; // String!
     };

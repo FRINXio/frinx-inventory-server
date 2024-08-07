@@ -214,3 +214,33 @@ export const UpdateLocationMutation = extendType({
     });
   },
 });
+
+export const DeleteLocationPayload = objectType({
+  name: 'DeleteLocationPayload',
+  definition: (t) => {
+    t.nonNull.field('location', { type: Location });
+  },
+});
+
+export const DeleteLocationMutation = extendType({
+  type: 'Mutation',
+  definition: (t) => {
+    t.nonNull.field('deleteLocation', {
+      type: DeleteLocationPayload,
+      args: {
+        id: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { prisma, tenantId }) => {
+        const nativeId = fromGraphId('Location', args.id);
+
+        const location = await prisma.location.delete({
+          where: { id: nativeId, AND: { tenantId } },
+        });
+
+        return {
+          location,
+        };
+      },
+    });
+  },
+});

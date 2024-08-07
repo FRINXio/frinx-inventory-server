@@ -243,6 +243,10 @@ type DeleteLabelPayload {
   label: Label
 }
 
+type DeleteLocationPayload {
+  location: Location!
+}
+
 input DeleteSnapshotInput {
   deviceId: String!
   name: String!
@@ -557,6 +561,7 @@ type Mutation {
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
+  deleteLocation(id: String!): DeleteLocationPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   deleteStream(id: String!): DeleteStreamPayload!
   importCSV(input: CSVImportInput!): CSVImport
