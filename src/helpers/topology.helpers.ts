@@ -1,9 +1,11 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
   DeviceMetadataQuery,
+  MplsTopologyQuery,
   NetTopologyQuery,
   PhyDevice,
   PtpDevice,
+  PtpDeviceDetails as ApiPtpDeviceDetails,
   PtpTopologyQuery,
   SynceDevice,
   SynceTopologyQuery,
@@ -99,9 +101,12 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
   };
 }
 
+type CustomPtpDetails = Omit<ApiPtpDeviceDetails, 'ptp_port_state'>;
 type QueryNetDevice = NonNullable<NonNullable<NonNullable<NetTopologyQuery['netDevices']['edges']>[0]>['node']>;
 type PhyDeviceWithoutInterfaces = Omit<PhyDevice, 'phyInterfaces' | 'netDevice'>;
-type PtpDeviceWithoutInterfaces = Omit<PtpDevice, 'ptpInterfaces' | 'netDevice'>;
+type PtpDeviceWithoutInterfaces = Omit<PtpDevice, 'details' | 'ptpInterfaces' | 'netDevice'> & {
+  details: CustomPtpDetails;
+};
 type SynceDeviceWithoutInterfaces = Omit<SynceDevice, 'synceInterfaces' | 'netDevice'>;
 
 export function convertNetDeviceToArangoDevice(netDevice: QueryNetDevice): ArangoNetDevice | null {
@@ -1581,4 +1586,113 @@ export function convertDeviceMetadataToMapNodes(
     .filter(omitNullValue);
 
   return mapNodes;
+}
+
+export function makeMplsTopologyNodes(mplsDevices?: MplsTopologyQuery) {
+  return (
+    mplsDevices?.mplsDevices.edges
+      ?.map((e) => {
+        const node = e?.node;
+        if (!node) {
+          return null;
+        }
+        return {
+          id: toGraphId('GraphNode', node.id),
+          nodeId: node.id,
+          name: node.name,
+          status: getStatus(node.status),
+          labels: node.labels?.map((l) => l) ?? [],
+          coordinates: node.coordinates,
+          interfaces:
+            node.mplsInterfaces.edges
+              ?.map((i) => {
+                const interfaceNode = i?.node;
+                if (!interfaceNode) {
+                  return null;
+                }
+                return {
+                  id: interfaceNode.id,
+                  name: interfaceNode.name,
+                  status: getStatus(interfaceNode.status),
+                };
+              })
+              .filter(omitNullValue) ?? [],
+          mplsDeviceDetails: {
+            lspTunnels:
+              node.details.lsp_tunnels?.map((tunnel) => ({
+                lspId: tunnel?.lsp_id ?? '',
+                fromDevice: tunnel?.from_device ?? null,
+                toDevice: tunnel?.to_device ?? null,
+                uptime: tunnel?.uptime ?? null,
+                signalization: tunnel?.signalisation ?? null,
+              })) ?? null,
+            mplsData:
+              node.details.mpls_data?.map((d) => ({
+                lspId: d?.lsp_id ?? '',
+                inputLabel: d?.input_label ?? null,
+                inputInterface: d?.input_interface ?? null,
+                outputInterface: d?.output_interface ?? null,
+                outputLabel: d?.output_label ?? null,
+              })) ?? null,
+          },
+        };
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+export function getMplsTopologyInterfaces(topologyDevices: MplsTopologyQuery) {
+  return (
+    topologyDevices.mplsDevices.edges?.flatMap((e) => {
+      const node = e?.node;
+      if (!node) {
+        return [];
+      }
+      const nodeInterfaces = node.mplsInterfaces.edges
+        ?.map((ie) => {
+          const inode = ie?.node;
+          if (!inode || !inode.mplsLinks) {
+            return null;
+          }
+          return {
+            ...inode,
+            _id: inode.id,
+            nodeId: node.name,
+          };
+        })
+        .filter(omitNullValue);
+      return nodeInterfaces || [];
+    }) ?? []
+  );
+}
+
+export function makeMplsTopologyEdges(mplsDevices?: MplsTopologyQuery) {
+  if (!mplsDevices) {
+    return [];
+  }
+
+  return getMplsTopologyInterfaces(mplsDevices).flatMap((i) => {
+    const links =
+      i.mplsLinks?.edges
+        ?.map((mplsLinkEdge) => {
+          if (!mplsLinkEdge?.link || !mplsLinkEdge?.node || !mplsLinkEdge.node.mplsDevice) {
+            return null;
+          }
+
+          return {
+            id: mplsLinkEdge.link,
+            source: {
+              interface: i.id,
+              nodeId: i.nodeId,
+            },
+            target: {
+              interface: mplsLinkEdge.node.id,
+              nodeId: mplsLinkEdge.node.mplsDevice?.name,
+            },
+          };
+        })
+        .filter(omitNullValue) ?? [];
+
+    return links;
+  });
 }
