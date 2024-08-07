@@ -789,6 +789,10 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
+  UpdateLocationPayload: {
+    // root type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   UpdateStreamPayload: {
     // root type
     stream?: NexusGenRootTypes['Stream'] | null; // Stream
@@ -1240,7 +1244,7 @@ export interface NexusGenFieldTypes {
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateDiscoveredAt: NexusGenRootTypes['DeviceDiscoveryPayload'][]; // [DeviceDiscoveryPayload!]!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
-    updateLocation: NexusGenRootTypes['AddLocationPayload']; // AddLocationPayload!
+    updateLocation: NexusGenRootTypes['UpdateLocationPayload']; // UpdateLocationPayload!
     updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
   };
   NetInterface: {
@@ -1525,6 +1529,10 @@ export interface NexusGenFieldTypes {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type
     deviceNames: string[]; // [String!]!
+  };
+  UpdateLocationPayload: {
+    // field return type
+    location: NexusGenRootTypes['Location']; // Location!
   };
   UpdateStreamPayload: {
     // field return type
@@ -1977,7 +1985,7 @@ export interface NexusGenFieldTypeNames {
     updateDevice: 'UpdateDevicePayload';
     updateDiscoveredAt: 'DeviceDiscoveryPayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
-    updateLocation: 'AddLocationPayload';
+    updateLocation: 'UpdateLocationPayload';
     updateStream: 'UpdateStreamPayload';
   };
   NetInterface: {
@@ -2262,6 +2270,10 @@ export interface NexusGenFieldTypeNames {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type name
     deviceNames: 'String';
+  };
+  UpdateLocationPayload: {
+    // field return type name
+    location: 'Location';
   };
   UpdateStreamPayload: {
     // field return type name

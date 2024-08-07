@@ -175,11 +175,18 @@ export const UpdateLocationInput = inputObjectType({
   },
 });
 
+export const UpdateLocationPayload = objectType({
+  name: 'UpdateLocationPayload',
+  definition: (t) => {
+    t.nonNull.field('location', { type: Location });
+  },
+});
+
 export const UpdateLocationMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
     t.nonNull.field('updateLocation', {
-      type: AddLocationPayload,
+      type: UpdateLocationPayload,
       args: {
         id: nonNull(stringArg()),
         input: nonNull(arg({ type: UpdateLocationInput })),

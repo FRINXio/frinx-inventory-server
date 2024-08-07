@@ -571,7 +571,7 @@ type Mutation {
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
   updateDiscoveredAt(deviceIds: [String!]!): [DeviceDiscoveryPayload!]!
   updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
-  updateLocation(id: String!, input: UpdateLocationInput!): AddLocationPayload!
+  updateLocation(id: String!, input: UpdateLocationInput!): UpdateLocationPayload!
   updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
 }
 
@@ -945,6 +945,10 @@ input UpdateLocationInput {
   coordinates: Coordinates!
   countryId: String
   name: String!
+}
+
+type UpdateLocationPayload {
+  location: Location!
 }
 
 input UpdateStreamInput {
