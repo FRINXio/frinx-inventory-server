@@ -508,7 +508,10 @@ type LspTunnel {
 type MplsData {
   inputInterface: String
   inputLabel: Int
+  ldpPrefix: String
   lspId: String!
+  mplsOperation: String
+  operState: String
   outputInterface: String
   outputLabel: Int
 }

@@ -259,6 +259,9 @@ export const MplsData = objectType({
     t.string('inputInterface');
     t.int('outputLabel');
     t.string('outputInterface');
+    t.string('operState');
+    t.string('ldpPrefix');
+    t.string('mplsOperation');
   },
 });
 

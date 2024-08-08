@@ -1629,10 +1629,13 @@ export function makeMplsTopologyNodes(mplsDevices?: MplsTopologyQuery) {
             mplsData:
               node.details.mpls_data?.map((d) => ({
                 lspId: d?.lsp_id ?? '',
-                inputLabel: d?.input_label ?? null,
-                inputInterface: d?.input_interface ?? null,
-                outputInterface: d?.output_interface ?? null,
-                outputLabel: d?.output_label ?? null,
+                inputLabel: d?.in_label ?? null,
+                inputInterface: d?.in_interface ?? null,
+                outputInterface: d?.out_interface ?? null,
+                outputLabel: d?.out_label ?? null,
+                operState: d?.oper_state ?? null,
+                ldpPrefix: d?.ldp_prefix ?? null,
+                mplsOperation: d?.mpls_operation ?? null,
               })) ?? null,
           },
         };

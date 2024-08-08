@@ -527,7 +527,10 @@ export interface NexusGenObjects {
     // root type
     inputInterface?: string | null; // String
     inputLabel?: number | null; // Int
+    ldpPrefix?: string | null; // String
     lspId: string; // String!
+    mplsOperation?: string | null; // String
+    operState?: string | null; // String
     outputInterface?: string | null; // String
     outputLabel?: number | null; // Int
   };
@@ -1185,7 +1188,10 @@ export interface NexusGenFieldTypes {
     // field return type
     inputInterface: string | null; // String
     inputLabel: number | null; // Int
+    ldpPrefix: string | null; // String
     lspId: string; // String!
+    mplsOperation: string | null; // String
+    operState: string | null; // String
     outputInterface: string | null; // String
     outputLabel: number | null; // Int
   };
@@ -1931,7 +1937,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     inputInterface: 'String';
     inputLabel: 'Int';
+    ldpPrefix: 'String';
     lspId: 'String';
+    mplsOperation: 'String';
+    operState: 'String';
     outputInterface: 'String';
     outputLabel: 'Int';
   };
