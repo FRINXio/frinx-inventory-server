@@ -1271,6 +1271,8 @@ export interface NexusGenFieldTypes {
     deviceName: string; // String!
     id: string; // ID!
     isActive: boolean; // Boolean!
+    startedAt: string | null; // String
+    stoppedAt: string | null; // String
     streamName: string; // String!
     streamParameters: string | null; // String
     updatedAt: string; // String!
@@ -1942,6 +1944,8 @@ export interface NexusGenFieldTypeNames {
     deviceName: 'String';
     id: 'ID';
     isActive: 'Boolean';
+    startedAt: 'String';
+    stoppedAt: 'String';
     streamName: 'String';
     streamParameters: 'String';
     updatedAt: 'String';
