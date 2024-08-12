@@ -454,10 +454,14 @@ const MPLS_TOPOLOGY = gql`
     details {
       mpls_data {
         lsp_id
-        input_label
-        input_interface
-        output_interface
-        output_label
+        in_label
+        in_interface
+        out_interface
+        out_label
+        ldp_prefix
+        mpls_operation
+        oper_state
+        signalisation
       }
       lsp_tunnels {
         lsp_id

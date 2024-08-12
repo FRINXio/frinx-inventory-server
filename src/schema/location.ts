@@ -155,7 +155,7 @@ export const AddLocationMutation = extendType({
             name: input.name,
             country: countryName,
             latitude: input.coordinates.latitude.toString(),
-            longitude: input.coordinates.latitude.toString(),
+            longitude: input.coordinates.longitude.toString(),
           },
         });
         return {
@@ -204,7 +204,7 @@ export const UpdateLocationMutation = extendType({
             name: input.name,
             country: countryName,
             latitude: input.coordinates.latitude.toString(),
-            longitude: input.coordinates.latitude.toString(),
+            longitude: input.coordinates.longitude.toString(),
           },
         });
         return {
