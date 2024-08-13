@@ -157,6 +157,10 @@ export interface NexusGenInputs {
     x: number; // Float!
     y: number; // Float!
   };
+  PolygonInput: {
+    // input type
+    polygon?: number[][][] | null; // [[[Float!]!]!]
+  };
   StreamOrderByInput: {
     // input type
     direction: NexusGenEnums['SortDirection']; // SortDirection!
@@ -218,6 +222,7 @@ export interface NexusGenEnums {
   SortDirection: 'ASC' | 'DESC';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
   TopologyLayer: 'EthTopology' | 'MplsTopology' | 'PhysicalTopology' | 'PtpTopology';
+  TopologyType: 'EthTopology' | 'MplsTopology' | 'NetworkTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
 export interface NexusGenScalars {
@@ -2517,6 +2522,12 @@ export interface NexusGenArgTypes {
       // args
       deviceId: string; // String!
       transactionId: string; // String!
+    };
+    deviceMetadata: {
+      // args
+      deviceName?: string | null; // String
+      polygon?: NexusGenInputs['PolygonInput'] | null; // PolygonInput
+      topologyType?: NexusGenEnums['TopologyType'] | null; // TopologyType
     };
     devices: {
       // args
