@@ -538,6 +538,16 @@ type MplsGraphNodeInterface {
   status: GraphEdgeStatus!
 }
 
+type MplsLspCount {
+  counts: [MplsLspCountItem]
+}
+
+type MplsLspCountItem {
+  incomingLsps: Int
+  outcomingLsps: Int
+  target: String
+}
+
 type MplsTopology {
   edges: [GraphEdge!]!
   nodes: [MplsGraphNode!]!
@@ -717,6 +727,7 @@ type Query {
   kafkaHealthCheck: IsOkResponse
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  mplsLspCount(deviceId: String!): MplsLspCount
   mplsTopology: MplsTopology
   netTopology: NetTopology
   netTopologyVersionData(version: String!): NetTopologyVersionData!

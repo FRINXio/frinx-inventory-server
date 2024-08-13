@@ -24,6 +24,8 @@ import {
   DeviceMetadataQuery,
   DeviceMetadataQueryVariables,
   MplsTopologyQuery,
+  MplsLspCountQuery,
+  MplsLspCountQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -531,6 +533,16 @@ const MPLS_TOPOLOGY = gql`
   }
 `;
 
+const MPLS_LSP_COUNT = gql`
+  query MplsLspCount($deviceId: ID!) {
+    mplsLspCount(device_id: $deviceId) {
+      to_device
+      incoming_lsps
+      outcoming_lsps
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -657,6 +669,14 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  async function getMplsLspCount(deviceId: string): Promise<MplsLspCountQuery> {
+    const response = await client.request<MplsLspCountQuery, MplsLspCountQueryVariables>(MPLS_LSP_COUNT, {
+      deviceId,
+    });
+
+    return response;
+  }
+
   return {
     getTopologyDevices,
     getPtpDiffSynce,
@@ -672,6 +692,7 @@ function getTopologyDiscoveryApi() {
     getSyncePathToGrandMaster,
     getDeviceMetadata,
     getMplsTopology,
+    getMplsLspCount,
   };
 }
 
