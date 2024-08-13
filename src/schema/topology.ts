@@ -898,7 +898,6 @@ export const deviceMetadataQuery = queryField('deviceMetadata', {
   },
 });
 
-
 export const MplsTopology = objectType({
   name: 'MplsTopology',
   definition: (t) => {
