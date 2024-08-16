@@ -366,6 +366,12 @@ input FilterDevicesInput {
   labels: [String!]
 }
 
+input FilterDevicesMetadatasInput {
+  deviceName: String
+  polygon: PolygonInput
+  topologyType: TopologyType
+}
+
 input FilterLabelsInput {
   name: String!
 }
@@ -639,6 +645,10 @@ type PhyTopologyVersionData {
   nodes: [GraphVersionNode!]!
 }
 
+input PolygonInput {
+  polygon: [[[Float!]!]!]
+}
+
 type PtpDeviceDetails {
   clockAccuracy: String
   clockClass: Int
@@ -705,7 +715,7 @@ type Query {
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
-  deviceMetadata: DeviceMetadata
+  deviceMetadata(filter: FilterDevicesMetadatasInput): DeviceMetadata
   devices(
     after: String
     before: String
@@ -873,6 +883,14 @@ type TopologyCommonNodes {
 enum TopologyLayer {
   EthTopology
   MplsTopology
+  PhysicalTopology
+  PtpTopology
+}
+
+enum TopologyType {
+  EthTopology
+  MplsTopology
+  NetworkTopology
   PhysicalTopology
   PtpTopology
 }

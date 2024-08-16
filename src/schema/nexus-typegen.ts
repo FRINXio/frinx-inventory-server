@@ -133,6 +133,12 @@ export interface NexusGenInputs {
     deviceName?: string | null; // String
     labels?: string[] | null; // [String!]
   };
+  FilterDevicesMetadatasInput: {
+    // input type
+    deviceName?: string | null; // String
+    polygon?: NexusGenInputs['PolygonInput'] | null; // PolygonInput
+    topologyType?: NexusGenEnums['TopologyType'] | null; // TopologyType
+  };
   FilterLabelsInput: {
     // input type
     name: string; // String!
@@ -156,6 +162,10 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
+  };
+  PolygonInput: {
+    // input type
+    polygon?: number[][][] | null; // [[[Float!]!]!]
   };
   StreamOrderByInput: {
     // input type
@@ -218,6 +228,7 @@ export interface NexusGenEnums {
   SortDirection: 'ASC' | 'DESC';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
   TopologyLayer: 'EthTopology' | 'MplsTopology' | 'PhysicalTopology' | 'PtpTopology';
+  TopologyType: 'EthTopology' | 'MplsTopology' | 'NetworkTopology' | 'PhysicalTopology' | 'PtpTopology';
 }
 
 export interface NexusGenScalars {
@@ -2526,6 +2537,10 @@ export interface NexusGenArgTypes {
       // args
       deviceId: string; // String!
       transactionId: string; // String!
+    };
+    deviceMetadata: {
+      // args
+      filter?: NexusGenInputs['FilterDevicesMetadatasInput'] | null; // FilterDevicesMetadatasInput
     };
     devices: {
       // args

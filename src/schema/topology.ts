@@ -8,6 +8,7 @@ import {
   enumType,
   interfaceType,
   queryField,
+  arg,
 } from 'nexus';
 import config from '../config';
 import { fromGraphId } from '../helpers/id-helper';
@@ -853,13 +854,42 @@ export const DeviceMetadata = objectType({
   },
 });
 
+export const TopologyType = enumType({
+  name: 'TopologyType',
+  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology', 'NetworkTopology', 'MplsTopology'],
+});
+
+export const PolygonInputType = inputObjectType({
+  name: 'PolygonInput',
+  definition(t) {
+    t.list.nonNull.list.nonNull.list.nonNull.float('polygon');
+  },
+});
+
+export const FilterDevicesMetadatasInput = inputObjectType({
+  name: 'FilterDevicesMetadatasInput',
+  definition: (t) => {
+    t.string('deviceName');
+    t.field('topologyType', { type: TopologyType });
+    t.field('polygon', { type: PolygonInputType });
+  },
+});
+
 export const deviceMetadataQuery = queryField('deviceMetadata', {
   type: DeviceMetadata,
+  args: {
+    filter: FilterDevicesMetadatasInput,
+  },
   resolve: async (_, args, { prisma, topologyDiscoveryGraphQLAPI }) => {
     if (!topologyDiscoveryGraphQLAPI) {
       return null;
     }
-    const deviceMetadataResult = await topologyDiscoveryGraphQLAPI.getDeviceMetadata();
+
+    const deviceMetadataResult = await topologyDiscoveryGraphQLAPI.getDeviceMetadata({
+      deviceName: args.filter?.deviceName,
+      topologyType: args.filter?.topologyType,
+      polygon: args.filter?.polygon?.polygon,
+    });
 
     const dbDevices = await prisma.device.findMany({
       include: {

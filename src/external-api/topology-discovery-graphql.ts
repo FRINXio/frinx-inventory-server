@@ -33,6 +33,12 @@ type CoordinatesParam = {
   y: number;
 };
 
+type DeviceMetadataFilters = {
+  deviceName?: string | null;
+  topologyType?: 'PhysicalTopology' | 'PtpTopology' | 'EthTopology' | 'NetworkTopology' | 'MplsTopology' | null;
+  polygon?: number[][][] | null;
+};
+
 const GET_SHORTEST_PATH = gql`
   query GetShortestPath($deviceFrom: ID!, $deviceTo: ID!, $collection: NetRoutingPathOutputCollections) {
     netRoutingPaths(deviceFrom: $deviceFrom, deviceTo: $deviceTo, outputCollection: $collection) {
@@ -644,9 +650,9 @@ function getTopologyDiscoveryApi() {
     return response.syncePathToGm.nodes;
   }
 
-  async function getDeviceMetadata(): Promise<DeviceMetadataQuery> {
+  async function getDeviceMetadata(filters?: DeviceMetadataFilters): Promise<DeviceMetadataQuery> {
     const response = await client.request<DeviceMetadataQuery, DeviceMetadataQueryVariables>(DEVICE_METADATA, {
-      filters: undefined,
+      filters,
     });
     return response;
   }
