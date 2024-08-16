@@ -133,6 +133,12 @@ export interface NexusGenInputs {
     deviceName?: string | null; // String
     labels?: string[] | null; // [String!]
   };
+  FilterDevicesMetadatasInput: {
+    // input type
+    deviceName?: string | null; // String
+    polygon?: NexusGenInputs['PolygonInput'] | null; // PolygonInput
+    topologyType?: NexusGenEnums['TopologyType'] | null; // TopologyType
+  };
   FilterLabelsInput: {
     // input type
     name: string; // String!
@@ -2525,9 +2531,7 @@ export interface NexusGenArgTypes {
     };
     deviceMetadata: {
       // args
-      deviceName?: string | null; // String
-      polygon?: NexusGenInputs['PolygonInput'] | null; // PolygonInput
-      topologyType?: NexusGenEnums['TopologyType'] | null; // TopologyType
+      filter?: NexusGenInputs['FilterDevicesMetadatasInput'] | null; // FilterDevicesMetadatasInput
     };
     devices: {
       // args

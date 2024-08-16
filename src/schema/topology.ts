@@ -863,12 +863,19 @@ export const PolygonInputType = inputObjectType({
   },
 });
 
+export const FilterDevicesMetadatasInput = inputObjectType({
+  name: 'FilterDevicesMetadatasInput',
+  definition: (t) => {
+    t.string('deviceName');
+    t.field('topologyType', { type: TopologyType });
+    t.field('polygon', { type: PolygonInputType });
+  },
+});
+
 export const deviceMetadataQuery = queryField('deviceMetadata', {
   type: DeviceMetadata,
   args: {
-    deviceName: stringArg(),
-    topologyType: arg({ type: TopologyType }),
-    polygon: arg({ type: PolygonInputType }),
+    filter: FilterDevicesMetadatasInput,
   },
   resolve: async (_, args, { prisma, topologyDiscoveryGraphQLAPI }) => {
     if (!topologyDiscoveryGraphQLAPI) {
@@ -876,9 +883,9 @@ export const deviceMetadataQuery = queryField('deviceMetadata', {
     }
 
     const deviceMetadataResult = await topologyDiscoveryGraphQLAPI.getDeviceMetadata({
-      deviceName: args.deviceName,
-      topologyType: args.topologyType,
-      polygon: args.polygon?.polygon,
+      deviceName: args.filter?.deviceName,
+      topologyType: args.filter?.topologyType,
+      polygon: args.filter?.polygon?.polygon,
     });
 
     const dbDevices = await prisma.device.findMany({

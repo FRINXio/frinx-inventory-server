@@ -366,6 +366,12 @@ input FilterDevicesInput {
   labels: [String!]
 }
 
+input FilterDevicesMetadatasInput {
+  deviceName: String
+  polygon: PolygonInput
+  topologyType: TopologyType
+}
+
 input FilterLabelsInput {
   name: String!
 }
@@ -706,7 +712,7 @@ type Query {
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
-  deviceMetadata(deviceName: String, polygon: PolygonInput, topologyType: TopologyType): DeviceMetadata
+  deviceMetadata(filter: FilterDevicesMetadatasInput): DeviceMetadata
   devices(
     after: String
     before: String
