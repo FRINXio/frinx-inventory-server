@@ -930,3 +930,43 @@ export const MplsTopologyQuery = queryField('mplsTopology', {
     };
   },
 });
+
+export const MplsLspCountItem = objectType({
+  name: 'MplsLspCountItem',
+  definition: (t) => {
+    t.string('target');
+    t.int('incomingLsps');
+    t.int('outcomingLsps');
+  },
+});
+
+export const MplsTotalLspCount = objectType({
+  name: 'MplsLspCount',
+  definition: (t) => {
+    t.list.field('counts', { type: MplsLspCountItem });
+  },
+});
+
+export const MplsLspCountQuery = queryField('mplsLspCount', {
+  type: 'MplsLspCount',
+  args: {
+    deviceId: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const { deviceId } = args;
+    const nativeId = fromGraphId('GraphNode', deviceId);
+    const result = await topologyDiscoveryGraphQLAPI?.getMplsLspCount(nativeId);
+
+    if (!result?.mplsLspCount) {
+      return null;
+    }
+
+    return {
+      counts: result.mplsLspCount.map((c) => ({
+        target: c?.to_device ?? null,
+        incomingLsps: c?.incoming_lsps ?? null,
+        outcomingLsps: c?.outcoming_lsps ?? null,
+      })),
+    };
+  },
+});

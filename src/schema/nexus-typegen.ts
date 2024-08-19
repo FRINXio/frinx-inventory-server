@@ -567,6 +567,16 @@ export interface NexusGenObjects {
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
+  MplsLspCount: {
+    // root type
+    counts?: Array<NexusGenRootTypes['MplsLspCountItem'] | null> | null; // [MplsLspCountItem]
+  };
+  MplsLspCountItem: {
+    // root type
+    incomingLsps?: number | null; // Int
+    outcomingLsps?: number | null; // Int
+    target?: string | null; // String
+  };
   MplsTopology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1228,6 +1238,16 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
   };
+  MplsLspCount: {
+    // field return type
+    counts: Array<NexusGenRootTypes['MplsLspCountItem'] | null> | null; // [MplsLspCountItem]
+  };
+  MplsLspCountItem: {
+    // field return type
+    incomingLsps: number | null; // Int
+    outcomingLsps: number | null; // Int
+    target: string | null; // String
+  };
   MplsTopology: {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1397,6 +1417,7 @@ export interface NexusGenFieldTypes {
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
+    mplsLspCount: NexusGenRootTypes['MplsLspCount'] | null; // MplsLspCount
     mplsTopology: NexusGenRootTypes['MplsTopology'] | null; // MplsTopology
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     netTopologyVersionData: NexusGenRootTypes['NetTopologyVersionData']; // NetTopologyVersionData!
@@ -1977,6 +1998,16 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     status: 'GraphEdgeStatus';
   };
+  MplsLspCount: {
+    // field return type name
+    counts: 'MplsLspCountItem';
+  };
+  MplsLspCountItem: {
+    // field return type name
+    incomingLsps: 'Int';
+    outcomingLsps: 'Int';
+    target: 'String';
+  };
   MplsTopology: {
     // field return type name
     edges: 'GraphEdge';
@@ -2146,6 +2177,7 @@ export interface NexusGenFieldTypeNames {
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
+    mplsLspCount: 'MplsLspCount';
     mplsTopology: 'MplsTopology';
     netTopology: 'NetTopology';
     netTopologyVersionData: 'NetTopologyVersionData';
@@ -2565,6 +2597,10 @@ export interface NexusGenArgTypes {
       before?: string | null; // String
       first?: number | null; // Int
       last?: number | null; // Int
+    };
+    mplsLspCount: {
+      // args
+      deviceId: string; // String!
     };
     netTopologyVersionData: {
       // args
