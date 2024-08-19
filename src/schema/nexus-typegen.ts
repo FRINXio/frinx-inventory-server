@@ -582,6 +582,11 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
   };
+  MplsTopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
+  };
   Mutation: {};
   NetInterface: {
     // root type
@@ -1253,6 +1258,11 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
     nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
   };
+  MplsTopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
+  };
   Mutation: {
     // field return type
     activateStream: NexusGenRootTypes['ActivateStreamPayload']; // ActivateStreamPayload!
@@ -1419,6 +1429,7 @@ export interface NexusGenFieldTypes {
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
     mplsLspCount: NexusGenRootTypes['MplsLspCount'] | null; // MplsLspCount
     mplsTopology: NexusGenRootTypes['MplsTopology'] | null; // MplsTopology
+    mplsTopologyVersionData: NexusGenRootTypes['MplsTopologyVersionData']; // MplsTopologyVersionData!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     netTopologyVersionData: NexusGenRootTypes['NetTopologyVersionData']; // NetTopologyVersionData!
     node: NexusGenRootTypes['Node'] | null; // Node
@@ -2013,6 +2024,11 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphEdge';
     nodes: 'MplsGraphNode';
   };
+  MplsTopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
+    nodes: 'MplsGraphNode';
+  };
   Mutation: {
     // field return type name
     activateStream: 'ActivateStreamPayload';
@@ -2179,6 +2195,7 @@ export interface NexusGenFieldTypeNames {
     locations: 'LocationConnection';
     mplsLspCount: 'MplsLspCount';
     mplsTopology: 'MplsTopology';
+    mplsTopologyVersionData: 'MplsTopologyVersionData';
     netTopology: 'NetTopology';
     netTopologyVersionData: 'NetTopologyVersionData';
     node: 'Node';
@@ -2601,6 +2618,10 @@ export interface NexusGenArgTypes {
     mplsLspCount: {
       // args
       deviceId: string; // String!
+    };
+    mplsTopologyVersionData: {
+      // args
+      version: string; // String!
     };
     netTopologyVersionData: {
       // args

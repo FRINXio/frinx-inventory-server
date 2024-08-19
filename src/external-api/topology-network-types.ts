@@ -47,6 +47,7 @@ const Interface = t.type({
 });
 const PtpInterface = t.intersection([Interface, t.type({ details: PtpInterfaceDetails })]);
 const SynceInterface = t.intersection([Interface, t.type({ details: SynceInterfaceDetails })]);
+const MplsInterface = t.intersection([Interface, t.type({})]);
 const NetInterface = t.type({
   _id: t.string,
   _key: t.string,
@@ -76,6 +77,13 @@ const PtpInterfaceWithStatusValidator = t.intersection([
 
 const SynceInterfaceWithStatusValidator = t.intersection([
   SynceInterface,
+  t.type({
+    status: StatusValidator,
+  }),
+]);
+
+const MplsInterfaceWithStatusValidator = t.intersection([
+  MplsInterface,
   t.type({
     status: StatusValidator,
   }),
@@ -121,6 +129,17 @@ const SynceDeviceValidator = t.intersection([
     labels: t.array(t.string),
     details: t.type({
       selected_for_use: t.string,
+    }),
+    coordinates: CoordinatesValidator,
+  }),
+]);
+
+const MplsDeviceValidator = t.intersection([
+  InterfaceWithStatusValidator,
+  t.type({
+    labels: t.array(t.string),
+    details: t.type({
+      // selected_for_use: t.string,
     }),
     coordinates: CoordinatesValidator,
   }),
@@ -195,6 +214,11 @@ const ChangedSynceDevice = t.type({
   old: SynceDeviceValidator,
 });
 
+const ChangedMplsDevice = t.type({
+  new: MplsDeviceValidator,
+  old: MplsDeviceValidator,
+});
+
 const ChangedNetDevice = t.type({
   new: NetDeviceValidator,
   old: NetDeviceValidator,
@@ -220,6 +244,10 @@ const ChangedPtpInterface = t.type({
 const ChangedSynceInterface = t.type({
   new: SynceInterfaceWithStatusValidator,
   old: SynceInterfaceWithStatusValidator,
+});
+const ChangedMplsInterface = t.type({
+  new: MplsInterfaceWithStatusValidator,
+  old: MplsInterfaceWithStatusValidator,
 });
 const ChangedNetInterface = t.type({
   new: NetInterfaceValidator,
@@ -276,6 +304,20 @@ const ChangeNetDiff = t.type({
   NetNetwork: t.array(ChangedNetNetwork),
 });
 
+const MplsDiff = t.type({
+  MplsDevice: t.array(MplsDeviceValidator),
+  MplsHas: t.array(EdgeWithStatusValidator),
+  MplsInterface: t.array(MplsInterfaceWithStatusValidator),
+  MplsLink: t.array(Edge),
+});
+
+const ChangeMplsDiff = t.type({
+  MplsDevice: t.array(ChangedMplsDevice),
+  MplsHas: t.array(ChangedEdgeWithStatusValidator),
+  MplsInterface: t.array(ChangedMplsInterface),
+  MplsLink: t.array(ChangedEdge),
+});
+
 const NetDiff = t.type({
   NetDevice: t.array(NetDeviceValidator),
   NetHas: t.array(Edge),
@@ -284,8 +326,8 @@ const NetDiff = t.type({
   NetNetwork: t.array(NetworkValidator),
 });
 
-const TopologyDiff = t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff]);
-const ChangeTopologyDiff = t.union([ChangePhyDiff, ChangePtpDiff, ChangeSynceDiff, ChangeNetDiff]);
+const TopologyDiff = t.union([PhyDiff, PtpDiff, SynceDiff, NetDiff, MplsDiff]);
+const ChangeTopologyDiff = t.union([ChangePhyDiff, ChangePtpDiff, ChangeSynceDiff, ChangeNetDiff, ChangeMplsDiff]);
 
 export type PhyTopologyDiffType = {
   added: t.TypeOf<typeof PhyDiff>;
@@ -303,6 +345,12 @@ export type SynceTopologyDiffType = {
   added: t.TypeOf<typeof SynceDiff>;
   changed: t.TypeOf<typeof ChangeSynceDiff>;
   deleted: t.TypeOf<typeof SynceDiff>;
+};
+
+export type MplsTopologyDiffType = {
+  added: t.TypeOf<typeof MplsDiff>;
+  changed: t.TypeOf<typeof ChangeMplsDiff>;
+  deleted: t.TypeOf<typeof MplsDiff>;
 };
 
 export type NetTopologyDiffType = {
@@ -348,6 +396,7 @@ export function decodeLinksAndDevicesOutput(value: unknown): LinksAndDevicesOutp
 export type InterfaceWithStatus = t.TypeOf<typeof InterfaceWithStatusValidator>;
 export type PtpInterfaceWithStatus = t.TypeOf<typeof PtpInterfaceWithStatusValidator>;
 export type SynceInterfaceWithStatus = t.TypeOf<typeof SynceInterfaceWithStatusValidator>;
+export type MplsInterfaceWithStatus = t.TypeOf<typeof MplsInterfaceWithStatusValidator>;
 
 const HasAndInterfacesOutputValidator = t.type({
   has: t.array(EdgeWithStatusValidator),

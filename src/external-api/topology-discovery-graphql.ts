@@ -460,6 +460,7 @@ const MPLS_TOPOLOGY = gql`
       }
     }
     details {
+      router_id
       mpls_data {
         lsp_id
         in_label
