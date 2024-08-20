@@ -1817,7 +1817,7 @@ export function makeMplsTopologyDiff(
       id: toGraphId('GraphNode', device._id),
       name: device.name,
       interfaces:
-        interfaceMap[device._id].map((intf) => ({
+        interfaceMap[device._id]?.map((intf) => ({
           ...intf,
         })) ?? [],
       coordinates: device.coordinates,
