@@ -617,6 +617,7 @@ type NetNode {
   name: String!
   networks: [NetNetwork!]!
   nodeId: String!
+  phyDeviceName: String
 }
 
 type NetRoutingPathNode {
