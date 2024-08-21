@@ -8,7 +8,6 @@ import {
   enumType,
   interfaceType,
   queryField,
-  arg,
 } from 'nexus';
 import config from '../config';
 import { fromGraphId } from '../helpers/id-helper';
