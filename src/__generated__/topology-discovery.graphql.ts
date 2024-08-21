@@ -76,7 +76,7 @@ export type DeviceGeoLocation = {
   __typename?: 'DeviceGeoLocation';
   /** Defining the area around the device, with four elements indicating its boundaries. */
   bbox: Maybe<Array<Maybe<Scalars['Float']>>>;
-  /** Device location coordinates providing latitude and longitude. */
+  /** Device location coordinates providing longitude and latitude (in this order, based on GeoJSON convention). */
   coordinates: Array<Scalars['Float']>;
   /** Type of geometry. */
   type: GeometryType;
@@ -112,10 +112,44 @@ export type DeviceMetadataEdge = {
   node: Maybe<DeviceMetadata>;
 };
 
-/** Filter for Metadata device type based on device name. */
+/** Filter for Metadata device type based on device name, or other attributes. */
 export type DeviceMetadataFilter = {
   /** Regex of device name. */
   deviceName?: InputMaybe<Scalars['String']>;
+  /**
+   * A GeoJSON Polygon shape used for filtering devices based on their location in this area.
+   *
+   * The GeoJSON Polygon consists of a series of closed LineString objects (ring-like).
+   * These Linear Ring objects consist of four or more coordinate pairs with the first and last coordinate
+   * pair being equal. Coordinate pairs of a Polygon are an array of linear ring coordinate arrays.
+   * The first element in the array represents the exterior ring.
+   * Any subsequent elements represent interior rings (holes within the surface).
+   *
+   * The orientation of the first linear ring is crucial: the right-hand-rule is applied, so that the area to the left
+   * of the path of the linear ring (when walking on the surface of the Earth) is considered to be the “interior”
+   * of the polygon. All other linear rings must be contained within this interior.
+   *
+   * Example with a hole:
+   * [
+   *     [
+   *         [100.0, 0.0],
+   *         [101.0, 0.0],
+   *         [101.0, 1.0],
+   *         [100.0, 1.0],
+   *         [100.0, 0.0]
+   *     ],
+   *     [
+   *         [100.8, 0.8],
+   *         [100.8, 0.2],
+   *         [100.2, 0.2],
+   *         [100.2, 0.8],
+   *         [100.8, 0.8]
+   *     ]
+   * ]
+   */
+  polygon?: InputMaybe<Array<Array<Array<Scalars['Float']>>>>;
+  /** Topology in which device must be present. */
+  topologyType?: InputMaybe<TopologyType>;
 };
 
 /** Type of geometry. */
@@ -1532,7 +1566,7 @@ export type DeviceMetadataQueryVariables = Exact<{
 
 export type DeviceMetadataQuery = { __typename?: 'Query', deviceMetadata: { __typename?: 'MetadataConnection', edges: Array<{ __typename?: 'DeviceMetadataEdge', node: { __typename?: 'DeviceMetadata', id: string, deviceName: string, deviceType: string | null, model: string | null, vendor: string | null, version: string | null, protocolType: string | null, geoLocation: { __typename?: 'DeviceGeoLocation', bbox: Array<number | null> | null, coordinates: Array<number>, type: GeometryType } | null } | null } | null> | null } };
 
-export type MplsDevicePartsFragment = { __typename?: 'MplsDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, status: NodeStatus, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null } | null } | null> | null } | null } | null } | null> | null }, details: { __typename?: 'MplsDeviceDetails', mpls_data: Array<{ __typename?: 'MplsData', lsp_id: string, in_label: number | null, in_interface: string | null, out_interface: string | null, out_label: number | null, ldp_prefix: string | null, mpls_operation: MplsOperation | null, oper_state: string | null, signalisation: Signalisation | null } | null> | null, lsp_tunnels: Array<{ __typename?: 'LspTunnel', lsp_id: string, from_device: string | null, to_device: string | null, signalisation: Signalisation, uptime: number | null } | null> | null } };
+export type MplsDevicePartsFragment = { __typename?: 'MplsDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, status: NodeStatus, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null } | null } | null> | null } | null } | null } | null> | null }, details: { __typename?: 'MplsDeviceDetails', router_id: string | null, mpls_data: Array<{ __typename?: 'MplsData', lsp_id: string, in_label: number | null, in_interface: string | null, out_interface: string | null, out_label: number | null, ldp_prefix: string | null, mpls_operation: MplsOperation | null, oper_state: string | null, signalisation: Signalisation | null } | null> | null, lsp_tunnels: Array<{ __typename?: 'LspTunnel', lsp_id: string, from_device: string | null, to_device: string | null, signalisation: Signalisation, uptime: number | null } | null> | null } };
 
 export type MplsInterfaceDevicePartsFragment = { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } };
 
@@ -1541,7 +1575,7 @@ export type MplsInterfacePartsFragment = { __typename?: 'MplsInterface', id: str
 export type MplsTopologyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MplsTopologyQuery = { __typename?: 'Query', mplsDevices: { __typename?: 'MplsDeviceConnection', edges: Array<{ __typename?: 'MplsDeviceEdge', cursor: string, node: { __typename?: 'MplsDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, status: NodeStatus, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null } | null } | null> | null } | null } | null } | null> | null }, details: { __typename?: 'MplsDeviceDetails', mpls_data: Array<{ __typename?: 'MplsData', lsp_id: string, in_label: number | null, in_interface: string | null, out_interface: string | null, out_label: number | null, ldp_prefix: string | null, mpls_operation: MplsOperation | null, oper_state: string | null, signalisation: Signalisation | null } | null> | null, lsp_tunnels: Array<{ __typename?: 'LspTunnel', lsp_id: string, from_device: string | null, to_device: string | null, signalisation: Signalisation, uptime: number | null } | null> | null } } | null } | null> | null } };
+export type MplsTopologyQuery = { __typename?: 'Query', mplsDevices: { __typename?: 'MplsDeviceConnection', edges: Array<{ __typename?: 'MplsDeviceEdge', cursor: string, node: { __typename?: 'MplsDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, status: NodeStatus, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null } | null } | null> | null } | null } | null } | null> | null }, details: { __typename?: 'MplsDeviceDetails', router_id: string | null, mpls_data: Array<{ __typename?: 'MplsData', lsp_id: string, in_label: number | null, in_interface: string | null, out_interface: string | null, out_label: number | null, ldp_prefix: string | null, mpls_operation: MplsOperation | null, oper_state: string | null, signalisation: Signalisation | null } | null> | null, lsp_tunnels: Array<{ __typename?: 'LspTunnel', lsp_id: string, from_device: string | null, to_device: string | null, signalisation: Signalisation, uptime: number | null } | null> | null } } | null } | null> | null } };
 
 export type MplsLspCountQueryVariables = Exact<{
   deviceId: Scalars['ID'];

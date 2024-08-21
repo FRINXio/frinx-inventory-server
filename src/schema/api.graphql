@@ -559,6 +559,11 @@ type MplsTopology {
   nodes: [MplsGraphNode!]!
 }
 
+type MplsTopologyVersionData {
+  edges: [GraphVersionEdge!]!
+  nodes: [MplsGraphNode!]!
+}
+
 type Mutation {
   activateStream(id: String!): ActivateStreamPayload!
   addBlueprint(input: AddBlueprintInput!): AddBlueprintPayload!
@@ -739,6 +744,7 @@ type Query {
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
   mplsLspCount(deviceId: String!): MplsLspCount
   mplsTopology: MplsTopology
+  mplsTopologyVersionData(version: String!): MplsTopologyVersionData!
   netTopology: NetTopology
   netTopologyVersionData(version: String!): NetTopologyVersionData!
   node(id: ID!): Node

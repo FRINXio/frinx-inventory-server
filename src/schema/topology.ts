@@ -8,7 +8,6 @@ import {
   enumType,
   interfaceType,
   queryField,
-  arg,
 } from 'nexus';
 import config from '../config';
 import { fromGraphId } from '../helpers/id-helper';
@@ -17,6 +16,10 @@ import {
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
+  getMplsDeviceInterfaceEdges,
+  getMplsEdgesFromTopologyQuery,
+  getMplsNodesFromTopologyQuery,
+  getMplsTopologyInterfaces,
   getNetDeviceInterfaceEdges,
   getNetEdgesFromTopologyQuery,
   getNetNodesFromTopologyQuery,
@@ -32,6 +35,7 @@ import {
   getSynceNodesFromTopologyQuery,
   getSynceTopologyInterfaces,
   getTopologyInterfaces,
+  makeMplsTopologyDiff,
   makeMplsTopologyEdges,
   makeMplsTopologyNodes,
   makeNetTopologyDiff,
@@ -337,6 +341,14 @@ export const SynceTopologyVersionData = objectType({
   },
 });
 
+export const MplsTopologyVersionData = objectType({
+  name: 'MplsTopologyVersionData',
+  definition: (t) => {
+    t.nonNull.list.field('nodes', { type: nonNull(MplsGraphNode) });
+    t.nonNull.list.field('edges', { type: nonNull(GraphVersionEdge) });
+  },
+});
+
 export const NetInterface = objectType({
   name: 'NetInterface',
   definition: (t) => {
@@ -566,6 +578,39 @@ export const TopologyVersionDataQuery = extendType({
         const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'EthTopology');
 
         return makeSynceTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
+      },
+    });
+  },
+});
+
+export const MplsTopologyVersionDataQuery = extendType({
+  type: 'Query',
+  definition: (t) => {
+    t.nonNull.field('mplsTopologyVersionData', {
+      type: MplsTopologyVersionData,
+      args: {
+        version: nonNull(stringArg()),
+      },
+      resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+        if (!config.topologyEnabled || !topologyDiscoveryGraphQLAPI) {
+          return {
+            nodes: [],
+            edges: [],
+          };
+        }
+
+        const topologyDevicesResult = await topologyDiscoveryGraphQLAPI.getMplsTopology();
+
+        const currentNodes = getMplsNodesFromTopologyQuery(topologyDevicesResult);
+        const currentEdges = getMplsEdgesFromTopologyQuery(topologyDevicesResult);
+
+        const interfaces = getMplsTopologyInterfaces(topologyDevicesResult).map((i) => ({ ...i, _key: i.id }));
+        const interfaceEdges = getMplsDeviceInterfaceEdges(topologyDevicesResult);
+
+        const { version } = args;
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'MplsTopology');
+
+        return makeMplsTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
     });
   },
