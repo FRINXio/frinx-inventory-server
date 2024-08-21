@@ -1391,6 +1391,7 @@ export function makeNetTopologyNodes(netTopologyDevices?: NetTopologyQuery) {
         }
         return {
           id: toGraphId('GraphNode', node.id),
+          phyDeviceName: node.phyDevice?.name,
           nodeId: node.id,
           name: node.routerId,
           interfaces:

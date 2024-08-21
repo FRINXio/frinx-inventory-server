@@ -690,6 +690,7 @@ export const NetNode = objectType({
     t.nonNull.id('id');
     t.nonNull.string('nodeId');
     t.nonNull.string('name');
+    t.string('phyDeviceName');
     t.nonNull.list.nonNull.field('interfaces', { type: nonNull(NetInterface) });
     t.nonNull.list.nonNull.field('networks', { type: nonNull(NetNetwork) });
     t.nonNull.field('coordinates', { type: GraphNodeCoordinates });
