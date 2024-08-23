@@ -698,6 +698,42 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  type LspData = {
+    nodeId: string;
+    metadata: {
+      signalization: string | null;
+      fromDevice: string | null;
+      toDevice: string | null;
+      uptime: number | null;
+    } | null;
+  };
+
+  type LspPathQuery = {
+    __typename?: 'Query';
+    lspPath: { __typename?: 'LspPath'; nodes: Array<LspData> | null };
+  };
+
+  async function getLspPath(deviceId: string, lspId: string): Promise<LspPathQuery> {
+    return {
+      lspPath: {
+        nodes: [
+          {
+            nodeId: 'MplsDevice/3',
+            metadata: null,
+          },
+          {
+            nodeId: 'MplsDevice/6',
+            metadata: null,
+          },
+          {
+            nodeId: 'MplsDevice/2',
+            metadata: null,
+          },
+        ],
+      },
+    };
+  }
+
   return {
     getTopologyDevices,
     getPtpDiffSynce,
@@ -714,6 +750,7 @@ function getTopologyDiscoveryApi() {
     getDeviceMetadata,
     getMplsTopology,
     getMplsLspCount,
+    getLspPath,
   };
 }
 

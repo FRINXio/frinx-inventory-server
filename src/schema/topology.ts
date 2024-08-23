@@ -1016,3 +1016,47 @@ export const MplsLspCountQuery = queryField('mplsLspCount', {
     };
   },
 });
+
+export const LspPathItemMetadata = objectType({
+  name: 'LspPathItemMetadata',
+  definition: (t) => {
+    t.string('signalization');
+    t.string('fromDevice');
+    t.string('toDevice');
+    t.int('uptime');
+  },
+});
+
+export const LspPathItem = objectType({
+  name: 'LspPathItem',
+  definition: (t) => {
+    t.nonNull.string('nodeId');
+    t.nullable.field('metadata', { type: LspPathItemMetadata });
+  },
+});
+
+export const LspPath = objectType({
+  name: 'LspPath',
+  definition: (t) => {
+    t.list.field('nodes', { type: LspPathItem });
+    // t.list.string('nodes');
+  },
+});
+
+export const LspPathQuery = queryField('lspPath', {
+  type: 'LspPath',
+  args: {
+    deviceId: nonNull(stringArg()),
+    lspId: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const { deviceId, lspId } = args;
+    const fromNodeNativeId = fromGraphId('GraphNode', deviceId);
+
+    // TODO: get data from topology discovery
+    const lspPathResult = await topologyDiscoveryGraphQLAPI?.getLspPath(fromNodeNativeId, lspId);
+    return {
+      nodes: lspPathResult?.lspPath.nodes,
+    };
+  },
+});

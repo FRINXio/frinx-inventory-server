@@ -526,6 +526,22 @@ export interface NexusGenObjects {
     cursor: string; // String!
     node: NexusGenRootTypes['Location']; // Location!
   };
+  LspPath: {
+    // root type
+    nodes?: Array<NexusGenRootTypes['LspPathItem'] | null> | null; // [LspPathItem]
+  };
+  LspPathItem: {
+    // root type
+    metadata?: NexusGenRootTypes['LspPathItemMetadata'] | null; // LspPathItemMetadata
+    nodeId: string; // String!
+  };
+  LspPathItemMetadata: {
+    // root type
+    fromDevice?: string | null; // String
+    signalization?: string | null; // String
+    toDevice?: string | null; // String
+    uptime?: number | null; // Int
+  };
   LspTunnel: {
     // root type
     fromDevice?: string | null; // String
@@ -1203,6 +1219,22 @@ export interface NexusGenFieldTypes {
     cursor: string; // String!
     node: NexusGenRootTypes['Location']; // Location!
   };
+  LspPath: {
+    // field return type
+    nodes: Array<NexusGenRootTypes['LspPathItem'] | null> | null; // [LspPathItem]
+  };
+  LspPathItem: {
+    // field return type
+    metadata: NexusGenRootTypes['LspPathItemMetadata'] | null; // LspPathItemMetadata
+    nodeId: string; // String!
+  };
+  LspPathItemMetadata: {
+    // field return type
+    fromDevice: string | null; // String
+    signalization: string | null; // String
+    toDevice: string | null; // String
+    uptime: number | null; // Int
+  };
   LspTunnel: {
     // field return type
     fromDevice: string | null; // String
@@ -1429,6 +1461,7 @@ export interface NexusGenFieldTypes {
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
+    lspPath: NexusGenRootTypes['LspPath'] | null; // LspPath
     mplsLspCount: NexusGenRootTypes['MplsLspCount'] | null; // MplsLspCount
     mplsTopology: NexusGenRootTypes['MplsTopology'] | null; // MplsTopology
     mplsTopologyVersionData: NexusGenRootTypes['MplsTopologyVersionData']; // MplsTopologyVersionData!
@@ -1970,6 +2003,22 @@ export interface NexusGenFieldTypeNames {
     cursor: 'String';
     node: 'Location';
   };
+  LspPath: {
+    // field return type name
+    nodes: 'LspPathItem';
+  };
+  LspPathItem: {
+    // field return type name
+    metadata: 'LspPathItemMetadata';
+    nodeId: 'String';
+  };
+  LspPathItemMetadata: {
+    // field return type name
+    fromDevice: 'String';
+    signalization: 'String';
+    toDevice: 'String';
+    uptime: 'Int';
+  };
   LspTunnel: {
     // field return type name
     fromDevice: 'String';
@@ -2196,6 +2245,7 @@ export interface NexusGenFieldTypeNames {
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
+    lspPath: 'LspPath';
     mplsLspCount: 'MplsLspCount';
     mplsTopology: 'MplsTopology';
     mplsTopologyVersionData: 'MplsTopologyVersionData';
@@ -2617,6 +2667,11 @@ export interface NexusGenArgTypes {
       before?: string | null; // String
       first?: number | null; // Int
       last?: number | null; // Int
+    };
+    lspPath: {
+      // args
+      deviceId: string; // String!
+      lspId: string; // String!
     };
     mplsLspCount: {
       // args
