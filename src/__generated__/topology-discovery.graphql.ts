@@ -434,6 +434,15 @@ export type MutationUpdateNodeStatusArgs = {
   topology_type?: InputMaybe<TopologyType>;
 };
 
+/** Metadata information about a neighbor device. */
+export type Neighbor = {
+  __typename?: 'Neighbor';
+  /** Identifier of the neighbor device document (for example, MplsDevice/1). */
+  device_id: Scalars['String'];
+  /** Human-readable name of the neighbor device (for example, CPE_01). */
+  device_name: Scalars['String'];
+};
+
 /** Representation of the routing entity in the network topology. */
 export type NetDevice = Node & {
   __typename?: 'NetDevice';
@@ -1067,6 +1076,8 @@ export type Query = {
    * Also return the count of incoming and outcoming tunnels from / to that device.
    */
   mplsLspCount: Maybe<Array<Maybe<MplsTotalLsps>>>;
+  /** Find identifiers of all neighbour devices of the specified device in the specified topology. */
+  neighbors: Maybe<Array<Neighbor>>;
   /** Read network devices that match specified filter. */
   netDevices: NetDeviceConnection;
   /**
@@ -1114,6 +1125,13 @@ export type Query = {
    * Only documents that belong to the specified topology are included in the diff.
    */
   topologyDiff: TopologyResponse;
+  /**
+   * Returns an overlay between two topologies.
+   * The overlay works in such a way that it takes the first topology, and tries to find devices / interfaces
+   * from the first topology in the second one.
+   * The first topology can be taken as a reference topology. The second topology is joined to the first one (similar to LEFT JOIN in databases)
+   */
+  topologyOverlay: TopologyOverlayDeviceConnection;
 };
 
 
@@ -1140,6 +1158,12 @@ export type QueryMplsDevicesArgs = {
 
 export type QueryMplsLspCountArgs = {
   device_id: Scalars['ID'];
+};
+
+
+export type QueryNeighborsArgs = {
+  device_name: Scalars['String'];
+  topology_type: TopologyType;
 };
 
 
@@ -1211,6 +1235,15 @@ export type QueryTopologyDiffArgs = {
   collection_type: TopologyType;
   new_db: Scalars['String'];
   old_db: Scalars['String'];
+};
+
+
+export type QueryTopologyOverlayArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  filters?: InputMaybe<TopologyOverlayDeviceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+  firstTopology: TopologyType;
+  secondTopology: TopologyType;
 };
 
 /** Computed routing path from source to destination device. */
@@ -1448,6 +1481,114 @@ export type SyncePathOutputCollections =
   /** Include SynceInterface nodes in the returned path. */
   | 'SynceInterface';
 
+export type TopologyOverlayDevice = {
+  __typename?: 'TopologyOverlayDevice';
+  /** Unique identifier of the object. */
+  id: Scalars['ID'];
+  /** Device name. */
+  name: Scalars['String'];
+  /** Document device ID from the second topology (can be null). */
+  secondTopologyId: Maybe<Scalars['ID']>;
+  /** List of ports that are present on the device. */
+  topologyOverlayInterfaces: TopologyOverlayInterfaceConnection;
+};
+
+
+export type TopologyOverlayDeviceTopologyOverlayInterfacesArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  filters?: InputMaybe<TopologyOverlayInterfaceFilter>;
+  first?: InputMaybe<Scalars['Int']>;
+};
+
+/** Grouped list of TopologyOverlayDevice objects and pagination metadata. */
+export type TopologyOverlayDeviceConnection = {
+  __typename?: 'TopologyOverlayDeviceConnection';
+  /** List of TopologyOverlayDeviceEdge objects. */
+  edges: Maybe<Array<Maybe<TopologyOverlayDeviceEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
+};
+
+/** Grouped TopologyOverlayDeviceEdge object and associated cursor used by pagination. */
+export type TopologyOverlayDeviceEdge = {
+  __typename?: 'TopologyOverlayDeviceEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** The associated TopologyOverlayDevice object. */
+  node: Maybe<TopologyOverlayDevice>;
+};
+
+/** Filter for TopologyOverlayDevice type based on device name. */
+export type TopologyOverlayDeviceFilter = {
+  /** Regex of device name. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export type TopologyOverlayInterface = {
+  __typename?: 'TopologyOverlayInterface';
+  /** Document interface ID from the first topology */
+  id: Scalars['ID'];
+  /** Interface name. */
+  name: Scalars['String'];
+  /** Document device ID from the second topology (can be null). */
+  secondTopologyId: Maybe<Scalars['ID']>;
+  /** Topology overlay device that owns this interface. */
+  topologyOverlayDevice: Maybe<TopologyOverlayDevice>;
+  /** Topology overlay neighbor interface */
+  topologyOverlayLinks: Maybe<TopologyOverlayLinkConnection>;
+};
+
+/** Grouped list of TopologyOverlayInterface objects and pagination metadata. */
+export type TopologyOverlayInterfaceConnection = {
+  __typename?: 'TopologyOverlayInterfaceConnection';
+  /** List of TopologyOverlayInterface objects. */
+  edges: Maybe<Array<Maybe<TopologyOverlayInterfaceEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
+};
+
+/** Grouped TopologyOverlayInterface object and associated cursor used by pagination. */
+export type TopologyOverlayInterfaceEdge = {
+  __typename?: 'TopologyOverlayInterfaceEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** The associated TopologyOverlayInterface object. */
+  node: Maybe<TopologyOverlayInterface>;
+};
+
+/** Filter for TopologyOverlayInterface type based on the name of the device. */
+export type TopologyOverlayInterfaceFilter = {
+  /** Regex of interface name. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Grouped list of TopologyOverlayLinks objects and pagination metadata. */
+export type TopologyOverlayLinkConnection = {
+  __typename?: 'TopologyOverlayLinkConnection';
+  /** List of TopologyOverlayInterface objects. */
+  edges: Maybe<Array<Maybe<TopologyOverlayLinkEdge>>>;
+  /** Pagination metadata. */
+  pageInfo: PageInfo;
+};
+
+export type TopologyOverlayLinkEdge = {
+  __typename?: 'TopologyOverlayLinkEdge';
+  /** Pagination cursor for this edge. */
+  cursor: Scalars['String'];
+  /** Identifier of the link that connects this interface to the interface on the remote device */
+  link: Maybe<TopologyOverlayLinkIds>;
+  /** The associated TopologyOverlayInterface object. */
+  node: Maybe<TopologyOverlayInterface>;
+};
+
+export type TopologyOverlayLinkIds = {
+  __typename?: 'TopologyOverlayLinkIds';
+  /** Identifier of the link that connects this interface to the interface on the remote device on the first topology. */
+  firstTopologyLinkId: Scalars['ID'];
+  /** Identifier of the link that connects this interface to the interface on the remote device on the second topology. */
+  secondTopologyLinkId: Maybe<Scalars['ID']>;
+};
+
 /** Response from the topologyDiff query that contains diff between two databases. */
 export type TopologyResponse = {
   __typename?: 'TopologyResponse';
@@ -1583,3 +1724,11 @@ export type MplsLspCountQueryVariables = Exact<{
 
 
 export type MplsLspCountQuery = { __typename?: 'Query', mplsLspCount: Array<{ __typename?: 'MplsTotalLsps', to_device: string | null, incoming_lsps: number | null, outcoming_lsps: number | null } | null> | null };
+
+export type NeighborsQueryVariables = Exact<{
+  deviceName: Scalars['String'];
+  topologyType: TopologyType;
+}>;
+
+
+export type NeighborsQuery = { __typename?: 'Query', neighbors: Array<{ __typename?: 'Neighbor', device_id: string, device_name: string }> | null };
