@@ -528,14 +528,10 @@ export interface NexusGenObjects {
   };
   LspPath: {
     // root type
-    nodes?: Array<NexusGenRootTypes['LspPathItem'] | null> | null; // [LspPathItem]
+    metadata?: NexusGenRootTypes['LspPathMetadata'] | null; // LspPathMetadata
+    path: string[]; // [String!]!
   };
-  LspPathItem: {
-    // root type
-    metadata?: NexusGenRootTypes['LspPathItemMetadata'] | null; // LspPathItemMetadata
-    nodeId: string; // String!
-  };
-  LspPathItemMetadata: {
+  LspPathMetadata: {
     // root type
     fromDevice?: string | null; // String
     signalization?: string | null; // String
@@ -1221,14 +1217,10 @@ export interface NexusGenFieldTypes {
   };
   LspPath: {
     // field return type
-    nodes: Array<NexusGenRootTypes['LspPathItem'] | null> | null; // [LspPathItem]
+    metadata: NexusGenRootTypes['LspPathMetadata'] | null; // LspPathMetadata
+    path: string[]; // [String!]!
   };
-  LspPathItem: {
-    // field return type
-    metadata: NexusGenRootTypes['LspPathItemMetadata'] | null; // LspPathItemMetadata
-    nodeId: string; // String!
-  };
-  LspPathItemMetadata: {
+  LspPathMetadata: {
     // field return type
     fromDevice: string | null; // String
     signalization: string | null; // String
@@ -2005,14 +1997,10 @@ export interface NexusGenFieldTypeNames {
   };
   LspPath: {
     // field return type name
-    nodes: 'LspPathItem';
+    metadata: 'LspPathMetadata';
+    path: 'String';
   };
-  LspPathItem: {
-    // field return type name
-    metadata: 'LspPathItemMetadata';
-    nodeId: 'String';
-  };
-  LspPathItemMetadata: {
+  LspPathMetadata: {
     // field return type name
     fromDevice: 'String';
     signalization: 'String';

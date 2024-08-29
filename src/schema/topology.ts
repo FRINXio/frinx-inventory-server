@@ -13,6 +13,7 @@ import config from '../config';
 import { fromGraphId } from '../helpers/id-helper';
 import {
   convertDeviceMetadataToMapNodes,
+  convertDiscoveryMplsPathToApiMplsPath,
   getDeviceInterfaceEdges,
   getEdgesFromTopologyQuery,
   getFilterQuery,
@@ -1017,8 +1018,8 @@ export const MplsLspCountQuery = queryField('mplsLspCount', {
   },
 });
 
-export const LspPathItemMetadata = objectType({
-  name: 'LspPathItemMetadata',
+export const LspPathMetadata = objectType({
+  name: 'LspPathMetadata',
   definition: (t) => {
     t.string('signalization');
     t.string('fromDevice');
@@ -1027,19 +1028,11 @@ export const LspPathItemMetadata = objectType({
   },
 });
 
-export const LspPathItem = objectType({
-  name: 'LspPathItem',
-  definition: (t) => {
-    t.nonNull.string('nodeId');
-    t.nullable.field('metadata', { type: LspPathItemMetadata });
-  },
-});
-
 export const LspPath = objectType({
   name: 'LspPath',
   definition: (t) => {
-    t.list.field('nodes', { type: LspPathItem });
-    // t.list.string('nodes');
+    t.nonNull.field('path', { type: list(nonNull('String')) });
+    t.field('metadata', { type: LspPathMetadata });
   },
 });
 
@@ -1053,10 +1046,10 @@ export const LspPathQuery = queryField('lspPath', {
     const { deviceId, lspId } = args;
     const fromNodeNativeId = fromGraphId('GraphNode', deviceId);
 
-    // TODO: get data from topology discovery
     const lspPathResult = await topologyDiscoveryGraphQLAPI?.getLspPath(fromNodeNativeId, lspId);
-    return {
-      nodes: lspPathResult?.lspPath.nodes,
-    };
+    if (!lspPathResult) {
+      return null;
+    }
+    return convertDiscoveryMplsPathToApiMplsPath(lspPathResult);
   },
 });

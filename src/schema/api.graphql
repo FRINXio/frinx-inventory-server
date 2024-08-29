@@ -504,15 +504,11 @@ type LocationEdge {
 }
 
 type LspPath {
-  nodes: [LspPathItem]
+  metadata: LspPathMetadata
+  path: [String!]!
 }
 
-type LspPathItem {
-  metadata: LspPathItemMetadata
-  nodeId: String!
-}
-
-type LspPathItemMetadata {
+type LspPathMetadata {
   fromDevice: String
   signalization: String
   toDevice: String

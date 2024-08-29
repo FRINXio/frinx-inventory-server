@@ -26,6 +26,8 @@ import {
   MplsTopologyQuery,
   MplsLspCountQuery,
   MplsLspCountQueryVariables,
+  MplsPathQuery,
+  MplsPathQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -467,7 +469,6 @@ const MPLS_TOPOLOGY = gql`
         in_interface
         out_interface
         out_label
-        ldp_prefix
         mpls_operation
         oper_state
         signalisation
@@ -546,6 +547,20 @@ const MPLS_LSP_COUNT = gql`
       to_device
       incoming_lsps
       outcoming_lsps
+    }
+  }
+`;
+
+const MPLS_LSP_PATH = gql`
+  query MplsPath($deviceId: ID!, $lspId: ID!) {
+    mplsLspPath(device_id: $deviceId, lsp_id: $lspId) {
+      path
+      lsp_metadata {
+        from_device
+        to_device
+        uptime
+        signalisation
+      }
     }
   }
 `;
@@ -698,40 +713,12 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
-  type LspData = {
-    nodeId: string;
-    metadata: {
-      signalization: string | null;
-      fromDevice: string | null;
-      toDevice: string | null;
-      uptime: number | null;
-    } | null;
-  };
-
-  type LspPathQuery = {
-    __typename?: 'Query';
-    lspPath: { __typename?: 'LspPath'; nodes: Array<LspData> | null };
-  };
-
-  async function getLspPath(deviceId: string, lspId: string): Promise<LspPathQuery> {
-    return {
-      lspPath: {
-        nodes: [
-          {
-            nodeId: 'MplsDevice/3',
-            metadata: null,
-          },
-          {
-            nodeId: 'MplsDevice/6',
-            metadata: null,
-          },
-          {
-            nodeId: 'MplsDevice/2',
-            metadata: null,
-          },
-        ],
-      },
-    };
+  async function getLspPath(deviceId: string, lspId: string): Promise<MplsPathQuery> {
+    const response = await client.request<MplsPathQuery, MplsPathQueryVariables>(MPLS_LSP_PATH, {
+      deviceId,
+      lspId,
+    });
+    return response;
   }
 
   return {
