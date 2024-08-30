@@ -308,6 +308,10 @@ type DeviceMetadata {
   nodes: [GeoMapDevice]
 }
 
+type DeviceNeighbors {
+  neighbors: [Neighbor]
+}
+
 input DeviceOrderByInput {
   direction: SortDirection!
   sortKey: SortDeviceBy!
@@ -374,6 +378,11 @@ input FilterDevicesMetadatasInput {
 
 input FilterLabelsInput {
   name: String!
+}
+
+input FilterNeighborInput {
+  deviceName: String!
+  topologyType: TopologyType!
 }
 
 input FilterStreamsInput {
@@ -616,6 +625,11 @@ type Mutation {
   updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
 }
 
+type Neighbor {
+  deviceId: String!
+  deviceName: String!
+}
+
 type NetInterface {
   id: String!
   name: String!
@@ -744,6 +758,7 @@ type Query {
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
   deviceMetadata(filter: FilterDevicesMetadatasInput): DeviceMetadata
+  deviceNeighbor(filter: FilterNeighborInput): DeviceNeighbors
   devices(
     after: String
     before: String

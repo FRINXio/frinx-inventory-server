@@ -143,6 +143,11 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  FilterNeighborInput: {
+    // input type
+    deviceName: string; // String!
+    topologyType: NexusGenEnums['TopologyType']; // TopologyType!
+  };
   FilterStreamsInput: {
     // input type
     deviceName?: string | null; // String
@@ -409,6 +414,10 @@ export interface NexusGenObjects {
     // root type
     nodes?: Array<NexusGenRootTypes['GeoMapDevice'] | null> | null; // [GeoMapDevice]
   };
+  DeviceNeighbors: {
+    // root type
+    neighbors?: Array<NexusGenRootTypes['Neighbor'] | null> | null; // [Neighbor]
+  };
   DeviceStatus: {
     // root type
     deviceName?: string | null; // String
@@ -600,6 +609,11 @@ export interface NexusGenObjects {
     nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
   };
   Mutation: {};
+  Neighbor: {
+    // root type
+    deviceId: string; // String!
+    deviceName: string; // String!
+  };
   NetInterface: {
     // root type
     id: string; // String!
@@ -1083,6 +1097,10 @@ export interface NexusGenFieldTypes {
     // field return type
     nodes: Array<NexusGenRootTypes['GeoMapDevice'] | null> | null; // [GeoMapDevice]
   };
+  DeviceNeighbors: {
+    // field return type
+    neighbors: Array<NexusGenRootTypes['Neighbor'] | null> | null; // [Neighbor]
+  };
   DeviceStatus: {
     // field return type
     deviceName: string | null; // String
@@ -1328,6 +1346,11 @@ export interface NexusGenFieldTypes {
     updateLocation: NexusGenRootTypes['UpdateLocationPayload']; // UpdateLocationPayload!
     updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
   };
+  Neighbor: {
+    // field return type
+    deviceId: string; // String!
+    deviceName: string; // String!
+  };
   NetInterface: {
     // field return type
     id: string; // String!
@@ -1449,6 +1472,7 @@ export interface NexusGenFieldTypes {
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
     deviceMetadata: NexusGenRootTypes['DeviceMetadata'] | null; // DeviceMetadata
+    deviceNeighbor: NexusGenRootTypes['DeviceNeighbors'] | null; // DeviceNeighbors
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
@@ -1863,6 +1887,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     nodes: 'GeoMapDevice';
   };
+  DeviceNeighbors: {
+    // field return type name
+    neighbors: 'Neighbor';
+  };
   DeviceStatus: {
     // field return type name
     deviceName: 'String';
@@ -2108,6 +2136,11 @@ export interface NexusGenFieldTypeNames {
     updateLocation: 'UpdateLocationPayload';
     updateStream: 'UpdateStreamPayload';
   };
+  Neighbor: {
+    // field return type name
+    deviceId: 'String';
+    deviceName: 'String';
+  };
   NetInterface: {
     // field return type name
     id: 'String';
@@ -2229,6 +2262,7 @@ export interface NexusGenFieldTypeNames {
     countries: 'CountryConnection';
     dataStore: 'DataStore';
     deviceMetadata: 'DeviceMetadata';
+    deviceNeighbor: 'DeviceNeighbors';
     devices: 'DeviceConnection';
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
@@ -2631,6 +2665,10 @@ export interface NexusGenArgTypes {
     deviceMetadata: {
       // args
       filter?: NexusGenInputs['FilterDevicesMetadatasInput'] | null; // FilterDevicesMetadatasInput
+    };
+    deviceNeighbor: {
+      // args
+      filter?: NexusGenInputs['FilterNeighborInput'] | null; // FilterNeighborInput
     };
     devices: {
       // args

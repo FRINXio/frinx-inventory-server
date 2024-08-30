@@ -28,6 +28,8 @@ import {
   MplsLspCountQueryVariables,
   MplsPathQuery,
   MplsPathQueryVariables,
+  NeighborsQuery,
+  NeighborsQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -565,6 +567,15 @@ const MPLS_LSP_PATH = gql`
   }
 `;
 
+const MAP_NEIGHBORS = gql`
+  query Neighbors($deviceName: String!, $topologyType: TopologyType!) {
+    neighbors(device_name: $deviceName, topology_type: $topologyType) {
+      device_id
+      device_name
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -667,6 +678,15 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  async function getMapNeighbors(deviceName: string, topologyType: TopologyType): Promise<NeighborsQuery> {
+    const response = await client.request<NeighborsQuery, NeighborsQueryVariables>(MAP_NEIGHBORS, {
+      deviceName,
+      topologyType,
+    });
+
+    return response;
+  }
+
   async function getSyncePathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
     const response = await client.request<SyncePathToGrandMasterQuery, SyncePathToGrandMasterQueryVariables>(
       SYNCE_PATH,
@@ -738,6 +758,7 @@ function getTopologyDiscoveryApi() {
     getMplsTopology,
     getMplsLspCount,
     getLspPath,
+    getMapNeighbors,
   };
 }
 

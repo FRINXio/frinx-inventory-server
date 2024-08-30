@@ -1761,3 +1761,11 @@ export type MplsPathQueryVariables = Exact<{
 
 
 export type MplsPathQuery = { __typename?: 'Query', mplsLspPath: { __typename?: 'MplsLspPath', path: Array<string | null> | null, lsp_metadata: { __typename?: 'MplsLspMetadata', from_device: string, to_device: string, uptime: number | null, signalisation: string } | null } };
+
+export type NeighborsQueryVariables = Exact<{
+  deviceName: Scalars['String'];
+  topologyType: TopologyType;
+}>;
+
+
+export type NeighborsQuery = { __typename?: 'Query', neighbors: Array<{ __typename?: 'Neighbor', device_id: string, device_name: string }> | null };
