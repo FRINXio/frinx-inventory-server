@@ -410,8 +410,8 @@ type GraphEdge {
 }
 
 enum GraphEdgeStatus {
-  ok
-  unknown
+  OK
+  UNKNOWN
 }
 
 type GraphNode implements BaseGraphNode {
@@ -899,18 +899,18 @@ type TopologyCommonNodes {
 }
 
 enum TopologyLayer {
-  EthTopology
-  MplsTopology
-  PhysicalTopology
-  PtpTopology
+  ETH_TOPOLOGY
+  MPLS_TOPOLOGY
+  PHYSICAL_TOPOLOGY
+  PTP_TOPOLOGY
 }
 
 enum TopologyType {
-  EthTopology
-  MplsTopology
-  NetworkTopology
-  PhysicalTopology
-  PtpTopology
+  ETH_TOPOLOGY
+  MPLS_TOPOLOGY
+  NETWORK_TOPOLOGY
+  PHYSICAL_TOPOLOGY
+  PTP_TOPOLOGY
 }
 
 type Transaction {

@@ -62,7 +62,7 @@ export const FilterTopologyInput = inputObjectType({
 
 export const GraphInterfaceStatus = enumType({
   name: 'GraphEdgeStatus',
-  members: ['ok', 'unknown'],
+  members: ['OK', 'UNKNOWN'],
 });
 
 export const PtpGraphNodeInterfaceDetails = objectType({
@@ -509,7 +509,7 @@ export const PhyTopologyVersionDataQuery = extendType({
         const interfaceEdges = getDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PhysicalTopology');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PHYSICAL_TOPOLOGY');
 
         return makeTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -542,7 +542,7 @@ export const PtpTopologyVersionDataQuery = extendType({
         const interfaceEdges = getPtpDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PtpTopology');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'PTP_TOPOLOGY');
 
         return makePtpTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -575,7 +575,7 @@ export const TopologyVersionDataQuery = extendType({
         const interfaceEdges = getSynceDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'EthTopology');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'ETH_TOPOLOGY');
 
         return makeSynceTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -608,7 +608,7 @@ export const MplsTopologyVersionDataQuery = extendType({
         const interfaceEdges = getMplsDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'MplsTopology');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'MPLS_TOPOLOGY');
 
         return makeMplsTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -627,7 +627,7 @@ export const GraphNodeCoordinatesInput = inputObjectType({
 
 export const TopologyLayer = enumType({
   name: 'TopologyLayer',
-  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology', 'MplsTopology'],
+  members: ['PHYSICAL_TOPOLOGY', 'PTP_TOPOLOGY', 'ETH_TOPOLOGY', 'MPLS_TOPOLOGY'],
 });
 
 export const UpdateGraphNodeCooordinatesInput = inputObjectType({
@@ -665,7 +665,7 @@ export const UpdateGraphNodeCoordinatesMutation = extendType({
         const apiParams = input.coordinates.map((i) => ({ device: i.deviceName, x: i.x, y: i.y })) || [];
         const response = await topologyDiscoveryGraphQLAPI.updateCoordinates(
           apiParams,
-          input.layer ?? 'PhysicalTopology',
+          input.layer ?? 'PHYSICAL_TOPOLOGY',
         );
         return {
           deviceNames: response,
@@ -764,7 +764,7 @@ export const NetTopologyVersionDataQuery = extendType({
         const interfaceEdges = getNetDeviceInterfaceEdges(topologyDevicesResult);
 
         const { version } = args;
-        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'NetworkTopology');
+        const topologyDiff = await topologyDiscoveryGraphQLAPI.getTopologyDiff(version, 'NETWORK_TOPOLOGY');
 
         return makeNetTopologyDiff(topologyDiff, currentNodes, currentEdges, interfaces, interfaceEdges);
       },
@@ -902,7 +902,7 @@ export const DeviceMetadata = objectType({
 
 export const TopologyType = enumType({
   name: 'TopologyType',
-  members: ['PhysicalTopology', 'PtpTopology', 'EthTopology', 'NetworkTopology', 'MplsTopology'],
+  members: ['PHYSICAL_TOPOLOGY', 'PTP_TOPOLOGY', 'ETH_TOPOLOGY', 'NETWORK_TOPOLOGY', 'MPLS_TOPOLOGY'],
 });
 
 export const PolygonInputType = inputObjectType({
@@ -1009,9 +1009,9 @@ export const MplsLspCountQuery = queryField('mplsLspCount', {
 
     return {
       counts: result.mplsLspCount.map((c) => ({
-        target: c?.to_device ?? null,
-        incomingLsps: c?.incoming_lsps ?? null,
-        outcomingLsps: c?.outcoming_lsps ?? null,
+        target: c?.toDevice ?? null,
+        incomingLsps: c?.incomingLsps ?? null,
+        outcomingLsps: c?.outcomingLsps ?? null,
       })),
     };
   },
