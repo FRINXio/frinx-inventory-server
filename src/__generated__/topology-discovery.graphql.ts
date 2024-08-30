@@ -1753,3 +1753,11 @@ export type MplsLspCountQueryVariables = Exact<{
 
 
 export type MplsLspCountQuery = { __typename?: 'Query', mplsLspCount: Array<{ __typename?: 'MplsTotalLsps', toDevice: string | null, incomingLsps: number | null, outcomingLsps: number | null } | null> | null };
+
+export type NeighborsQueryVariables = Exact<{
+  deviceName: Scalars['String'];
+  topologyType: TopologyType;
+}>;
+
+
+export type NeighborsQuery = { __typename?: 'Query', neighbors: Array<{ __typename?: 'Neighbor', deviceId: string, deviceName: string }> | null };

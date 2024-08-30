@@ -954,6 +954,60 @@ export const deviceMetadataQuery = queryField('deviceMetadata', {
   },
 });
 
+export const Neighbor = objectType({
+  name: 'Neighbor',
+  definition: (t) => {
+    t.nonNull.string('deviceName');
+    t.nonNull.string('deviceId');
+  },
+});
+
+export const DeviceNeighbors = objectType({
+  name: 'DeviceNeighbors',
+  definition: (t) => {
+    t.list.field('neighbors', {
+      type: Neighbor,
+    });
+  },
+});
+
+export const FilterNeighborInput = inputObjectType({
+  name: 'FilterNeighborInput',
+  definition: (t) => {
+    t.nonNull.string('deviceName');
+    t.nonNull.field('topologyType', { type: TopologyType });
+  },
+});
+
+export const deviceNeighborQuery = queryField('deviceNeighbor', {
+  type: DeviceNeighbors,
+  args: {
+    filter: FilterNeighborInput,
+  },
+  resolve: async (_, { filter }, { topologyDiscoveryGraphQLAPI }) => {
+    if (!topologyDiscoveryGraphQLAPI) {
+      return null;
+    }
+
+    if (filter?.deviceName) {
+      const deviceNeighborsResult = await topologyDiscoveryGraphQLAPI.getMapNeighbors(
+        filter?.deviceName,
+        filter?.topologyType,
+      );
+
+      const neighborDevices =
+        deviceNeighborsResult.neighbors?.map((device) => ({
+          deviceName: device.deviceName,
+          deviceId: device.deviceId,
+        })) || [];
+
+      return { neighbors: neighborDevices };
+    }
+
+    return null;
+  },
+});
+
 export const MplsTopology = objectType({
   name: 'MplsTopology',
   definition: (t) => {
