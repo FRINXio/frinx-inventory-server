@@ -1754,6 +1754,14 @@ export type MplsLspCountQueryVariables = Exact<{
 
 export type MplsLspCountQuery = { __typename?: 'Query', mplsLspCount: Array<{ __typename?: 'MplsTotalLsps', toDevice: string | null, incomingLsps: number | null, outcomingLsps: number | null } | null> | null };
 
+export type MplsPathQueryVariables = Exact<{
+  deviceId: Scalars['ID'];
+  lspId: Scalars['ID'];
+}>;
+
+
+export type MplsPathQuery = { __typename?: 'Query', mplsLspPath: { __typename?: 'MplsLspPath', path: Array<string | null> | null, lspMetadata: { __typename?: 'MplsLspMetadata', fromDevice: string, toDevice: string, uptime: number | null, signalisation: string } | null } };
+
 export type NeighborsQueryVariables = Exact<{
   deviceName: Scalars['String'];
   topologyType: TopologyType;

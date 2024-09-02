@@ -26,6 +26,8 @@ import {
   MplsTopologyQuery,
   MplsLspCountQuery,
   MplsLspCountQueryVariables,
+  MplsPathQuery,
+  MplsPathQueryVariables,
   NeighborsQuery,
   NeighborsQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
@@ -551,6 +553,20 @@ const MPLS_LSP_COUNT = gql`
   }
 `;
 
+const MPLS_LSP_PATH = gql`
+  query MplsPath($deviceId: ID!, $lspId: ID!) {
+    mplsLspPath(deviceId: $deviceId, lspId: $lspId) {
+      path
+      lspMetadata {
+        fromDevice
+        toDevice
+        uptime
+        signalisation
+      }
+    }
+  }
+`;
+
 const MAP_NEIGHBORS = gql`
   query Neighbors($deviceName: String!, $topologyType: TopologyType!) {
     neighbors(deviceName: $deviceName, topologyType: $topologyType) {
@@ -717,6 +733,14 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  async function getLspPath(deviceId: string, lspId: string): Promise<MplsPathQuery> {
+    const response = await client.request<MplsPathQuery, MplsPathQueryVariables>(MPLS_LSP_PATH, {
+      deviceId,
+      lspId,
+    });
+    return response;
+  }
+
   return {
     getTopologyDevices,
     getPtpDiffSynce,
@@ -733,6 +757,7 @@ function getTopologyDiscoveryApi() {
     getDeviceMetadata,
     getMplsTopology,
     getMplsLspCount,
+    getLspPath,
     getMapNeighbors,
   };
 }

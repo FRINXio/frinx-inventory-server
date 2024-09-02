@@ -512,6 +512,18 @@ type LocationEdge {
   node: Location!
 }
 
+type LspPath {
+  metadata: LspPathMetadata
+  path: [String!]!
+}
+
+type LspPathMetadata {
+  fromDevice: String
+  signalization: String
+  toDevice: String
+  uptime: Int
+}
+
 type LspTunnel {
   fromDevice: String
   lspId: String!
@@ -758,6 +770,7 @@ type Query {
   kafkaHealthCheck: IsOkResponse
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  lspPath(deviceId: String!, lspId: String!): LspPath
   mplsLspCount(deviceId: String!): MplsLspCount
   mplsTopology: MplsTopology
   mplsTopologyVersionData(version: String!): MplsTopologyVersionData!

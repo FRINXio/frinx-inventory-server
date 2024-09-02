@@ -14,6 +14,7 @@ import {
   MplsDeviceDetails as ApiMplsDeviceDetails,
   LspTunnel as ApiLspTunnel,
   MplsData as ApiMplsData,
+  MplsPathQuery,
 } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
@@ -1993,4 +1994,19 @@ export function makeMplsTopologyEdges(mplsDevices?: MplsTopologyQuery) {
 
     return links;
   });
+}
+
+export function convertDiscoveryMplsPathToApiMplsPath(mplsPathQuery: MplsPathQuery): NexusGenObjects['LspPath'] {
+  const { path: apiPath, lsp_metadata: apiMetadata } = mplsPathQuery.mplsLspPath;
+  const path = apiPath?.filter(omitNullValue) ?? [];
+  const metadata = {
+    fromDevice: apiMetadata?.from_device,
+    toDevice: apiMetadata?.to_device,
+    signalization: apiMetadata?.signalisation,
+    uptime: apiMetadata?.uptime,
+  };
+  return {
+    path,
+    metadata,
+  };
 }
