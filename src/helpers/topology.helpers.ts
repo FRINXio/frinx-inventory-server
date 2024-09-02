@@ -1997,11 +1997,11 @@ export function makeMplsTopologyEdges(mplsDevices?: MplsTopologyQuery) {
 }
 
 export function convertDiscoveryMplsPathToApiMplsPath(mplsPathQuery: MplsPathQuery): NexusGenObjects['LspPath'] {
-  const { path: apiPath, lsp_metadata: apiMetadata } = mplsPathQuery.mplsLspPath;
+  const { path: apiPath, lspMetadata: apiMetadata } = mplsPathQuery.mplsLspPath;
   const path = apiPath?.filter(omitNullValue) ?? [];
   const metadata = {
-    fromDevice: apiMetadata?.from_device,
-    toDevice: apiMetadata?.to_device,
+    fromDevice: apiMetadata?.fromDevice,
+    toDevice: apiMetadata?.toDevice,
     signalization: apiMetadata?.signalisation,
     uptime: apiMetadata?.uptime,
   };
