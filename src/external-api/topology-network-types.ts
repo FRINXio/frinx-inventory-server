@@ -54,7 +54,7 @@ const NetInterface = t.type({
   ip_address: t.string,
 });
 export type NetInterface = t.TypeOf<typeof NetInterface>;
-const StatusValidator = t.union([t.literal('ok'), t.literal('unknown')]);
+const StatusValidator = t.union([t.literal('OK'), t.literal('UNKNOWN')]);
 const InterfaceWithStatusValidator = t.intersection([
   Interface,
   t.type({

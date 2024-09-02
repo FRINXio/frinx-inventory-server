@@ -227,13 +227,13 @@ export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
-  GraphEdgeStatus: 'ok' | 'unknown';
+  GraphEdgeStatus: 'OK' | 'UNKNOWN';
   Signalization: 'LDP' | 'RSVP';
   SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
-  TopologyLayer: 'EthTopology' | 'MplsTopology' | 'PhysicalTopology' | 'PtpTopology';
-  TopologyType: 'EthTopology' | 'MplsTopology' | 'NetworkTopology' | 'PhysicalTopology' | 'PtpTopology';
+  TopologyLayer: 'ETH_TOPOLOGY' | 'MPLS_TOPOLOGY' | 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY';
+  TopologyType: 'ETH_TOPOLOGY' | 'MPLS_TOPOLOGY' | 'NETWORK_TOPOLOGY' | 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY';
 }
 
 export interface NexusGenScalars {
