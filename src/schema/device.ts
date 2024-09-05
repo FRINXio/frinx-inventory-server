@@ -22,6 +22,7 @@ import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
   installMultipleDevicesCache,
+  UniconfigCache,
   uninstallDeviceCache,
   uninstallMultipleDevicesCache,
 } from '../external-api/uniconfig-cache';
@@ -393,7 +394,13 @@ export const UpdateDeviceMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
+
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+
+        // FR-333 - force cache to read new value from uniconfig
+        const cache = UniconfigCache.getInstance();
+        cache.delete(uniconfigURL, dbDevice.name);
+
         const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, dbDevice.name);
         if (isInstalled) {
           throw new Error('device is installed in UniConfig');
