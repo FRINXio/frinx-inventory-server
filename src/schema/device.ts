@@ -117,9 +117,14 @@ export const Device = objectType({
     t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { prisma }) => {
         const { uniconfigZoneId } = root;
-        const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
-        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
-        return isInstalled;
+        try {
+          const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
+          const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
+          return isInstalled;
+        } catch {
+          // FD-683 supress isInstalled error when something is wrong with uniconfig
+          return false;
+        }
       },
     });
     t.nonNull.field('zone', {
