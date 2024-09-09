@@ -22,6 +22,7 @@ import {
   getCachedDeviceInstallStatus,
   installDeviceCache,
   installMultipleDevicesCache,
+  UniconfigCache,
   uninstallDeviceCache,
   uninstallMultipleDevicesCache,
 } from '../external-api/uniconfig-cache';
@@ -116,9 +117,14 @@ export const Device = objectType({
     t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { prisma }) => {
         const { uniconfigZoneId } = root;
-        const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
-        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
-        return isInstalled;
+        try {
+          const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
+          const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
+          return isInstalled;
+        } catch {
+          // FD-683 supress isInstalled error when something is wrong with uniconfig
+          return false;
+        }
       },
     });
     t.nonNull.field('zone', {
@@ -267,6 +273,7 @@ export const AddDeviceInput = inputObjectType({
     t.int('port');
     t.string('deviceType');
     t.string('version');
+    t.string('locationId');
   },
 });
 export const AddDevicePayload = objectType({
@@ -287,6 +294,10 @@ export const AddDeviceMutation = extendType({
         const { input } = args;
         const nativeZoneId = fromGraphId('Zone', input.zoneId);
         const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
+        const deviceLocation = await prisma.location.findFirst({
+          where: { id: input.locationId ?? undefined },
+        });
+
         if (zone == null) {
           throw new Error('zone not found');
         }
@@ -306,6 +317,7 @@ export const AddDeviceMutation = extendType({
               port: input.port ?? undefined,
               deviceType: input.deviceType,
               version: input.version,
+              locationId: input.locationId ? fromGraphId('Location', input.locationId) : undefined,
               mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
               source: 'MANUAL',
               serviceState: input.serviceState ?? undefined,
@@ -319,17 +331,13 @@ export const AddDeviceMutation = extendType({
             },
           });
 
-          const deviceLocation = await prisma.location.findFirst({
-            where: { id: device.locationId ?? undefined },
-          });
+          const geoLocation: [number, number] | null =
+            deviceLocation?.latitude && deviceLocation?.longitude
+              ? [Number.parseFloat(deviceLocation.latitude ?? '0'), Number.parseFloat(deviceLocation.longitude ?? '0')]
+              : null;
 
           if (config.kafkaEnabled) {
-            await inventoryKafka?.produceDeviceRegistrationEvent(
-              kafka,
-              device,
-              [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
-              labelIds ?? [],
-            );
+            await inventoryKafka?.produceDeviceRegistrationEvent(kafka, device, geoLocation, labelIds ?? []);
           }
 
           return { device };
@@ -391,7 +399,13 @@ export const UpdateDeviceMutation = extendType({
         if (dbDevice == null) {
           throw new Error('device not found');
         }
+
         const uniconfigURL = await getUniconfigURL(prisma, dbDevice.uniconfigZoneId);
+
+        // FR-333 - force cache to read new value from uniconfig
+        const cache = UniconfigCache.getInstance();
+        cache.delete(uniconfigURL, dbDevice.name);
+
         const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, dbDevice.name);
         if (isInstalled) {
           throw new Error('device is installed in UniConfig');
@@ -443,13 +457,13 @@ export const UpdateDeviceMutation = extendType({
             where: { id: updatedDevice.locationId ?? undefined },
           });
 
+          const geoLocation: [number, number] | null =
+            deviceLocation?.latitude && deviceLocation?.longitude
+              ? [Number.parseFloat(deviceLocation.latitude ?? '0'), Number.parseFloat(deviceLocation.longitude ?? '0')]
+              : null;
+
           if (config.kafkaEnabled) {
-            await inventoryKafka?.produceDeviceUpdateEvent(
-              kafka,
-              updatedDevice,
-              [Number.parseFloat(deviceLocation?.latitude ?? '0'), Number.parseFloat(deviceLocation?.longitude ?? '0')],
-              labelIds,
-            );
+            await inventoryKafka?.produceDeviceUpdateEvent(kafka, updatedDevice, geoLocation, labelIds);
           }
 
           return { device: updatedDevice };

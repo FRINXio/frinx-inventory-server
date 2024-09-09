@@ -21,6 +21,15 @@ import {
   SynceTopologyQuery,
   SyncePathToGrandMasterQuery,
   SyncePathToGrandMasterQueryVariables,
+  DeviceMetadataQuery,
+  DeviceMetadataQueryVariables,
+  MplsTopologyQuery,
+  MplsLspCountQuery,
+  MplsLspCountQueryVariables,
+  MplsPathQuery,
+  MplsPathQueryVariables,
+  NeighborsQuery,
+  NeighborsQueryVariables,
 } from '../__generated__/topology-discovery.graphql';
 import { TopologyDiffOutput, decodeTopologyDiffOutput } from './topology-network-types';
 
@@ -28,6 +37,12 @@ type CoordinatesParam = {
   device: string;
   x: number;
   y: number;
+};
+
+type DeviceMetadataFilters = {
+  deviceName?: string | null;
+  topologyType?: 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY' | 'ETH_TOPOLOGY' | 'NETWORK_TOPOLOGY' | 'MPLS_TOPOLOGY' | null;
+  polygon?: number[][][] | null;
 };
 
 const GET_SHORTEST_PATH = gql`
@@ -59,8 +74,8 @@ const GET_TOPOLOGY_DEVICES = gql`
             y
           }
           details {
-            sw_version
-            device_type
+            swVersion
+            deviceType
           }
           phyInterfaces {
             edges {
@@ -104,8 +119,8 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
             name
             status
             details {
-              device_type
-              sw_version
+              deviceType
+              swVersion
             }
             labels
             routerId
@@ -172,8 +187,8 @@ const GET_BACKUPS = gql`
 
 const GET_TOPOLOGY_DIFF = gql`
   query topologyDiff($new_db: String!, $old_db: String!, $collection_type: TopologyType!) {
-    topologyDiff(new_db: $new_db, old_db: $old_db, collection_type: $collection_type) {
-      diff_data
+    topologyDiff(newDb: $new_db, oldDb: $old_db, collectionType: $collection_type) {
+      diffData
     }
   }
 `;
@@ -192,18 +207,18 @@ const GET_PTP_DIFF_SYNCE = gql`
 
 const GET_COMMON_NODES = gql`
   query getCommonNodes($selectedNodes: [String!]!) {
-    commonNodes(selected_nodes: $selectedNodes) {
-      common_nodes
+    commonNodes(selectedNodes: $selectedNodes) {
+      commonNodes
     }
   }
 `;
 
 const UPDATE_COORDINATES = gql`
   mutation UpdateCoordinates($coordinates: [CoordinatesInput!]!, $topology_type: TopologyType) {
-    updateCoordinates(coordinates_list: $coordinates, topology_type: $topology_type) {
-      not_installed
+    updateCoordinates(coordinatesList: $coordinates, topologyType: $topology_type) {
+      notInstalled
       installed {
-        not_updated
+        notUpdated
         updated
       }
     }
@@ -219,18 +234,18 @@ const PTP_TOPOLOGY = gql`
       y
     }
     details {
-      clock_type
+      clockType
       domain
-      ptp_profile
-      clock_id
-      parent_clock_id
-      gm_clock_id
-      clock_class
-      clock_accuracy
-      clock_variance
-      time_recovery_status
-      global_priority
-      user_priority
+      ptpProfile
+      clockId
+      parentClockId
+      gmClockId
+      clockClass
+      clockAccuracy
+      clockVariance
+      timeRecoveryStatus
+      globalPriority
+      userPriority
     }
     status
     labels
@@ -240,9 +255,9 @@ const PTP_TOPOLOGY = gql`
         node {
           ...PtpInterfaceParts
           details {
-            ptp_status
-            ptsf_unusable
-            admin_oper_status
+            ptpStatus
+            ptsfUnusable
+            adminOperStatus
           }
         }
       }
@@ -321,7 +336,7 @@ const SYNCE_TOPOLOGY = gql`
       y
     }
     details {
-      selected_for_use
+      selectedForUse
     }
     status
     labels
@@ -331,11 +346,11 @@ const SYNCE_TOPOLOGY = gql`
         node {
           ...SynceInterfaceParts
           details {
-            synce_enabled
-            rx_quality_level
-            qualified_for_use
-            not_qualified_due_to
-            not_selected_due_to
+            synceEnabled
+            rxQualityLevel
+            qualifiedForUse
+            notQualifiedDueTo
+            notSelectedDueTo
           }
         }
       }
@@ -408,6 +423,159 @@ const SYNCE_PATH = gql`
   }
 `;
 
+const DEVICE_METADATA = gql`
+  query DeviceMetadata($filters: DeviceMetadataFilter) {
+    deviceMetadata(filters: $filters) {
+      edges {
+        node {
+          id
+          deviceName
+          deviceType
+          model
+          vendor
+          version
+          protocolType
+          geoLocation {
+            bbox
+            coordinates
+            type
+          }
+        }
+      }
+    }
+  }
+`;
+
+const MPLS_TOPOLOGY = gql`
+  fragment MplsDeviceParts on MplsDevice {
+    id
+    name
+    status
+    labels
+    coordinates {
+      x
+      y
+    }
+    mplsInterfaces {
+      edges {
+        node {
+          ...MplsInterfaceParts
+        }
+      }
+    }
+    details {
+      routerId
+      mplsData {
+        lspId
+        inLabel
+        inInterface
+        outInterface
+        outLabel
+        mplsOperation
+        operState
+        signalisation
+      }
+      lspTunnels {
+        lspId
+        fromDevice
+        toDevice
+        signalisation
+        uptime
+      }
+    }
+  }
+
+  fragment MplsInterfaceDeviceParts on MplsDevice {
+    id
+    name
+    coordinates {
+      x
+      y
+    }
+    mplsInterfaces {
+      edges {
+        node {
+          id
+          name
+          mplsLinks {
+            edges {
+              link
+              node {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  fragment MplsInterfaceParts on MplsInterface {
+    id
+    name
+    status
+    mplsDevice {
+      ...MplsInterfaceDeviceParts
+    }
+    mplsLinks {
+      edges {
+        link
+        node {
+          id
+          mplsDevice {
+            ...MplsInterfaceDeviceParts
+          }
+        }
+      }
+    }
+  }
+
+  query MplsTopology {
+    mplsDevices {
+      edges {
+        cursor
+        node {
+          ...MplsDeviceParts
+        }
+      }
+    }
+  }
+`;
+
+const MPLS_LSP_COUNT = gql`
+  query MplsLspCount($deviceId: ID!) {
+    mplsLspCount(deviceId: $deviceId) {
+      toDevice
+      incomingLsps
+      outcomingLsps
+    }
+  }
+`;
+
+const MPLS_LSP_PATH = gql`
+  query MplsPath($deviceId: ID!, $lspId: ID!) {
+    mplsLspPath(deviceId: $deviceId, lspId: $lspId) {
+      path
+      lspMetadata {
+        fromDevice
+        toDevice
+        uptime
+        signalisation
+      }
+    }
+  }
+`;
+
+const MAP_NEIGHBORS = gql`
+  query Neighbors($deviceName: String!, $topologyType: TopologyType!) {
+    neighbors(deviceName: $deviceName, topologyType: $topologyType) {
+      deviceId
+      deviceName
+    }
+  }
+`;
+
 function getTopologyDiscoveryApi() {
   if (!config.topologyEnabled) {
     return undefined;
@@ -419,7 +587,7 @@ function getTopologyDiscoveryApi() {
     const response = await client.request<GetShortestPathQuery, GetShortestPathQueryVariables>(GET_SHORTEST_PATH, {
       deviceFrom: from,
       deviceTo: to,
-      collection: 'NetInterface',
+      collection: 'NET_INTERFACE',
     });
 
     return response;
@@ -456,7 +624,7 @@ function getTopologyDiscoveryApi() {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       collection_type: collectionType,
     });
-    const json = decodeTopologyDiffOutput(response.topologyDiff.diff_data);
+    const json = decodeTopologyDiffOutput(response.topologyDiff.diffData);
 
     return json;
   }
@@ -466,15 +634,15 @@ function getTopologyDiscoveryApi() {
       selectedNodes,
     });
 
-    return response.commonNodes.common_nodes;
+    return response.commonNodes.commonNodes;
   }
 
   async function updateCoordinates(coordinates: CoordinatesParam[], topologyType?: TopologyType): Promise<string[]> {
     const coordinatesInput: CoordinatesInput[] = coordinates.map((c) => ({
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      node_name: c.device,
+      nodeName: c.device,
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      node_type: 'device',
+      nodeType: 'DEVICE',
       x: c.x,
       y: c.y,
     }));
@@ -510,6 +678,15 @@ function getTopologyDiscoveryApi() {
     return response;
   }
 
+  async function getMapNeighbors(deviceName: string, topologyType: TopologyType): Promise<NeighborsQuery> {
+    const response = await client.request<NeighborsQuery, NeighborsQueryVariables>(MAP_NEIGHBORS, {
+      deviceName,
+      topologyType,
+    });
+
+    return response;
+  }
+
   async function getSyncePathToGrandMaster(deviceFrom: string): Promise<string[] | null> {
     const response = await client.request<SyncePathToGrandMasterQuery, SyncePathToGrandMasterQueryVariables>(
       SYNCE_PATH,
@@ -519,6 +696,49 @@ function getTopologyDiscoveryApi() {
     );
 
     return response.syncePathToGm.nodes;
+  }
+
+  async function getDeviceMetadata(filters?: DeviceMetadataFilters): Promise<DeviceMetadataQuery> {
+    const filter: DeviceMetadataFilters = {};
+
+    if (filters?.deviceName != null) {
+      filter.deviceName = filters.deviceName;
+    }
+
+    if (filters?.topologyType != null) {
+      filter.topologyType = filters.topologyType;
+    }
+
+    if (filters?.polygon != null) {
+      filter.polygon = filters.polygon;
+    }
+
+    const response = await client.request<DeviceMetadataQuery, DeviceMetadataQueryVariables>(DEVICE_METADATA, {
+      filters: filter,
+    });
+    return response;
+  }
+
+  async function getMplsTopology(): Promise<MplsTopologyQuery> {
+    const response = await client.request<MplsTopologyQuery>(MPLS_TOPOLOGY);
+
+    return response;
+  }
+
+  async function getMplsLspCount(deviceId: string): Promise<MplsLspCountQuery> {
+    const response = await client.request<MplsLspCountQuery, MplsLspCountQueryVariables>(MPLS_LSP_COUNT, {
+      deviceId,
+    });
+
+    return response;
+  }
+
+  async function getLspPath(deviceId: string, lspId: string): Promise<MplsPathQuery> {
+    const response = await client.request<MplsPathQuery, MplsPathQueryVariables>(MPLS_LSP_PATH, {
+      deviceId,
+      lspId,
+    });
+    return response;
   }
 
   return {
@@ -534,6 +754,11 @@ function getTopologyDiscoveryApi() {
     updateCoordinates,
     getSynceTopology,
     getSyncePathToGrandMaster,
+    getDeviceMetadata,
+    getMplsTopology,
+    getMplsLspCount,
+    getLspPath,
+    getMapNeighbors,
   };
 }
 

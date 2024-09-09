@@ -1,7 +1,7 @@
 import { ExpressContextFunctionArgument } from '@apollo/server/express4';
 import { PrismaClient } from '@prisma/client';
 import { IncomingHttpHeaders } from 'http';
-import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topology-discovery';
+// import topologyDiscoveryAPI, { TopologyDiscoveryAPI } from './external-api/topology-discovery';
 import getTopologyDiscoveryApi, { TopologyDiscoveryGraphQLAPI } from './external-api/topology-discovery-graphql';
 import uniconfigAPI, { UniConfigAPI } from './external-api/uniconfig';
 import prismaClient from './prisma-client';
@@ -14,7 +14,7 @@ export type Context = {
   prisma: PrismaClient;
   tenantId: string;
   uniconfigAPI: UniConfigAPI;
-  topologyDiscoveryAPI: TopologyDiscoveryAPI;
+  // topologyDiscoveryAPI: TopologyDiscoveryAPI;
   topologyDiscoveryGraphQLAPI?: TopologyDiscoveryGraphQLAPI;
   performanceMonitoringAPI: PerformanceMonitoringAPI;
   inventoryKafka: typeof kafkaProducers | null;
@@ -44,7 +44,7 @@ export default async function createContext(context: ExpressContextFunctionArgum
     prisma: prismaClient,
     tenantId,
     uniconfigAPI,
-    topologyDiscoveryAPI,
+    // topologyDiscoveryAPI,
     topologyDiscoveryGraphQLAPI: getTopologyDiscoveryApi(),
     performanceMonitoringAPI: getPerformanceMonitoringAPI(),
     ...(config.kafkaEnabled ? { kafka, inventoryKafka: kafkaProducers } : { kafka: null, inventoryKafka: null }),

@@ -20,6 +20,7 @@ input AddDeviceInput {
   deviceSize: DeviceSize
   deviceType: String
   labelIds: [String!]
+  locationId: String
   model: String
   mountParameters: String
   name: String!
@@ -37,7 +38,8 @@ type AddDevicePayload {
 }
 
 input AddLocationInput {
-  countryId: String!
+  coordinates: Coordinates!
+  countryId: String
   name: String!
 }
 
@@ -185,6 +187,11 @@ type CommitConfigPayload {
   output: CommitConfigOutput!
 }
 
+input Coordinates {
+  latitude: Float!
+  longitude: Float!
+}
+
 type Country implements Node {
   code: String!
   id: ID!
@@ -234,6 +241,10 @@ type DeleteDevicePayload {
 
 type DeleteLabelPayload {
   label: Label
+}
+
+type DeleteLocationPayload {
+  location: Location!
 }
 
 input DeleteSnapshotInput {
@@ -291,6 +302,14 @@ type DeviceEdge {
 
 type DeviceListUsage {
   devicesUsage: [DevicesUsage!]!
+}
+
+type DeviceMetadata {
+  nodes: [GeoMapDevice]
+}
+
+type DeviceNeighbors {
+  neighbors: [Neighbor]
 }
 
 input DeviceOrderByInput {
@@ -351,8 +370,19 @@ input FilterDevicesInput {
   labels: [String!]
 }
 
+input FilterDevicesMetadatasInput {
+  deviceName: String
+  polygon: PolygonInput
+  topologyType: TopologyType
+}
+
 input FilterLabelsInput {
   name: String!
+}
+
+input FilterNeighborInput {
+  deviceName: String!
+  topologyType: TopologyType!
 }
 
 input FilterStreamsInput {
@@ -369,6 +399,18 @@ input FilterZonesInput {
   name: String!
 }
 
+type GeoMapDevice {
+  deviceName: String!
+  geolocation: Geolocation
+  id: ID!
+  locationName: String
+}
+
+type Geolocation {
+  latitude: Float!
+  longitude: Float!
+}
+
 type GraphEdge {
   id: ID!
   source: EdgeSourceTarget!
@@ -377,8 +419,8 @@ type GraphEdge {
 }
 
 enum GraphEdgeStatus {
-  ok
-  unknown
+  OK
+  UNKNOWN
 }
 
 type GraphNode implements BaseGraphNode {
@@ -450,9 +492,11 @@ type LabelEdge {
 }
 
 type Location implements Node {
-  country: String!
+  country: String
   createdAt: String!
   id: ID!
+  latitude: Float
+  longitude: Float
   name: String!
   updatedAt: String!
 }
@@ -466,6 +510,79 @@ type LocationConnection {
 type LocationEdge {
   cursor: String!
   node: Location!
+}
+
+type LspPath {
+  metadata: LspPathMetadata
+  path: [String!]!
+}
+
+type LspPathMetadata {
+  fromDevice: String
+  signalization: String
+  toDevice: String
+  uptime: Int
+}
+
+type LspTunnel {
+  fromDevice: String
+  lspId: String!
+  signalization: Signalization
+  toDevice: String
+  uptime: Int
+}
+
+type MplsData {
+  inputInterface: String
+  inputLabel: Int
+  ldpPrefix: String
+  lspId: String!
+  mplsOperation: String
+  operState: String
+  outputInterface: String
+  outputLabel: Int
+}
+
+type MplsDeviceDetails {
+  lspTunnels: [LspTunnel]
+  mplsData: [MplsData]
+}
+
+type MplsGraphNode {
+  coordinates: GraphNodeCoordinates!
+  id: ID!
+  interfaces: [MplsGraphNodeInterface!]!
+  labels: [String!]
+  mplsDeviceDetails: MplsDeviceDetails!
+  name: String!
+  nodeId: String!
+  status: GraphEdgeStatus!
+}
+
+type MplsGraphNodeInterface {
+  id: String!
+  name: String!
+  status: GraphEdgeStatus!
+}
+
+type MplsLspCount {
+  counts: [MplsLspCountItem]
+}
+
+type MplsLspCountItem {
+  incomingLsps: Int
+  outcomingLsps: Int
+  target: String
+}
+
+type MplsTopology {
+  edges: [GraphEdge!]!
+  nodes: [MplsGraphNode!]!
+}
+
+type MplsTopologyVersionData {
+  edges: [GraphVersionEdge!]!
+  nodes: [MplsGraphNode!]!
 }
 
 type Mutation {
@@ -489,6 +606,7 @@ type Mutation {
   deleteBlueprint(id: String!): DeleteBlueprintPayload!
   deleteDevice(id: String!): DeleteDevicePayload!
   deleteLabel(id: String!): DeleteLabelPayload!
+  deleteLocation(id: String!): DeleteLocationPayload!
   deleteSnapshot(input: DeleteSnapshotInput!): DeleteSnapshotPayload
   deleteStream(id: String!): DeleteStreamPayload!
   importCSV(input: CSVImportInput!): CSVImport
@@ -503,7 +621,13 @@ type Mutation {
   updateDevice(id: String!, input: UpdateDeviceInput!): UpdateDevicePayload!
   updateDiscoveredAt(deviceIds: [String!]!): [DeviceDiscoveryPayload!]!
   updateGraphNodeCoordinates(input: UpdateGraphNodeCoordinatesInput!): UpdateGraphNodeCoordinatesPayload!
+  updateLocation(id: String!, input: UpdateLocationInput!): UpdateLocationPayload!
   updateStream(id: String!, input: UpdateStreamInput!): UpdateStreamPayload!
+}
+
+type Neighbor {
+  deviceId: String!
+  deviceName: String!
 }
 
 type NetInterface {
@@ -524,6 +648,7 @@ type NetNode {
   name: String!
   networks: [NetNetwork!]!
   nodeId: String!
+  phyDeviceName: String
 }
 
 type NetRoutingPathNode {
@@ -560,6 +685,10 @@ type PageInfo {
 type PhyTopologyVersionData {
   edges: [GraphVersionEdge!]!
   nodes: [GraphVersionNode!]!
+}
+
+input PolygonInput {
+  polygon: [[[Float!]!]!]
 }
 
 type PtpDeviceDetails {
@@ -628,6 +757,8 @@ type Query {
   calculatedDiff(deviceId: String!, transactionId: String!): CalculatedDiffPayload!
   countries(after: String, before: String, first: Int, last: Int): CountryConnection!
   dataStore(deviceId: String!, transactionId: String!): DataStore
+  deviceMetadata(filter: FilterDevicesMetadatasInput): DeviceMetadata
+  deviceNeighbor(filter: FilterNeighborInput): DeviceNeighbors
   devices(
     after: String
     before: String
@@ -639,6 +770,10 @@ type Query {
   kafkaHealthCheck: IsOkResponse
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  lspPath(deviceId: String!, lspId: String!): LspPath
+  mplsLspCount(deviceId: String!): MplsLspCount
+  mplsTopology: MplsTopology
+  mplsTopologyVersionData(version: String!): MplsTopologyVersionData!
   netTopology: NetTopology
   netTopologyVersionData(version: String!): NetTopologyVersionData!
   node(id: ID!): Node
@@ -673,6 +808,11 @@ type ResetConfigPayload {
 
 type RevertChangesPayload {
   isOk: Boolean!
+}
+
+enum Signalization {
+  LDP
+  RSVP
 }
 
 type Snapshot {
@@ -787,9 +927,18 @@ type TopologyCommonNodes {
 }
 
 enum TopologyLayer {
-  EthTopology
-  PhysicalTopology
-  PtpTopology
+  ETH_TOPOLOGY
+  MPLS_TOPOLOGY
+  PHYSICAL_TOPOLOGY
+  PTP_TOPOLOGY
+}
+
+enum TopologyType {
+  ETH_TOPOLOGY
+  MPLS_TOPOLOGY
+  NETWORK_TOPOLOGY
+  PHYSICAL_TOPOLOGY
+  PTP_TOPOLOGY
 }
 
 type Transaction {
@@ -862,6 +1011,16 @@ input UpdateGraphNodeCoordinatesInput {
 
 type UpdateGraphNodeCoordinatesPayload {
   deviceNames: [String!]!
+}
+
+input UpdateLocationInput {
+  coordinates: Coordinates!
+  countryId: String
+  name: String!
+}
+
+type UpdateLocationPayload {
+  location: Location!
 }
 
 input UpdateStreamInput {

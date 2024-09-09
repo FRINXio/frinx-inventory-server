@@ -1,15 +1,24 @@
 import { device as PrismaDevice } from '@prisma/client';
 import {
+  DeviceMetadataQuery,
+  MplsTopologyQuery,
   NetTopologyQuery,
   PhyDevice,
   PtpDevice,
+  PtpDeviceDetails as ApiPtpDeviceDetails,
   PtpTopologyQuery,
   SynceDevice,
   SynceTopologyQuery,
   TopologyDevicesQuery,
+  MplsDevice,
+  MplsDeviceDetails as ApiMplsDeviceDetails,
+  LspTunnel as ApiLspTunnel,
+  MplsData as ApiMplsData,
+  MplsPathQuery,
 } from '../__generated__/topology-discovery.graphql';
 import {
   ArangoDevice,
+  ArangoPtpDevice as DbArangoPtpDevice,
   ArangoEdge,
   ArangoEdgeWithStatus,
   EdgeWithStatus,
@@ -24,10 +33,13 @@ import {
   SynceInterfaceWithStatus,
   ArangoNetDevice,
   NetInterface,
+  MplsInterfaceWithStatus,
+  MplsTopologyDiffType,
 } from '../external-api/topology-network-types';
 import { omitNullValue, unwrap } from './utils.helpers';
 import { toGraphId } from './id-helper';
 import { NexusGenObjects } from '../schema/nexus-typegen';
+import { Location } from '../schema/source-types';
 
 type FilterInput = {
   labelIds?: string[] | null;
@@ -56,6 +68,32 @@ type SynceDeviceDetails = {
   selectedForUse: string | null;
 };
 
+type Signalization = 'RSVP' | 'LDP';
+
+type MplsData = {
+  lspId: string;
+  inputInterface: string | null;
+  inputlabel: number | null;
+  mplsOperation: string | null;
+  operState: string | null;
+  outputInterface: string | null;
+  outputLabel: number | null;
+  signalization: Signalization | null;
+};
+
+type LspTunnel = {
+  lspId: string;
+  fromDevice: string | null;
+  toDevice: string | null;
+  signalization: Signalization;
+  uptime: number | null;
+};
+
+type MplsDeviceDetails = {
+  mplsData: MplsData[] | null;
+  lspTunnels: LspTunnel[] | null;
+};
+
 function isPtpTopologyDiff(topology: TopologyDiffOutput): topology is PtpTopologyDiffType {
   const added = Object.keys(topology.added).every((key) => key.includes('Ptp'));
   const deleted = Object.keys(topology.deleted).every((key) => key.includes('Ptp'));
@@ -66,6 +104,13 @@ function isPtpTopologyDiff(topology: TopologyDiffOutput): topology is PtpTopolog
 function isSynceTopologyDiff(topology: TopologyDiffOutput): topology is SynceTopologyDiffType {
   const added = Object.keys(topology.added).every((key) => key.includes('Synce'));
   const deleted = Object.keys(topology.deleted).every((key) => key.includes('Synce'));
+
+  return added && deleted;
+}
+
+function isMplsTopologyDiff(topology: TopologyDiffOutput): topology is MplsTopologyDiffType {
+  const added = Object.keys(topology.added).every((key) => key.includes('Mpls'));
+  const deleted = Object.keys(topology.deleted).every((key) => key.includes('Mpls'));
 
   return added && deleted;
 }
@@ -97,10 +142,14 @@ export function getFilterQuery(filter?: FilterInput | null): FilterQuery | undef
   };
 }
 
+type CustomPtpDetails = Omit<ApiPtpDeviceDetails, 'ptpPortState'>;
 type QueryNetDevice = NonNullable<NonNullable<NonNullable<NetTopologyQuery['netDevices']['edges']>[0]>['node']>;
 type PhyDeviceWithoutInterfaces = Omit<PhyDevice, 'phyInterfaces' | 'netDevice'>;
-type PtpDeviceWithoutInterfaces = Omit<PtpDevice, 'ptpInterfaces' | 'netDevice'>;
+type PtpDeviceWithoutInterfaces = Omit<PtpDevice, 'details' | 'ptpInterfaces' | 'netDevice'> & {
+  details: CustomPtpDetails;
+};
 type SynceDeviceWithoutInterfaces = Omit<SynceDevice, 'synceInterfaces' | 'netDevice'>;
+type MplsDeviceWithoutInterfaces = Omit<MplsDevice, 'mplsInterfaces' | 'netDevice'>;
 
 export function convertNetDeviceToArangoDevice(netDevice: QueryNetDevice): ArangoNetDevice | null {
   if (!netDevice.phyDevice) {
@@ -152,8 +201,8 @@ export function convertPhyDeviceToArangoDevice(phyDevice: PhyDeviceWithoutInterf
   };
 }
 
-export function getStatus(status: string | undefined): 'ok' | 'unknown' {
-  return status === 'ok' ? 'ok' : 'unknown';
+export function getStatus(status: 'OK' | 'UNKNOWN' | undefined): 'OK' | 'UNKNOWN' {
+  return status === 'OK' ? 'OK' : 'UNKNOWN';
 }
 
 export function getPtpTopologyInterfaces(topologyDevices: PtpTopologyQuery) {
@@ -175,11 +224,11 @@ export function getPtpTopologyInterfaces(topologyDevices: PtpTopologyQuery) {
             nodeId: node.name,
             details: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              ptp_status: inode.details.ptp_status,
+              ptp_status: inode.details.ptpStatus,
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              admin_oper_status: inode.details.admin_oper_status,
+              admin_oper_status: inode.details.adminOperStatus,
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              ptsf_unusable: inode.details.ptsf_unusable,
+              ptsf_unusable: inode.details.ptsfUnusable,
             },
           };
         })
@@ -192,6 +241,23 @@ export function getPtpTopologyInterfaces(topologyDevices: PtpTopologyQuery) {
 export function makePtpDeviceDetails(
   details: NonNullable<NonNullable<NonNullable<PtpTopologyQuery['ptpDevices']['edges']>[0]>['node']>['details'],
 ): PtpDeviceDetails {
+  return {
+    clockType: details.clockType,
+    domain: details.domain,
+    ptpProfile: details.ptpProfile,
+    clockId: details.clockId,
+    parentClockId: details.parentClockId,
+    gmClockId: details.gmClockId,
+    clockClass: details.clockClass,
+    clockAccuracy: details.clockAccuracy,
+    clockVariance: details.clockVariance,
+    timeRecoveryStatus: details.timeRecoveryStatus,
+    globalPriority: details.globalPriority,
+    userPriority: details.userPriority,
+  };
+}
+
+export function makePtpDeviceDetailsFromArangoDetails(details: DbArangoPtpDevice['details']): PtpDeviceDetails {
   return {
     clockType: details.clock_type,
     domain: details.domain,
@@ -235,9 +301,9 @@ export function makePtpTopologyNodes(ptpDevices?: PtpTopologyQuery) {
                   name: interfaceNode.name,
                   status: getStatus(interfaceNode.status),
                   details: {
-                    ptpStatus: interfaceNode.details.ptp_status,
-                    adminOperStatus: interfaceNode.details.admin_oper_status,
-                    ptsfUnusable: interfaceNode.details.ptsf_unusable,
+                    ptpStatus: interfaceNode.details.ptpStatus,
+                    adminOperStatus: interfaceNode.details.adminOperStatus,
+                    ptsfUnusable: interfaceNode.details.ptsfUnusable,
                   },
                 };
               })
@@ -305,8 +371,51 @@ export function convertSynceDeviceToArangoDevice(synceDevice: SynceDeviceWithout
     _key: synceDevice.id,
     coordinates,
     synceDeviceDetails: {
-      selectedForUse: details.selected_for_use,
+      selectedForUse: details.selectedForUse,
     },
+    labels: labels ?? [],
+    name,
+    status,
+  };
+}
+
+export type ArangoMplsDevice = Omit<ArangoDevice & { mplsDeviceDetails: MplsDeviceDetails }, 'details'>;
+
+function convertApiMplsDeviceDetailToMplsDeviceDetail(input: ApiMplsDeviceDetails): MplsDeviceDetails {
+  return {
+    lspTunnels:
+      input.lspTunnels
+        ?.filter((t): t is ApiLspTunnel => t != null)
+        .map((t) => ({
+          lspId: t.lspId,
+          fromDevice: t.fromDevice,
+          toDevice: t.toDevice,
+          signalization: t.signalisation,
+          uptime: t.uptime,
+        })) ?? null,
+    mplsData:
+      input.mplsData
+        ?.filter((d): d is ApiMplsData => d != null)
+        .map((d) => ({
+          lspId: d.lspId,
+          inputlabel: d.inLabel,
+          inputInterface: d.inInterface,
+          outputLabel: d.outLabel,
+          outputInterface: d.outInterface,
+          mplsOperation: d.mplsOperation,
+          operState: d.operState,
+          signalization: d.signalisation,
+        })) ?? null,
+  };
+}
+
+export function convertMplsDeviceToArangoDevice(mplsDevice: MplsDeviceWithoutInterfaces): ArangoMplsDevice {
+  const { name, status, coordinates, details, labels } = mplsDevice;
+  return {
+    _id: mplsDevice.id,
+    _key: mplsDevice.id,
+    coordinates,
+    mplsDeviceDetails: convertApiMplsDeviceDetailToMplsDeviceDetail(details),
     labels: labels ?? [],
     name,
     status,
@@ -348,6 +457,15 @@ export function getSynceNodesFromTopologyQuery(query: SynceTopologyQuery): Arang
       ?.map((e) => e?.node)
       .filter(omitNullValue)
       .map(convertSynceDeviceToArangoDevice) ?? [];
+  return nodes;
+}
+
+export function getMplsNodesFromTopologyQuery(query: MplsTopologyQuery): ArangoMplsDevice[] {
+  const nodes =
+    query.mplsDevices.edges
+      ?.map((e) => e?.node)
+      .filter(omitNullValue)
+      .map(convertMplsDeviceToArangoDevice) ?? [];
   return nodes;
 }
 
@@ -415,6 +533,31 @@ export function getSynceEdgesFromTopologyQuery(query: SynceTopologyQuery): Arang
               _key: synceLinkEdge.link,
               _from: i.id,
               _to: synceLinkEdge.node.id,
+            };
+          }),
+        )
+        .filter(omitNullValue) ?? [],
+  );
+
+  return currentEdges ?? [];
+}
+
+export function getMplsEdgesFromTopologyQuery(query: MplsTopologyQuery): ArangoEdge[] {
+  const currentEdges = query.mplsDevices.edges?.flatMap(
+    (e) =>
+      e?.node?.mplsInterfaces.edges
+        ?.map((i) => i?.node)
+        .filter(omitNullValue)
+        .flatMap((i) =>
+          i.mplsLinks?.edges?.map((mplsLinkEdge) => {
+            if (!mplsLinkEdge?.link || !mplsLinkEdge?.node) {
+              return null;
+            }
+            return {
+              _id: mplsLinkEdge.link,
+              _key: mplsLinkEdge.link,
+              _from: i.id,
+              _to: mplsLinkEdge.node.id,
             };
           }),
         )
@@ -519,6 +662,28 @@ export function getOldTopologyInterfaceEdges(
     );
   }
 
+  if (isMplsTopologyDiff(diffData)) {
+    return (
+      interfaceEdges
+        // filter has edges added to current topology
+        .filter((e) => !diffData.added.MplsHas.find((h) => e._id === h._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.MplsInterface.find((i) => e._to === i._id))
+        // filter edges pointing to added device
+        .filter((e) => !diffData.added.MplsDevice.find((d) => e._from === d._id))
+        // add has edges removed from current topology
+        .concat(diffData.deleted.MplsHas)
+        // change `SynceHas` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.MplsHas.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
+  }
+
   return [];
 }
 
@@ -612,6 +777,26 @@ export function getOldTopologyConnectedEdges(connected: ArangoEdge[], diffData: 
     );
   }
 
+  if (isMplsTopologyDiff(diffData)) {
+    return (
+      connected
+        // filter connected edges added to current topology
+        .filter((e) => !diffData.added.MplsLink.find((c) => e._id === c._id))
+        // filter edges pointing to added interfaces
+        .filter((e) => !diffData.added.MplsInterface.find((i) => e._to === i._id))
+        // add connected edges removed from current topology
+        .concat(diffData.deleted.MplsLink)
+        // change `SynceLink` edges from old topology
+        .map((e) => {
+          const changedEdge = diffData.changed.MplsLink.find((h) => h.old._id === e._id);
+          if (!changedEdge) {
+            return e;
+          }
+          return changedEdge.old;
+        })
+    );
+  }
+
   if (isNetTopologyDiff(diffData)) {
     return (
       connected
@@ -663,7 +848,7 @@ export function getOldPtpTopologyDevices(devices: ArangoPtpDevice[], diffData: T
   if (isPtpTopologyDiff(diffData)) {
     const parsedOldDevices = diffData.deleted.PtpDevice.map((d) => ({
       ...d,
-      ptpDeviceDetails: makePtpDeviceDetails(d.details),
+      ptpDeviceDetails: makePtpDeviceDetailsFromArangoDetails(d.details),
     }));
 
     oldDevices = devices
@@ -672,7 +857,7 @@ export function getOldPtpTopologyDevices(devices: ArangoPtpDevice[], diffData: T
         (n) =>
           !diffData.added.PtpDevice.map((d) => ({
             ...d,
-            ptpDeviceDetails: makePtpDeviceDetails(d.details),
+            ptpDeviceDetails: makePtpDeviceDetailsFromArangoDetails(d.details),
           })).find((d) => n._id === d._id),
       )
       // add devices removed from current topology
@@ -682,11 +867,11 @@ export function getOldPtpTopologyDevices(devices: ArangoPtpDevice[], diffData: T
         const changedDevice = diffData.changed.PtpDevice.map((d) => ({
           old: {
             ...d.old,
-            ptpDeviceDetails: makePtpDeviceDetails(d.old.details),
+            ptpDeviceDetails: makePtpDeviceDetailsFromArangoDetails(d.old.details),
           },
           new: {
             ...d.new,
-            ptpDeviceDetails: makePtpDeviceDetails(d.new.details),
+            ptpDeviceDetails: makePtpDeviceDetailsFromArangoDetails(d.new.details),
           },
         })).find((d) => d.old._id === n._id);
         if (!changedDevice) {
@@ -733,6 +918,59 @@ export function getOldSynceDevicesTopology(
         return {
           ...changedDevice.old,
           synceDeviceDetails: { selectedForUse: changedDevice.old.details.selected_for_use },
+        };
+      });
+  }
+
+  return oldDevices;
+}
+
+export function getOldMplsDevicesTopology(
+  devices: ArangoMplsDevice[],
+  diffData: TopologyDiffOutput,
+): ArangoMplsDevice[] {
+  let oldDevices: ArangoMplsDevice[] = [];
+
+  if (isMplsTopologyDiff(diffData)) {
+    oldDevices = devices
+      .map((d) => ({
+        ...d,
+        mplsDeviceDetails: {
+          lspTunnels: [],
+          mplsData: [],
+        },
+      }))
+      // filter devices added to current topology
+      .filter((n) => !diffData.added.MplsDevice.find((d) => n._id === d._id))
+      // add devices removed from current topology
+      .concat(
+        diffData.deleted.MplsDevice.map((d) => ({
+          ...d,
+          mplsDeviceDetails: {
+            lspTunnels: [],
+            mplsData: [],
+          },
+        })),
+      )
+      // change devices from old topology
+      .map((n) => {
+        const changedDevice = diffData.changed.MplsDevice.find((d) => d.old._id === n._id);
+        if (!changedDevice) {
+          return {
+            ...n,
+            mplsDeviceDetails: {
+              lspTunnels: [],
+              mplsData: [],
+            },
+          };
+        }
+        return {
+          ...changedDevice.old,
+          mplsDeviceDetails: {
+            lspTunnels: [],
+            mplsData: [],
+          },
+          // synceDeviceDetails: { selectedForUse: changedDevice.old.details.selected_for_use },
         };
       });
   }
@@ -932,8 +1170,8 @@ export function makeTopologyNodes(dbDevices: PrismaDevice[], topologyDevices?: T
         return {
           id: toGraphId('GraphNode', node.id),
           name: node.name,
-          deviceType: node.details.device_type ?? null,
-          softwareVersion: node.details.sw_version ?? null,
+          deviceType: node.details.deviceType ?? null,
+          softwareVersion: node.details.swVersion ?? null,
           device: dbDevicesMap.get(node.name) ?? null,
           interfaces:
             node.phyInterfaces.edges?.map((e) => ({
@@ -993,15 +1231,15 @@ export function getSynceTopologyInterfaces(topologyDevices: SynceTopologyQuery) 
             nodeId: node.name,
             details: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              synce_enabled: inode?.details?.synce_enabled ?? null,
+              synce_enabled: inode?.details?.synceEnabled ?? null,
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              rx_quality_level: inode?.details?.rx_quality_level ?? null,
+              rx_quality_level: inode?.details?.rxQualityLevel ?? null,
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              qualified_for_use: inode?.details?.qualified_for_use ?? null,
+              qualified_for_use: inode?.details?.qualifiedForUse ?? null,
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              not_selected_due_to: inode?.details?.not_selected_due_to ?? null,
+              not_selected_due_to: inode?.details?.notSelectedDueTo ?? null,
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              not_qualified_due_to: inode?.details?.not_qualified_due_to ?? null,
+              not_qualified_due_to: inode?.details?.notQualifiedDueTo ?? null,
             },
           };
         })
@@ -1051,7 +1289,7 @@ export function getDeviceInterfaceEdges(topologyDevices: TopologyDevicesQuery): 
           _key: 'some_id',
           _from: d.node?.id ?? '',
           _to: i?.node?.id ?? '',
-          status: d.node?.status ?? 'unknown',
+          status: d.node?.status ?? 'UNKNOWN',
         })) ?? [],
     ) ?? []
   );
@@ -1067,7 +1305,7 @@ export function getPtpDeviceInterfaceEdges(topologyDevices: PtpTopologyQuery): A
           _key: 'some_id',
           _from: d.node?.id ?? '',
           _to: i?.node?.id ?? '',
-          status: d.node?.status ?? 'unknown',
+          status: d.node?.status ?? 'UNKNOWN',
         })) ?? [],
     ) ?? []
   );
@@ -1083,7 +1321,23 @@ export function getSynceDeviceInterfaceEdges(topologyDevices: SynceTopologyQuery
           _key: 'some_id',
           _from: d.node?.id ?? '',
           _to: i?.node?.id ?? '',
-          status: d.node?.status ?? 'unknown',
+          status: d.node?.status ?? 'UNKNOWN',
+        })) ?? [],
+    ) ?? []
+  );
+}
+
+export function getMplsDeviceInterfaceEdges(topologyDevices: MplsTopologyQuery): ArangoEdgeWithStatus[] {
+  return (
+    topologyDevices.mplsDevices.edges?.flatMap(
+      (d) =>
+        d?.node?.mplsInterfaces.edges?.map((i) => ({
+          _id: `${d.node?.id}-${i?.node?.id}`,
+          // _key: i?.node?.phyLink?.id ?? '', // INFO: idHas was removed
+          _key: 'some_id',
+          _from: d.node?.id ?? '',
+          _to: i?.node?.id ?? '',
+          status: d.node?.status ?? 'UNKNOWN',
         })) ?? [],
     ) ?? []
   );
@@ -1103,7 +1357,7 @@ export function getNetDeviceInterfaceEdges(topologyDevices: NetTopologyQuery): A
                 _key: 'some_id',
                 _from: d.node.id,
                 _to: i?.node?.id ?? '',
-                status: d.node.phyDevice.status ?? 'unknown',
+                status: d.node.phyDevice.status ?? 'UNKNOWN',
               };
             }
             return null;
@@ -1154,6 +1408,7 @@ export function makeNetTopologyNodes(netTopologyDevices?: NetTopologyQuery) {
         }
         return {
           id: toGraphId('GraphNode', node.id),
+          phyDeviceName: node.phyDevice?.name,
           nodeId: node.id,
           name: node.routerId,
           interfaces:
@@ -1253,7 +1508,7 @@ export function makeSynceDeviceDetails(
   device: NonNullable<NonNullable<NonNullable<SynceTopologyQuery['synceDevices']['edges']>[0]>['node']>,
 ): SynceDeviceDetails {
   return {
-    selectedForUse: device.details.selected_for_use,
+    selectedForUse: device.details.selectedForUse,
   };
 }
 
@@ -1284,11 +1539,11 @@ export function makeSynceTopologyNodes(synceDevices?: SynceTopologyQuery) {
                   name: interfaceNode.name,
                   status: getStatus(interfaceNode.status),
                   details: {
-                    synceEnabled: interfaceNode.details?.synce_enabled,
-                    rxQualityLevel: interfaceNode.details?.rx_quality_level,
-                    qualifiedForUse: interfaceNode.details?.qualified_for_use,
-                    notSelectedDueTo: interfaceNode.details?.not_selected_due_to,
-                    notQualifiedDueTo: interfaceNode.details?.not_qualified_due_to,
+                    synceEnabled: interfaceNode.details?.synceEnabled,
+                    rxQualityLevel: interfaceNode.details?.rxQualityLevel,
+                    qualifiedForUse: interfaceNode.details?.qualifiedForUse,
+                    notSelectedDueTo: interfaceNode.details?.notSelectedDueTo,
+                    notQualifiedDueTo: interfaceNode.details?.notQualifiedDueTo,
                   },
                 };
               })
@@ -1540,5 +1795,218 @@ export function makeNetTopologyDiff(
       coordinates: device.coordinates,
     })),
     edges: oldEdges,
+  };
+}
+
+export function makeMplsTopologyDiff(
+  topologyDiff: TopologyDiffOutput,
+  currentNodes: ArangoMplsDevice[],
+  currentEdges: ArangoEdge[],
+  interfaces: MplsInterfaceWithStatus[],
+  interfaceEdges: ArangoEdgeWithStatus[],
+) {
+  const oldDevices = getOldMplsDevicesTopology(currentNodes, topologyDiff);
+  const oldInterfaceEdges = getOldTopologyInterfaceEdges(interfaceEdges, topologyDiff);
+
+  const interfaceDeviceMap = makeInterfaceDeviceMap(oldInterfaceEdges);
+  const interfaceNameMap = makeInterfaceNameMap(
+    [...interfaces, ...getTopologyDiffInterfaces(topologyDiff)],
+    (i) => i.name,
+  );
+  const interfaceMap = makeInterfaceMap(oldInterfaceEdges, interfaceNameMap);
+  const nodesMap = makeNodesMap(oldDevices, (d) => d.name);
+
+  const oldEdges = getOldTopologyConnectedEdges(currentEdges, topologyDiff)
+    .map((e) => ({
+      id: e._id,
+      source: {
+        interface: e._from,
+        nodeId: nodesMap[interfaceDeviceMap[e._from]],
+      },
+      target: {
+        interface: e._to,
+        nodeId: nodesMap[interfaceDeviceMap[e._to]],
+      },
+    }))
+    .filter((e) => e.source.nodeId != null && e.target.nodeId != null);
+
+  return {
+    nodes: oldDevices.map((device) => ({
+      id: toGraphId('GraphNode', device._id),
+      name: device.name,
+      interfaces:
+        interfaceMap[device._id]?.map((intf) => ({
+          ...intf,
+        })) ?? [],
+      coordinates: device.coordinates,
+      mplsDeviceDetails: device.mplsDeviceDetails,
+      nodeId: device._id,
+      status: device.status,
+    })),
+    edges: oldEdges,
+  };
+}
+
+export function convertDeviceMetadataToMapNodes(
+  deviceMetadataQuery: DeviceMetadataQuery,
+  deviceLocationMap: Map<string, Location | null>,
+) {
+  if (deviceMetadataQuery.deviceMetadata?.edges == null) {
+    return null;
+  }
+
+  const mapNodes = deviceMetadataQuery.deviceMetadata.edges
+    .filter(omitNullValue)
+    .map((e) => {
+      const { node } = e;
+      if (node == null) {
+        return null;
+      }
+
+      const { id, deviceName, geoLocation: topologyGeolocation } = node;
+      const geolocation = topologyGeolocation
+        ? {
+            latitude: topologyGeolocation.coordinates[0],
+            longitude: topologyGeolocation.coordinates[1],
+          }
+        : null;
+
+      const deviceLocation = deviceLocationMap.get(node.deviceName)?.name ?? null;
+
+      return {
+        id: toGraphId('MapNode', id),
+        deviceName,
+        locationName: deviceLocation,
+        geolocation,
+      };
+    })
+    .filter(omitNullValue);
+
+  return mapNodes;
+}
+
+export function makeMplsTopologyNodes(mplsDevices?: MplsTopologyQuery) {
+  return (
+    mplsDevices?.mplsDevices.edges
+      ?.map((e) => {
+        const node = e?.node;
+        if (!node) {
+          return null;
+        }
+        return {
+          id: toGraphId('GraphNode', node.id),
+          nodeId: node.id,
+          name: node.name,
+          status: getStatus(node.status),
+          labels: node.labels?.map((l) => l) ?? [],
+          coordinates: node.coordinates,
+          interfaces:
+            node.mplsInterfaces.edges
+              ?.map((i) => {
+                const interfaceNode = i?.node;
+                if (!interfaceNode) {
+                  return null;
+                }
+                return {
+                  id: interfaceNode.id,
+                  name: interfaceNode.name,
+                  status: getStatus(interfaceNode.status),
+                };
+              })
+              .filter(omitNullValue) ?? [],
+          mplsDeviceDetails: {
+            lspTunnels:
+              node.details.lspTunnels?.map((tunnel) => ({
+                lspId: tunnel?.lspId ?? '',
+                fromDevice: tunnel?.fromDevice ?? null,
+                toDevice: tunnel?.toDevice ?? null,
+                uptime: tunnel?.uptime ?? null,
+                signalization: tunnel?.signalisation ?? null,
+              })) ?? null,
+            mplsData:
+              node.details.mplsData?.map((d) => ({
+                lspId: d?.lspId ?? '',
+                inputLabel: d?.inLabel ?? null,
+                inputInterface: d?.inInterface ?? null,
+                outputInterface: d?.outInterface ?? null,
+                outputLabel: d?.outLabel ?? null,
+                operState: d?.operState ?? null,
+                mplsOperation: d?.mplsOperation ?? null,
+              })) ?? null,
+          },
+        };
+      })
+      .filter(omitNullValue) ?? []
+  );
+}
+
+export function getMplsTopologyInterfaces(topologyDevices: MplsTopologyQuery) {
+  return (
+    topologyDevices.mplsDevices.edges?.flatMap((e) => {
+      const node = e?.node;
+      if (!node) {
+        return [];
+      }
+      const nodeInterfaces = node.mplsInterfaces.edges
+        ?.map((ie) => {
+          const inode = ie?.node;
+          if (!inode || !inode.mplsLinks) {
+            return null;
+          }
+          return {
+            ...inode,
+            _id: inode.id,
+            nodeId: node.name,
+          };
+        })
+        .filter(omitNullValue);
+      return nodeInterfaces || [];
+    }) ?? []
+  );
+}
+
+export function makeMplsTopologyEdges(mplsDevices?: MplsTopologyQuery) {
+  if (!mplsDevices) {
+    return [];
+  }
+
+  return getMplsTopologyInterfaces(mplsDevices).flatMap((i) => {
+    const links =
+      i.mplsLinks?.edges
+        ?.map((mplsLinkEdge) => {
+          if (!mplsLinkEdge?.link || !mplsLinkEdge?.node || !mplsLinkEdge.node.mplsDevice) {
+            return null;
+          }
+
+          return {
+            id: mplsLinkEdge.link,
+            source: {
+              interface: i.id,
+              nodeId: i.nodeId,
+            },
+            target: {
+              interface: mplsLinkEdge.node.id,
+              nodeId: mplsLinkEdge.node.mplsDevice?.name,
+            },
+          };
+        })
+        .filter(omitNullValue) ?? [];
+
+    return links;
+  });
+}
+
+export function convertDiscoveryMplsPathToApiMplsPath(mplsPathQuery: MplsPathQuery): NexusGenObjects['LspPath'] {
+  const { path: apiPath, lspMetadata: apiMetadata } = mplsPathQuery.mplsLspPath;
+  const path = apiPath?.filter(omitNullValue) ?? [];
+  const metadata = {
+    fromDevice: apiMetadata?.fromDevice,
+    toDevice: apiMetadata?.toDevice,
+    signalization: apiMetadata?.signalisation,
+    uptime: apiMetadata?.uptime,
+  };
+  return {
+    path,
+    metadata,
   };
 }

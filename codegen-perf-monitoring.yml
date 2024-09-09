@@ -1,5 +1,5 @@
 schema:
-  - 'http://localhost:8082'
+  - 'http://localhost:8082/api/graphql'
 documents:
   - './src/external-api/performance-monitoring-graphql.ts'
 generates:
