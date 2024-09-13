@@ -143,6 +143,10 @@ export interface NexusGenInputs {
     // input type
     name: string; // String!
   };
+  FilterLocationsInput: {
+    // input type
+    name?: string | null; // String
+  };
   FilterNeighborInput: {
     // input type
     deviceName: string; // String!
@@ -167,6 +171,11 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
+  };
+  LocationOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortLocationBy']; // SortLocationBy!
   };
   PolygonInput: {
     // input type
@@ -231,6 +240,7 @@ export interface NexusGenEnums {
   Signalization: 'LDP' | 'RSVP';
   SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
+  SortLocationBy: 'name';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
   TopologyLayer: 'ETH_TOPOLOGY' | 'MPLS_TOPOLOGY' | 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY';
   TopologyType: 'ETH_TOPOLOGY' | 'MPLS_TOPOLOGY' | 'NETWORK_TOPOLOGY' | 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY';
@@ -2691,8 +2701,10 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
+      filter?: NexusGenInputs['FilterLocationsInput'] | null; // FilterLocationsInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['LocationOrderByInput'] | null; // LocationOrderByInput
     };
     lspPath: {
       // args
