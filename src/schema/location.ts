@@ -1,10 +1,10 @@
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection';
 import { connectionFromArray } from 'graphql-relay';
 import countries from 'i18n-iso-countries';
-import { arg, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
+import { arg, enumType, extendType, inputObjectType, nonNull, objectType, stringArg } from 'nexus';
 import { fromGraphId, toGraphId } from '../helpers/id-helper';
-import { Node, PageInfo, PaginationConnectionArgs } from './global-types';
-import { getCountryName } from '../helpers/location-helpers';
+import { Node, PageInfo, PaginationConnectionArgs, SortDirection } from './global-types';
+import { getCountryName, getLocationFilterQuery, getLocationOrderingQuery } from '../helpers/location-helpers';
 
 export const Location = objectType({
   name: 'Location',
@@ -94,16 +94,40 @@ export const LocationConnection = objectType({
     t.nonNull.int('totalCount');
   },
 });
+export const FilterLocationsInput = inputObjectType({
+  name: 'FilterLocationsInput',
+  definition: (t) => {
+    t.string('name');
+  },
+});
+export const SortLocationBy = enumType({
+  name: 'SortLocationBy',
+  members: ['name'],
+});
+export const LocationOrderByInput = inputObjectType({
+  name: 'LocationOrderByInput',
+  definition: (t) => {
+    t.nonNull.field('sortKey', { type: SortLocationBy });
+    t.nonNull.field('direction', { type: SortDirection });
+  },
+});
 export const LocationQuery = extendType({
   type: 'Query',
   definition: (t) => {
     t.nonNull.field('locations', {
       type: LocationConnection,
-      args: PaginationConnectionArgs,
+      args: {
+        ...PaginationConnectionArgs,
+        filter: FilterLocationsInput,
+        orderBy: LocationOrderByInput,
+      },
       resolve: async (_, args, { prisma, tenantId }) => {
-        const baseArgs = { where: { tenantId } };
+        const { filter, orderBy } = args;
+        const filterQuery = getLocationFilterQuery({ locationName: filter?.name });
+        const orderingArgs = getLocationOrderingQuery(orderBy);
+        const baseArgs = { where: { tenantId, ...filterQuery } };
         const result = await findManyCursorConnection(
-          (paginationArgs) => prisma.location.findMany({ ...baseArgs, ...paginationArgs }),
+          (paginationArgs) => prisma.location.findMany({ ...baseArgs, ...orderingArgs, ...paginationArgs }),
           () => prisma.location.count(baseArgs),
           args,
         );
@@ -136,6 +160,7 @@ export const AddLocationInput = inputObjectType({
     t.nonNull.field({ name: 'coordinates', type: Coordinates });
   },
 });
+
 export const AddLocationMutation = extendType({
   type: 'Mutation',
   definition: (t) => {
