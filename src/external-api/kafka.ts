@@ -113,7 +113,8 @@ async function produceDeviceRegistrationEvent(
   }
 
   try {
-    const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'Point', coordinates } : null;
+    const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'POINT', coordinates } : null;
+    console.log(encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds));
     await kafka.send(device.name, encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds), {
       type: 'device_registration',
     });
@@ -153,7 +154,7 @@ async function produceDeviceUpdateEvent(
   }
 
   try {
-    const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'Point', coordinates } : null;
+    const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'POINT', coordinates } : null;
     await kafka.send(device.name, encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds), {
       type: 'device_update',
     });
