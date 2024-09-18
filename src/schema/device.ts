@@ -44,7 +44,6 @@ import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
 import config from '../config';
-import { disconnect } from 'node:process';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -433,7 +432,6 @@ export const UpdateDeviceMutation = extendType({
             deviceSize: input.deviceSize,
           };
 
-          console.log('locationId: ', input.locationId);
           const updatedDevice = await prisma.device.update({
             where: { id: nativeId },
             data: {

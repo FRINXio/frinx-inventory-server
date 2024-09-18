@@ -114,7 +114,6 @@ async function produceDeviceRegistrationEvent(
 
   try {
     const kafkaCoordinates: DeviceLocation | null = coordinates ? { type: 'POINT', coordinates } : null;
-    console.log(encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds));
     await kafka.send(device.name, encodeDeviceForInventoryKafka(device, kafkaCoordinates, labelIds), {
       type: 'device_registration',
     });
