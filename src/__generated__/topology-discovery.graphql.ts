@@ -96,7 +96,7 @@ export type DeviceMetadata = Node & {
   /** Model of the device (XR, ASR). */
   model: Maybe<Scalars['String']>;
   /** Protocol used for management for the device (cli, netconf, gnmi). */
-  protocolType: Maybe<Scalars['String']>;
+  protocolType: Maybe<Array<Scalars['String']>>;
   /** Vendor of the device (ex. Cisco). */
   vendor: Maybe<Scalars['String']>;
   /** Version of the device software (ex. 6.0.1). */
@@ -428,7 +428,7 @@ export type MutationEnableRemoteDebugSessionArgs = {
   host: Scalars['String'];
   port?: InputMaybe<Scalars['Int']>;
   stderrToServer?: InputMaybe<Scalars['Boolean']>;
-  stdoutToTerver?: InputMaybe<Scalars['Boolean']>;
+  stdoutToServer?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -1734,7 +1734,7 @@ export type DeviceMetadataQueryVariables = Exact<{
 }>;
 
 
-export type DeviceMetadataQuery = { __typename?: 'Query', deviceMetadata: { __typename?: 'MetadataConnection', edges: Array<{ __typename?: 'DeviceMetadataEdge', node: { __typename?: 'DeviceMetadata', id: string, deviceName: string, deviceType: string | null, model: string | null, vendor: string | null, version: string | null, protocolType: string | null, geoLocation: { __typename?: 'DeviceGeoLocation', bbox: Array<number | null> | null, coordinates: Array<number>, type: GeometryType } | null } | null } | null> | null } };
+export type DeviceMetadataQuery = { __typename?: 'Query', deviceMetadata: { __typename?: 'MetadataConnection', edges: Array<{ __typename?: 'DeviceMetadataEdge', node: { __typename?: 'DeviceMetadata', id: string, deviceName: string, deviceType: string | null, model: string | null, vendor: string | null, version: string | null, protocolType: Array<string> | null, geoLocation: { __typename?: 'DeviceGeoLocation', bbox: Array<number | null> | null, coordinates: Array<number>, type: GeometryType } | null } | null } | null> | null } };
 
 export type MplsDevicePartsFragment = { __typename?: 'MplsDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, status: NodeStatus, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null } | null } | null> | null } | null } | null } | null> | null }, details: { __typename?: 'MplsDeviceDetails', routerId: string | null, mplsData: Array<{ __typename?: 'MplsData', lspId: string, inLabel: number | null, inInterface: string | null, outInterface: string | null, outLabel: number | null, mplsOperation: MplsOperation | null, operState: string | null, signalisation: Signalisation | null } | null> | null, lspTunnels: Array<{ __typename?: 'LspTunnel', lspId: string, fromDevice: string | null, toDevice: string | null, signalisation: Signalisation, uptime: number | null } | null> | null } };
 
