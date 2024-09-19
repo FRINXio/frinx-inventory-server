@@ -57,7 +57,7 @@ async function produceDeviceRegistrationEventMock(
   }
 
   try {
-    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'POINT', coordinates }, labelIds), {
       type: 'device_registration',
     });
   } catch (error) {
@@ -96,7 +96,7 @@ async function produceDeviceUpdateEventMock(
   }
 
   try {
-    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'Point', coordinates }, labelIds), {
+    await kafka.send(device.name, encodeDeviceForInventoryKafka(device, { type: 'POINT', coordinates }, labelIds), {
       type: 'device_update',
     });
   } catch (error) {

@@ -293,9 +293,10 @@ export const AddDeviceMutation = extendType({
       resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const { input } = args;
         const nativeZoneId = fromGraphId('Zone', input.zoneId);
+        const nativeLocationId = input.locationId ? fromGraphId('Location', input.locationId) : null;
         const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
         const deviceLocation = await prisma.location.findFirst({
-          where: { id: input.locationId ?? undefined },
+          where: { id: nativeLocationId ?? undefined },
         });
 
         if (zone == null) {
@@ -430,6 +431,7 @@ export const UpdateDeviceMutation = extendType({
             ...oldMetadata,
             deviceSize: input.deviceSize,
           };
+
           const updatedDevice = await prisma.device.update({
             where: { id: nativeId },
             data: {
@@ -443,7 +445,11 @@ export const UpdateDeviceMutation = extendType({
               password: input.password,
               port: input.port,
               serviceState: input.serviceState ?? undefined,
-              location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
+              location: input.locationId
+                ? { connect: { id: fromGraphId('Location', input.locationId) } }
+                : {
+                    disconnect: true,
+                  },
               blueprint: input.blueprintId
                 ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } }
                 : undefined,
