@@ -932,10 +932,8 @@ export const deviceMetadataQuery = queryField('deviceMetadata', {
       return null;
     }
 
-    const deviceName = args.filter?.deviceName;
-
     const deviceMetadataResult = await topologyDiscoveryGraphQLAPI.getDeviceMetadata({
-      deviceName: deviceName ? `%${deviceName}%` : deviceName,
+      deviceName: args.filter?.deviceName,
       topologyType: args.filter?.topologyType,
       polygon: args.filter?.polygon?.polygon,
     });
