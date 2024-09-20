@@ -702,7 +702,7 @@ function getTopologyDiscoveryApi() {
     const filter: DeviceMetadataFilters = {};
 
     if (filters?.deviceName != null) {
-      filter.deviceName = filters.deviceName;
+      filter.deviceName = `%${filters.deviceName}%`;
     }
 
     if (filters?.topologyType != null) {
