@@ -43,6 +43,7 @@ import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
 import config from '../config';
+import { ExternalApiError } from '../external-api/errors';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -116,9 +117,14 @@ export const Device = objectType({
     t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { prisma }) => {
         const { uniconfigZoneId } = root;
-        const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
-        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
-        return isInstalled;
+        try {
+          const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
+          const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
+          return isInstalled;
+        } catch {
+          // FD-683 supress isInstalled error when something is wrong with uniconfig
+          return false;
+        }
       },
     });
     t.nonNull.field('zone', {
@@ -587,7 +593,15 @@ export const InstallDeviceMutation = extendType({
         const { mountParameters } = device;
         const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
+        try {
+          await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+
+          throw e;
+        }
         return { device };
       },
     });
@@ -628,7 +642,13 @@ export const UninstallDeviceMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
+        try {
+          await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+        }
         return { device };
       },
     });
@@ -771,9 +791,15 @@ export const BulkInstallDevicesMutation = extendType({
           }),
         );
 
-        await Promise.all(
-          devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
-        );
+        try {
+          await Promise.all(
+            devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
+          );
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+        }
 
         return { installedDevices: devices };
       },
