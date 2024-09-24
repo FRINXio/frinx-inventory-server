@@ -8,6 +8,7 @@ import {
   uninstallDevice,
   uninstallMultipleDevices,
 } from './uniconfig';
+import { ExternalApiError } from './errors';
 
 export class UniconfigCache {
   private static instance: UniconfigCache;
@@ -116,7 +117,11 @@ export async function installMultipleDevicesCache({
 
   try {
     await installMultipleDevices(url, devicesToInstall);
-  } catch {
+  } catch (e) {
+    if (e instanceof ExternalApiError) {
+      throw e;
+    }
+
     throw new Error('could not install device');
   }
 
