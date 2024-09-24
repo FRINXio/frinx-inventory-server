@@ -72,7 +72,7 @@ async function apiFetch(path: APIPath, options: RequestInit): Promise<unknown> {
   if (!response.ok) {
     const message = await response.text();
     logError(requestId, response.status, message);
-    throw new ExternalApiError(response.status);
+    throw new ExternalApiError(response.status, message);
   }
 
   if (response.status === 201 || response.status === 204) {
