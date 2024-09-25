@@ -44,6 +44,7 @@ import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
 import config from '../config';
+import { ExternalApiError } from '../external-api/errors';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -608,7 +609,15 @@ export const InstallDeviceMutation = extendType({
         const { mountParameters } = device;
         const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
+        try {
+          await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+
+          throw e;
+        }
         return { device };
       },
     });
@@ -649,7 +658,13 @@ export const UninstallDeviceMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
+        try {
+          await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+        }
         return { device };
       },
     });
@@ -792,9 +807,15 @@ export const BulkInstallDevicesMutation = extendType({
           }),
         );
 
-        await Promise.all(
-          devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
-        );
+        try {
+          await Promise.all(
+            devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
+          );
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+        }
 
         return { installedDevices: devices };
       },
