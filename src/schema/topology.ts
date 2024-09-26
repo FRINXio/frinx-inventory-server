@@ -1009,6 +1009,37 @@ export const deviceNeighborQuery = queryField('deviceNeighbor', {
   },
 });
 
+export const TopologyOfDevice = objectType({
+  name: 'TopologyOfDevice',
+  definition: (t) => {
+    t.nonNull.string('topologyId');
+    t.nonNull.string('deviceId');
+  },
+});
+
+export const Topologies = objectType({
+  name: 'Topologies',
+  definition: (t) => {
+    t.list.field('topologies', {
+      type: TopologyOfDevice,
+    });
+  },
+});
+
+export const TopologyOfDevicesQuery = queryField('devicesTopology', {
+  type: Topologies,
+  args: {
+    deviceName: nonNull(stringArg()),
+  },
+  resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
+    const topologyOfDevicesResult = await topologyDiscoveryGraphQLAPI?.getTopologyOfDevice(args.deviceName);
+
+    console.log(topologyOfDevicesResult);
+
+    return topologyOfDevicesResult ?? { topologies: [] };
+  },
+});
+
 export const MplsTopology = objectType({
   name: 'MplsTopology',
   definition: (t) => {

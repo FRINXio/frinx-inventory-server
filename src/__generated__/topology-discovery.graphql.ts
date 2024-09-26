@@ -96,7 +96,7 @@ export type DeviceMetadata = Node & {
   /** Model of the device (XR, ASR). */
   model: Maybe<Scalars['String']>;
   /** Protocol used for management for the device (cli, netconf, gnmi). */
-  protocolType: Maybe<Scalars['String']>;
+  protocolType: Maybe<Array<Scalars['String']>>;
   /** Vendor of the device (ex. Cisco). */
   vendor: Maybe<Scalars['String']>;
   /** Version of the device software (ex. 6.0.1). */
@@ -393,6 +393,8 @@ export type Mutation = {
    * Response contains version of the debug library.
    */
   enableRemoteDebugSession: Scalars['String'];
+  /** Refresh the coordinates of nodes in the specified topology by using the ForceAtlas2 algorithm. */
+  refreshCoordinates: RefreshCoordinatesResponse;
   /**
    * Synchronization of the devices in the specified topology.
    * Topology represents an abstraction layer of observed network from the operational view
@@ -428,7 +430,12 @@ export type MutationEnableRemoteDebugSessionArgs = {
   host: Scalars['String'];
   port?: InputMaybe<Scalars['Int']>;
   stderrToServer?: InputMaybe<Scalars['Boolean']>;
-  stdoutToTerver?: InputMaybe<Scalars['Boolean']>;
+  stdoutToServer?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type MutationRefreshCoordinatesArgs = {
+  topologyType?: InputMaybe<TopologyType>;
 };
 
 
@@ -641,6 +648,17 @@ export type NetRoutingPathOutputCollections =
 export type Node = {
   /** Unique identifier of the object. */
   id: Scalars['ID'];
+};
+
+/** Represents the coordinates of a specific node in the topology. */
+export type NodeCoordinates = {
+  __typename?: 'NodeCoordinates';
+  /** Name of the node in the topology. */
+  nodeId: Scalars['String'];
+  /** Refreshed horizontal coordinate of the node on the graph. Value is between 0.0 and 1.0. */
+  x: Scalars['Float'];
+  /** Refreshed vertical coordinate of the node on the graph. Value is between 0.0 and 1.0. */
+  y: Scalars['Float'];
 };
 
 /** Information about a node that is part of the computed path. */
@@ -1144,6 +1162,11 @@ export type Query = {
    */
   syncePathToGm: SyncePath;
   /**
+   * Find identifiers of the topologies where the specified device is present.
+   * The query returns a list in which each entry contains a topology identifier and a device identifier.
+   */
+  topologies: Maybe<Array<TopologyDevice>>;
+  /**
    * Computation of the diff between two databases per collections - created, deleted, and changed entries.
    * Only documents that belong to the specified topology are included in the diff.
    */
@@ -1260,6 +1283,11 @@ export type QuerySyncePathToGmArgs = {
 };
 
 
+export type QueryTopologiesArgs = {
+  deviceName: Scalars['String'];
+};
+
+
 export type QueryTopologyDiffArgs = {
   collectionType: TopologyType;
   newDb: Scalars['String'];
@@ -1273,6 +1301,13 @@ export type QueryTopologyOverlayArgs = {
   first?: InputMaybe<Scalars['Int']>;
   firstTopology: TopologyType;
   secondTopology: TopologyType;
+};
+
+/** Response containing a list of nodes with refreshed coordinates. */
+export type RefreshCoordinatesResponse = {
+  __typename?: 'RefreshCoordinatesResponse';
+  /** List of refreshed nodes with their new coordinates. */
+  nodes: Array<Maybe<NodeCoordinates>>;
 };
 
 /** Computed routing path from source to destination device. */
@@ -1510,6 +1545,15 @@ export type SyncePathOutputCollections =
   /** Include SynceInterface nodes in the returned path. */
   | 'SYNCE_INTERFACE';
 
+/** Topology and device identifier of a device. */
+export type TopologyDevice = {
+  __typename?: 'TopologyDevice';
+  /** Topology-specific device identifier. */
+  deviceId: Scalars['ID'];
+  /** Identifier of the topology in which device is present. */
+  topologyId: TopologyType;
+};
+
 export type TopologyOverlayDevice = {
   __typename?: 'TopologyOverlayDevice';
   /** Unique identifier of the object. */
@@ -1734,7 +1778,7 @@ export type DeviceMetadataQueryVariables = Exact<{
 }>;
 
 
-export type DeviceMetadataQuery = { __typename?: 'Query', deviceMetadata: { __typename?: 'MetadataConnection', edges: Array<{ __typename?: 'DeviceMetadataEdge', node: { __typename?: 'DeviceMetadata', id: string, deviceName: string, deviceType: string | null, model: string | null, vendor: string | null, version: string | null, protocolType: string | null, geoLocation: { __typename?: 'DeviceGeoLocation', bbox: Array<number | null> | null, coordinates: Array<number>, type: GeometryType } | null } | null } | null> | null } };
+export type DeviceMetadataQuery = { __typename?: 'Query', deviceMetadata: { __typename?: 'MetadataConnection', edges: Array<{ __typename?: 'DeviceMetadataEdge', node: { __typename?: 'DeviceMetadata', id: string, deviceName: string, deviceType: string | null, model: string | null, vendor: string | null, version: string | null, protocolType: Array<string> | null, geoLocation: { __typename?: 'DeviceGeoLocation', bbox: Array<number | null> | null, coordinates: Array<number>, type: GeometryType } | null } | null } | null> | null } };
 
 export type MplsDevicePartsFragment = { __typename?: 'MplsDevice', id: string, name: string, status: NodeStatus, labels: Array<string> | null, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, status: NodeStatus, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, mplsDevice: { __typename?: 'MplsDevice', id: string, name: string, coordinates: { __typename?: 'Coordinates', x: number, y: number }, mplsInterfaces: { __typename?: 'MplsInterfaceConnection', edges: Array<{ __typename?: 'MplsInterfaceEdge', node: { __typename?: 'MplsInterface', id: string, name: string, mplsLinks: { __typename?: 'MplsLinkConnection', edges: Array<{ __typename?: 'MplsLinkEdge', link: string | null, node: { __typename?: 'MplsInterface', id: string, name: string } | null } | null> | null } | null } | null } | null> | null } } | null } | null } | null> | null } | null } | null } | null> | null }, details: { __typename?: 'MplsDeviceDetails', routerId: string | null, mplsData: Array<{ __typename?: 'MplsData', lspId: string, inLabel: number | null, inInterface: string | null, outInterface: string | null, outLabel: number | null, mplsOperation: MplsOperation | null, operState: string | null, signalisation: Signalisation | null } | null> | null, lspTunnels: Array<{ __typename?: 'LspTunnel', lspId: string, fromDevice: string | null, toDevice: string | null, signalisation: Signalisation, uptime: number | null } | null> | null } };
 
@@ -1769,3 +1813,10 @@ export type NeighborsQueryVariables = Exact<{
 
 
 export type NeighborsQuery = { __typename?: 'Query', neighbors: Array<{ __typename?: 'Neighbor', deviceId: string, deviceName: string }> | null };
+
+export type TopologiesQueryVariables = Exact<{
+  deviceName: Scalars['String'];
+}>;
+
+
+export type TopologiesQuery = { __typename?: 'Query', topologies: Array<{ __typename?: 'TopologyDevice', topologyId: TopologyType, deviceId: string }> | null };

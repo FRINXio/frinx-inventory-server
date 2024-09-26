@@ -767,6 +767,7 @@ type Query {
     last: Int
     orderBy: DeviceOrderByInput
   ): DeviceConnection!
+  devicesTopology(deviceName: String!): Topologies
   kafkaHealthCheck: IsOkResponse
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
   locations(after: String, before: String, first: Int, last: Int): LocationConnection!
@@ -917,6 +918,10 @@ type SynceTopologyVersionData {
   nodes: [SynceGraphNode!]!
 }
 
+type Topologies {
+  topologies: [TopologyOfDevice]
+}
+
 type Topology {
   edges: [GraphEdge!]!
   nodes: [GraphNode!]!
@@ -931,6 +936,11 @@ enum TopologyLayer {
   MPLS_TOPOLOGY
   PHYSICAL_TOPOLOGY
   PTP_TOPOLOGY
+}
+
+type TopologyOfDevice {
+  deviceId: String!
+  topologyId: String!
 }
 
 enum TopologyType {
