@@ -43,6 +43,7 @@ export interface NexusGenInputs {
     deviceSize?: NexusGenEnums['DeviceSize'] | null; // DeviceSize
     deviceType?: string | null; // String
     labelIds?: string[] | null; // [String!]
+    locationId?: string | null; // String
     model?: string | null; // String
     mountParameters?: string | null; // String
     name: string; // String!
@@ -56,7 +57,8 @@ export interface NexusGenInputs {
   };
   AddLocationInput: {
     // input type
-    countryId: string; // String!
+    coordinates: NexusGenInputs['Coordinates']; // Coordinates!
+    countryId?: string | null; // String
     name: string; // String!
   };
   AddSnapshotInput: {
@@ -106,6 +108,11 @@ export interface NexusGenInputs {
     deviceId: string; // String!
     shouldDryRun?: boolean | null; // Boolean
   };
+  Coordinates: {
+    // input type
+    latitude: number; // Float!
+    longitude: number; // Float!
+  };
   CreateLabelInput: {
     // input type
     name: string; // String!
@@ -126,9 +133,24 @@ export interface NexusGenInputs {
     deviceName?: string | null; // String
     labels?: string[] | null; // [String!]
   };
+  FilterDevicesMetadatasInput: {
+    // input type
+    deviceName?: string | null; // String
+    polygon?: NexusGenInputs['PolygonInput'] | null; // PolygonInput
+    topologyType?: NexusGenEnums['TopologyType'] | null; // TopologyType
+  };
   FilterLabelsInput: {
     // input type
     name: string; // String!
+  };
+  FilterLocationsInput: {
+    // input type
+    name?: string | null; // String
+  };
+  FilterNeighborInput: {
+    // input type
+    deviceName: string; // String!
+    topologyType: NexusGenEnums['TopologyType']; // TopologyType!
   };
   FilterStreamsInput: {
     // input type
@@ -149,6 +171,15 @@ export interface NexusGenInputs {
     deviceName: string; // String!
     x: number; // Float!
     y: number; // Float!
+  };
+  LocationOrderByInput: {
+    // input type
+    direction: NexusGenEnums['SortDirection']; // SortDirection!
+    sortKey: NexusGenEnums['SortLocationBy']; // SortLocationBy!
+  };
+  PolygonInput: {
+    // input type
+    polygon?: number[][][] | null; // [[[Float!]!]!]
   };
   StreamOrderByInput: {
     // input type
@@ -186,6 +217,12 @@ export interface NexusGenInputs {
     coordinates: NexusGenInputs['GraphNodeCoordinatesInput'][]; // [GraphNodeCoordinatesInput!]!
     layer?: NexusGenEnums['TopologyLayer'] | null; // TopologyLayer
   };
+  UpdateLocationInput: {
+    // input type
+    coordinates: NexusGenInputs['Coordinates']; // Coordinates!
+    countryId?: string | null; // String
+    name: string; // String!
+  };
   UpdateStreamInput: {
     // input type
     blueprintId?: string | null; // String
@@ -199,11 +236,14 @@ export interface NexusGenEnums {
   DeviceServiceState: 'IN_SERVICE' | 'OUT_OF_SERVICE' | 'PLANNING';
   DeviceSize: 'LARGE' | 'MEDIUM' | 'SMALL';
   DeviceSource: 'DISCOVERED' | 'IMPORTED' | 'MANUAL';
-  GraphEdgeStatus: 'ok' | 'unknown';
+  GraphEdgeStatus: 'OK' | 'UNKNOWN';
+  Signalization: 'LDP' | 'RSVP';
   SortDeviceBy: 'discoveredAt' | 'modelVersion' | 'name';
   SortDirection: 'ASC' | 'DESC';
+  SortLocationBy: 'name';
   SortStreamBy: 'createdAt' | 'deviceName' | 'streamName';
-  TopologyLayer: 'EthTopology' | 'PhysicalTopology' | 'PtpTopology';
+  TopologyLayer: 'ETH_TOPOLOGY' | 'MPLS_TOPOLOGY' | 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY';
+  TopologyType: 'ETH_TOPOLOGY' | 'MPLS_TOPOLOGY' | 'NETWORK_TOPOLOGY' | 'PHYSICAL_TOPOLOGY' | 'PTP_TOPOLOGY';
 }
 
 export interface NexusGenScalars {
@@ -347,6 +387,10 @@ export interface NexusGenObjects {
     // root type
     label?: NexusGenRootTypes['Label'] | null; // Label
   };
+  DeleteLocationPayload: {
+    // root type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   DeleteSnapshotPayload: {
     // root type
     snapshot?: NexusGenRootTypes['Snapshot'] | null; // Snapshot
@@ -375,6 +419,14 @@ export interface NexusGenObjects {
   DeviceListUsage: {
     // root type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
+  };
+  DeviceMetadata: {
+    // root type
+    nodes?: Array<NexusGenRootTypes['GeoMapDevice'] | null> | null; // [GeoMapDevice]
+  };
+  DeviceNeighbors: {
+    // root type
+    neighbors?: Array<NexusGenRootTypes['Neighbor'] | null> | null; // [Neighbor]
   };
   DeviceStatus: {
     // root type
@@ -405,6 +457,18 @@ export interface NexusGenObjects {
     // root type
     interface: string; // String!
     nodeId: string; // String!
+  };
+  GeoMapDevice: {
+    // root type
+    deviceName: string; // String!
+    geolocation?: NexusGenRootTypes['Geolocation'] | null; // Geolocation
+    id: string; // ID!
+    locationName?: string | null; // String
+  };
+  Geolocation: {
+    // root type
+    latitude: number; // Float!
+    longitude: number; // Float!
   };
   GraphEdge: {
     // root type
@@ -481,7 +545,85 @@ export interface NexusGenObjects {
     cursor: string; // String!
     node: NexusGenRootTypes['Location']; // Location!
   };
+  LspPath: {
+    // root type
+    metadata?: NexusGenRootTypes['LspPathMetadata'] | null; // LspPathMetadata
+    path: string[]; // [String!]!
+  };
+  LspPathMetadata: {
+    // root type
+    fromDevice?: string | null; // String
+    signalization?: string | null; // String
+    toDevice?: string | null; // String
+    uptime?: number | null; // Int
+  };
+  LspTunnel: {
+    // root type
+    fromDevice?: string | null; // String
+    lspId: string; // String!
+    signalization?: NexusGenEnums['Signalization'] | null; // Signalization
+    toDevice?: string | null; // String
+    uptime?: number | null; // Int
+  };
+  MplsData: {
+    // root type
+    inputInterface?: string | null; // String
+    inputLabel?: number | null; // Int
+    ldpPrefix?: string | null; // String
+    lspId: string; // String!
+    mplsOperation?: string | null; // String
+    operState?: string | null; // String
+    outputInterface?: string | null; // String
+    outputLabel?: number | null; // Int
+  };
+  MplsDeviceDetails: {
+    // root type
+    lspTunnels?: Array<NexusGenRootTypes['LspTunnel'] | null> | null; // [LspTunnel]
+    mplsData?: Array<NexusGenRootTypes['MplsData'] | null> | null; // [MplsData]
+  };
+  MplsGraphNode: {
+    // root type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['MplsGraphNodeInterface'][]; // [MplsGraphNodeInterface!]!
+    labels?: string[] | null; // [String!]
+    mplsDeviceDetails: NexusGenRootTypes['MplsDeviceDetails']; // MplsDeviceDetails!
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsGraphNodeInterface: {
+    // root type
+    id: string; // String!
+    name: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsLspCount: {
+    // root type
+    counts?: Array<NexusGenRootTypes['MplsLspCountItem'] | null> | null; // [MplsLspCountItem]
+  };
+  MplsLspCountItem: {
+    // root type
+    incomingLsps?: number | null; // Int
+    outcomingLsps?: number | null; // Int
+    target?: string | null; // String
+  };
+  MplsTopology: {
+    // root type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
+  };
+  MplsTopologyVersionData: {
+    // root type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
+  };
   Mutation: {};
+  Neighbor: {
+    // root type
+    deviceId: string; // String!
+    deviceName: string; // String!
+  };
   NetInterface: {
     // root type
     id: string; // String!
@@ -501,6 +643,7 @@ export interface NexusGenObjects {
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
     nodeId: string; // String!
+    phyDeviceName?: string | null; // String
   };
   NetRoutingPathNode: {
     // root type
@@ -716,6 +859,10 @@ export interface NexusGenObjects {
     // root type
     deviceNames: string[]; // [String!]!
   };
+  UpdateLocationPayload: {
+    // root type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   UpdateStreamPayload: {
     // root type
     stream?: NexusGenRootTypes['Stream'] | null; // Stream
@@ -901,6 +1048,10 @@ export interface NexusGenFieldTypes {
     // field return type
     label: NexusGenRootTypes['Label'] | null; // Label
   };
+  DeleteLocationPayload: {
+    // field return type
+    location: NexusGenRootTypes['Location']; // Location!
+  };
   DeleteSnapshotPayload: {
     // field return type
     snapshot: NexusGenRootTypes['Snapshot'] | null; // Snapshot
@@ -952,6 +1103,14 @@ export interface NexusGenFieldTypes {
     // field return type
     devicesUsage: NexusGenRootTypes['DevicesUsage'][]; // [DevicesUsage!]!
   };
+  DeviceMetadata: {
+    // field return type
+    nodes: Array<NexusGenRootTypes['GeoMapDevice'] | null> | null; // [GeoMapDevice]
+  };
+  DeviceNeighbors: {
+    // field return type
+    neighbors: Array<NexusGenRootTypes['Neighbor'] | null> | null; // [Neighbor]
+  };
   DeviceStatus: {
     // field return type
     deviceName: string | null; // String
@@ -981,6 +1140,18 @@ export interface NexusGenFieldTypes {
     // field return type
     interface: string; // String!
     nodeId: string; // String!
+  };
+  GeoMapDevice: {
+    // field return type
+    deviceName: string; // String!
+    geolocation: NexusGenRootTypes['Geolocation'] | null; // Geolocation
+    id: string; // ID!
+    locationName: string | null; // String
+  };
+  Geolocation: {
+    // field return type
+    latitude: number; // Float!
+    longitude: number; // Float!
   };
   GraphEdge: {
     // field return type
@@ -1053,9 +1224,11 @@ export interface NexusGenFieldTypes {
   };
   Location: {
     // field return type
-    country: string; // String!
+    country: string | null; // String
     createdAt: string; // String!
     id: string; // ID!
+    latitude: number | null; // Float
+    longitude: number | null; // Float
     name: string; // String!
     updatedAt: string; // String!
   };
@@ -1069,6 +1242,79 @@ export interface NexusGenFieldTypes {
     // field return type
     cursor: string; // String!
     node: NexusGenRootTypes['Location']; // Location!
+  };
+  LspPath: {
+    // field return type
+    metadata: NexusGenRootTypes['LspPathMetadata'] | null; // LspPathMetadata
+    path: string[]; // [String!]!
+  };
+  LspPathMetadata: {
+    // field return type
+    fromDevice: string | null; // String
+    signalization: string | null; // String
+    toDevice: string | null; // String
+    uptime: number | null; // Int
+  };
+  LspTunnel: {
+    // field return type
+    fromDevice: string | null; // String
+    lspId: string; // String!
+    signalization: NexusGenEnums['Signalization'] | null; // Signalization
+    toDevice: string | null; // String
+    uptime: number | null; // Int
+  };
+  MplsData: {
+    // field return type
+    inputInterface: string | null; // String
+    inputLabel: number | null; // Int
+    ldpPrefix: string | null; // String
+    lspId: string; // String!
+    mplsOperation: string | null; // String
+    operState: string | null; // String
+    outputInterface: string | null; // String
+    outputLabel: number | null; // Int
+  };
+  MplsDeviceDetails: {
+    // field return type
+    lspTunnels: Array<NexusGenRootTypes['LspTunnel'] | null> | null; // [LspTunnel]
+    mplsData: Array<NexusGenRootTypes['MplsData'] | null> | null; // [MplsData]
+  };
+  MplsGraphNode: {
+    // field return type
+    coordinates: NexusGenRootTypes['GraphNodeCoordinates']; // GraphNodeCoordinates!
+    id: string; // ID!
+    interfaces: NexusGenRootTypes['MplsGraphNodeInterface'][]; // [MplsGraphNodeInterface!]!
+    labels: string[] | null; // [String!]
+    mplsDeviceDetails: NexusGenRootTypes['MplsDeviceDetails']; // MplsDeviceDetails!
+    name: string; // String!
+    nodeId: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsGraphNodeInterface: {
+    // field return type
+    id: string; // String!
+    name: string; // String!
+    status: NexusGenEnums['GraphEdgeStatus']; // GraphEdgeStatus!
+  };
+  MplsLspCount: {
+    // field return type
+    counts: Array<NexusGenRootTypes['MplsLspCountItem'] | null> | null; // [MplsLspCountItem]
+  };
+  MplsLspCountItem: {
+    // field return type
+    incomingLsps: number | null; // Int
+    outcomingLsps: number | null; // Int
+    target: string | null; // String
+  };
+  MplsTopology: {
+    // field return type
+    edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
+  };
+  MplsTopologyVersionData: {
+    // field return type
+    edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
+    nodes: NexusGenRootTypes['MplsGraphNode'][]; // [MplsGraphNode!]!
   };
   Mutation: {
     // field return type
@@ -1092,6 +1338,7 @@ export interface NexusGenFieldTypes {
     deleteBlueprint: NexusGenRootTypes['DeleteBlueprintPayload']; // DeleteBlueprintPayload!
     deleteDevice: NexusGenRootTypes['DeleteDevicePayload']; // DeleteDevicePayload!
     deleteLabel: NexusGenRootTypes['DeleteLabelPayload']; // DeleteLabelPayload!
+    deleteLocation: NexusGenRootTypes['DeleteLocationPayload']; // DeleteLocationPayload!
     deleteSnapshot: NexusGenRootTypes['DeleteSnapshotPayload'] | null; // DeleteSnapshotPayload
     deleteStream: NexusGenRootTypes['DeleteStreamPayload']; // DeleteStreamPayload!
     importCSV: NexusGenRootTypes['CSVImport'] | null; // CSVImport
@@ -1106,7 +1353,13 @@ export interface NexusGenFieldTypes {
     updateDevice: NexusGenRootTypes['UpdateDevicePayload']; // UpdateDevicePayload!
     updateDiscoveredAt: NexusGenRootTypes['DeviceDiscoveryPayload'][]; // [DeviceDiscoveryPayload!]!
     updateGraphNodeCoordinates: NexusGenRootTypes['UpdateGraphNodeCoordinatesPayload']; // UpdateGraphNodeCoordinatesPayload!
+    updateLocation: NexusGenRootTypes['UpdateLocationPayload']; // UpdateLocationPayload!
     updateStream: NexusGenRootTypes['UpdateStreamPayload']; // UpdateStreamPayload!
+  };
+  Neighbor: {
+    // field return type
+    deviceId: string; // String!
+    deviceName: string; // String!
   };
   NetInterface: {
     // field return type
@@ -1127,6 +1380,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     networks: NexusGenRootTypes['NetNetwork'][]; // [NetNetwork!]!
     nodeId: string; // String!
+    phyDeviceName: string | null; // String
   };
   NetRoutingPathNode: {
     // field return type
@@ -1227,10 +1481,16 @@ export interface NexusGenFieldTypes {
     calculatedDiff: NexusGenRootTypes['CalculatedDiffPayload']; // CalculatedDiffPayload!
     countries: NexusGenRootTypes['CountryConnection']; // CountryConnection!
     dataStore: NexusGenRootTypes['DataStore'] | null; // DataStore
+    deviceMetadata: NexusGenRootTypes['DeviceMetadata'] | null; // DeviceMetadata
+    deviceNeighbor: NexusGenRootTypes['DeviceNeighbors'] | null; // DeviceNeighbors
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
+    lspPath: NexusGenRootTypes['LspPath'] | null; // LspPath
+    mplsLspCount: NexusGenRootTypes['MplsLspCount'] | null; // MplsLspCount
+    mplsTopology: NexusGenRootTypes['MplsTopology'] | null; // MplsTopology
+    mplsTopologyVersionData: NexusGenRootTypes['MplsTopologyVersionData']; // MplsTopologyVersionData!
     netTopology: NexusGenRootTypes['NetTopology'] | null; // NetTopology
     netTopologyVersionData: NexusGenRootTypes['NetTopologyVersionData']; // NetTopologyVersionData!
     node: NexusGenRootTypes['Node'] | null; // Node
@@ -1388,6 +1648,10 @@ export interface NexusGenFieldTypes {
   UpdateGraphNodeCoordinatesPayload: {
     // field return type
     deviceNames: string[]; // [String!]!
+  };
+  UpdateLocationPayload: {
+    // field return type
+    location: NexusGenRootTypes['Location']; // Location!
   };
   UpdateStreamPayload: {
     // field return type
@@ -1574,6 +1838,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     label: 'Label';
   };
+  DeleteLocationPayload: {
+    // field return type name
+    location: 'Location';
+  };
   DeleteSnapshotPayload: {
     // field return type name
     snapshot: 'Snapshot';
@@ -1625,6 +1893,14 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     devicesUsage: 'DevicesUsage';
   };
+  DeviceMetadata: {
+    // field return type name
+    nodes: 'GeoMapDevice';
+  };
+  DeviceNeighbors: {
+    // field return type name
+    neighbors: 'Neighbor';
+  };
   DeviceStatus: {
     // field return type name
     deviceName: 'String';
@@ -1654,6 +1930,18 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     interface: 'String';
     nodeId: 'String';
+  };
+  GeoMapDevice: {
+    // field return type name
+    deviceName: 'String';
+    geolocation: 'Geolocation';
+    id: 'ID';
+    locationName: 'String';
+  };
+  Geolocation: {
+    // field return type name
+    latitude: 'Float';
+    longitude: 'Float';
   };
   GraphEdge: {
     // field return type name
@@ -1729,6 +2017,8 @@ export interface NexusGenFieldTypeNames {
     country: 'String';
     createdAt: 'String';
     id: 'ID';
+    latitude: 'Float';
+    longitude: 'Float';
     name: 'String';
     updatedAt: 'String';
   };
@@ -1742,6 +2032,79 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     cursor: 'String';
     node: 'Location';
+  };
+  LspPath: {
+    // field return type name
+    metadata: 'LspPathMetadata';
+    path: 'String';
+  };
+  LspPathMetadata: {
+    // field return type name
+    fromDevice: 'String';
+    signalization: 'String';
+    toDevice: 'String';
+    uptime: 'Int';
+  };
+  LspTunnel: {
+    // field return type name
+    fromDevice: 'String';
+    lspId: 'String';
+    signalization: 'Signalization';
+    toDevice: 'String';
+    uptime: 'Int';
+  };
+  MplsData: {
+    // field return type name
+    inputInterface: 'String';
+    inputLabel: 'Int';
+    ldpPrefix: 'String';
+    lspId: 'String';
+    mplsOperation: 'String';
+    operState: 'String';
+    outputInterface: 'String';
+    outputLabel: 'Int';
+  };
+  MplsDeviceDetails: {
+    // field return type name
+    lspTunnels: 'LspTunnel';
+    mplsData: 'MplsData';
+  };
+  MplsGraphNode: {
+    // field return type name
+    coordinates: 'GraphNodeCoordinates';
+    id: 'ID';
+    interfaces: 'MplsGraphNodeInterface';
+    labels: 'String';
+    mplsDeviceDetails: 'MplsDeviceDetails';
+    name: 'String';
+    nodeId: 'String';
+    status: 'GraphEdgeStatus';
+  };
+  MplsGraphNodeInterface: {
+    // field return type name
+    id: 'String';
+    name: 'String';
+    status: 'GraphEdgeStatus';
+  };
+  MplsLspCount: {
+    // field return type name
+    counts: 'MplsLspCountItem';
+  };
+  MplsLspCountItem: {
+    // field return type name
+    incomingLsps: 'Int';
+    outcomingLsps: 'Int';
+    target: 'String';
+  };
+  MplsTopology: {
+    // field return type name
+    edges: 'GraphEdge';
+    nodes: 'MplsGraphNode';
+  };
+  MplsTopologyVersionData: {
+    // field return type name
+    edges: 'GraphVersionEdge';
+    nodes: 'MplsGraphNode';
   };
   Mutation: {
     // field return type name
@@ -1765,6 +2128,7 @@ export interface NexusGenFieldTypeNames {
     deleteBlueprint: 'DeleteBlueprintPayload';
     deleteDevice: 'DeleteDevicePayload';
     deleteLabel: 'DeleteLabelPayload';
+    deleteLocation: 'DeleteLocationPayload';
     deleteSnapshot: 'DeleteSnapshotPayload';
     deleteStream: 'DeleteStreamPayload';
     importCSV: 'CSVImport';
@@ -1779,7 +2143,13 @@ export interface NexusGenFieldTypeNames {
     updateDevice: 'UpdateDevicePayload';
     updateDiscoveredAt: 'DeviceDiscoveryPayload';
     updateGraphNodeCoordinates: 'UpdateGraphNodeCoordinatesPayload';
+    updateLocation: 'UpdateLocationPayload';
     updateStream: 'UpdateStreamPayload';
+  };
+  Neighbor: {
+    // field return type name
+    deviceId: 'String';
+    deviceName: 'String';
   };
   NetInterface: {
     // field return type name
@@ -1800,6 +2170,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String';
     networks: 'NetNetwork';
     nodeId: 'String';
+    phyDeviceName: 'String';
   };
   NetRoutingPathNode: {
     // field return type name
@@ -1900,10 +2271,16 @@ export interface NexusGenFieldTypeNames {
     calculatedDiff: 'CalculatedDiffPayload';
     countries: 'CountryConnection';
     dataStore: 'DataStore';
+    deviceMetadata: 'DeviceMetadata';
+    deviceNeighbor: 'DeviceNeighbors';
     devices: 'DeviceConnection';
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
+    lspPath: 'LspPath';
+    mplsLspCount: 'MplsLspCount';
+    mplsTopology: 'MplsTopology';
+    mplsTopologyVersionData: 'MplsTopologyVersionData';
     netTopology: 'NetTopology';
     netTopologyVersionData: 'NetTopologyVersionData';
     node: 'Node';
@@ -2062,6 +2439,10 @@ export interface NexusGenFieldTypeNames {
     // field return type name
     deviceNames: 'String';
   };
+  UpdateLocationPayload: {
+    // field return type name
+    location: 'Location';
+  };
   UpdateStreamPayload: {
     // field return type name
     stream: 'Stream';
@@ -2193,6 +2574,10 @@ export interface NexusGenArgTypes {
       // args
       id: string; // String!
     };
+    deleteLocation: {
+      // args
+      id: string; // String!
+    };
     deleteSnapshot: {
       // args
       input: NexusGenInputs['DeleteSnapshotInput']; // DeleteSnapshotInput!
@@ -2251,6 +2636,11 @@ export interface NexusGenArgTypes {
       // args
       input: NexusGenInputs['UpdateGraphNodeCoordinatesInput']; // UpdateGraphNodeCoordinatesInput!
     };
+    updateLocation: {
+      // args
+      id: string; // String!
+      input: NexusGenInputs['UpdateLocationInput']; // UpdateLocationInput!
+    };
     updateStream: {
       // args
       id: string; // String!
@@ -2282,6 +2672,14 @@ export interface NexusGenArgTypes {
       deviceId: string; // String!
       transactionId: string; // String!
     };
+    deviceMetadata: {
+      // args
+      filter?: NexusGenInputs['FilterDevicesMetadatasInput'] | null; // FilterDevicesMetadatasInput
+    };
+    deviceNeighbor: {
+      // args
+      filter?: NexusGenInputs['FilterNeighborInput'] | null; // FilterNeighborInput
+    };
     devices: {
       // args
       after?: string | null; // String
@@ -2303,8 +2701,23 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       before?: string | null; // String
+      filter?: NexusGenInputs['FilterLocationsInput'] | null; // FilterLocationsInput
       first?: number | null; // Int
       last?: number | null; // Int
+      orderBy?: NexusGenInputs['LocationOrderByInput'] | null; // LocationOrderByInput
+    };
+    lspPath: {
+      // args
+      deviceId: string; // String!
+      lspId: string; // String!
+    };
+    mplsLspCount: {
+      // args
+      deviceId: string; // String!
+    };
+    mplsTopologyVersionData: {
+      // args
+      version: string; // String!
     };
     netTopologyVersionData: {
       // args

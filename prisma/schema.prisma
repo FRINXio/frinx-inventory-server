@@ -99,7 +99,7 @@ model location {
   dependentLocality  String?  @map("dependent_locality")
   locality           String?
   administrativeArea String?  @map("administrative_area")
-  country            String
+  country            String?
   device             device[]
 
   @@unique([name, tenantId], name: "udx_location_name_tenant_id")

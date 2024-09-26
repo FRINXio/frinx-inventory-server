@@ -90,14 +90,14 @@ export function makeZonesWithDevicesFromDevices(devices: Device[]) {
   return zonesWithDevices;
 }
 
-type DeviceLocation = {
-  type: 'Point';
+export type DeviceLocation = {
+  type: 'POINT';
   coordinates: [number, number];
 };
 
 export function encodeDeviceForInventoryKafka(
   device: Device,
-  deviceLocation: DeviceLocation,
+  deviceLocation: DeviceLocation | null,
   deviceLabelsIds: string[] = [],
 ) {
   return {
@@ -127,6 +127,6 @@ export function encodeDeviceForInventoryKafka(
     // eslint-disable-next-line @typescript-eslint/naming-convention
     labels_ids: deviceLabelsIds,
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    geo_location: deviceLocation,
+    geo_location: deviceLocation ?? undefined,
   };
 }
