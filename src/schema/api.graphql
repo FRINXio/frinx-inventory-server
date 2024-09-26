@@ -380,6 +380,10 @@ input FilterLabelsInput {
   name: String!
 }
 
+input FilterLocationsInput {
+  name: String
+}
+
 input FilterNeighborInput {
   deviceName: String!
   topologyType: TopologyType!
@@ -510,6 +514,11 @@ type LocationConnection {
 type LocationEdge {
   cursor: String!
   node: Location!
+}
+
+input LocationOrderByInput {
+  direction: SortDirection!
+  sortKey: SortLocationBy!
 }
 
 type LspPath {
@@ -770,7 +779,14 @@ type Query {
   devicesTopology(deviceName: String!): Topologies
   kafkaHealthCheck: IsOkResponse
   labels(after: String, before: String, filter: FilterLabelsInput, first: Int, last: Int): LabelConnection!
-  locations(after: String, before: String, first: Int, last: Int): LocationConnection!
+  locations(
+    after: String
+    before: String
+    filter: FilterLocationsInput
+    first: Int
+    last: Int
+    orderBy: LocationOrderByInput
+  ): LocationConnection!
   lspPath(deviceId: String!, lspId: String!): LspPath
   mplsLspCount(deviceId: String!): MplsLspCount
   mplsTopology: MplsTopology
@@ -830,6 +846,10 @@ enum SortDeviceBy {
 enum SortDirection {
   ASC
   DESC
+}
+
+enum SortLocationBy {
+  name
 }
 
 enum SortStreamBy {

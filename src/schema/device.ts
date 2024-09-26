@@ -44,6 +44,7 @@ import { LabelConnection } from './label';
 import { Location } from './location';
 import { Zone } from './zone';
 import config from '../config';
+import { ExternalApiError } from '../external-api/errors';
 
 export const DeviceServiceState = enumType({
   name: 'DeviceServiceState',
@@ -117,9 +118,14 @@ export const Device = objectType({
     t.nonNull.boolean('isInstalled', {
       resolve: async (root, _, { prisma }) => {
         const { uniconfigZoneId } = root;
-        const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
-        const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
-        return isInstalled;
+        try {
+          const uniconfigURL = await getUniconfigURL(prisma, uniconfigZoneId);
+          const isInstalled = await getCachedDeviceInstallStatus(uniconfigURL, root.name);
+          return isInstalled;
+        } catch {
+          // FD-683 supress isInstalled error when something is wrong with uniconfig
+          return false;
+        }
       },
     });
     t.nonNull.field('zone', {
@@ -288,9 +294,10 @@ export const AddDeviceMutation = extendType({
       resolve: async (_, args, { prisma, tenantId, kafka, inventoryKafka }) => {
         const { input } = args;
         const nativeZoneId = fromGraphId('Zone', input.zoneId);
+        const nativeLocationId = input.locationId ? fromGraphId('Location', input.locationId) : null;
         const zone = await prisma.uniconfigZone.findFirst({ where: { tenantId, id: nativeZoneId } });
         const deviceLocation = await prisma.location.findFirst({
-          where: { id: input.locationId ?? undefined },
+          where: { id: nativeLocationId ?? undefined },
         });
 
         if (zone == null) {
@@ -425,6 +432,7 @@ export const UpdateDeviceMutation = extendType({
             ...oldMetadata,
             deviceSize: input.deviceSize,
           };
+
           const updatedDevice = await prisma.device.update({
             where: { id: nativeId },
             data: {
@@ -438,7 +446,11 @@ export const UpdateDeviceMutation = extendType({
               password: input.password,
               port: input.port,
               serviceState: input.serviceState ?? undefined,
-              location: input.locationId ? { connect: { id: fromGraphId('Location', input.locationId) } } : undefined,
+              location: input.locationId
+                ? { connect: { id: fromGraphId('Location', input.locationId) } }
+                : {
+                    disconnect: true,
+                  },
               blueprint: input.blueprintId
                 ? { connect: { id: fromGraphId('Blueprint', input.blueprintId) } }
                 : undefined,
@@ -597,7 +609,15 @@ export const InstallDeviceMutation = extendType({
         const { mountParameters } = device;
         const installDeviceParams = prepareInstallParameters(device.name, mountParameters);
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
+        try {
+          await installDeviceCache({ uniconfigURL, deviceName: device.name, params: installDeviceParams });
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+
+          throw e;
+        }
         return { device };
       },
     });
@@ -638,7 +658,13 @@ export const UninstallDeviceMutation = extendType({
           throw new Error('device not found');
         }
         const uniconfigURL = await getUniconfigURL(prisma, device.uniconfigZoneId);
-        await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
+        try {
+          await uninstallDeviceCache({ uniconfigURL, params: uninstallParams, deviceName: device.name });
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+        }
         return { device };
       },
     });
@@ -781,9 +807,15 @@ export const BulkInstallDevicesMutation = extendType({
           }),
         );
 
-        await Promise.all(
-          devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
-        );
+        try {
+          await Promise.all(
+            devicesToInstallWithParams.map((devicesToInstall) => installMultipleDevicesCache(devicesToInstall)),
+          );
+        } catch (e) {
+          if (e instanceof ExternalApiError) {
+            throw new Error(e.getErrorMessage());
+          }
+        }
 
         return { installedDevices: devices };
       },

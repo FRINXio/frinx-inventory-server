@@ -91,7 +91,7 @@ export function makeZonesWithDevicesFromDevices(devices: Device[]) {
 }
 
 export type DeviceLocation = {
-  type: 'Point';
+  type: 'POINT';
   coordinates: [number, number];
 };
 
