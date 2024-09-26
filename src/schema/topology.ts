@@ -1034,8 +1034,6 @@ export const TopologyOfDevicesQuery = queryField('devicesTopology', {
   resolve: async (_, args, { topologyDiscoveryGraphQLAPI }) => {
     const topologyOfDevicesResult = await topologyDiscoveryGraphQLAPI?.getTopologyOfDevice(args.deviceName);
 
-    console.log(topologyOfDevicesResult);
-
     return topologyOfDevicesResult ?? { topologies: [] };
   },
 });
