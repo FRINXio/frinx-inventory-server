@@ -144,7 +144,7 @@ const GET_NET_TOPOLOGY_DEVICES = gql`
                     link
                     node {
                       id
-                      igp_metric
+                      igpMetric
                       netDevice {
                         id
                         routerId
