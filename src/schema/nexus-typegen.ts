@@ -809,6 +809,10 @@ export interface NexusGenObjects {
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
+  Topologies: {
+    // root type
+    topologies?: Array<NexusGenRootTypes['TopologyOfDevice'] | null> | null; // [TopologyOfDevice]
+  };
   Topology: {
     // root type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -817,6 +821,11 @@ export interface NexusGenObjects {
   TopologyCommonNodes: {
     // root type
     commonNodes: string[]; // [String!]!
+  };
+  TopologyOfDevice: {
+    // root type
+    deviceId: string; // String!
+    topologyId: string; // String!
   };
   Transaction: {
     // root type
@@ -1484,6 +1493,7 @@ export interface NexusGenFieldTypes {
     deviceMetadata: NexusGenRootTypes['DeviceMetadata'] | null; // DeviceMetadata
     deviceNeighbor: NexusGenRootTypes['DeviceNeighbors'] | null; // DeviceNeighbors
     devices: NexusGenRootTypes['DeviceConnection']; // DeviceConnection!
+    devicesTopology: NexusGenRootTypes['Topologies'] | null; // Topologies
     kafkaHealthCheck: NexusGenRootTypes['IsOkResponse'] | null; // IsOkResponse
     labels: NexusGenRootTypes['LabelConnection']; // LabelConnection!
     locations: NexusGenRootTypes['LocationConnection']; // LocationConnection!
@@ -1599,6 +1609,10 @@ export interface NexusGenFieldTypes {
     edges: NexusGenRootTypes['GraphVersionEdge'][]; // [GraphVersionEdge!]!
     nodes: NexusGenRootTypes['SynceGraphNode'][]; // [SynceGraphNode!]!
   };
+  Topologies: {
+    // field return type
+    topologies: Array<NexusGenRootTypes['TopologyOfDevice'] | null> | null; // [TopologyOfDevice]
+  };
   Topology: {
     // field return type
     edges: NexusGenRootTypes['GraphEdge'][]; // [GraphEdge!]!
@@ -1607,6 +1621,11 @@ export interface NexusGenFieldTypes {
   TopologyCommonNodes: {
     // field return type
     commonNodes: string[]; // [String!]!
+  };
+  TopologyOfDevice: {
+    // field return type
+    deviceId: string; // String!
+    topologyId: string; // String!
   };
   Transaction: {
     // field return type
@@ -2274,6 +2293,7 @@ export interface NexusGenFieldTypeNames {
     deviceMetadata: 'DeviceMetadata';
     deviceNeighbor: 'DeviceNeighbors';
     devices: 'DeviceConnection';
+    devicesTopology: 'Topologies';
     kafkaHealthCheck: 'IsOkResponse';
     labels: 'LabelConnection';
     locations: 'LocationConnection';
@@ -2389,6 +2409,10 @@ export interface NexusGenFieldTypeNames {
     edges: 'GraphVersionEdge';
     nodes: 'SynceGraphNode';
   };
+  Topologies: {
+    // field return type name
+    topologies: 'TopologyOfDevice';
+  };
   Topology: {
     // field return type name
     edges: 'GraphEdge';
@@ -2397,6 +2421,11 @@ export interface NexusGenFieldTypeNames {
   TopologyCommonNodes: {
     // field return type name
     commonNodes: 'String';
+  };
+  TopologyOfDevice: {
+    // field return type name
+    deviceId: 'String';
+    topologyId: 'String';
   };
   Transaction: {
     // field return type name
@@ -2688,6 +2717,10 @@ export interface NexusGenArgTypes {
       first?: number | null; // Int
       last?: number | null; // Int
       orderBy?: NexusGenInputs['DeviceOrderByInput'] | null; // DeviceOrderByInput
+    };
+    devicesTopology: {
+      // args
+      deviceName: string; // String!
     };
     labels: {
       // args
