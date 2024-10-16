@@ -80,7 +80,7 @@ async function getCreateDevicesArgs() {
       managementIp: ip_address,
       port: port_number,
       software: device_type,
-      softwareVersion: version,
+      version,
       mountParameters: JSON.parse(parsedTemplate(device)),
       source: 'IMPORTED',
     };

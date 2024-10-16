@@ -21,7 +21,6 @@ model device {
   deviceType      String?       @map("device_type")
   version         String?       @map("version")
   software        String?
-  softwareVersion String?       @map("sw_version")
   macAddress      String?       @map("mac_address")
   serialNumber    String?       @map("serial_number")
   vendor          String?

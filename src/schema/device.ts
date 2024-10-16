@@ -87,10 +87,6 @@ export const Device = objectType({
     t.string('vendor');
     t.string('version', {
       resolve: (root) => {
-        if (root.softwareVersion != null && root.softwareVersion.length > 0) {
-          return root.softwareVersion;
-        }
-
         if (root.version != null && root.version.length > 0) {
           return root.version;
         }
@@ -729,7 +725,7 @@ export const CSVImportMutation = extendType({
               managementIp: dev.ip_address,
               port: dev.port_number,
               software: dev.device_type,
-              softwareVersion: dev.version,
+              version: dev.version,
               mountParameters: JSON.parse(parsedTemplate(dev)),
             };
           }),
