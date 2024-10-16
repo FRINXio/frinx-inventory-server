@@ -91,10 +91,6 @@ export const Device = objectType({
           return root.softwareVersion;
         }
 
-        if (root.version != null && root.version.length > 0) {
-          return root.version;
-        }
-
         return null;
       },
     });
@@ -318,7 +314,7 @@ export const AddDeviceMutation = extendType({
               password: input.password,
               port: input.port ?? undefined,
               deviceType: input.deviceType,
-              version: input.version,
+              softwareVersion: input.version,
               locationId: input.locationId ? fromGraphId('Location', input.locationId) : undefined,
               mountParameters: input.mountParameters != null ? JSON.parse(input.mountParameters) : undefined,
               source: 'MANUAL',
@@ -441,7 +437,7 @@ export const UpdateDeviceMutation = extendType({
               managementIp: input.address,
               mountParameters: deviceMountParameters,
               deviceType: input.deviceType,
-              version: input.version,
+              softwareVersion: input.version,
               username: input.username,
               password: input.password,
               port: input.port,
