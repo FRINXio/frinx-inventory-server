@@ -123,7 +123,7 @@ export function encodeDeviceForInventoryKafka(
     blueprint_id: device.blueprintId,
     username: device.username,
     password: device.password,
-    version: device.version,
+    version: device.softwareVersion,
     // eslint-disable-next-line @typescript-eslint/naming-convention
     labels_ids: deviceLabelsIds,
     // eslint-disable-next-line @typescript-eslint/naming-convention
