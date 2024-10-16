@@ -85,7 +85,7 @@ async function getCreateDevicesArgs(): Promise<Prisma.deviceCreateManyArgs> {
       managementIp: ip_address,
       port: port_number,
       software: device_type,
-      softwareVersion: version,
+      version,
       mountParameters: JSON.parse(parsedTemplate(device)),
       source: 'IMPORTED' as const,
     };
