@@ -64,7 +64,7 @@
     "@types/graphql-upload": "15.0.2",
     "@types/json-templates": "3.0.0",
     "@types/lodash": "4.17.0",
-    "@types/node": "16.18.32",
+    "@types/node": "16.18.114",
     "@types/node-fetch": "2.6.4",
     "@types/pino": "7.0.4",
     "@types/ssh2": "^1.11.6",
